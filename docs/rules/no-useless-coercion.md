@@ -21,7 +21,7 @@ In modules, the `!!` check also recognizes short-circuit and conditional express
 
 The `!!` check skips files with `with` statements or direct `eval` calls because they can change how identifiers resolve or what values they hold.
 
-With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??`, `||`, and `await` on variables, property reads, and calls.
+With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??` and `||`. For `await`, it checks plain parameters with no default or reassignment, direct property reads, and calls.
 
 Without strict null checks, the rule uses the source annotations of directly typed bindings and properties to check for nullable booleans.
 

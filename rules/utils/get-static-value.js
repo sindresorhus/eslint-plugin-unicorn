@@ -304,11 +304,16 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
 };
 
-const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new Set()) => {
+const hasUnsafeBindingInEvaluatedPath = (node, context, evaluationScope, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'Identifier') {
 		const variable = findVariable(context.sourceCode.getScope(node), node);
+		// The evaluator reuses the original scope when it follows an initializer.
+		if (variable !== findVariable(evaluationScope, node)) {
+			return true;
+		}
+
 		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 		if (definition?.type !== 'Variable') {
 			return false;
@@ -327,13 +332,13 @@ const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new S
 		}
 
 		visitedVariables.add(variable);
-		const result = hasUnsafeBindingInEvaluatedPath(definition.node.init, context, visitedVariables);
+		const result = hasUnsafeBindingInEvaluatedPath(definition.node.init, context, evaluationScope, visitedVariables);
 		visitedVariables.delete(variable);
 		return result;
 	}
 
 	if (node.type === 'ConditionalExpression') {
-		if (hasUnsafeBindingInEvaluatedPath(node.test, context, visitedVariables)) {
+		if (hasUnsafeBindingInEvaluatedPath(node.test, context, evaluationScope, visitedVariables)) {
 			return true;
 		}
 
@@ -342,16 +347,17 @@ const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new S
 			return hasUnsafeBindingInEvaluatedPath(
 				staticValue.value ? node.consequent : node.alternate,
 				context,
+				evaluationScope,
 				visitedVariables,
 			);
 		}
 
-		return hasUnsafeBindingInEvaluatedPath(node.consequent, context, visitedVariables)
-			|| hasUnsafeBindingInEvaluatedPath(node.alternate, context, visitedVariables);
+		return hasUnsafeBindingInEvaluatedPath(node.consequent, context, evaluationScope, visitedVariables)
+			|| hasUnsafeBindingInEvaluatedPath(node.alternate, context, evaluationScope, visitedVariables);
 	}
 
 	if (node.type === 'LogicalExpression') {
-		if (hasUnsafeBindingInEvaluatedPath(node.left, context, visitedVariables)) {
+		if (hasUnsafeBindingInEvaluatedPath(node.left, context, evaluationScope, visitedVariables)) {
 			return true;
 		}
 
@@ -367,21 +373,21 @@ const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new S
 			}
 
 			return evaluatesRight
-				&& hasUnsafeBindingInEvaluatedPath(node.right, context, visitedVariables);
+				&& hasUnsafeBindingInEvaluatedPath(node.right, context, evaluationScope, visitedVariables);
 		}
 
-		return hasUnsafeBindingInEvaluatedPath(node.right, context, visitedVariables);
+		return hasUnsafeBindingInEvaluatedPath(node.right, context, evaluationScope, visitedVariables);
 	}
 
 	if (node.type === 'SequenceExpression') {
-		return node.expressions.some(expression => hasUnsafeBindingInEvaluatedPath(expression, context, visitedVariables));
+		return node.expressions.some(expression => hasUnsafeBindingInEvaluatedPath(expression, context, evaluationScope, visitedVariables));
 	}
 
 	if (unevaluatedExpressionTypes.has(node.type)) {
 		return false;
 	}
 
-	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasUnsafeBindingInEvaluatedPath(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasUnsafeBindingInEvaluatedPath(child, context, evaluationScope, visitedVariables));
 };
 
 const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {
@@ -413,7 +419,7 @@ const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables =
 // `getStaticValue` is not flow-sensitive, so reject mutable bindings and constant references before their declarations complete on any path that can be evaluated.
 export const getStaticValueForControlFlow = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffectsInternal(node, context);
-	return staticValue === undefined || hasUnsafeBindingInEvaluatedPath(node, context)
+	return staticValue === undefined || hasUnsafeBindingInEvaluatedPath(node, context, context.sourceCode.getScope(unwrapTypeScriptExpression(node)))
 		? undefined
 		: staticValue;
 };

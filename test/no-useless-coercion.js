@@ -1522,6 +1522,12 @@ test.snapshot({
 		'function read(value: boolean | "present" | undefined) { const change = () => { value = "present"; }; if (value === undefined) { change(); return !!(value || false); } }',
 		'async function read(promises: Promise<boolean>[]) { return !!(await promises[0]); } read([]);',
 		'async function read(promises: Record<string, Promise<boolean>>) { return !!(await promises.enabled); } read({});',
+		'async function read(promises: Promise<boolean>[]) { const pending = promises[0]; return !!(await pending); } read([]);',
+		'async function read(flags?: {pending: Promise<boolean>}) { const pending = flags?.pending!; return !!(await pending); } read();',
+		'async function read(promises: Promise<boolean>[]) { let pending = promises[0]; return !!(await pending); } read([]);',
+		'async function read([pending]: Promise<boolean>[]) { return !!(await pending); } read([]);',
+		'async function read(promises: Promise<boolean>[], pending = promises[0]) { return !!(await pending); } read([]);',
+		'async function read(promises: Promise<boolean>[], pending: Promise<boolean>) { pending = promises[0]; return !!(await pending); }',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
 		outdent`
 			function read(flags: {enabled: boolean; [key: string]: boolean}, key: 'enabled' | 'missing') {
@@ -1564,6 +1570,8 @@ test.snapshot({
 		'export function read() { const ready = !!(flag ? true : undefined); var flag = true; return ready; }',
 		'export function read() { const ready = !!(flag ?? 7); var flag = true; return ready; }',
 		'let flag = 1; eval("flag = 0"); export const ready = !!(flag && true);',
+		'const source = 0; const flag = source; export function read(value) { const source = 1; return !!(flag && /x/.test(value)); }',
+		'const source = 0; const flag = source; export function read() { const source = 1; return !!(flag ? true : undefined); }',
 		...[
 			'const enabled = 1; with ({enabled: 0}) { const ready = !!(enabled && /x/.test(value)); }',
 			'const enabled = 1; function read(value) { eval("var enabled = 0"); return !!(enabled && /x/.test(value)); }',

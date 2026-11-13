@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js';
 import {
 	isBoolean,
@@ -62,6 +63,26 @@ function getStaticallySelectedOperand(node, context) {
 	return selectsRight ? node.right : node.left;
 }
 
+function isAwaitingBoolean(node, context) {
+	const {argument} = node;
+	if (argument.type === 'Identifier') {
+		// Trust only direct parameters whose values come from the caller.
+		const variable = findVariable(context.sourceCode.getScope(argument), argument);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		if (
+			definition?.type !== 'Parameter'
+			|| !definition.node.params.includes(definition.name)
+			|| variable.references.some(reference => reference.isWrite())
+		) {
+			return false;
+		}
+	} else if (!['MemberExpression', 'CallExpression', 'NewExpression'].includes(argument.type)) {
+		return false;
+	}
+
+	return isBooleanTypeInformation(node, context);
+}
+
 function isBooleanDoubleNegationOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const initializer = getConstVariableInitializer(node, context);
@@ -90,11 +111,13 @@ function isBooleanDoubleNegationOperand(node, context) {
 		return false;
 	}
 
-	// Check the value produced by `await`, `??`, or `||`, since it can be boolean even when an input is not.
-	return (
-		(node.type === 'AwaitExpression' && ['Identifier', 'MemberExpression', 'CallExpression', 'NewExpression'].includes(node.argument.type))
-		|| (node.type === 'LogicalExpression' && node.operator !== '&&' && isBooleanDoubleNegationOperand(node.right, context))
-	) && isBooleanTypeInformation(node, context);
+	if (node.type === 'AwaitExpression') {
+		return isAwaitingBoolean(node, context);
+	}
+
+	return node.type === 'LogicalExpression' && node.operator !== '&&'
+		&& isBooleanDoubleNegationOperand(node.right, context)
+		&& isBooleanTypeInformation(node, context);
 }
 
 /**

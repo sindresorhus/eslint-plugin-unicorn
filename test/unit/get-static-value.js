@@ -104,6 +104,11 @@ test('does not use constants referenced before their declarations complete for c
 	}
 });
 
+test('rejects alias evaluation when the original scope shadows an initializer binding', t => {
+	const code = 'const source = 0; const alias = source; { const source = 1; const result = alias ? true : undefined; }';
+	t.assert.strictEqual(evaluate(code, getStaticValueForControlFlow), undefined);
+});
+
 test('ignores unsafe bindings in statically unreachable branches', t => {
 	for (const [code, expected] of [
 		['const condition = true; let value; const result = condition ? {} : value;', {}],
