@@ -17,7 +17,7 @@ It also flags the equivalent operator idioms when the value is already the targe
 
 The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also use inferred call results and recognize boolean results from `??`, `||`, and some `await` expressions. It can leave `!!` in place for imported bindings, unchecked array reads, and nested property reads.
 
-The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with `with` statements or direct `eval` calls.
+The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
 

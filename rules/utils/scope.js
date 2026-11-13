@@ -3,11 +3,10 @@ const isDefinitionBeforeReference = (definition, referenceNode, context) =>
 
 function isUnassignedParameter(variable) {
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	// In strict mode, `arguments` does not alias parameters.
 	return definition?.type === 'Parameter'
 		&& definition.node.params.includes(definition.name)
-		&& variable.references.every(reference => !reference.isWrite())
-		// In sloppy functions, writes through `arguments` can change the parameter.
-		&& (variable.scope.isStrict || !variable.scope.set.get('arguments')?.references.length);
+		&& variable.references.every(reference => !reference.isWrite());
 }
 
 export {

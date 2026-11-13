@@ -8,6 +8,7 @@ Keep rules simple. Target common patterns, skip rare edge cases rather than over
 
 These constructs are intentionally unsupported. Do not add machinery to handle them:
 
+- **Non-strict JavaScript**: Assume strict mode for new rule logic. ES modules are always strict.
 - **`Array` subclasses** — Receiver checks treat `new Foo()` as non-array, so `class Foo extends Array {}` is missed. Do not add class heritage resolution for this. (`Error` subclasses are different: `createTypeCheckers` resolves class heritage by default.)
 - **Shadowed built-ins** — Receiver checks may recognize built-ins by name without resolving scope. Do not add scope resolution for shadowed constructors.
 - **BigInt typed-array chains** — Only direct constructors, static `.from()`/`.of()`, and explicit types are recognized. Do not add flow analysis for method chains.

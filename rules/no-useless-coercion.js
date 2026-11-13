@@ -194,7 +194,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
-	const hasDynamicBindings = containsNode(sourceCode.ast, context, node => node.type === 'WithStatement' || isDirectEvalCall(node));
+	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
 	const getProblem = (node, expression, description, type) => ({
@@ -271,7 +271,7 @@ const create = context => {
 
 	// Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript.
 	context.on('UnaryExpression', (/** @type {ESTree.UnaryExpression} */ node) => {
-		if (hasDynamicBindings || node.operator !== '!') {
+		if (hasDirectEval || node.operator !== '!') {
 			return;
 		}
 

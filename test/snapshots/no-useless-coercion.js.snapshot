@@ -68,23 +68,6 @@ Suggestion 1/1: Remove the double negation.:
 
 `;
 
-exports[`no-useless-coercion > invalid(10): /** @param {boolean} enabled */ function read(enabled) { \"use strict\"; arguments[0] = 1; return !!enabled; } read(false); 1`] = `
-
-  1 | /** @param {boolean} enabled */ function read(enabled) { "use strict"; arguments[0] = 1; return !!enabled; } read(false);
-
-`;
-
-exports[`no-useless-coercion > invalid(10): /** @param {boolean} enabled */ function read(enabled) { \"use strict\"; arguments[0] = 1; return !!enabled; } read(false); 2`] = `
-
-Message:
-> 1 | /** @param {boolean} enabled */ function read(enabled) { "use strict"; arguments[0] = 1; return !!enabled; } read(false);
-    |                                                                                                 ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
-
-Suggestion 1/1: Remove the double negation.:
-  1 | /** @param {boolean} enabled */ function read(enabled) { "use strict"; arguments[0] = 1; return enabled; } read(false);
-
-`;
-
 exports[`no-useless-coercion > invalid(10): Number(parseInt(x, 10)) 1`] = `
 
   1 | Number(parseInt(x, 10))

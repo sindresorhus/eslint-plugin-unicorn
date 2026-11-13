@@ -1662,16 +1662,9 @@ test.snapshot({
 		'let enabled = 1; enabled = 0; const ready = !!(enabled && (a === b));',
 		'export function read() { const ready = !!(flag ? true : undefined); var flag = true; return ready; }',
 		'export function read() { const ready = !!(flag ?? 7); var flag = true; return ready; }',
-		'let flag = 1; eval("flag = 0"); export const ready = !!(flag && true);',
+		'/** @param {boolean} flag */ function read(flag) { eval("flag = 1"); return !!flag; } read(false);',
 		'const source = 0; const flag = source; export function read(value) { const source = 1; return !!(flag && /x/.test(value)); }',
 		'const source = 0; const flag = source; export function read() { const source = 1; return !!(flag ? true : undefined); }',
-		...[
-			'const enabled = 1; with ({enabled: 0}) { const ready = !!(enabled && /x/.test(value)); }',
-			'const enabled = 1; function read(value) { eval("var enabled = 0"); return !!(enabled && /x/.test(value)); }',
-			'const enabled = true; with ({enabled: 0}) { const ready = !!(null ?? enabled); }',
-			'const enabled = true; function read() { eval("var enabled = 0"); return !!(null ?? enabled); }',
-			'/** @param {boolean} enabled */ function read(enabled) { arguments[0] = 1; return !!enabled; } read(false);',
-		].map(code => ({code, languageOptions: {sourceType: 'script'}})),
 	],
 	invalid: [
 		'const enabled = 1; const ready = !!(enabled && /x/.test(value));',
@@ -1683,10 +1676,6 @@ test.snapshot({
 		'const ready = !!(true ? (0 || /x/.test(value)) : 1);',
 		'const ready = !!(false ?? read());',
 		'const ready = !!(false ? read() : /x/.test(value));',
-		{
-			code: '/** @param {boolean} enabled */ function read(enabled) { "use strict"; arguments[0] = 1; return !!enabled; } read(false);',
-			languageOptions: {sourceType: 'script'},
-		},
 	],
 });
 
