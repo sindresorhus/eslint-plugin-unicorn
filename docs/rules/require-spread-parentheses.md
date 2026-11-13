@@ -11,6 +11,8 @@
 
 Parentheses make it easier to see which expression a spread applies to. For example, `...enabled && overrides` spreads the result of the entire `enabled && overrides` expression.
 
+## Examples
+
 ```js
 // ❌
 const options = {...enabled && overrides};
