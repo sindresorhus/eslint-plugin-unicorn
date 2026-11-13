@@ -64,7 +64,7 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 	`export …` should be used in JavaScript modules.
 
-*`.cjs` files are ignored.*
+*This rule ignores `.cjs` and `.cts` files.*
 
 ## Examples
 

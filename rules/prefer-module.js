@@ -277,7 +277,7 @@ function fixModuleExports(node, context) {
 function create(context) {
 	const filename = context.filename.toLowerCase();
 
-	if (filename.endsWith('.cjs')) {
+	if (filename.endsWith('.cjs') || filename.endsWith('.cts')) {
 		return;
 	}
 

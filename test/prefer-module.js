@@ -309,7 +309,7 @@ test({
 	],
 });
 
-// `.cjs` file
+// CommonJS filenames
 test.snapshot({
 	valid: [
 		{
@@ -319,6 +319,16 @@ test.snapshot({
 		{
 			code: '__dirname',
 			filename: 'foo.cjS',
+		},
+		{
+			code: 'const foo: Foo = require("foo");',
+			filename: 'foo.cts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '__dirname',
+			filename: 'foo.ctS',
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 	invalid: [
