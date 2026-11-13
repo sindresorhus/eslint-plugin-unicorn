@@ -1,0 +1,358 @@
+exports[`require-spread-parentheses > invalid(1): const object = {a, ...x && y}; 1`] = `
+
+  1 | const object = {a, ...x && y};
+
+`;
+
+exports[`require-spread-parentheses > invalid(1): const object = {a, ...x && y}; 2`] = `
+
+Message:
+> 1 | const object = {a, ...x && y};
+    |                       ^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | const object = {a, ...(x && y)};
+
+`;
+
+exports[`require-spread-parentheses > invalid(10): fn(...args = load()); 1`] = `
+
+  1 | fn(...args = load());
+
+`;
+
+exports[`require-spread-parentheses > invalid(10): fn(...args = load()); 2`] = `
+
+Message:
+> 1 | fn(...args = load());
+    |       ^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(args = load()));
+
+`;
+
+exports[`require-spread-parentheses > invalid(11): fn(...args ??= fallback); 1`] = `
+
+  1 | fn(...args ??= fallback);
+
+`;
+
+exports[`require-spread-parentheses > invalid(11): fn(...args ??= fallback); 2`] = `
+
+Message:
+> 1 | fn(...args ??= fallback);
+    |       ^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(args ??= fallback));
+
+`;
+
+exports[`require-spread-parentheses > invalid(12): const letters = [...prefix + suffix as string]; 1`] = `
+
+  1 | const letters = [...prefix + suffix as string];
+
+`;
+
+exports[`require-spread-parentheses > invalid(12): const letters = [...prefix + suffix as string]; 2`] = `
+
+Message:
+> 1 | const letters = [...prefix + suffix as string];
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | const letters = [...(prefix + suffix as string)];
+
+`;
+
+exports[`require-spread-parentheses > invalid(13): fn(...source satisfies string[]); 1`] = `
+
+  1 | fn(...source satisfies string[]);
+
+`;
+
+exports[`require-spread-parentheses > invalid(13): fn(...source satisfies string[]); 2`] = `
+
+Message:
+> 1 | fn(...source satisfies string[]);
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(source satisfies string[]));
+
+`;
+
+exports[`require-spread-parentheses > invalid(14): const object = {...await load()}; 1`] = `
+
+  1 | const object = {...await load()};
+
+`;
+
+exports[`require-spread-parentheses > invalid(14): const object = {...await load()}; 2`] = `
+
+Message:
+> 1 | const object = {...await load()};
+    |                    ^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | const object = {...(await load())};
+
+`;
+
+exports[`require-spread-parentheses > invalid(15): function* collect() { return [...yield* source]; } 1`] = `
+
+  1 | function* collect() { return [...yield* source]; }
+
+`;
+
+exports[`require-spread-parentheses > invalid(15): function* collect() { return [...yield* source]; } 2`] = `
+
+Message:
+> 1 | function* collect() { return [...yield* source]; }
+    |                                  ^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | function* collect() { return [...(yield* source)]; }
+
+`;
+
+exports[`require-spread-parentheses > invalid(16): function* collect() { return fn(...yield); } 1`] = `
+
+  1 | function* collect() { return fn(...yield); }
+
+`;
+
+exports[`require-spread-parentheses > invalid(16): function* collect() { return fn(...yield); } 2`] = `
+
+Message:
+> 1 | function* collect() { return fn(...yield); }
+    |                                    ^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | function* collect() { return fn(...(yield)); }
+
+`;
+
+exports[`require-spread-parentheses > invalid(17): fn(...<string[]>source); 1`] = `
+
+  1 | fn(...<string[]>source);
+
+`;
+
+exports[`require-spread-parentheses > invalid(17): fn(...<string[]>source); 2`] = `
+
+Message:
+> 1 | fn(...<string[]>source);
+    |       ^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(<string[]>source));
+
+`;
+
+exports[`require-spread-parentheses > invalid(18): <Component {...record(), props} />; 1`] = `
+
+  1 | <Component {...record(), props} />;
+
+`;
+
+exports[`require-spread-parentheses > invalid(18): <Component {...record(), props} />; 2`] = `
+
+Message:
+> 1 | <Component {...record(), props} />;
+    |                ^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | <Component {...(record(), props)} />;
+
+`;
+
+exports[`require-spread-parentheses > invalid(19): <script setup>const items = [...primary ?? fallback];</script>\n<template><Component :items=\"[...primary ?? fallback]\" /></template> 1`] = `
+
+  1 | <script setup>const items = [...primary ?? fallback];</script>
+  2 | <template><Component :items="[...primary ?? fallback]" /></template>
+
+`;
+
+exports[`require-spread-parentheses > invalid(19): <script setup>const items = [...primary ?? fallback];</script>\n<template><Component :items=\"[...primary ?? fallback]\" /></template> 2`] = `
+
+Message:
+> 1 | <script setup>const items = [...primary ?? fallback];</script>
+    |                                 ^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+  2 | <template><Component :items="[...primary ?? fallback]" /></template>
+
+Output:
+  1 | <script setup>const items = [...(primary ?? fallback)];</script>
+  2 | <template><Component :items="[...primary ?? fallback]" /></template>
+
+`;
+
+exports[`require-spread-parentheses > invalid(19): <script setup>const items = [...primary ?? fallback];</script>\n<template><Component :items=\"[...primary ?? fallback]\" /></template> 3`] = `
+
+Message:
+  1 | <script setup>const items = [...primary ?? fallback];</script>
+> 2 | <template><Component :items="[...primary ?? fallback]" /></template>
+    |                                  ^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | <script setup>const items = [...primary ?? fallback];</script>
+  2 | <template><Component :items="[...(primary ?? fallback)]" /></template>
+
+`;
+
+exports[`require-spread-parentheses > invalid(2): const array = [a, ...x ? y : z]; 1`] = `
+
+  1 | const array = [a, ...x ? y : z];
+
+`;
+
+exports[`require-spread-parentheses > invalid(2): const array = [a, ...x ? y : z]; 2`] = `
+
+Message:
+> 1 | const array = [a, ...x ? y : z];
+    |                      ^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | const array = [a, ...(x ? y : z)];
+
+`;
+
+exports[`require-spread-parentheses > invalid(20): <template><Component v-bind=\"{...flag &amp;&amp; props}\" /></template> 1`] = `
+
+  1 | <template><Component v-bind="{...flag &amp;&amp; props}" /></template>
+
+`;
+
+exports[`require-spread-parentheses > invalid(20): <template><Component v-bind=\"{...flag &amp;&amp; props}\" /></template> 2`] = `
+
+Message:
+> 1 | <template><Component v-bind="{...flag &amp;&amp; props}" /></template>
+    |                                  ^^^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | <template><Component v-bind="{...(flag &amp;&amp; props)}" /></template>
+
+`;
+
+exports[`require-spread-parentheses > invalid(3): fn?.(...first ?? second); 1`] = `
+
+  1 | fn?.(...first ?? second);
+
+`;
+
+exports[`require-spread-parentheses > invalid(3): fn?.(...first ?? second); 2`] = `
+
+Message:
+> 1 | fn?.(...first ?? second);
+    |         ^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn?.(...(first ?? second));
+
+`;
+
+exports[`require-spread-parentheses > invalid(4): new Example(...first + second); 1`] = `
+
+  1 | new Example(...first + second);
+
+`;
+
+exports[`require-spread-parentheses > invalid(4): new Example(...first + second); 2`] = `
+
+Message:
+> 1 | new Example(...first + second);
+    |                ^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | new Example(...(first + second));
+
+`;
+
+exports[`require-spread-parentheses > invalid(5): fn(...(first) || (second)); 1`] = `
+
+  1 | fn(...(first) || (second));
+
+`;
+
+exports[`require-spread-parentheses > invalid(5): fn(...(first) || (second)); 2`] = `
+
+Message:
+> 1 | fn(...(first) || (second));
+    |       ^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...((first) || (second)));
+
+`;
+
+exports[`require-spread-parentheses > invalid(6): fn(...// choose\r\n  first ?? /* fallback */ second /* keep */); 1`] = `
+
+  1 | fn(...// choose
+  2 |   first ?? /* fallback */ second /* keep */);
+
+`;
+
+exports[`require-spread-parentheses > invalid(6): fn(...// choose\r\n  first ?? /* fallback */ second /* keep */); 2`] = `
+
+Message:
+  1 | fn(...// choose
+> 2 |   first ?? /* fallback */ second /* keep */);
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(// choose
+  2 |   first ?? /* fallback */ second) /* keep */);
+
+`;
+
+exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ /* keep */ first + second); 1`] = `
+
+  1 | fn(.../** @type {string} */ /* keep */ first + second);
+
+`;
+
+exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ /* keep */ first + second); 2`] = `
+
+Message:
+> 1 | fn(.../** @type {string} */ /* keep */ first + second);
+    |                                        ^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...(/** @type {string} */ /* keep */ first + second));
+
+`;
+
+exports[`require-spread-parentheses > invalid(8): <Component {...condition && props} />; 1`] = `
+
+  1 | <Component {...condition && props} />;
+
+`;
+
+exports[`require-spread-parentheses > invalid(8): <Component {...condition && props} />; 2`] = `
+
+Message:
+> 1 | <Component {...condition && props} />;
+    |                ^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | <Component {...(condition && props)} />;
+
+`;
+
+exports[`require-spread-parentheses > invalid(9): fn(...(first as string[]) ?? second!); 1`] = `
+
+  1 | fn(...(first as string[]) ?? second!);
+
+`;
+
+exports[`require-spread-parentheses > invalid(9): fn(...(first as string[]) ?? second!); 2`] = `
+
+Message:
+> 1 | fn(...(first as string[]) ?? second!);
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+
+Output:
+  1 | fn(...((first as string[]) ?? second!));
+
+`;
