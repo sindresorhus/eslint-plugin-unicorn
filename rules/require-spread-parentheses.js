@@ -63,7 +63,7 @@ const config = {
 		type: 'layout',
 		docs: {
 			description: 'Require parentheses around complex spread arguments.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [],
