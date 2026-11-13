@@ -1,5 +1,5 @@
 import {getParenthesizedText, isParenthesized} from '../utils/parentheses/parentheses.js';
-import {getOutermostTypeScriptExpression, shouldAddParenthesesToExpressionStart} from '../utils/index.js';
+import {canTokensBeAdjacent, getOutermostTypeScriptExpression, shouldAddParenthesesToExpressionStart} from '../utils/index.js';
 import needsSemicolon from '../utils/needs-semicolon.js';
 import isStrongPrecedenceNode from '../utils/is-strong-precedence-node.js';
 import shouldAddParenthesesToMemberExpressionObject from '../utils/should-add-parentheses-to-member-expression-object.js';
@@ -15,7 +15,7 @@ const isObjectOfMemberExpression = node =>
 /**
 Replace `node` with one of its inner `expression`s.
 
-Parentheses are added when `expression` does not bind tightly enough to keep its meaning in `node`'s position, and a leading semicolon is added when needed to avoid an automatic-semicolon-insertion hazard.
+Parentheses are added when `expression` needs them to keep its meaning in `node`'s position. A leading semicolon prevents automatic semicolon insertion hazards, and spaces keep adjacent punctuation from merging into a different token.
 
 No fix is returned for a `delete` operand, since exposing an inner reference can delete a property instead of evaluating its value.
 
@@ -44,8 +44,25 @@ export default function replaceNodeWithExpression(fixer, node, expression, conte
 		text = `(${text})`;
 	}
 
-	if (needsSemicolon(context.sourceCode.getTokenBefore(node), context, text)) {
+	const {sourceCode} = context;
+	const tokenBefore = sourceCode.getTokenBefore(node);
+	if (needsSemicolon(tokenBefore, context, text)) {
 		text = `;${text}`;
+	} else if (
+		tokenBefore?.type === 'Punctuator'
+		&& sourceCode.getRange(tokenBefore)[1] === sourceCode.getRange(node)[0]
+		&& !canTokensBeAdjacent(tokenBefore, text)
+	) {
+		text = ` ${text}`;
+	}
+
+	const tokenAfter = sourceCode.getTokenAfter(node);
+	if (
+		tokenAfter?.type === 'Punctuator'
+		&& sourceCode.getRange(tokenAfter)[0] === sourceCode.getRange(node)[1]
+		&& !canTokensBeAdjacent(text, tokenAfter)
+	) {
+		text += ' ';
 	}
 
 	return fixer.replaceText(node, text);

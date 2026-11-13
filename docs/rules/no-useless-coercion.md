@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,9 +13,11 @@ Calling `Boolean()`, `String()`, `Number()`, or `BigInt()` on a value that is al
 
 This includes redundant double coercion, like `String(String(value))`, and coercing an expression whose type is already known, like `Boolean(a === b)` or `Number(array.length)`.
 
-It also flags the equivalent operator idioms when the value is already the target type: `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
+It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The check is syntactic, so it catches the common cases without type information, and uses TypeScript type information when it is available.
+The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax and uses declared property types only when the receiver is a stable identifier. It skips ordinary calls to user functions.
+
+The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
 
@@ -65,6 +67,14 @@ const a = Boolean(1);
 const b = String(123);
 const c = Number('5');
 const d = BigInt(5);
+```
+
+```js
+// ❌
+const isEqual = !!(left === right);
+
+// ✅
+const isEqual = left === right;
 ```
 
 ```js

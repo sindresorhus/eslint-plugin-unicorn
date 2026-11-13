@@ -10,6 +10,7 @@ const typeParameterTypeFlag = 524_288; // TypeFlags.TypeParameter
 // `SymbolFlags` bit values from TypeScript.
 const constEnumSymbolFlag = 128; // SymbolFlags.ConstEnum
 const aliasSymbolFlag = 2_097_152; // SymbolFlags.Alias
+const optionalSymbolFlag = 16_777_216; // SymbolFlags.Optional
 
 // Test a single flag bit. Uses modulo rather than bitwise `&`, which truncates to 32 bits, to stay correct if the flags ever grow past that.
 const hasFlag = (flags, flag) => (flags % (flag * 2)) >= flag;
@@ -19,6 +20,8 @@ const typeHasFlag = (type, flag) => hasFlag(type.flags, flag);
 const isConstEnumSymbol = symbol => hasFlag(symbol.flags, constEnumSymbolFlag);
 
 const isAliasSymbol = symbol => hasFlag(symbol.flags, aliasSymbolFlag);
+
+const isOptionalSymbol = symbol => hasFlag(symbol.flags, optionalSymbolFlag);
 
 const isTemplateLiteralType = type => typeHasFlag(type, templateLiteralTypeFlag);
 
@@ -37,6 +40,11 @@ const isDefaultLibrarySymbol = (symbol, program) =>
 const isUnknownType = type => unknownTypeNames.has(type.intrinsicName);
 
 const isNullishType = type => nullishTypeNames.has(type.intrinsicName);
+
+function hasStrictNullChecks(program) {
+	const options = program?.getCompilerOptions();
+	return options?.strictNullChecks ?? options?.strict ?? false;
+}
 
 function getBaseTypes(type, checker) {
 	try {
@@ -76,10 +84,12 @@ function withTypeInformation(node, context, callback) {
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	hasStrictNullChecks,
 	isAliasSymbol,
 	isConstEnumSymbol,
 	isDefaultLibrarySymbol,
 	isNullishType,
+	isOptionalSymbol,
 	isStringMappingType,
 	isTemplateLiteralType,
 	isTypeParameterType,

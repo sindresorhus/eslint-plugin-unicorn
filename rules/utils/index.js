@@ -132,11 +132,15 @@ export {default as isNewExpressionWithParentheses} from './is-new-expression-wit
 export {default as isNumber, isKnownNonNumber} from './is-number.js';
 export {
 	default as isBoolean,
+	hasBooleanType,
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
-	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
+	isBooleanTypeInformation,
+	isBuiltinBooleanCallExpression,
+	isBuiltinBooleanPropertyRead,
+	isKnownBooleanFunctionReference,
 } from './is-boolean.js';
 export {default as isBigInt, isKnownNonBigInt} from './is-bigint.js';
 export {default as isConstEnumReference} from './is-const-enum-reference.js';
@@ -202,11 +206,14 @@ export {
 } from './imports.js';
 export {
 	isDefinitionBeforeReference,
+	isUnassignedParameter,
 } from './scope.js';
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	hasStrictNullChecks,
 	isAliasSymbol,
+	isOptionalSymbol,
 	isDefaultLibrarySymbol,
 	isNullishType,
 	isStringMappingType,

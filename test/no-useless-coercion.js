@@ -1,9 +1,11 @@
 import {atob, btoa} from 'node:buffer';
 import {stripTypeScriptTypes} from 'node:module';
+import path from 'node:path';
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import typescript from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -1211,11 +1213,11 @@ test.snapshot({
 		// Operator idioms we intentionally do not flag
 		'~~x', // `~~` truncates, so it is never a no-op
 		'~~5',
-		'!!x', // Covered by ESLint's `no-extra-boolean-cast`
-		'!!true',
 		'-5', // Negation is not a coercion
 
 		// Operator idioms on values that are not already the target type
+		'!!x', // The type of `x` is unknown.
+		'!!1',
 		'x + \'\'',
 		'5 + \'\'',
 		'\'\' + 5',
@@ -1374,6 +1376,388 @@ test.snapshot({
 				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 			},
 		},
+		'Boolean(({enabled: true})?.enabled)',
+	],
+});
+
+test.snapshot({
+	valid: [
+		{
+			code: 'async function ready(pending?: Promise<boolean>) { return !!(await pending); }',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+		},
+		...[
+			'function read(flags: {enabled?: boolean}) { return !!flags.enabled; } read({});',
+			'function read(enabled?: boolean) { return !!enabled; } read();',
+			'function read(enabled: boolean | undefined) { return !!enabled; } read(undefined);',
+			'type MaybeBoolean = boolean | null; function read(enabled: MaybeBoolean) { return !!enabled; } read(null);',
+			'function read(flags: {enabled: boolean | undefined}) { return !!flags.enabled; } read({enabled: undefined});',
+			'function read(): boolean | undefined { return undefined; } const enabled = !!read();',
+			'function read(): boolean | undefined { return undefined; } function wrapper() { return read(); } const enabled = !!wrapper();',
+		].map(code => ({
+			code,
+			filename: 'test/fixtures/prefer-path2d/dummy.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {project: 'test/fixtures/prefer-path2d/tsconfig.json'},
+			},
+		})),
+		'function read(globalThis) { return !!globalThis.Boolean(value); }',
+		outdent`
+			const method = 'toString';
+			const alias = method;
+			function read() {
+				const method = 'test';
+				return !!/x/[alias]('x');
+			}
+		`,
+		'const ready = !!(async () => true)();',
+		'const ready = !!(function* () { return true; })();',
+		{
+			code: 'const ready = !!(function (): boolean { return undefined; })();',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{code: '!!true', languageOptions: {sourceType: 'script'}},
+		'const equal = !!(a === b);',
+		'function isPositive(x) { return!!(x > 0); }',
+		'foo(!!(key in object));',
+		'const equal = !/* keep */ !(a === b);',
+		'const equal = !!(a /* keep */ === b);',
+		'/** @type {true} */ const enabled = true; let flag = !!enabled; flag = false;',
+		{
+			code: 'declare const enabled: true; let flag = !!enabled; flag = false;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'declare const flags: {enabled: boolean}; const enabled = !!flags.enabled;',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+		},
+		'foo\n!!(a === b);',
+		'const ready = !!globalThis.Boolean(value);',
+		'const finite = !!globalThis["isFinite"](value);',
+		'const ready = !!(() => /x/.test(value))();',
+		'const ready = !!(function () { return /x/.test(value); })();',
+		...[
+			'function read(flag: boolean) { return !(!flag satisfies boolean); }',
+			'function read(flag: boolean) { return !(!flag /* keep */ as boolean); }',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'const read = value => /x/.test(value); const ready = !!read(value);',
+		'const ready = !!Object.freeze(true);',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const quotient = 8/!!/x/.test(value);',
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'const quotient = 8/ /x/.test(value);',
+				}],
+			}],
+		},
+		{
+			code: 'function read(flag: boolean) { return !(!flag!)==true; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'function read(flag: boolean) { return flag! ==true; }',
+				}],
+			}],
+		},
+	],
+});
+
+nodeTest('nullable JSDoc boolean parameters still need coercion with strict null checks disabled', t => {
+	const code = outdent`
+		/** @param {boolean} [enabled] */
+		function readOptional(enabled) { return !!enabled; }
+		readOptional();
+		/** @param {boolean | undefined} enabled */
+		function readNullable(enabled) { return !!enabled; }
+		readNullable(undefined);
+	`;
+	const filename = path.resolve('file.js').replaceAll('\\', '/');
+	const options = {
+		allowJs: true, checkJs: true, strictNullChecks: false, noEmit: true, types: [],
+	};
+	const host = typescript.createCompilerHost(options);
+	const getSourceFile = host.getSourceFile.bind(host);
+	host.getSourceFile = (file, languageVersion, onError) => file === filename
+		? typescript.createSourceFile(file, code, languageVersion, true)
+		: getSourceFile(file, languageVersion, onError);
+	const program = typescript.createProgram([filename], options, host);
+	const messages = linter.verify(code, {
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {programs: [program]},
+		},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	}, {filename});
+	t.assert.deepStrictEqual(messages, []);
+});
+
+const typeAwareBooleanCoercion = code => ({
+	code,
+	filename: 'test/fixtures/prefer-regexp-test/index.ts',
+	languageOptions: {
+		parser: parsers.typescript,
+		parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
+	},
+});
+
+test.snapshot({
+	valid: [
+		'async function ready(pending: Promise<boolean | undefined>) { return !!(await pending); }',
+		'declare const flags: {enabled: boolean} | undefined; const ready = !!flags?.enabled!;',
+		'declare const flags: {enabled: boolean} | undefined; const ready = !!(flags?.enabled as boolean);',
+		'async function ready(flags?: {pending: Promise<boolean>}) { return !!(await flags?.pending!); }',
+		'async function ready(flags?: {pending: Promise<boolean>}) { return !!((await flags?.pending) as boolean); }',
+		'async function ready(pending?: Promise<boolean>) { return !!(await pending!); }',
+		'declare const enabled: boolean | undefined; const ready = !!(enabled ?? undefined);',
+		'declare const enabled: boolean | string; const ready = !!(enabled || false);',
+		'async function isReady(pending: Promise<true>): Promise<boolean> { let ready = Boolean(await pending); ready = false; return ready; }',
+		'function* read(): Generator<number, boolean, boolean> { return !!(yield 1); } const iterator = read(); iterator.next(); iterator.next();',
+		'function* read(): Generator<number, boolean, boolean> { const enabled = yield 1; return !!enabled; }',
+		'function* read(): Generator<number, boolean, boolean> { return Boolean(yield 1); }',
+		'function* source(): Generator<number, boolean> { yield 1; return false; } function* read() { return !!(yield* source()); }',
+		outdent`
+			function* read() {
+				let get: (() => Generator<never, boolean>) | (() => Generator<never, string>) = function* () { return true; };
+				const update = () => { get = function* () { return 'ready'; }; };
+				update();
+				return !!(yield* get());
+			}
+			read().next();
+		`,
+		'function read(flags: boolean[]) { return !!flags[0]; } read([]);',
+		'function read(flags: boolean[]) { const enabled = flags[0]; return !!enabled; } read([]);',
+		'function read(flags: boolean[]) { let enabled = flags[0]; return !!enabled; } read([]);',
+		'function read(flags: boolean[]) { const [enabled] = flags; return !!enabled; } read([]);',
+		'function read([enabled]: boolean[]) { return !!enabled; } read([]);',
+		'function read(flags: boolean[], enabled = flags[0]) { return !!enabled; } read([]);',
+		'function read(flags: boolean[], pick: boolean) { const [enabled] = flags; return !!(pick ? enabled : false); } read([], true);',
+		'function read(flags: boolean[]) { let enabled = flags[0]; return !!(enabled ?? enabled); } read([]);',
+		'function read(flags: boolean[]) { function get() { return !!enabled; } const enabled = flags[0]; return get(); } read([]);',
+		'function read(flags: Record<string, boolean>) { return !!flags.enabled; } read({});',
+		'interface Flags { [key: string]: boolean } function read(flags: Flags) { return !!flags.enabled; } read({});',
+		'function read(flags: {enabled: boolean} | Record<string, boolean>) { return !!flags.enabled; } read({});',
+		'function read(enabled: boolean | undefined, flags: boolean[]) { return !!(enabled ?? flags[0]); } read(undefined, []);',
+		'function read(value: false | "") { const change = () => { value = ""; }; if (value === false) { change(); return !!(value ?? false); } }',
+		'function read(value: boolean | "present" | undefined) { const change = () => { value = "present"; }; if (value === undefined) { change(); return !!(value || false); } }',
+		'async function read(promises: Promise<boolean>[]) { return !!(await promises[0]); } read([]);',
+		'async function read(promises: Record<string, Promise<boolean>>) { return !!(await promises.enabled); } read({});',
+		'function read(flags: {enabled?: boolean}) { if (flags.enabled !== undefined) { return !!flags.enabled; } }',
+		'function read(flags: {enabled?: boolean}) { return !!(flags.enabled! ?? undefined); } read({});',
+		outdent`
+			class Flags {
+				enabled: boolean | string = true;
+				isReady(): this is this & {enabled: boolean} {
+					return typeof this.enabled === 'boolean';
+				}
+				change() {
+					this.enabled = 'ready';
+				}
+				read() {
+					if (this.isReady()) {
+						this.change();
+						return [!!this.enabled, !!(this.enabled || false)];
+					}
+				}
+			}
+			new Flags().read();
+		`,
+		outdent`
+			type Flags = {kind: 'boolean'; enabled: boolean} | {kind: 'string'; enabled: string};
+			function read(box: {flags: Flags}) {
+				const update = () => { box.flags = {kind: 'string', enabled: 'ready'}; };
+				if (box.flags.kind === 'boolean') {
+					update();
+					return !!box.flags.enabled;
+				}
+			}
+			read({flags: {kind: 'boolean', enabled: true}});
+		`,
+		outdent`
+			type Flags = {kind: 'boolean'; enabled: boolean} | {kind: 'string'; enabled: string};
+			function read(flags: Flags) {
+				const update = () => { flags = {kind: 'string', enabled: 'ready'}; };
+				if (flags.kind === 'boolean') {
+					update();
+					return !!flags.enabled;
+				}
+			}
+			read({kind: 'boolean', enabled: true});
+		`,
+		outdent`
+			function read(flags: {enabled?: boolean}) {
+				const clear = () => { delete flags.enabled; };
+				if (flags.enabled !== undefined) {
+					clear();
+					return !!flags.enabled;
+				}
+			}
+			read({enabled: true});
+		`,
+		outdent`
+			function read(flags: {enabled: boolean | string}) {
+				const update = () => { flags.enabled = 'ready'; };
+				if (typeof flags.enabled === 'boolean') {
+					update();
+					return [!!flags.enabled, !!(flags.enabled || false)];
+				}
+			}
+			read({enabled: true});
+		`,
+		outdent`
+			async function read(flags: {ready: Promise<boolean> | string}) {
+				const update = () => { flags.ready = 'ready'; };
+				if (typeof flags.ready !== 'string') {
+					update();
+					return !!(await flags.ready);
+				}
+			}
+			read({ready: Promise.resolve(true)});
+		`,
+		'async function read(promises: Promise<boolean>[]) { const pending = promises[0]; return !!(await pending); } read([]);',
+		'async function read(flags?: {pending: Promise<boolean>}) { const pending = flags?.pending!; return !!(await pending); } read();',
+		'async function read(promises: Promise<boolean>[]) { let pending = promises[0]; return !!(await pending); } read([]);',
+		'async function read([pending]: Promise<boolean>[]) { return !!(await pending); } read([]);',
+		'async function read(promises: Promise<boolean>[], pending = promises[0]) { return !!(await pending); } read([]);',
+		'async function read(promises: Promise<boolean>[], pending: Promise<boolean>) { pending = promises[0]; return !!(await pending); }',
+		outdent`
+			function read() {
+				let get: (() => boolean) | (() => string) = () => true;
+				function change() {
+					get = () => 'ready';
+				}
+				change();
+				return !!get();
+			}
+			read();
+		`,
+		'function first(flags: boolean[]) { return flags[0]; } const enabled = !!first([]);',
+		outdent`
+			function read() {
+				let tag: ((text: TemplateStringsArray) => boolean) | ((text: TemplateStringsArray) => string) = () => true;
+				const update = () => { tag = () => 'ready'; };
+				update();
+				return !!tag\`value\`;
+			}
+			read();
+		`,
+		outdent`
+			function read() {
+				let get: (() => {enabled: boolean}) | (() => {enabled: string}) = () => ({enabled: true});
+				const update = () => { get = () => ({enabled: 'ready'}); };
+				update();
+				return !!get().enabled;
+			}
+			read();
+		`,
+		outdent`
+			function read() {
+				let items: number[] | {includes(value: number): string} = [1];
+				const update = () => { items = {includes: () => 'ready'}; };
+				update();
+				return !!items.includes(1);
+			}
+			read();
+		`,
+		outdent`
+			function read() {
+				let pattern: RegExp | {global: string} = /x/g;
+				const update = () => { pattern = {global: 'ready'}; };
+				update();
+				return !!pattern.global;
+			}
+			read();
+		`,
+		'declare const service: {ready(): Promise<boolean>}; async function read() { return !!(await service.ready()); }',
+		'declare const Factory: new () => Promise<boolean>; async function read() { return !!(await new Factory()); }',
+		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
+		'function read(flags: {enabled: boolean}, keys: "enabled"[]) { const key = keys[0]; return !!flags[key]; } read({enabled: true}, []);',
+		outdent`
+			import {enabled, reset} from '../no-useless-coercion/state.js';
+			function read() {
+				if (enabled !== undefined) {
+					reset();
+					return !!enabled;
+				}
+			}
+			read();
+		`,
+		outdent`
+			function read(flags: {enabled: boolean; [key: string]: boolean}, key: 'enabled' | 'missing') {
+				function change() {
+					key = 'missing';
+				}
+				if (key === 'enabled') {
+					change();
+					return !!flags[key];
+				}
+			}
+			read({enabled: true}, 'enabled');
+		`,
+	].map(code => typeAwareBooleanCoercion(code)),
+	invalid: [
+		'async function ready(pending: Promise<boolean>) { return !!(await pending); }',
+		'declare const enabled: boolean | undefined; const ready = !!(enabled ?? false);',
+		'declare const flags: {enabled: boolean} | undefined; const ready = !!(flags?.enabled || false);',
+		'declare const flags: [boolean]; const enabled = !!flags[0];',
+		'function read(value: unknown) { return !!Array.isArray(value); }',
+		'declare const service: {ready: Promise<boolean>}; async function read() { return !!(await service.ready); }',
+		'function read(flags: {enabled: boolean}) { return !!flags.enabled; }',
+		'declare const flags: {enabled: true} | {enabled: false}; const enabled = !!flags.enabled;',
+		'class Flags { #enabled = true; read(): boolean { return Boolean(this.#enabled); } }',
+		'const key = "enabled"; function read(flags: {enabled: boolean}): boolean { return Boolean(flags[key]); }',
+		'function read(flags: {enabled?: boolean}) { return !!(flags.enabled ?? false); }',
+		'async function read(pending: Promise<boolean>) { const enabled = await pending; return !!enabled; }',
+		'function read(flags: {draft: boolean; published: boolean}, key: keyof typeof flags): boolean { return Boolean(flags[key]); }',
+		'function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }',
+		'function read(enabled?: boolean) { if (enabled !== undefined) { return !!enabled; } }',
+		'const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, !!({enabled: true}).enabled];',
+	].map(code => typeAwareBooleanCoercion(code)),
+});
+
+test.snapshot({
+	valid: [
+		'const ready = !!(0 && (a === b));',
+		'const ready = !!(0 ?? (a === b));',
+		'const ready = !!(enabled ? (a === b) : 1);',
+		'let enabled = 1; enabled = 0; const ready = !!(enabled && (a === b));',
+		'export function read() { const ready = !!(flag ? true : undefined); var flag = true; return ready; }',
+		'export function read() { const ready = !!(flag ?? 7); var flag = true; return ready; }',
+		'/** @param {boolean} flag */ function read(flag) { eval("flag = 1"); return !!flag; } read(false);',
+		'const source = 0; const flag = source; export function read(value) { const source = 1; return !!(flag && /x/.test(value)); }',
+		'const source = 0; const flag = source; export function read() { const source = 1; return !!(flag ? true : undefined); }',
+	],
+	invalid: [
+		'const enabled = 1; const ready = !!(enabled && /x/.test(value));',
+		'const ready = !!(0 || /x/.test(value));',
+		'const ready = !!(null ?? /x/.test(value));',
+		'const ready = !!(true ? /x/.test(value) : read());',
+		'const ready = !!(false && read());',
+		'const ready = !!(true || read());',
+		'const ready = !!(true ? (0 || /x/.test(value)) : 1);',
+		'const ready = !!(false ?? read());',
+		'const ready = !!(false ? read() : /x/.test(value));',
 	],
 });
 

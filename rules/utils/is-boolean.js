@@ -1,7 +1,10 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import typedArray from '../shared/typed-array.js';
+import getConstVariableInitializer from './get-const-variable-initializer.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
-import {withTypeInformation} from './types.js';
+import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
+import {isUnassignedParameter} from './scope.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
@@ -10,7 +13,7 @@ import {
 	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 } from './type-helpers.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
 
@@ -28,7 +31,7 @@ const booleanBinaryOperators = new Set([
 ]);
 
 const booleanTypeStrings = new Set(['boolean', 'true', 'false']);
-const booleanGlobalFunctions = new Set(['isFinite', 'isNaN']);
+const booleanGlobalFunctions = new Set(['Boolean', 'isFinite', 'isNaN']);
 const nullishTypeAnnotationTypes = new Set([
 	'TSNullKeyword',
 	'TSUndefinedKeyword',
@@ -98,7 +101,7 @@ const isBooleanStaticValue = (node, context) => {
 	}
 
 	return !nonBooleanStaticValueTypes.has(node.type)
-		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean'
+		&& typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
 		&& !hasJSDocumentTypeReference(node, context);
 };
 
@@ -123,9 +126,133 @@ const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
 	isTargetType: isBooleanTypeScriptType,
 });
 
-function isBooleanTypeInformation(node, context) {
+function getStablePropertyName(node, context) {
+	if (!node.computed) {
+		return getPropertyName(node) ?? undefined;
+	}
+
+	const value = getStaticValueForControlFlow(node.property, context)?.value;
+	if (typeof value === 'string' || typeof value === 'number') {
+		return String(value);
+	}
+}
+
+function getTypeScriptPropertyNames(node, context, checker, strictNullChecks) {
+	const {sourceCode} = context;
+	const name = getStablePropertyName(node, context);
+	if (name !== undefined) {
+		return [name];
+	}
+
+	if (!strictNullChecks || node.property.type !== 'Identifier') {
+		return;
+	}
+
+	// Use the type only for keys supplied by the caller. An unchecked read can infer a literal key type.
+	const variable = findVariable(sourceCode.getScope(node.property), node.property);
+	if (!isUnassignedParameter(variable)) {
+		return;
+	}
+
+	const key = checker.getSymbolAtLocation(sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.property));
+	if (!key) {
+		return;
+	}
+
+	const keyType = checker.getTypeOfSymbol(key);
+	const keyTypes = keyType.isUnion() ? keyType.types : [keyType];
+	if (keyTypes.every(type => type.isStringLiteral() || type.isNumberLiteral())) {
+		return keyTypes.map(type => String(type.value));
+	}
+}
+
+function hasBooleanPropertyType(expression, operand, context, {checker, program}) {
+	const {sourceCode} = context;
+	const strictNullChecks = hasStrictNullChecks(program);
+	const hasFallback = expression.type === 'LogicalExpression';
+	const isKnownProperty = property => {
+		if (!property || (!hasFallback && isOptionalSymbol(property))) {
+			return false;
+		}
+
+		if (strictNullChecks) {
+			// A call can change a property without invalidating TypeScript's narrowing at the read.
+			let type = checker.getTypeOfSymbol(property);
+			if (expression.type === 'AwaitExpression') {
+				type = checker.getAwaitedType(type);
+			} else if (hasFallback) {
+				type = checker.getNonNullableType(type);
+			}
+
+			return type !== undefined && isBooleanTypeScriptType(type, checker);
+		}
+
+		// Without strict null checks, only the source annotation distinguishes `boolean` from `boolean | undefined`.
+		const annotation = sourceCode.parserServices.tsNodeToESTreeNodeMap.get(property.valueDeclaration?.type);
+		return Boolean(annotation)
+			&& isBooleanTypeAnnotation(annotation, context, sourceCode.getScope(annotation));
+	};
+
+	if (operand.property.type === 'PrivateIdentifier') {
+		const property = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(operand.property);
+		return isKnownProperty(checker.getSymbolAtLocation(property));
+	}
+
+	const names = getTypeScriptPropertyNames(operand, context, checker, strictNullChecks);
+	if (!names) {
+		return false;
+	}
+
+	// An unchecked index signature can describe a property that is missing at runtime.
+	const {getTypeAtLocation, esTreeNodeToTSNodeMap} = sourceCode.parserServices;
+	const receiver = unwrapTypeScriptExpression(operand.object);
+	// TypeScript can keep a nested receiver narrowed after a call changes it.
+	if (receiver.type === 'MemberExpression' || receiver.type === 'ChainExpression') {
+		return false;
+	}
+
+	const symbol = receiver.type === 'Identifier' ? checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(receiver)) : undefined;
+	let receiverType = symbol ? checker.getTypeOfSymbol(symbol) : getTypeAtLocation(receiver);
+	if (hasFallback) {
+		receiverType = checker.getNonNullableType(receiverType);
+	}
+
+	receiverType = checker.getApparentType(receiverType);
+	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
+	return receiverTypes.every(type => names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
+}
+
+// The checker can assign a boolean type even when an unchecked read may return `undefined`.
+function hasBooleanType(node, context) {
 	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
 		&& !isKnownNonBoolean(node, context);
+}
+
+function isBooleanTypeInformation(node, context) {
+	const {sourceCode} = context;
+	if (!hasBooleanType(node, context)) {
+		return false;
+	}
+
+	const operand = node.type === 'AwaitExpression' ? node.argument : node;
+	const binding = operand.type === 'LogicalExpression' ? unwrapChainAndTypeScriptExpression(operand.left) : operand;
+	if (binding.type === 'Identifier') {
+		const variable = findVariable(sourceCode.getScope(binding), binding);
+		// TypeScript can retain a narrowed type across a call that writes to the binding.
+		if (variable?.references.some(reference => reference.isWrite() && reference.from.variableScope !== variable.scope.variableScope)) {
+			return false;
+		}
+
+		if (binding === operand && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
+			const annotation = getJSDocumentTypeAnnotation(binding, context);
+			// Loose checker types can erase nullability from explicit annotations.
+			return !variable?.defs.some(({name}) => name.optional || hasNullishTypeAnnotation(name.typeAnnotation, context))
+				&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
+		}
+	}
+
+	return binding.type !== 'MemberExpression'
+		|| (withTypeInformation(binding, context, typeInformation => hasBooleanPropertyType(node, binding, context, typeInformation)) ?? false);
 }
 
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
@@ -244,6 +371,38 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferences = n
 
 		default: {
 			return false;
+		}
+	}
+}
+
+function hasNullishTypeAnnotation(node, context, visitedTypeReferences = new Set()) {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return hasNullishTypeAnnotation(node.typeAnnotation, context, visitedTypeReferences);
+		}
+
+		case 'TSUnionType': {
+			return node.types.some(type => hasNullishTypeAnnotation(type, context, visitedTypeReferences));
+		}
+
+		case 'TSTypeReference': {
+			return isTypeReference({
+				node,
+				context,
+				scope: context.sourceCode.getScope(node),
+				visitedTypeReferences,
+				predicate: definition => definition.type === 'TSTypeAliasDeclaration'
+					&& hasNullishTypeAnnotation(definition.typeAnnotation, context, visitedTypeReferences),
+			});
+		}
+
+		case 'TSLiteralType': {
+			return node.literal.type === 'Literal' && node.literal.value === null;
+		}
+
+		default: {
+			return nullishTypeAnnotationTypes.has(node?.type) || node?.type === 'TSVoidKeyword';
 		}
 	}
 }
@@ -480,6 +639,10 @@ function getKnownConstructorExpressionKind(node, context) {
 		return 'regexp';
 	}
 
+	if (node.callee.name === 'Array' || typedArray.includes(node.callee.name)) {
+		return 'array';
+	}
+
 	if (['Map', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'].includes(node.callee.name)) {
 		return 'keyedCollection';
 	}
@@ -490,6 +653,30 @@ function getKnownConstructorExpressionKind(node, context) {
 
 	if (node.callee.name === 'WeakSet') {
 		return 'weakSet';
+	}
+}
+
+// Use runtime syntax for new checks, since TypeScript can keep a receiver narrowed after it changes.
+function getDirectBuiltinReceiver(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	if (!node) {
+		return;
+	}
+
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer) {
+		const {sourceCode} = context;
+		return sourceCode.getRange(initializer)[1] <= sourceCode.getRange(node)[0]
+			? getDirectBuiltinReceiver(initializer, context)
+			: undefined;
+	}
+
+	if (
+		['ArrayExpression', 'TemplateLiteral'].includes(node.type)
+		|| (node.type === 'Literal' && getKnownLiteralExpressionKind(node))
+		|| (node.type === 'NewExpression' && getKnownConstructorExpressionKind(node, context))
+	) {
+		return node;
 	}
 }
 
@@ -562,7 +749,11 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 
 function isBooleanWrappedExpression(node, context, visitedVariables) {
 	switch (node.type) {
-		// A `yield` expression evaluates to the value sent back into the generator via `.next()`, not the yielded argument, so its type is unknown.
+		case 'YieldExpression': {
+			// Plain `yield` receives the argument to `.next()`, which can be omitted. `yield*` returns the delegate's completion value.
+			return node.delegate ? undefined : false;
+		}
+
 		case 'AwaitExpression':
 		case 'TSNonNullExpression':
 		case 'ParenthesizedExpression': {
@@ -583,26 +774,9 @@ function isBooleanWrappedExpression(node, context, visitedVariables) {
 	}
 }
 
-function isKnownBooleanStaticMethodCall(node, context) {
-	if (
-		node.callee.type !== 'MemberExpression'
-		|| node.callee.object.type !== 'Identifier'
-		|| !context.sourceCode.isGlobalReference(node.callee.object)
-	) {
-		return false;
-	}
-
-	const methods = booleanStaticMethods.get(node.callee.object.name);
-	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
-	return Boolean(methods?.has(method));
-}
-
 function isKnownBooleanFunctionReference(node, context) {
 	if (node.type === 'Identifier') {
-		return (
-			(node.name === 'Boolean' || booleanGlobalFunctions.has(node.name))
-			&& context.sourceCode.isGlobalReference(node)
-		);
+		return booleanGlobalFunctions.has(node.name) && context.sourceCode.isGlobalReference(node);
 	}
 
 	if (
@@ -614,60 +788,46 @@ function isKnownBooleanFunctionReference(node, context) {
 		return false;
 	}
 
-	const methods = booleanStaticMethods.get(node.object.name);
-	const method = getPropertyName(node, context.sourceCode.getScope(node));
+	const methods = node.object.name === 'globalThis' ? booleanGlobalFunctions : booleanStaticMethods.get(node.object.name);
+	const method = getStablePropertyName(node, context);
 	return Boolean(methods?.has(method));
 }
 
-function isKnownBooleanInstanceMethodCall(node, context) {
-	if (node.callee.type !== 'MemberExpression') {
+function isKnownBooleanInstanceMethodCall(callee, receiver, context) {
+	if (callee.type !== 'MemberExpression' || !receiver) {
 		return false;
 	}
 
-	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
+	const method = getStablePropertyName(callee, context);
 	if (method === 'delete') {
-		return isMutableKeyedCollection(node.callee.object, context);
+		return isMutableKeyedCollection(receiver, context);
 	}
 
-	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
+	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(receiver, context));
 	return Boolean(methods?.has(method));
 }
 
-function isKnownBooleanPropertyRead(node, context) {
+function isKnownBooleanPropertyRead(node, receiver, context) {
 	if (
 		node.type !== 'MemberExpression'
 		|| node.optional
+		|| !receiver
 	) {
 		return false;
 	}
 
-	const properties = booleanPropertiesByExpressionKind.get(getKnownExpressionKind(node.object, context));
-	const property = getPropertyName(node, context.sourceCode.getScope(node));
+	const properties = booleanPropertiesByExpressionKind.get(getKnownExpressionKind(receiver, context));
+	const property = getStablePropertyName(node, context);
 	return Boolean(properties?.has(property));
 }
 
-function isBooleanCallExpression(node, context, visitedVariables) {
-	if (
-		isKnownBooleanStaticMethodCall(node, context)
-		|| isKnownBooleanInstanceMethodCall(node, context)
-	) {
-		return true;
-	}
+function isBuiltinBooleanCallExpression(node, context) {
+	return isKnownBooleanFunctionReference(node.callee, context)
+		|| isKnownBooleanInstanceMethodCall(node.callee, getDirectBuiltinReceiver(node.callee.object, context), context);
+}
 
-	if (node.callee.type !== 'Identifier') {
-		return isBooleanTypeInformation(node, context);
-	}
-
-	if (node.callee.name === 'Boolean' && context.sourceCode.isGlobalReference(node.callee)) {
-		return true;
-	}
-
-	if (booleanGlobalFunctions.has(node.callee.name) && context.sourceCode.isGlobalReference(node.callee)) {
-		return true;
-	}
-
-	return isBooleanFunctionReference(node.callee, context, visitedVariables)
-		|| isBooleanTypeInformation(node, context);
+function isBuiltinBooleanPropertyRead(node, context) {
+	return isKnownBooleanPropertyRead(node, getDirectBuiltinReceiver(node.object, context), context);
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -701,11 +861,14 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 		}
 
 		case 'CallExpression': {
-			return isBooleanCallExpression(node, context, visitedVariables);
+			return isKnownBooleanFunctionReference(node.callee, context)
+				|| isKnownBooleanInstanceMethodCall(node.callee, node.callee.object, context)
+				|| isBooleanFunctionReference(node.callee, context, visitedVariables)
+				|| isBooleanTypeInformation(node, context);
 		}
 
 		case 'MemberExpression': {
-			return isKnownBooleanPropertyRead(node, context) || undefined;
+			return isKnownBooleanPropertyRead(node, node.object, context) || undefined;
 		}
 
 		default: {
@@ -717,6 +880,11 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 function isBooleanExpression(node, context, visitedVariables = new Set()) {
 	if (!node) {
 		return false;
+	}
+
+	// An optional chain can produce `undefined` even when wrapped in a TypeScript assertion.
+	if (unwrapTypeScriptExpression(node).type === 'ChainExpression') {
+		return isBooleanStaticValue(node, context);
 	}
 
 	const annotation = getJSDocumentTypeAnnotation(node, context);
@@ -736,12 +904,16 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 }
 
 export {
+	hasBooleanType,
 	isBooleanExpression,
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isBuiltinBooleanCallExpression,
+	isBuiltinBooleanPropertyRead,
 	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
+	isBooleanTypeInformation,
 	isFunctionTypeAnnotation,
 };
 
