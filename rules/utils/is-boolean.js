@@ -790,10 +790,9 @@ function isKnownBooleanPropertyRead(node, context) {
 	return Boolean(properties?.has(property));
 }
 
-function isKnownBooleanCallExpression(node, context, visitedVariables) {
+function isBuiltinBooleanCallExpression(node, context) {
 	return isKnownBooleanFunctionReference(node.callee, context)
-		|| isKnownBooleanInstanceMethodCall(node, context)
-		|| isBooleanFunctionReference(node.callee, context, visitedVariables);
+		|| isKnownBooleanInstanceMethodCall(node, context);
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -827,7 +826,8 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 		}
 
 		case 'CallExpression': {
-			return isKnownBooleanCallExpression(node, context, visitedVariables)
+			return isBuiltinBooleanCallExpression(node, context)
+				|| isBooleanFunctionReference(node.callee, context, visitedVariables)
 				|| isBooleanTypeInformation(node, context);
 		}
 
@@ -873,7 +873,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
-	isKnownBooleanCallExpression,
+	isBuiltinBooleanCallExpression,
 	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,

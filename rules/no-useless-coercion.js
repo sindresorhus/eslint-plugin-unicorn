@@ -3,7 +3,7 @@ import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js
 import {
 	isBoolean,
 	isBooleanTypeInformation,
-	isKnownBooleanCallExpression,
+	isBuiltinBooleanCallExpression,
 	isString,
 	isNumber,
 	isBigInt,
@@ -93,7 +93,7 @@ function isAwaitingBoolean(node, context) {
 		if (!isUnassignedParameter(variable)) {
 			return false;
 		}
-	} else if (!['MemberExpression', 'CallExpression', 'NewExpression'].includes(argument.type)) {
+	} else if (argument.type !== 'MemberExpression') {
 		return false;
 	}
 
@@ -133,10 +133,10 @@ function isBooleanCall(node, context) {
 		return !callee.async && !callee.generator && expression !== undefined && isBooleanDoubleNegationOperand(expression, context);
 	}
 
-	// Without strict null checks, an inferred call result can hide a nullable return type.
-	return hasStrictNullChecks(context.sourceCode.parserServices?.program)
-		? isBoolean(node, context)
-		: isKnownBooleanCallExpression(node, context);
+	// TypeScript's call type can reflect stale narrowing or hide a nullable return type.
+	return context.sourceCode.parserServices?.program
+		? isBuiltinBooleanCallExpression(node, context)
+		: isBoolean(node, context);
 }
 
 function isBooleanDoubleNegationOperand(node, context) {

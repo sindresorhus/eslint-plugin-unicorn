@@ -1397,6 +1397,7 @@ test.snapshot({
 			'type MaybeBoolean = boolean | null; function read(enabled: MaybeBoolean) { return !!enabled; } read(null);',
 			'function read(flags: {enabled: boolean | undefined}) { return !!flags.enabled; } read({enabled: undefined});',
 			'function read(): boolean | undefined { return undefined; } const enabled = !!read();',
+			'function read(): boolean | undefined { return undefined; } function wrapper() { return read(); } const enabled = !!wrapper();',
 		].map(code => ({
 			code,
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
@@ -1450,6 +1451,8 @@ test.snapshot({
 			'function read(flag: boolean) { return !(!flag satisfies boolean); }',
 			'function read(flag: boolean) { return !(!flag /* keep */ as boolean); }',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'const read = value => /x/.test(value); const ready = !!read(value);',
+		'const ready = !!Object.freeze(true);',
 	],
 });
 
@@ -1610,6 +1613,20 @@ test.snapshot({
 		'async function read([pending]: Promise<boolean>[]) { return !!(await pending); } read([]);',
 		'async function read(promises: Promise<boolean>[], pending = promises[0]) { return !!(await pending); } read([]);',
 		'async function read(promises: Promise<boolean>[], pending: Promise<boolean>) { pending = promises[0]; return !!(await pending); }',
+		outdent`
+			function read() {
+				let get: (() => boolean) | (() => string) = () => true;
+				function change() {
+					get = () => 'ready';
+				}
+				change();
+				return !!get();
+			}
+			read();
+		`,
+		'function first(flags: boolean[]) { return flags[0]; } const enabled = !!first([]);',
+		'declare const service: {ready(): Promise<boolean>}; async function read() { return !!(await service.ready()); }',
+		'declare const Factory: new () => Promise<boolean>; async function read() { return !!(await new Factory()); }',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
 		'function read(flags: {enabled: boolean}, keys: "enabled"[]) { const key = keys[0]; return !!flags[key]; } read({enabled: true}, []);',
 		outdent`
@@ -1640,7 +1657,7 @@ test.snapshot({
 		'declare const enabled: boolean | undefined; const ready = !!(enabled ?? false);',
 		'declare const flags: {enabled: boolean} | undefined; const ready = !!(flags?.enabled || false);',
 		'declare const flags: [boolean]; const enabled = !!flags[0];',
-		'declare const service: {ready(): Promise<boolean>}; async function read() { return !!(await service.ready()); }',
+		'function read(value: unknown) { return !!Array.isArray(value); }',
 		'declare const service: {ready: Promise<boolean>}; async function read() { return !!(await service.ready); }',
 		'function* source(): Generator<number, boolean> { yield 1; return false; } function* read() { return !!(yield* source()); }',
 		'declare const flags: {enabled: true} | {enabled: false}; const enabled = !!flags.enabled;',
