@@ -36,6 +36,11 @@ const foo = Object.create(null);
 
 ```js
 // ✅
+Object.setPrototypeOf(foo, null);
+```
+
+```js
+// ✅
 if (foo === null) {}
 ```
 

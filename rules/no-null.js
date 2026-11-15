@@ -87,6 +87,17 @@ const create = context => {
 				})
 				&& node.parent.arguments[1] === node
 			)
+			// `Object.setPrototypeOf(foo, null)`, `Reflect.setPrototypeOf(foo, null)`
+			|| (
+				isMethodCall(node.parent, {
+					objects: ['Object', 'Reflect'],
+					method: 'setPrototypeOf',
+					argumentsLength: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.parent.arguments[1] === node
+			)
 		) {
 			return;
 		}

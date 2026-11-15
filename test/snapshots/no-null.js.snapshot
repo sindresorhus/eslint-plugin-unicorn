@@ -731,6 +731,74 @@ Suggestion 1/1: Replace \`null\` with \`undefined\`.:
 
 `;
 
+exports[`no-null > invalid(45): Object.setPrototypeOf?.(foo, null) 1`] = `
+
+  1 | Object.setPrototypeOf?.(foo, null)
+
+`;
+
+exports[`no-null > invalid(45): Object.setPrototypeOf?.(foo, null) 2`] = `
+
+Message:
+> 1 | Object.setPrototypeOf?.(foo, null)
+    |                              ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | Object.setPrototypeOf?.(foo, undefined)
+
+`;
+
+exports[`no-null > invalid(46): foo.setPrototypeOf(bar, null) 1`] = `
+
+  1 | foo.setPrototypeOf(bar, null)
+
+`;
+
+exports[`no-null > invalid(46): foo.setPrototypeOf(bar, null) 2`] = `
+
+Message:
+> 1 | foo.setPrototypeOf(bar, null)
+    |                         ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | foo.setPrototypeOf(bar, undefined)
+
+`;
+
+exports[`no-null > invalid(47): Object.setPrototypeOf(null, foo) 1`] = `
+
+  1 | Object.setPrototypeOf(null, foo)
+
+`;
+
+exports[`no-null > invalid(47): Object.setPrototypeOf(null, foo) 2`] = `
+
+Message:
+> 1 | Object.setPrototypeOf(null, foo)
+    |                       ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | Object.setPrototypeOf(undefined, foo)
+
+`;
+
+exports[`no-null > invalid(48): Object.setPrototypeOf(foo, null, bar) 1`] = `
+
+  1 | Object.setPrototypeOf(foo, null, bar)
+
+`;
+
+exports[`no-null > invalid(48): Object.setPrototypeOf(foo, null, bar) 2`] = `
+
+Message:
+> 1 | Object.setPrototypeOf(foo, null, bar)
+    |                            ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | Object.setPrototypeOf(foo, undefined, bar)
+
+`;
+
 exports[`no-null > invalid(5): if (null == foo) {} 1`] = `
 
   1 | if (null == foo) {}
