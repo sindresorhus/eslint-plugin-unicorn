@@ -17,6 +17,8 @@ This rule does not check function call arguments in TypeScript files because Typ
 
 Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
+`return undefined` in a getter is ignored, since the [`getter-return`](https://eslint.org/docs/latest/rules/getter-return) rule requires getters to return a value. Getters defined with `Object.defineProperty()` are not detected.
+
 In TypeScript, when a function has an explicit return type, `return undefined` is only reported if that type is `undefined` or `void`. When the return type is a union with a real value type, such as `number | undefined`, the explicit `undefined` is kept, since it can document intent and avoid conflicts with the [`consistent-return`](https://eslint.org/docs/latest/rules/consistent-return) rule.
 
 ## Examples
