@@ -551,14 +551,14 @@ function isSupportedExpression(node, context) {
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const getProblem = (node, fix, {shouldSuggest = false, loc} = {}) => {
+	const getProblem = (node, fix, {shouldSuggest = false, location} = {}) => {
 		if (!isSupportedExpression(node, context)) {
 			return;
 		}
 
 		return getCommentSafeProblem(context, {
 			node,
-			loc,
+			loc: location,
 			messageId: MESSAGE_ID,
 			...(shouldSuggest
 				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
@@ -614,7 +614,7 @@ const create = context => {
 			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
 			{
 				shouldSuggest: factoringTerms.shouldSuggest,
-				loc: toLocation([start, end], context),
+				location: toLocation([start, end], context),
 			},
 		);
 	});
