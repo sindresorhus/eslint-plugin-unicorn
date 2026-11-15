@@ -28,7 +28,7 @@ There are some advantages of using the newer DOM APIs, like:
 - Removing all child nodes without manual iteration.
 - Both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
 
-`.insertBefore()` gets editor suggestions when its return value is unused. The `.before()` suggestion requires a reference node. A `null` reference appends the new node. The `.prepend()` and `.append()` suggestions assume the first argument is a DOM node because they can convert other values to text.
+`.insertBefore()` gets editor suggestions when its return value is unused. The `.before()` suggestion requires a reference node. The rule suggests `.append()` when the reference is `null` or a `const` initialized to `null`. The `.prepend()` and `.append()` suggestions assume the first argument is a DOM node because they can convert other values to text.
 
 `.replaceChild()` throws when the child is not in `parentNode`, while `.replaceWith()` uses the child's current parent, so the fix can remove that error.
 

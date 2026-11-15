@@ -1,4 +1,5 @@
 import {
+	getConstVariableInitializer,
 	getOnlyExpression,
 	getStaticPropertyName,
 	hasPossibleSideEffect,
@@ -86,11 +87,14 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 	return problem;
 };
 
-const getParentInsertionMethod = (context, parentNode, reference) => {
-	if (isNullLiteral(reference)) {
+const getParentInsertionMethod = (context, node) => {
+	const reference = unwrapTypeScriptExpression(node.arguments[1]);
+	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(reference, context));
+	if (isNullLiteral(reference) || isNullLiteral(initializer)) {
 		return 'append';
 	}
 
+	const parentNode = node.callee.object;
 	if (
 		isMemberExpression(reference)
 		&& getStaticPropertyName(reference, context) === 'firstChild'
@@ -103,16 +107,7 @@ const getParentInsertionMethod = (context, parentNode, reference) => {
 	}
 };
 
-const getParentInsertionProblem = (context, node) => {
-	if (!isMethodCall(node, {
-		method: 'insertBefore',
-		argumentsLength: 2,
-		optionalCall: false,
-		optionalMember: false,
-	})) {
-		return;
-	}
-
+const getParentInsertionProblem = (context, node, preferredMethod) => {
 	const parentNode = node.callee.object;
 	const [child, reference] = node.arguments;
 	if (
@@ -123,8 +118,7 @@ const getParentInsertionProblem = (context, node) => {
 		return;
 	}
 
-	const preferredMethod = getParentInsertionMethod(context, parentNode, unwrapTypeScriptExpression(reference));
-	if (!preferredMethod || withTypeInformation(parentNode, context, ({type, checker}) =>
+	if (withTypeInformation(parentNode, context, ({type, checker}) =>
 		!isUnknownType(type) && !checker.getTypeOfPropertyOfType(type, preferredMethod)?.getCallSignatures().length)) {
 		return;
 	}
@@ -265,18 +259,26 @@ const getReplaceChildrenProblem = (context, node) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	context.on('CallExpression', node => getParentInsertionProblem(context, node));
-
 	context.on('CallExpression', node => {
+		if (!isMethodCall(node, {
+			methods: ['replaceChild', 'insertBefore'],
+			argumentsLength: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		if (node.callee.property.name === 'insertBefore') {
+			const preferredMethod = getParentInsertionMethod(context, node);
+			if (preferredMethod) {
+				return getParentInsertionProblem(context, node, preferredMethod);
+			}
+		}
+
 		if (
-			isMethodCall(node, {
-				methods: ['replaceChild', 'insertBefore'],
-				argumentsLength: 2,
-				optionalCall: false,
-				optionalMember: false,
-			})
 			// We only allow Identifier for now
-			&& node.arguments.every(node => node.type === 'Identifier' && node.name !== 'undefined')
+			node.arguments.every(node => node.type === 'Identifier' && node.name !== 'undefined')
 			// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
 			&& node.callee.object.type === 'Identifier'
 		) {

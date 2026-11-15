@@ -679,6 +679,7 @@ test({
 		'parent.insertBefore(...children, parent.firstChild);',
 		'parent.insertBefore("text", parent.firstChild);',
 		typeAware('function insert(parent: Node, child: Node) { parent.insertBefore(child, parent.firstChild!); }'),
+		typeAware('function insert(parent: Node, child: Node) { const reference = null; parent.insertBefore(child, reference); }'),
 	],
 	invalid: [
 		{
@@ -700,6 +701,27 @@ test({
 				suggestions: [{
 					messageId: 'preferParentInsertionSuggestion',
 					output: 'parent.append(child);',
+				}],
+			}],
+		},
+		{
+			code: 'const reference = null; parent.insertBefore(child, reference);',
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'append'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'const reference = null; parent.append(child);',
+				}],
+			}],
+		},
+		{
+			code: 'let reference = null; reference = sibling; parent.insertBefore(child, reference);',
+			errors: [{
+				messageId: 'replaceChildOrInsertBefore',
+				suggestions: [{
+					messageId: 'replaceChildOrInsertBeforeSuggestion',
+					output: 'let reference = null; reference = sibling; reference.before(child);',
 				}],
 			}],
 		},
