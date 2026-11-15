@@ -12,7 +12,7 @@ exports[`prefer-simplified-conditions > invalid(1): !(foo! && bar) 2`] = `
 
 Message:
 > 1 | !(foo! && bar)
-    | ^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(foo!) || !bar
@@ -33,7 +33,7 @@ exports[`prefer-simplified-conditions > invalid(1): const element = <div>{!(a &&
 
 Message:
 > 1 | const element = <div>{!(a && b)}</div>;
-    |                       ^^^^^^^^^ Prefer a simplified condition.
+    |                       ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | const element = <div>{!a || !b}</div>;
@@ -54,7 +54,7 @@ exports[`prefer-simplified-conditions > invalid(1): declare const a: boolean; co
 
 Message:
 > 1 | declare const a: boolean; const value = !(!a && b);
-    |                                         ^^^^^^^^^^ Prefer a simplified condition.
+    |                                         ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | declare const a: boolean; const value = a || !b;
@@ -73,7 +73,7 @@ exports[`prefer-simplified-conditions > invalid(1): declare const flags: {a: boo
 
 Message:
 > 1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c);
-    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`flags.a\` from both groups.
 
 Output:
   1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const value = flags.a && (flags.b || flags.c);
@@ -90,7 +90,7 @@ exports[`prefer-simplified-conditions > invalid(1): if (!(!a && !b)) {} 2`] = `
 
 Message:
 > 1 | if (!(!a && !b)) {}
-    |     ^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (a || b) {}
@@ -111,7 +111,7 @@ exports[`prefer-simplified-conditions > invalid(1): if (!(loggedInUser && isWebP
 
 Message:
 > 1 | if (!(loggedInUser && isWebPage())) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (!loggedInUser || !isWebPage()) {}
@@ -128,7 +128,7 @@ exports[`prefer-simplified-conditions > invalid(1): if (((object.property as boo
 
 Message:
 > 1 | if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property as boolean\` from both groups.
 
 Output:
   1 | if ((object.property as boolean) && (a || b)) {}
@@ -145,7 +145,7 @@ exports[`prefer-simplified-conditions > invalid(1): if ((foo.bar && a) || (foo.b
 
 Message:
 > 1 | if ((foo.bar && a) || (foo.bar && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo.bar\` from both groups.
 
 Output:
   1 | if (foo.bar && (a || b)) {}
@@ -162,7 +162,7 @@ exports[`prefer-simplified-conditions > invalid(1): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c && object.property)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (x || (a && (b || (c && object.property)))) {}
@@ -183,7 +183,7 @@ exports[`prefer-simplified-conditions > invalid(10): const value = !(!a || b); 2
 
 Message:
 > 1 | const value = !(!a || b);
-    |               ^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | const value = !!a && !b;
@@ -200,7 +200,7 @@ exports[`prefer-simplified-conditions > invalid(10): if (((foo).bar && a) || ((f
 
 Message:
 > 1 | if (((foo).bar && a) || ((foo).bar && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`(foo).bar\` from both groups.
 
 Output:
   1 | if ((foo).bar && (a || b)) {}
@@ -217,7 +217,7 @@ exports[`prefer-simplified-conditions > invalid(10): if (a || (a && b)) {} 2`] =
 
 Message:
 > 1 | if (a || (a && b)) {}
-    |     ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | if (a) {}
@@ -234,7 +234,7 @@ exports[`prefer-simplified-conditions > invalid(10): if (x && (a || b) && (a || 
 
 Message:
 > 1 | if (x && (a || b) && (a || c)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (x && (a || (b && c))) {}
@@ -255,7 +255,7 @@ exports[`prefer-simplified-conditions > invalid(11): if (!(!a && b)) {} 2`] = `
 
 Message:
 > 1 | if (!(!a && b)) {}
-    |     ^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (a || !b) {}
@@ -272,7 +272,7 @@ exports[`prefer-simplified-conditions > invalid(11): if (((foo.bar) && (a)) || (
 
 Message:
 > 1 | if (((foo.bar) && (a)) || ((foo.bar) && (b))) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo.bar\` from both groups.
 
 Output:
   1 | if ((foo.bar) && ((a) || (b))) {}
@@ -289,7 +289,7 @@ exports[`prefer-simplified-conditions > invalid(11): if ((a || b) && (a || c || 
 
 Message:
 > 1 | if ((a || b) && (a || c || d)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a || (b && (c || d))) {}
@@ -306,7 +306,7 @@ exports[`prefer-simplified-conditions > invalid(11): if (a || (a && b /* comment
 
 Message:
 > 1 | if (a || (a && b /* comment */)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 `;
 
@@ -324,7 +324,7 @@ exports[`prefer-simplified-conditions > invalid(12): !(a === b && c === d) 2`] =
 
 Message:
 > 1 | !(a === b && c === d)
-    | ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | a !== b || c !== d
@@ -341,7 +341,7 @@ exports[`prefer-simplified-conditions > invalid(12): if ((a || b || c) && (a || 
 
 Message:
 > 1 | if ((a || b || c) && (a || d || e)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a || ((b || c) && (d || e))) {}
@@ -358,7 +358,7 @@ exports[`prefer-simplified-conditions > invalid(12): if ((foo.bar /* keep */ && 
 
 Message:
 > 1 | if ((foo.bar /* keep */ && a) || (foo.bar && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo.bar\` from both groups.
 
 `;
 
@@ -372,7 +372,7 @@ exports[`prefer-simplified-conditions > invalid(12): if (a && (a || b)) {} 2`] =
 
 Message:
 > 1 | if (a && (a || b)) {}
-    |     ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | if (a) {}
@@ -393,7 +393,7 @@ exports[`prefer-simplified-conditions > invalid(13): !(a == b || c != d) 2`] = `
 
 Message:
 > 1 | !(a == b || c != d)
-    | ^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | a != b && c == d
@@ -410,7 +410,7 @@ exports[`prefer-simplified-conditions > invalid(13): const value = a || (a && b)
 
 Message:
 > 1 | const value = a || (a && b);
-    |               ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | const value = a;
@@ -427,9 +427,9 @@ exports[`prefer-simplified-conditions > invalid(13): if ((foo() && a) || (foo() 
 
 Message:
 > 1 | if ((foo() && a) || (foo() && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo()\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo()\`.:
   1 | if (foo() && (a || b)) {}
 
 `;
@@ -444,7 +444,7 @@ exports[`prefer-simplified-conditions > invalid(13): if ((x && (a || b)) && ((a 
 
 Message:
 > 1 | if ((x && (a || b)) && ((a || c) && y)) {}
-    |           ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if ((x && (a || (b && c)) && y)) {}
@@ -465,7 +465,7 @@ exports[`prefer-simplified-conditions > invalid(14): !(min <= value && value <= 
 
 Message:
 > 1 | !(min <= value && value <= max)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(min <= value) || !(value <= max)
@@ -482,7 +482,7 @@ exports[`prefer-simplified-conditions > invalid(14): function foo(a, b) { return
 
 Message:
 > 1 | function foo(a, b) { return(a || (a && b)); }
-    |                             ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                             ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { return (a); }
@@ -499,9 +499,9 @@ exports[`prefer-simplified-conditions > invalid(14): if ((foo() || a) && (foo() 
 
 Message:
 > 1 | if ((foo() || a) && (foo() || b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo()\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo()\`.:
   1 | if (foo() || (a && b)) {}
 
 `;
@@ -516,7 +516,7 @@ exports[`prefer-simplified-conditions > invalid(14): if (before() || (a && b) ||
 
 Message:
 > 1 | if (before() || (a && b) || (a && c) || after()) {}
-    |                 ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                 ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (before() || (a && (b || c)) || after()) {}
@@ -537,7 +537,7 @@ exports[`prefer-simplified-conditions > invalid(15): !(a?.b && foo?.()) 2`] = `
 
 Message:
 > 1 | !(a?.b && foo?.())
-    | ^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a?.b || !foo?.()
@@ -554,7 +554,7 @@ exports[`prefer-simplified-conditions > invalid(15): function foo(a, b) { throw(
 
 Message:
 > 1 | function foo(a, b) { throw(a || (a && b)); }
-    |                            ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                            ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { throw (a); }
@@ -571,9 +571,9 @@ exports[`prefer-simplified-conditions > invalid(15): if ((a && mutateA()) || (a 
 
 Message:
 > 1 | if ((a && mutateA()) || (a && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`a\`.:
   1 | if (a && (mutateA() || b)) {}
 
 `;
@@ -588,7 +588,7 @@ exports[`prefer-simplified-conditions > invalid(15): if ((a === \`\` && b) || (a
 
 Message:
 > 1 | if ((a === \`\` && b) || (a === \`\` && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === \`\`\` from both groups.
 
 Output:
   1 | if (a === \`\` && (b || c)) {}
@@ -609,7 +609,7 @@ exports[`prefer-simplified-conditions > invalid(16): !((a ?? b) && c) 2`] = `
 
 Message:
 > 1 | !((a ?? b) && c)
-    | ^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(a ?? b) || !c
@@ -626,7 +626,7 @@ exports[`prefer-simplified-conditions > invalid(16): if ((a !== \`line\\nx\` || 
 
 Message:
 > 1 | if ((a !== \`line\\nx\` || b) && (a !== \`line\\nx\` || c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a !== \`line\\nx\`\` from both groups.
 
 Output:
   1 | if (a !== \`line\\nx\` || (b && c)) {}
@@ -643,7 +643,7 @@ exports[`prefer-simplified-conditions > invalid(16): if ((a && true) || a) {} 2`
 
 Message:
 > 1 | if ((a && true) || a) {}
-    |     ^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | if (a) {}
@@ -660,9 +660,9 @@ exports[`prefer-simplified-conditions > invalid(16): if ((a || b) && (a || foo()
 
 Message:
 > 1 | if ((a || b) && (a || foo())) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`a\`.:
   1 | if (a || (b && foo())) {}
 
 `;
@@ -681,7 +681,7 @@ exports[`prefer-simplified-conditions > invalid(17): !(a && b) ?? c 2`] = `
 
 Message:
 > 1 | !(a && b) ?? c
-    | ^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | (!a || !b) ?? c
@@ -698,7 +698,7 @@ exports[`prefer-simplified-conditions > invalid(17): function foo(a, b) { if ((a
 
 Message:
 > 1 | function foo(a, b) { if ((a && b) || a) {} }
-    |                          ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -715,7 +715,7 @@ exports[`prefer-simplified-conditions > invalid(17): if ((\`x\` && b) || (\`x\` 
 
 Message:
 > 1 | if ((\`x\` && b) || (\`x\` && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`\`x\`\` from both groups.
 
 Output:
   1 | if (\`x\` && (b || c)) {}
@@ -732,9 +732,9 @@ exports[`prefer-simplified-conditions > invalid(17): if ((object.method(value) &
 
 Message:
 > 1 | if ((object.method(value) && a) || (object.method(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.method(value)\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`object.method(value)\`.:
   1 | if (object.method(value) && (a || b)) {}
 
 `;
@@ -753,7 +753,7 @@ exports[`prefer-simplified-conditions > invalid(18): c ?? !(a || b) 2`] = `
 
 Message:
 > 1 | c ?? !(a || b)
-    |      ^^^^^^^^^ Prefer a simplified condition.
+    |      ^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | c ?? (!a && !b)
@@ -770,7 +770,7 @@ exports[`prefer-simplified-conditions > invalid(18): function foo(a, b) { if ((b
 
 Message:
 > 1 | function foo(a, b) { if ((b && a) || a) {} }
-    |                          ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -787,9 +787,9 @@ exports[`prefer-simplified-conditions > invalid(18): if ((getObject().property &
 
 Message:
 > 1 | if ((getObject().property && a) || (getObject().property && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`getObject().property\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`getObject().property\`.:
   1 | if (getObject().property && (a || b)) {}
 
 `;
@@ -804,7 +804,7 @@ exports[`prefer-simplified-conditions > invalid(18): if (x || (a && b /* keep */
 
 Message:
 > 1 | if (x || (a && b /* keep */) || (a && c)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 `;
 
@@ -822,7 +822,7 @@ exports[`prefer-simplified-conditions > invalid(19): !(a && (b ? c : d)) 2`] = `
 
 Message:
 > 1 | !(a && (b ? c : d))
-    | ^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !(b ? c : d)
@@ -839,7 +839,7 @@ exports[`prefer-simplified-conditions > invalid(19): function foo(a, b) { if (a 
 
 Message:
 > 1 | function foo(a, b) { if (a || (b && a)) {} }
-    |                          ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -856,7 +856,7 @@ exports[`prefer-simplified-conditions > invalid(19): if ((a && b) || (a && c && 
 
 Message:
 > 1 | if ((a && b) || (a && c && /* keep */ d)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 `;
 
@@ -870,9 +870,9 @@ exports[`prefer-simplified-conditions > invalid(19): if ((object[getKey()] && a)
 
 Message:
 > 1 | if ((object[getKey()] && a) || (object[getKey()] && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object[getKey()]\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`object[getKey()]\`.:
   1 | if (object[getKey()] && (a || b)) {}
 
 `;
@@ -891,7 +891,7 @@ exports[`prefer-simplified-conditions > invalid(2): !((foo as string) && bar) 2`
 
 Message:
 > 1 | !((foo as string) && bar)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(foo as string) || !bar
@@ -912,7 +912,7 @@ exports[`prefer-simplified-conditions > invalid(2): !(a && b) 2`] = `
 
 Message:
 > 1 | !(a && b)
-    | ^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !b
@@ -935,7 +935,7 @@ exports[`prefer-simplified-conditions > invalid(2): declare const flags: {a: boo
 
 Message:
 > 1 | declare const flags: {a: boolean}; const value = !(!flags.a || b);
-    |                                                  ^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                  ^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | declare const flags: {a: boolean}; const value = flags.a && !b;
@@ -952,7 +952,7 @@ exports[`prefer-simplified-conditions > invalid(2): if (!(!a && b)) {} 2`] = `
 
 Message:
 > 1 | if (!(!a && b)) {}
-    |     ^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (a || !b) {}
@@ -969,7 +969,7 @@ exports[`prefer-simplified-conditions > invalid(2): if ((foo.bar || a) && (foo.b
 
 Message:
 > 1 | if ((foo.bar || a) && (foo.bar || b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo.bar\` from both groups.
 
 Output:
   1 | if (foo.bar || (a && b)) {}
@@ -986,7 +986,7 @@ exports[`prefer-simplified-conditions > invalid(2): if ((object.property! && a) 
 
 Message:
 > 1 | if ((object.property! && a) || (object.property! && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property!\` from both groups.
 
 Output:
   1 | if (object.property! && (a || b)) {}
@@ -1003,9 +1003,9 @@ exports[`prefer-simplified-conditions > invalid(2): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c && foo())) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`a\`.:
   1 | if (x || (a && (b || (c && foo())))) {}
 
 `;
@@ -1024,7 +1024,7 @@ exports[`prefer-simplified-conditions > invalid(20): !(a && (b = c)) 2`] = `
 
 Message:
 > 1 | !(a && (b = c))
-    | ^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !(b = c)
@@ -1041,7 +1041,7 @@ exports[`prefer-simplified-conditions > invalid(20): function foo(a, b) { if ((a
 
 Message:
 > 1 | function foo(a, b) { if ((a || b) && a) {} }
-    |                          ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -1058,7 +1058,7 @@ exports[`prefer-simplified-conditions > invalid(20): if ((a && b) || (a && c) ||
 
 Message:
 > 1 | if ((a && b) || (a && c) || x /* keep */) {}
-    |     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if ((a && (b || c)) || x /* keep */) {}
@@ -1075,9 +1075,9 @@ exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (ob
 
 Message:
 > 1 | if ((object[0] && a) || (object[[0].at(0)] && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object[0]\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`object[0]\`.:
   1 | if (object[0] && (a || b)) {}
 
 `;
@@ -1092,7 +1092,7 @@ exports[`prefer-simplified-conditions > invalid(21): !((a && b) || (a && c) || x
 
 Message:
 > 1 | !((a && b) || (a && c) || x)
-    |   ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |   ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | !((a && (b || c)) || x)
@@ -1113,7 +1113,7 @@ exports[`prefer-simplified-conditions > invalid(21): !(a && (b, c)) 2`] = `
 
 Message:
 > 1 | !(a && (b, c))
-    | ^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !(b, c)
@@ -1130,7 +1130,7 @@ exports[`prefer-simplified-conditions > invalid(21): function foo(a, b) { if (a 
 
 Message:
 > 1 | function foo(a, b) { if (a && (b || a)) {} }
-    |                          ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -1147,9 +1147,9 @@ exports[`prefer-simplified-conditions > invalid(21): if ((!foo() && a) || (!foo(
 
 Message:
 > 1 | if ((!foo() && a) || (!foo() && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`!foo()\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`!foo()\`.:
   1 | if (!foo() && (a || b)) {}
 
 `;
@@ -1168,7 +1168,7 @@ exports[`prefer-simplified-conditions > invalid(22): !(a && (() => b)) 2`] = `
 
 Message:
 > 1 | !(a && (() => b))
-    | ^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !(() => b)
@@ -1185,7 +1185,7 @@ exports[`prefer-simplified-conditions > invalid(22): function foo(a) { var b; if
 
 Message:
 > 1 | function foo(a) { var b; if ((b && a) || a) {} }
-    |                              ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                              ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a) { var b; if (a) {} }
@@ -1202,9 +1202,9 @@ exports[`prefer-simplified-conditions > invalid(22): if ((foo() !== value && a) 
 
 Message:
 > 1 | if ((foo() !== value && a) || (foo() !== value && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo() !== value\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo() !== value\`.:
   1 | if (foo() !== value && (a || b)) {}
 
 `;
@@ -1219,7 +1219,7 @@ exports[`prefer-simplified-conditions > invalid(22): if (x || /* keep */ (a && b
 
 Message:
 > 1 | if (x || /* keep */ (a && b) || (a && c)) {}
-    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                     ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 `;
 
@@ -1237,7 +1237,7 @@ exports[`prefer-simplified-conditions > invalid(23): function* foo() { return !(
 
 Message:
 > 1 | function* foo() { return !(a && (yield b)); }
-    |                          ^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | function* foo() { return !a || !(yield b); }
@@ -1254,7 +1254,7 @@ exports[`prefer-simplified-conditions > invalid(23): if ((a && b) || (a && c)) {
 
 Message:
 > 1 | if ((a && b) || (a && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a && (b || c)) {}
@@ -1271,7 +1271,7 @@ exports[`prefer-simplified-conditions > invalid(23): if ((foo() /* keep */ && a)
 
 Message:
 > 1 | if ((foo() /* keep */ && a) || (foo() && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo()\` from both groups.
 
 `;
 
@@ -1293,7 +1293,7 @@ Message:
 > 3 |   (a && b) ||
     |   ^^^^^^^^^^^
 > 4 |   (a && c && d)
-    | ^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
   5 | ) {}
 
 Output:
@@ -1313,7 +1313,7 @@ exports[`prefer-simplified-conditions > invalid(24): const value = x || (a === t
 
 Message:
 > 1 | const value = x || (a === true && b === true) || (a === true && c === true && d === true);
-    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | const value = x || (a === true && (b === true || (c === true && d === true)));
@@ -1337,7 +1337,7 @@ Message:
 > 1 | function foo() { return!
     |                        ^
 > 2 | (a && b); }
-    | ^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | function foo() { return (!a || !b); }
@@ -1354,7 +1354,7 @@ exports[`prefer-simplified-conditions > invalid(24): function foo() { return(a =
 
 Message:
 > 1 | function foo() { return(a === true && b === true) || (a === true && c === true); }
-    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | function foo() { return a === true && (b === true || c === true); }
@@ -1371,7 +1371,7 @@ exports[`prefer-simplified-conditions > invalid(24): if ((a && foo(/* keep */)) 
 
 Message:
 > 1 | if ((a && foo(/* keep */)) || (a && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 `;
 
@@ -1385,7 +1385,7 @@ exports[`prefer-simplified-conditions > invalid(25): (function () {} || (a === t
 
 Message:
 > 1 | (function () {} || (a === true && b === true)) || (a === true && c === true);
-    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | (function () {} || (a === true && (b === true || c === true)));
@@ -1409,7 +1409,7 @@ Message:
 > 1 | function foo() { throw!
     |                       ^
 > 2 | (a || b); }
-    | ^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | function foo() { throw (!a && !b); }
@@ -1426,7 +1426,7 @@ exports[`prefer-simplified-conditions > invalid(25): function foo() { throw(a ==
 
 Message:
 > 1 | function foo() { throw(a === true && b === true) || (a === true && c === true); }
-    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | function foo() { throw a === true && (b === true || c === true); }
@@ -1443,7 +1443,7 @@ exports[`prefer-simplified-conditions > invalid(25): if ((Array.isArray(object.p
 
 Message:
 > 1 | if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(object.property)\` from both groups.
 
 Output:
   1 | if (Array.isArray(object.property) && (a || b)) {}
@@ -1462,7 +1462,7 @@ exports[`prefer-simplified-conditions > invalid(26): foo()\n;({} || (a === true 
 Message:
   1 | foo()
 > 2 | ;({} || (a === true && b === true)) || (a === true && c === true);
-    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | foo()
@@ -1487,7 +1487,7 @@ exports[`prefer-simplified-conditions > invalid(26): function foo() {\r\n  retur
 Message:
   1 | function foo() {
 > 2 |   return !(a && b);
-    |          ^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
   3 | }
 
 Output:
@@ -1507,9 +1507,9 @@ exports[`prefer-simplified-conditions > invalid(26): if ((Array.isArray(foo()) &
 
 Message:
 > 1 | if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(foo())\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Array.isArray(foo())\`.:
   1 | if (Array.isArray(foo()) && (a || b)) {}
 
 `;
@@ -1524,7 +1524,7 @@ exports[`prefer-simplified-conditions > invalid(26): if ((a && b /* comment */) 
 
 Message:
 > 1 | if ((a && b /* comment */) || (a && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 `;
 
@@ -1542,7 +1542,7 @@ exports[`prefer-simplified-conditions > invalid(27): !(a && b) && c 2`] = `
 
 Message:
 > 1 | !(a && b) && c
-    | ^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | (!a || !b) && c
@@ -1559,7 +1559,7 @@ exports[`prefer-simplified-conditions > invalid(27): declare const a: boolean; d
 
 Message:
 > 1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; declare const d: boolean; const value = x || (a && b) || (a && c && d);
-    |                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; declare const d: boolean; const value = x || (a && (b || (c && d)));
@@ -1576,7 +1576,7 @@ exports[`prefer-simplified-conditions > invalid(27): if ((Array.isArray(value) &
 
 Message:
 > 1 | if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(value)\` from both groups.
 
 Output:
   1 | if (Array.isArray(value) && (a || b)) {}
@@ -1593,9 +1593,9 @@ exports[`prefer-simplified-conditions > invalid(27): if ((Number.isInteger(foo()
 
 Message:
 > 1 | if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isInteger(foo())\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Number.isInteger(foo())\`.:
   1 | if (Number.isInteger(foo()) && (a || b)) {}
 
 `;
@@ -1610,9 +1610,9 @@ exports[`prefer-simplified-conditions > invalid(28): const Array = {isArray() { 
 
 Message:
 > 1 | const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}
-    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(value)\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Array.isArray(value)\`.:
   1 | const Array = {isArray() { return true; }}; if (Array.isArray(value) && (a || b)) {}
 
 `;
@@ -1631,7 +1631,7 @@ exports[`prefer-simplified-conditions > invalid(28): const value = !(a && b) ===
 
 Message:
 > 1 | const value = !(a && b) === c;
-    |               ^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | const value = (!a || !b) === c;
@@ -1648,7 +1648,7 @@ exports[`prefer-simplified-conditions > invalid(28): if ((ArrayBuffer.isView(val
 
 Message:
 > 1 | if ((ArrayBuffer.isView(value) && a) || (ArrayBuffer.isView(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`ArrayBuffer.isView(value)\` from both groups.
 
 Output:
   1 | if (ArrayBuffer.isView(value) && (a || b)) {}
@@ -1665,7 +1665,7 @@ exports[`prefer-simplified-conditions > invalid(28): if (x || ((a as boolean) &&
 
 Message:
 > 1 | if (x || ((a as boolean) && b) || ((a as boolean) && c && d)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a as boolean\` from both groups.
 
 Output:
   1 | if (x || ((a as boolean) && (b || (c && d)))) {}
@@ -1686,7 +1686,7 @@ exports[`prefer-simplified-conditions > invalid(29): async function foo() { awai
 
 Message:
 > 1 | async function foo() { await !(a && b); }
-    |                              ^^^^^^^^^ Prefer a simplified condition.
+    |                              ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | async function foo() { await (!a || !b); }
@@ -1703,9 +1703,9 @@ exports[`prefer-simplified-conditions > invalid(29): const Number = {isInteger()
 
 Message:
 > 1 | const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}
-    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isInteger(value)\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Number.isInteger(value)\`.:
   1 | const Number = {isInteger() { return true; }}; if (Number.isInteger(value) && (a || b)) {}
 
 `;
@@ -1722,7 +1722,7 @@ exports[`prefer-simplified-conditions > invalid(29): declare const flags: {a: bo
 
 Message:
 > 1 | declare const flags: {a: boolean; b: boolean; c: boolean; d: boolean}; const {a, b, c, d} = flags; const value = x || (a && b) || (a && c && d);
-    |                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | declare const flags: {a: boolean; b: boolean; c: boolean; d: boolean}; const {a, b, c, d} = flags; const value = x || (a && (b || (c && d)));
@@ -1739,7 +1739,7 @@ exports[`prefer-simplified-conditions > invalid(29): if ((Error.isError(value) &
 
 Message:
 > 1 | if ((Error.isError(value) && a) || (Error.isError(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Error.isError(value)\` from both groups.
 
 Output:
   1 | if (Error.isError(value) && (a || b)) {}
@@ -1760,7 +1760,7 @@ exports[`prefer-simplified-conditions > invalid(3): !((foo satisfies string) && 
 
 Message:
 > 1 | !((foo satisfies string) && bar)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(foo satisfies string) || !bar
@@ -1781,7 +1781,7 @@ exports[`prefer-simplified-conditions > invalid(3): !(a || b) 2`] = `
 
 Message:
 > 1 | !(a || b)
-    | ^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | !a && !b
@@ -1798,7 +1798,7 @@ exports[`prefer-simplified-conditions > invalid(3): if (((object.property satisf
 
 Message:
 > 1 | if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property satisfies boolean\` from both groups.
 
 Output:
   1 | if ((object.property satisfies boolean) && (a || b)) {}
@@ -1815,7 +1815,7 @@ exports[`prefer-simplified-conditions > invalid(3): if ((a && b) || (a && c) || 
 
 Message:
 > 1 | if ((a && b) || (a && c) || x) {}
-    |     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if ((a && (b || c)) || x) {}
@@ -1832,7 +1832,7 @@ exports[`prefer-simplified-conditions > invalid(3): if ((a && object.property) |
 
 Message:
 > 1 | if ((a && object.property) || (a && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a && (object.property || c)) {}
@@ -1849,7 +1849,7 @@ exports[`prefer-simplified-conditions > invalid(3): while (!(!a && b)) {} 2`] = 
 
 Message:
 > 1 | while (!(!a && b)) {}
-    |        ^^^^^^^^^^ Prefer a simplified condition.
+    |        ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | while (a || !b) {}
@@ -1870,7 +1870,7 @@ exports[`prefer-simplified-conditions > invalid(30): (!(a && b)).toString(); 2`]
 
 Message:
 > 1 | (!(a && b)).toString();
-    |  ^^^^^^^^^ Prefer a simplified condition.
+    |  ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | (!a || !b).toString();
@@ -1887,7 +1887,7 @@ exports[`prefer-simplified-conditions > invalid(30): const element = <div>{x || 
 
 Message:
 > 1 | const element = <div>{x || (a && b) || (a && c && d) ? "yes" : "no"}</div>;
-    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | const element = <div>{x || (a && (b || (c && d))) ? "yes" : "no"}</div>;
@@ -1904,9 +1904,9 @@ exports[`prefer-simplified-conditions > invalid(30): if ((Array.isArray(value) &
 
 Message:
 > 1 | if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(value)\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Array.isArray(value)\`.:
   1 | if (Array.isArray(value) && (foo() || b)) {}
 
 `;
@@ -1921,7 +1921,7 @@ exports[`prefer-simplified-conditions > invalid(30): if ((Number.isFinite(value)
 
 Message:
 > 1 | if ((Number.isFinite(value) && a) || (Number.isFinite(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isFinite(value)\` from both groups.
 
 Output:
   1 | if (Number.isFinite(value) && (a || b)) {}
@@ -1942,7 +1942,7 @@ exports[`prefer-simplified-conditions > invalid(31): !(a && b /* comment */) 2`]
 
 Message:
 > 1 | !(a && b /* comment */)
-    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 `;
 
@@ -1956,7 +1956,7 @@ exports[`prefer-simplified-conditions > invalid(31): if ((Number.isInteger(value
 
 Message:
 > 1 | if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isInteger(value)\` from both groups.
 
 Output:
   1 | if (Number.isInteger(value) && (a || b)) {}
@@ -1973,7 +1973,7 @@ exports[`prefer-simplified-conditions > invalid(31): if ((a && Array.isArray(val
 
 Message:
 > 1 | if ((a && Array.isArray(value)) || (a && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a && (Array.isArray(value) || b)) {}
@@ -1990,7 +1990,7 @@ exports[`prefer-simplified-conditions > invalid(31): if (x || (object.property &
 
 Message:
 > 1 | if (x || (object.property && a) || (object.property && b && c)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property\` from both groups.
 
 Output:
   1 | if (x || (object.property && (a || (b && c)))) {}
@@ -2011,7 +2011,7 @@ exports[`prefer-simplified-conditions > invalid(32): !/* comment */(a && b) 2`] 
 
 Message:
 > 1 | !/* comment */(a && b)
-    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 `;
 
@@ -2025,7 +2025,7 @@ exports[`prefer-simplified-conditions > invalid(32): class Foo extends Bar { met
 
 Message:
 > 1 | class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }
-    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`super.enabled\` from both groups.
 
 Output:
   1 | class Foo extends Bar { method() { if (super.enabled && (a || b)) {} } }
@@ -2042,7 +2042,7 @@ exports[`prefer-simplified-conditions > invalid(32): if ((Number.isNaN(value) &&
 
 Message:
 > 1 | if ((Number.isNaN(value) && a) || (Number.isNaN(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isNaN(value)\` from both groups.
 
 Output:
   1 | if (Number.isNaN(value) && (a || b)) {}
@@ -2059,9 +2059,9 @@ exports[`prefer-simplified-conditions > invalid(32): if (x || (isFoo(node) && a)
 
 Message:
 > 1 | if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`isFoo(node)\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`isFoo(node)\`.:
   1 | if (x || (isFoo(node) && (a || (b && c)))) {}
 
 `;
@@ -2076,7 +2076,7 @@ exports[`prefer-simplified-conditions > invalid(33): class Foo { #enabled; metho
 
 Message:
 > 1 | class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }
-    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`this.#enabled\` from both groups.
 
 Output:
   1 | class Foo { #enabled; method() { if (this.#enabled && (a || b)) {} } }
@@ -2093,7 +2093,7 @@ exports[`prefer-simplified-conditions > invalid(33): if ((Number.isSafeInteger(v
 
 Message:
 > 1 | if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isSafeInteger(value)\` from both groups.
 
 Output:
   1 | if (Number.isSafeInteger(value) && (a || b)) {}
@@ -2110,7 +2110,7 @@ exports[`prefer-simplified-conditions > invalid(33): if (x || (object[\`key\`] &
 
 Message:
 > 1 | if (x || (object[\`key\`] && a) || (object.key && b && c)) {}
-    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object[\`key\`]\` from both groups.
 
 Output:
   1 | if (x || (object[\`key\`] && (a || (b && c)))) {}
@@ -2127,9 +2127,9 @@ exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...valu
 
 Message:
 > 1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray([...values])\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`Array.isArray([...values])\`.:
   1 | if (Array.isArray([...values]) && (a || b)) {}
 
 `;
@@ -2144,7 +2144,7 @@ exports[`prefer-simplified-conditions > invalid(34): if ((c || a) && (c || b)) {
 
 Message:
 > 1 | if ((c || a) && (c || b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`c\` from both groups.
 
 Output:
   1 | if (c || (a && b)) {}
@@ -2161,7 +2161,7 @@ exports[`prefer-simplified-conditions > invalid(35): if (((c || a) && (c || b)) 
 
 Message:
 > 1 | if (((c || a) && (c || b)) && d) {}
-    |      ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |      ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`c\` from both groups.
 
 Output:
   1 | if ((c || (a && b)) && d) {}
@@ -2178,7 +2178,7 @@ exports[`prefer-simplified-conditions > invalid(36): Boolean((a && b) || (a && c
 
 Message:
 > 1 | Boolean((a && b) || (a && c))
-    |         ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |         ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | Boolean(a && (b || c))
@@ -2195,7 +2195,7 @@ exports[`prefer-simplified-conditions > invalid(37): const value = (a === true &
 
 Message:
 > 1 | const value = (a === true && b === true) || (a === true && c === true);
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a === true\` from both groups.
 
 Output:
   1 | const value = a === true && (b === true || c === true);
@@ -2212,7 +2212,7 @@ exports[`prefer-simplified-conditions > invalid(38): const value = (Array.isArra
 
 Message:
 > 1 | const value = (Array.isArray(value) && a === true) || (Array.isArray(value) && b === true);
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Array.isArray(value)\` from both groups.
 
 Output:
   1 | const value = Array.isArray(value) && (a === true || b === true);
@@ -2229,7 +2229,7 @@ exports[`prefer-simplified-conditions > invalid(39): const value = (Error.isErro
 
 Message:
 > 1 | const value = (Error.isError(value) && a === true) || (Error.isError(value) && b === true);
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Error.isError(value)\` from both groups.
 
 Output:
   1 | const value = Error.isError(value) && (a === true || b === true);
@@ -2250,7 +2250,7 @@ exports[`prefer-simplified-conditions > invalid(4): !(<string>foo && bar) 2`] = 
 
 Message:
 > 1 | !(<string>foo && bar)
-    | ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(<string>foo) || !bar
@@ -2271,7 +2271,7 @@ exports[`prefer-simplified-conditions > invalid(4): !(a && b && c) 2`] = `
 
 Message:
 > 1 | !(a && b && c)
-    | ^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !(a && b) || !c
@@ -2288,7 +2288,7 @@ exports[`prefer-simplified-conditions > invalid(4): if (!(!a && !b && !c)) {} 2`
 
 Message:
 > 1 | if (!(!a && !b && !c)) {}
-    |     ^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (!(!a && !b) || c) {}
@@ -2305,7 +2305,7 @@ exports[`prefer-simplified-conditions > invalid(4): if (((<boolean>object.proper
 
 Message:
 > 1 | if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`<boolean>object.property\` from both groups.
 
 Output:
   1 | if ((<boolean>object.property) && (a || b)) {}
@@ -2322,7 +2322,7 @@ exports[`prefer-simplified-conditions > invalid(4): if ((a || b) && (a || object
 
 Message:
 > 1 | if ((a || b) && (a || object.property)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a || (b && object.property)) {}
@@ -2339,7 +2339,7 @@ exports[`prefer-simplified-conditions > invalid(4): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c) || y) {}
-    |          ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (x || (a && (b || c)) || y) {}
@@ -2356,7 +2356,7 @@ exports[`prefer-simplified-conditions > invalid(40): const value = (Number.isInt
 
 Message:
 > 1 | const value = (Number.isInteger(value) && a === true) || (Number.isInteger(value) && b === true);
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`Number.isInteger(value)\` from both groups.
 
 Output:
   1 | const value = Number.isInteger(value) && (a === true || b === true);
@@ -2373,7 +2373,7 @@ exports[`prefer-simplified-conditions > invalid(41): declare const a: boolean; d
 
 Message:
 > 1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; const value = (a && b) || (a && c);
-    |                                                                                             ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                             ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; const value = a && (b || c);
@@ -2390,7 +2390,7 @@ exports[`prefer-simplified-conditions > invalid(42): function foo(a: boolean, b:
 
 Message:
 > 1 | function foo(a: boolean, b: boolean) { const value = (a && b) || a; }
-    |                                                      ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                      ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a: boolean, b: boolean) { const value = a; }
@@ -2409,7 +2409,7 @@ exports[`prefer-simplified-conditions > invalid(43): declare const flags: {a: bo
 
 Message:
 > 1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = (a && b) || (a && c);
-    |                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = a && (b || c);
@@ -2426,7 +2426,7 @@ exports[`prefer-simplified-conditions > invalid(44): if (!(!(a || b) || !c)) {} 
 
 Message:
 > 1 | if (!(!(a || b) || !c)) {}
-    |     ^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | if ((a || b) && c) {}
@@ -2443,7 +2443,7 @@ exports[`prefer-simplified-conditions > invalid(45): function foo(a, b) { if (a 
 
 Message:
 > 1 | function foo(a, b) { if (a || (!b && a)) {} }
-    |                          ^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                          ^^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | function foo(a, b) { if (a) {} }
@@ -2460,7 +2460,7 @@ exports[`prefer-simplified-conditions > invalid(46): if ((a !== b && c) || (a !=
 
 Message:
 > 1 | if ((a !== b && c) || (a !== b && d)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a !== b\` from both groups.
 
 Output:
   1 | if (a !== b && (c || d)) {}
@@ -2477,7 +2477,7 @@ exports[`prefer-simplified-conditions > invalid(47): foo(!(a !== b && c !== d));
 
 Message:
 > 1 | foo(!(a !== b && c !== d));
-    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | foo(a === b || c === d);
@@ -2494,7 +2494,7 @@ exports[`prefer-simplified-conditions > invalid(48): foo[!(a !== b && c !== d)];
 
 Message:
 > 1 | foo[!(a !== b && c !== d)];
-    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | foo[a === b || c === d];
@@ -2511,7 +2511,7 @@ exports[`prefer-simplified-conditions > invalid(49): const value = !(a !== b && 
 
 Message:
 > 1 | const value = !(a !== b && c !== d) as boolean;
-    |               ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | const value = (a === b || c === d) as boolean;
@@ -2532,7 +2532,7 @@ exports[`prefer-simplified-conditions > invalid(5): !(a || b || c) 2`] = `
 
 Message:
 > 1 | !(a || b || c)
-    | ^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | !(a || b) && !c
@@ -2553,7 +2553,7 @@ exports[`prefer-simplified-conditions > invalid(5): const value = (!(a && b)) as
 
 Message:
 > 1 | const value = (!(a && b)) as boolean;
-    |                ^^^^^^^^^ Prefer a simplified condition.
+    |                ^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | const value = (!a || !b) as boolean;
@@ -2570,7 +2570,7 @@ exports[`prefer-simplified-conditions > invalid(5): if (!(x !== undefined && y !
 
 Message:
 > 1 | if (!(x !== undefined && y !== undefined)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (x === undefined || y === undefined) {}
@@ -2587,9 +2587,9 @@ exports[`prefer-simplified-conditions > invalid(5): if ((foo<boolean>() && a) ||
 
 Message:
 > 1 | if ((foo<boolean>() && a) || (foo<boolean>() && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo<boolean>()\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo<boolean>()\`.:
   1 | if (foo<boolean>() && (a || b)) {}
 
 `;
@@ -2604,7 +2604,7 @@ exports[`prefer-simplified-conditions > invalid(5): if ((object[key] && a) || (o
 
 Message:
 > 1 | if ((object[key] && a) || (object[key] && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object[key]\` from both groups.
 
 Output:
   1 | if (object[key] && (a || b)) {}
@@ -2621,7 +2621,7 @@ exports[`prefer-simplified-conditions > invalid(5): if ((x || (a && b)) || ((a &
 
 Message:
 > 1 | if ((x || (a && b)) || ((a && c) || y)) {}
-    |           ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if ((x || (a && (b || c)) || y)) {}
@@ -2638,7 +2638,7 @@ exports[`prefer-simplified-conditions > invalid(50): if ((a || (a && b))!) {} 2`
 
 Message:
 > 1 | if ((a || (a && b))!) {}
-    |      ^^^^^^^^^^^^^ Prefer a simplified condition.
+    |      ^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | if ((a)!) {}
@@ -2655,10 +2655,24 @@ exports[`prefer-simplified-conditions > invalid(51): if (((a) || (a && b))!) {} 
 
 Message:
 > 1 | if (((a) || (a && b))!) {}
-    |      ^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |      ^^^^^^^^^^^^^^^ This expression has the same value as \`a\`.
 
 Output:
   1 | if (((a))!) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(52): if (!(!a || !b /* comment */)) {} 1`] = `
+
+  1 | if (!(!a || !b /* comment */)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(52): if (!(!a || !b /* comment */)) {} 2`] = `
+
+Message:
+> 1 | if (!(!a || !b /* comment */)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 `;
 
@@ -2676,7 +2690,7 @@ exports[`prefer-simplified-conditions > invalid(6): !(a && (b || c)) 2`] = `
 
 Message:
 > 1 | !(a && (b || c))
-    | ^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | !a || !(b || c)
@@ -2693,7 +2707,7 @@ exports[`prefer-simplified-conditions > invalid(6): if (!(key === \"y\" && !isEd
 
 Message:
 > 1 | if (!(key === "y" && !isEditable(target))) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | if (key !== "y" || isEditable(target)) {}
@@ -2710,9 +2724,9 @@ exports[`prefer-simplified-conditions > invalid(6): if (((foo() as boolean) && a
 
 Message:
 > 1 | if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo() as boolean\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo() as boolean\`.:
   1 | if ((foo() as boolean) && (a || b)) {}
 
 `;
@@ -2727,7 +2741,7 @@ exports[`prefer-simplified-conditions > invalid(6): if ((object.nested.property 
 
 Message:
 > 1 | if ((object.nested.property && a) || (object.nested.property && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.nested.property\` from both groups.
 
 Output:
   1 | if (object.nested.property && (a || b)) {}
@@ -2744,7 +2758,7 @@ exports[`prefer-simplified-conditions > invalid(6): if (x || ((a && b) || ((a &&
 
 Message:
 > 1 | if (x || ((a && b) || ((a && c) || y))) {}
-    |           ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (x || ((a && (b || c)) || y)) {}
@@ -2765,7 +2779,7 @@ exports[`prefer-simplified-conditions > invalid(7): !(a || (b && c)) 2`] = `
 
 Message:
 > 1 | !(a || (b && c))
-    | ^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | !a && !(b && c)
@@ -2782,7 +2796,7 @@ exports[`prefer-simplified-conditions > invalid(7): !(key !== \"y\" || isEditabl
 
 Message:
 > 1 | !(key !== "y" || isEditable(target))
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | key === "y" && !isEditable(target)
@@ -2799,9 +2813,9 @@ exports[`prefer-simplified-conditions > invalid(7): declare function foo(): bool
 
 Message:
 > 1 | declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b);
-    |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`foo()\` from both groups.
 
-Suggestion 1/1: Simplify the condition.:
+Suggestion 1/1: Factor out \`foo()\`.:
   1 | declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = foo() && (a || b);
 
 `;
@@ -2816,7 +2830,7 @@ exports[`prefer-simplified-conditions > invalid(7): if ((a && b && c) || (a && d
 
 Message:
 > 1 | if ((a && b && c) || (a && d && e)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a && ((b && c) || (d && e))) {}
@@ -2833,7 +2847,7 @@ exports[`prefer-simplified-conditions > invalid(7): if ((object.property && a) |
 
 Message:
 > 1 | if ((object.property && a) || (object["property"] && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property\` from both groups.
 
 Output:
   1 | if (object.property && (a || b)) {}
@@ -2854,7 +2868,7 @@ exports[`prefer-simplified-conditions > invalid(8): !((a && b) || (a && c)) 2`] 
 
 Message:
 > 1 | !((a && b) || (a && c))
-    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`||\` to \`&&\` (De Morgan’s law).
 
 Output:
   1 | !(a && b) && !(a && c)
@@ -2871,7 +2885,7 @@ exports[`prefer-simplified-conditions > invalid(8): !(a == b && c != d) 2`] = `
 
 Message:
 > 1 | !(a == b && c != d)
-    | ^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    | ^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | a != b || c == d
@@ -2888,7 +2902,7 @@ exports[`prefer-simplified-conditions > invalid(8): if ((!object.property && a) 
 
 Message:
 > 1 | if ((!object.property && a) || (!object.property && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`!object.property\` from both groups.
 
 Output:
   1 | if (!object.property && (a || b)) {}
@@ -2905,7 +2919,7 @@ exports[`prefer-simplified-conditions > invalid(8): if ((a && (b && c)) || (a &&
 
 Message:
 > 1 | if ((a && (b && c)) || (a && (d && e))) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (a && ((b && c) || (d && e))) {}
@@ -2926,7 +2940,7 @@ exports[`prefer-simplified-conditions > invalid(9): const value = !(!a && b); 2`
 
 Message:
 > 1 | const value = !(!a && b);
-    |               ^^^^^^^^^^ Prefer a simplified condition.
+    |               ^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 Output:
   1 | const value = !!a || !b;
@@ -2943,7 +2957,7 @@ exports[`prefer-simplified-conditions > invalid(9): if (!(!a && b /* comment */)
 
 Message:
 > 1 | if (!(!a && b /* comment */)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Move the outer \`!\` to both operands and change \`&&\` to \`||\` (De Morgan’s law).
 
 `;
 
@@ -2957,7 +2971,7 @@ exports[`prefer-simplified-conditions > invalid(9): if (((((a)) && (b))) || (((a
 
 Message:
 > 1 | if (((((a)) && (b))) || (((a) && (c && d)))) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`a\` from both groups.
 
 Output:
   1 | if (((a)) && ((b) || (c && d))) {}
@@ -2974,7 +2988,7 @@ exports[`prefer-simplified-conditions > invalid(9): if ((object.property === val
 
 Message:
 > 1 | if ((object.property === value && a) || (object.property === value && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider factoring out \`object.property === value\` from both groups.
 
 Output:
   1 | if (object.property === value && (a || b)) {}

@@ -37,11 +37,15 @@ import {
 @import * as ESLint from 'eslint';
 */
 
-const MESSAGE_ID = 'prefer-simplified-conditions';
+const MESSAGE_ID_DE_MORGAN = 'de-morgan';
+const MESSAGE_ID_ABSORPTION = 'absorption';
+const MESSAGE_ID_FACTORING = 'factoring';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer a simplified condition.',
-	[MESSAGE_ID_SUGGESTION]: 'Simplify the condition.',
+	[MESSAGE_ID_DE_MORGAN]: 'Move the outer `!` to both operands and change `{{operator}}` to `{{replacementOperator}}` (De Morgan’s law).',
+	[MESSAGE_ID_ABSORPTION]: 'This expression has the same value as `{{term}}`.',
+	[MESSAGE_ID_FACTORING]: 'Consider factoring out `{{term}}` from both groups.',
+	[MESSAGE_ID_SUGGESTION]: 'Factor out `{{term}}`.',
 };
 
 const simpleNodeTypes = new Set([
@@ -551,19 +555,18 @@ function isSupportedExpression(node, context) {
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const getProblem = (node, fix, {shouldSuggest = false, location} = {}) => {
-		if (!isSupportedExpression(node, context)) {
+	const {sourceCode} = context;
+	const getTermTextForMessage = node => sourceCode.getText(node).replaceAll(
+		/[\p{Control}\p{Bidi_Control}\p{Line_Separator}\p{Paragraph_Separator}]/gu,
+		character => String.raw`\u{${character.codePointAt(0).toString(16)}}`,
+	);
+
+	const getProblem = problem => {
+		if (!isSupportedExpression(problem.node, context)) {
 			return;
 		}
 
-		return getCommentSafeProblem(context, {
-			node,
-			loc: location,
-			messageId: MESSAGE_ID,
-			...(shouldSuggest
-				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
-				: {fix}),
-		});
+		return getCommentSafeProblem(context, problem);
 	};
 
 	context.on('UnaryExpression', node => {
@@ -578,7 +581,15 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, fixer => fixDeMorgan(fixer, node, context));
+		return getProblem({
+			node,
+			messageId: MESSAGE_ID_DE_MORGAN,
+			data: {
+				operator: node.argument.operator,
+				replacementOperator: negatedLogicalOperators.get(node.argument.operator),
+			},
+			fix: fixer => fixDeMorgan(fixer, node, context),
+		});
 	});
 
 	context.on('LogicalExpression', node => {
@@ -588,9 +599,11 @@ const create = context => {
 
 		const absorptionTerm = getAbsorptionTerm(node, context);
 		if (absorptionTerm) {
-			return getProblem(
+			return getProblem({
 				node,
-				isReferenceContext(node)
+				messageId: MESSAGE_ID_ABSORPTION,
+				data: {term: getTermTextForMessage(absorptionTerm)},
+				fix: isReferenceContext(node)
 					? undefined
 					: fixer => fixLogicalExpression(
 						fixer,
@@ -598,7 +611,7 @@ const create = context => {
 						getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context),
 						context,
 					),
-			);
+			});
 		}
 
 		const factoringTerms = getLeadingCommonFactoringTerms(node, context);
@@ -608,15 +621,17 @@ const create = context => {
 
 		const [start] = getParenthesizedRange(factoringTerms.leftGroup, context);
 		const [, end] = getParenthesizedRange(factoringTerms.rightGroup, context);
+		const fix = fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context);
 
-		return getProblem(
+		return getProblem({
 			node,
-			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
-			{
-				shouldSuggest: factoringTerms.shouldSuggest,
-				location: toLocation([start, end], context),
-			},
-		);
+			loc: toLocation([start, end], context),
+			messageId: MESSAGE_ID_FACTORING,
+			data: {term: getTermTextForMessage(factoringTerms.common)},
+			...(factoringTerms.shouldSuggest
+				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
+				: {fix}),
+		});
 	});
 };
 
