@@ -15,7 +15,12 @@ import {
 	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
-import {getStaticStringValue, isMemberExpression, isMethodCall, isNullLiteral} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+	isNullLiteral,
+} from './ast/index.js';
 import {getArgumentRemovalRange} from './fix/index.js';
 
 const messages = {
