@@ -557,7 +557,7 @@ function isSupportedExpression(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const getTermTextForMessage = node => sourceCode.getText(node).replaceAll(
-		/[\p{Control}\p{Bidi_Control}\p{Line_Separator}\p{Paragraph_Separator}]/gu,
+		/[\p{Bidi_Control}\p{Control}\p{Line_Separator}\p{Paragraph_Separator}]/gu,
 		character => String.raw`\u{${character.codePointAt(0).toString(16)}}`,
 	);
 
