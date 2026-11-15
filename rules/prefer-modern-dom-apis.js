@@ -1,20 +1,36 @@
 import {
+	getConstVariableInitializer,
 	getOnlyExpression,
+	getStaticPropertyName,
+	hasCommentInRange,
+	hasPossibleSideEffect,
+	hasTypeArguments,
 	isNodeValueNotDomNode,
 	isSameReference,
+	isUnknownType,
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldReportReplaceChildrenReceiver,
+	unwrapTypeScriptExpression,
+	withTypeInformation,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
-import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+	isNullLiteral,
+} from './ast/index.js';
+import {getArgumentRemovalRange} from './fix/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
 		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
 	replaceChildOrInsertBeforeSuggestion: 'Switch to `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})`.',
+	preferParentInsertion: 'Prefer `.{{preferredMethod}}()` for this `.insertBefore()` call.',
+	preferParentInsertionSuggestion: 'Switch to `.{{preferredMethod}}()`.',
 	insertAdjacentTextOrInsertAdjacentElement:
 		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.',
 	replaceChildren:
@@ -60,7 +76,7 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 		return problem;
 	}
 
-	// `insertBefore(child, null)` appends `child`, but `null.before(child)` throws, so the rewrite can only be suggested.
+	// `insertBefore(child, null)` appends `child`, but `null.before(child)` throws, so the `.before()` rewrite can only be suggested.
 	problem.suggest = [
 		{
 			messageId: 'replaceChildOrInsertBeforeSuggestion',
@@ -68,6 +84,71 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 			fix,
 		},
 	];
+
+	return problem;
+};
+
+const getParentInsertionMethod = (context, node) => {
+	const reference = unwrapTypeScriptExpression(node.arguments[1]);
+	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(reference, context));
+	if (isNullLiteral(reference) || isNullLiteral(initializer)) {
+		return 'append';
+	}
+
+	const parentNode = node.callee.object;
+	if (
+		isMemberExpression(reference)
+		&& getStaticPropertyName(reference, context) === 'firstChild'
+		&& !containsOptionalChain(reference)
+		&& isSameReference(parentNode, reference.object)
+		&& !hasPossibleSideEffect(parentNode, context)
+		&& !hasPossibleSideEffect(reference.object, context)
+	) {
+		return 'prepend';
+	}
+};
+
+const getParentInsertionProblem = (context, node, preferredMethod) => {
+	const parentNode = node.callee.object;
+	const [child, reference] = node.arguments;
+	if (
+		isNodeValueNotDomNode(unwrapTypeScriptExpression(parentNode))
+		|| isNodeValueNotDomNode(unwrapTypeScriptExpression(child))
+		|| containsOptionalChain(parentNode)
+	) {
+		return;
+	}
+
+	if (withTypeInformation(parentNode, context, ({type, checker}) =>
+		!isUnknownType(type) && !checker.getTypeOfPropertyOfType(type, preferredMethod)?.getCallSignatures().length)) {
+		return;
+	}
+
+	const problem = {
+		node,
+		messageId: 'preferParentInsertion',
+		data: {preferredMethod},
+	};
+
+	if (!isValueNotUsable(node) || hasTypeArguments(node)) {
+		return problem;
+	}
+
+	const {sourceCode} = context;
+	const removalRange = getArgumentRemovalRange(reference, context);
+	const [closingParenthesisStart] = sourceCode.getRange(sourceCode.getLastToken(node));
+	// A trailing comment can describe the removed reference even when it is outside the edit range.
+	if (!hasCommentInRange(context, [removalRange[0], closingParenthesisStart])) {
+		// `.append()` and `.prepend()` can convert a non-node argument to text instead of throwing.
+		problem.suggest = [{
+			messageId: 'preferParentInsertionSuggestion',
+			data: problem.data,
+			* fix(fixer) {
+				yield fixer.replaceText(node.callee.property, preferredMethod);
+				yield fixer.removeRange(removalRange);
+			},
+		}];
+	}
 
 	return problem;
 };
@@ -183,16 +264,26 @@ const getReplaceChildrenProblem = (context, node) => {
 */
 const create = context => {
 	context.on('CallExpression', node => {
+		if (!isMethodCall(node, {
+			methods: ['replaceChild', 'insertBefore'],
+			argumentsLength: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		if (node.callee.property.name === 'insertBefore') {
+			const preferredMethod = getParentInsertionMethod(context, node);
+			if (preferredMethod) {
+				return getParentInsertionProblem(context, node, preferredMethod);
+			}
+		}
+
 		if (
-			isMethodCall(node, {
-				methods: ['replaceChild', 'insertBefore'],
-				argumentsLength: 2,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			// We only allow Identifier for now
-			&& node.arguments.every(node => node.type === 'Identifier' && node.name !== 'undefined')
-			// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
+			// The `.before()` and `.replaceWith()` rewrites use argument names.
+			node.arguments.every(node => node.type === 'Identifier' && node.name !== 'undefined')
+			// Requiring an identifier receiver limits these rewrites to the first call in a chain.
 			&& node.callee.object.type === 'Identifier'
 		) {
 			return getReplaceChildOrInsertBeforeProblem(context, node);
@@ -209,13 +300,13 @@ const create = context => {
 			})
 			// Position argument should be `string`
 			&& getStaticStringValue(node.arguments[0]) !== undefined
-			// TODO: remove this limits on second argument
+			// TODO: remove these limits on the second argument
 			&& (
 				node.arguments[1].type === 'Literal'
 				|| node.arguments[1].type === 'Identifier'
 				|| getStaticStringValue(node.arguments[1]) !== undefined
 			)
-			// TODO: remove this limits on callee
+			// TODO: remove these limits on the callee
 			&& node.callee.object.type === 'Identifier'
 		) {
 			return getInsertAdjacentTextOrInsertAdjacentElementProblem(context, node);

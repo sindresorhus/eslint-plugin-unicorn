@@ -174,7 +174,7 @@ test({
 			],
 		},
 		// Tests for .insertBefore()
-		// `insertBefore(child, null)` appends, but `null.before(child)` throws, so the rewrite can only be a suggestion
+		// `insertBefore(child, null)` appends, but `null.before(child)` throws, so the `.before()` rewrite can only be a suggestion
 		{
 			code: 'parentNode.insertBefore(newNode, referenceNode);',
 			errors: [
@@ -660,6 +660,145 @@ test({
 			code: 'function f(window) { while (window.firstChild) { window.firstChild.remove(); } }',
 			output: 'function f(window) { window.replaceChildren(); }',
 			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		'parent.insertBefore(child, other.firstChild);',
+		'parent.insertBefore(child, parent.firstElementChild);',
+		'parent.insertBefore(child, parent[(log(), "firstChild")]);',
+		'parents.list.insertBefore(child, parents[(log(), "list")].firstChild);',
+		'parents[(log(), "list")].insertBefore(child, parents.list.firstChild);',
+		'getParent().insertBefore(child, getParent().firstChild);',
+		'parent?.insertBefore(child, parent.firstChild);',
+		'parent.insertBefore?.(child, null);',
+		'(object?.list).insertBefore(child, object.list.firstChild);',
+		'object.list.insertBefore(child, (object?.list).firstChild);',
+		'parent.insertBefore(...children, parent.firstChild);',
+		'parent.insertBefore("text", parent.firstChild);',
+		typeAware('function insert(parent: Node, child: Node) { parent.insertBefore(child, parent.firstChild!); }'),
+		typeAware('function insert(parent: Node, child: Node) { const reference = null; parent.insertBefore(child, reference); }'),
+	],
+	invalid: [
+		{
+			code: 'parent.insertBefore(child, parent.firstChild);',
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'prepend'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'parent.prepend(child);',
+				}],
+			}],
+		},
+		{
+			code: 'parent.insertBefore(child, null);',
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'append'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'parent.append(child);',
+				}],
+			}],
+		},
+		{
+			code: 'const reference = null; parent.insertBefore(child, reference);',
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'append'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'const reference = null; parent.append(child);',
+				}],
+			}],
+		},
+		{
+			code: 'let reference = null; reference = sibling; parent.insertBefore(child, reference);',
+			errors: [{
+				messageId: 'replaceChildOrInsertBefore',
+				suggestions: [{
+					messageId: 'replaceChildOrInsertBeforeSuggestion',
+					output: 'let reference = null; reference = sibling; reference.before(child);',
+				}],
+			}],
+		},
+		{
+			code: 'const reference = null; function insert(reference) { parent.insertBefore(child, reference); }',
+			errors: [{
+				messageId: 'replaceChildOrInsertBefore',
+				suggestions: [{
+					messageId: 'replaceChildOrInsertBeforeSuggestion',
+					output: 'const reference = null; function insert(reference) { reference.before(child); }',
+				}],
+			}],
+		},
+		{
+			code: outdent`
+				this.list.insertBefore(
+					/* Keep this. */ document.createElement('li'),
+					(this.list['firstChild']),
+				);
+			`,
+			errors: [{
+				messageId: 'preferParentInsertion',
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: outdent`
+						this.list.prepend(
+							/* Keep this. */ document.createElement('li'),
+						);
+					`,
+				}],
+			}],
+		},
+		{
+			...typeAware('function insert(parent: Element, child: Node) { parent.insertBefore(child, parent.firstChild!); }'),
+			errors: [{
+				messageId: 'preferParentInsertion',
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'function insert(parent: Element, child: Node) { parent.prepend(child); }',
+				}],
+			}],
+		},
+		{
+			...typeAware('function insert(parent: DocumentFragment, child: Node, shouldInsert: boolean) { const reference = null; if (shouldInsert) { parent.insertBefore(child, reference); } }'),
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'append'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'function insert(parent: DocumentFragment, child: Node, shouldInsert: boolean) { const reference = null; if (shouldInsert) { parent.append(child); } }',
+				}],
+			}],
+		},
+		{
+			code: 'parent.insertBefore(child, /* Keep this. */ parent.firstChild);',
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			code: 'parent.insertBefore(child, parent.firstChild /* May be null. */);',
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			code: outdent`
+				parent.insertBefore(
+					child,
+					null, // Insert at the end.
+				);
+			`,
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			code: 'const inserted = parent.insertBefore(child, parent.firstChild);',
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			...typescript('parent.insertBefore<HTMLElement>(child, null);'),
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
 		},
 	],
 });
