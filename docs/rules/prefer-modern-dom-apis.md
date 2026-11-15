@@ -9,12 +9,14 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`, and `.replaceChildren()` over direct `.firstChild.remove()`/`.lastChild.remove()` loops.
+Prefer `.before()`, `.prepend()` or `.append()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`, and `.replaceChildren()` over direct `.firstChild.remove()`/`.lastChild.remove()` loops.
 
 Enforces the use of:
 
 - [childNode.replaceWith(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith) over [parentNode.replaceChild(newNode, oldNode)](https://developer.mozilla.org/en-US/docs/Web/API/Node/replaceChild)
 - [referenceNode.before(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [parentNode.insertBefore(newNode, referenceNode)](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore)
+- [parentNode.prepend(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/Element/prepend) over `parentNode.insertBefore(newNode, parentNode.firstChild)`
+- [parentNode.append(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/Element/append) over `parentNode.insertBefore(newNode, null)`
 - [referenceNode.before('text')](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [referenceNode.insertAdjacentText('beforebegin', 'text')](https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentText)
 - [referenceNode.before(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [referenceNode.insertAdjacentElement('beforebegin', newNode)](https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement)
 - [node.replaceChildren()](https://developer.mozilla.org/en-US/docs/Web/API/Element/replaceChildren) over loops that directly remove the same checked `node.firstChild` or `node.lastChild`
@@ -26,7 +28,9 @@ There are some advantages of using the newer DOM APIs, like:
 - Removing all child nodes without manual iteration.
 - Both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
 
-`.insertBefore()` only gets a suggestion, because `parentNode.insertBefore(newNode, null)` appends `newNode`, while `null.before(newNode)` throws. `.replaceChild()` throws when the child is not in `parentNode`, while `.replaceWith()` uses the child's current parent, so the fix can remove that error.
+`.insertBefore()` gets editor suggestions when its return value is unused. The `.before()` suggestion requires a reference node. A `null` reference appends the new node. The `.prepend()` and `.append()` suggestions assume the first argument is a DOM node because they can convert other values to text.
+
+`.replaceChild()` throws when the child is not in `parentNode`, while `.replaceWith()` uses the child's current parent, so the fix can remove that error.
 
 The autofix assumes the code does not depend on per-child [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) records from repeated removals.
 
@@ -46,6 +50,22 @@ parentNode.insertBefore(newNode, oldNode);
 
 // ✅
 oldNode.before(newNode);
+```
+
+```js
+// ❌
+parentNode.insertBefore(newNode, parentNode.firstChild);
+
+// ✅
+parentNode.prepend(newNode);
+```
+
+```js
+// ❌
+parentNode.insertBefore(newNode, null);
+
+// ✅
+parentNode.append(newNode);
 ```
 
 ```js

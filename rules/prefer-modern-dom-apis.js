@@ -1,20 +1,29 @@
 import {
 	getOnlyExpression,
+	getStaticPropertyName,
+	hasPossibleSideEffect,
+	hasTypeArguments,
 	isNodeValueNotDomNode,
 	isSameReference,
+	isUnknownType,
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldReportReplaceChildrenReceiver,
+	unwrapTypeScriptExpression,
+	withTypeInformation,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
-import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMemberExpression, isMethodCall, isNullLiteral} from './ast/index.js';
+import {getArgumentRemovalRange} from './fix/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
 		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
 	replaceChildOrInsertBeforeSuggestion: 'Switch to `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})`.',
+	preferParentInsertion: 'Prefer `.{{preferredMethod}}()` for this `.insertBefore()` call.',
+	preferParentInsertionSuggestion: 'Switch to `.{{preferredMethod}}()`.',
 	insertAdjacentTextOrInsertAdjacentElement:
 		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.',
 	replaceChildren:
@@ -60,7 +69,7 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 		return problem;
 	}
 
-	// `insertBefore(child, null)` appends `child`, but `null.before(child)` throws, so the rewrite can only be suggested.
+	// `insertBefore(child, null)` appends `child`, but `null.before(child)` throws, so the `.before()` rewrite can only be suggested.
 	problem.suggest = [
 		{
 			messageId: 'replaceChildOrInsertBeforeSuggestion',
@@ -68,6 +77,75 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 			fix,
 		},
 	];
+
+	return problem;
+};
+
+const getParentInsertionMethod = (context, parentNode, reference) => {
+	if (isNullLiteral(reference)) {
+		return 'append';
+	}
+
+	if (
+		isMemberExpression(reference)
+		&& getStaticPropertyName(reference, context) === 'firstChild'
+		&& !containsOptionalChain(reference)
+		&& isSameReference(parentNode, reference.object)
+		&& !hasPossibleSideEffect(parentNode, context)
+		&& !hasPossibleSideEffect(reference.object, context)
+	) {
+		return 'prepend';
+	}
+};
+
+const getParentInsertionProblem = (context, node) => {
+	if (!isMethodCall(node, {
+		method: 'insertBefore',
+		argumentsLength: 2,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return;
+	}
+
+	const parentNode = node.callee.object;
+	const [child, reference] = node.arguments;
+	if (
+		isNodeValueNotDomNode(unwrapTypeScriptExpression(parentNode))
+		|| isNodeValueNotDomNode(unwrapTypeScriptExpression(child))
+		|| containsOptionalChain(parentNode)
+	) {
+		return;
+	}
+
+	const preferredMethod = getParentInsertionMethod(context, parentNode, unwrapTypeScriptExpression(reference));
+	if (!preferredMethod || withTypeInformation(parentNode, context, ({type, checker}) =>
+		!isUnknownType(type) && !checker.getTypeOfPropertyOfType(type, preferredMethod)?.getCallSignatures().length)) {
+		return;
+	}
+
+	const problem = {
+		node,
+		messageId: 'preferParentInsertion',
+		data: {preferredMethod},
+	};
+
+	if (!isValueNotUsable(node) || hasTypeArguments(node)) {
+		return problem;
+	}
+
+	const removalRange = getArgumentRemovalRange(reference, context);
+	if (!wouldRemoveComments(context, removalRange)) {
+		// `.append()` and `.prepend()` can convert a non-node argument to text instead of throwing.
+		problem.suggest = [{
+			messageId: 'preferParentInsertionSuggestion',
+			data: problem.data,
+			* fix(fixer) {
+				yield fixer.replaceText(node.callee.property, preferredMethod);
+				yield fixer.removeRange(removalRange);
+			},
+		}];
+	}
 
 	return problem;
 };
@@ -182,6 +260,8 @@ const getReplaceChildrenProblem = (context, node) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('CallExpression', node => getParentInsertionProblem(context, node));
+
 	context.on('CallExpression', node => {
 		if (
 			isMethodCall(node, {
@@ -209,13 +289,13 @@ const create = context => {
 			})
 			// Position argument should be `string`
 			&& getStaticStringValue(node.arguments[0]) !== undefined
-			// TODO: remove this limits on second argument
+			// TODO: remove these limits on the second argument
 			&& (
 				node.arguments[1].type === 'Literal'
 				|| node.arguments[1].type === 'Identifier'
 				|| getStaticStringValue(node.arguments[1]) !== undefined
 			)
-			// TODO: remove this limits on callee
+			// TODO: remove these limits on the callee
 			&& node.callee.object.type === 'Identifier'
 		) {
 			return getInsertAdjacentTextOrInsertAdjacentElementProblem(context, node);
