@@ -765,6 +765,17 @@ test({
 			}],
 		},
 		{
+			...typeAware('function insert(parent: DocumentFragment, child: Node, shouldInsert: boolean) { const reference = null; if (shouldInsert) { parent.insertBefore(child, reference); } }'),
+			errors: [{
+				messageId: 'preferParentInsertion',
+				data: {preferredMethod: 'append'},
+				suggestions: [{
+					messageId: 'preferParentInsertionSuggestion',
+					output: 'function insert(parent: DocumentFragment, child: Node, shouldInsert: boolean) { const reference = null; if (shouldInsert) { parent.append(child); } }',
+				}],
+			}],
+		},
+		{
 			code: 'parent.insertBefore(child, /* Keep this. */ parent.firstChild);',
 			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
 		},
