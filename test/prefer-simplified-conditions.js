@@ -1114,6 +1114,26 @@ ruleTester.snapshot({
 	],
 });
 
+ruleTester({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				if (
+					isReady ||
+					isCached ||
+					(foo.bar && a) ||
+					((foo.bar && b) || fallback)
+				) {}
+			`,
+			output: 'if (\n\tisReady || isCached || (foo.bar && (a || b)) || fallback\n) {}',
+			errors: [{
+				messageId: ruleId, line: 4, column: 2, endLine: 5, endColumn: 17,
+			}],
+		},
+	],
+});
+
 test('factoring disjoint pairs settles through repeated fixes', t => {
 	const linter = new Linter();
 	const config = {
@@ -1309,6 +1329,8 @@ ruleTester.vue({
 			code: '<template><div v-if="x || (isFoo(value) && a) || (isFoo(value) && b && c)" /></template>',
 			errors: [{
 				messageId: 'prefer-simplified-conditions',
+				column: 27,
+				endColumn: 74,
 				suggestions: [{
 					messageId: 'suggestion',
 					output: '<template><div v-if="x || (isFoo(value) && (a || (b && c)))" /></template>',

@@ -162,7 +162,7 @@ exports[`prefer-simplified-conditions > invalid(1): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c && object.property)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || (a && (b || (c && object.property)))) {}
@@ -234,7 +234,7 @@ exports[`prefer-simplified-conditions > invalid(10): if (x && (a || b) && (a || 
 
 Message:
 > 1 | if (x && (a || b) && (a || c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x && (a || (b && c))) {}
@@ -444,7 +444,7 @@ exports[`prefer-simplified-conditions > invalid(13): if ((x && (a || b)) && ((a 
 
 Message:
 > 1 | if ((x && (a || b)) && ((a || c) && y)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if ((x && (a || (b && c)) && y)) {}
@@ -516,7 +516,7 @@ exports[`prefer-simplified-conditions > invalid(14): if (before() || (a && b) ||
 
 Message:
 > 1 | if (before() || (a && b) || (a && c) || after()) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                 ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (before() || (a && (b || c)) || after()) {}
@@ -804,7 +804,7 @@ exports[`prefer-simplified-conditions > invalid(18): if (x || (a && b /* keep */
 
 Message:
 > 1 | if (x || (a && b /* keep */) || (a && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 `;
 
@@ -1003,7 +1003,7 @@ exports[`prefer-simplified-conditions > invalid(2): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c && foo())) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Suggestion 1/1: Simplify the condition.:
   1 | if (x || (a && (b || (c && foo())))) {}
@@ -1219,7 +1219,7 @@ exports[`prefer-simplified-conditions > invalid(22): if (x || /* keep */ (a && b
 
 Message:
 > 1 | if (x || /* keep */ (a && b) || (a && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 `;
 
@@ -1289,10 +1289,9 @@ exports[`prefer-simplified-conditions > invalid(23): if (\r\n  x ||\r\n  (a && b
 
 Message:
   1 | if (
-> 2 |   x ||
-    |   ^^^^
+  2 |   x ||
 > 3 |   (a && b) ||
-    | ^^^^^^^^^^^^^
+    |   ^^^^^^^^^^^
 > 4 |   (a && c && d)
     | ^^^^^^^^^^^^^^^ Prefer a simplified condition.
   5 | ) {}
@@ -1314,7 +1313,7 @@ exports[`prefer-simplified-conditions > invalid(24): const value = x || (a === t
 
 Message:
 > 1 | const value = x || (a === true && b === true) || (a === true && c === true && d === true);
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | const value = x || (a === true && (b === true || (c === true && d === true)));
@@ -1386,7 +1385,7 @@ exports[`prefer-simplified-conditions > invalid(25): (function () {} || (a === t
 
 Message:
 > 1 | (function () {} || (a === true && b === true)) || (a === true && c === true);
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | (function () {} || (a === true && (b === true || c === true)));
@@ -1463,7 +1462,7 @@ exports[`prefer-simplified-conditions > invalid(26): foo()\n;({} || (a === true 
 Message:
   1 | foo()
 > 2 | ;({} || (a === true && b === true)) || (a === true && c === true);
-    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | foo()
@@ -1560,7 +1559,7 @@ exports[`prefer-simplified-conditions > invalid(27): declare const a: boolean; d
 
 Message:
 > 1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; declare const d: boolean; const value = x || (a && b) || (a && c && d);
-    |                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | declare const a: boolean; declare const b: boolean; declare const c: boolean; declare const d: boolean; const value = x || (a && (b || (c && d)));
@@ -1666,7 +1665,7 @@ exports[`prefer-simplified-conditions > invalid(28): if (x || ((a as boolean) &&
 
 Message:
 > 1 | if (x || ((a as boolean) && b) || ((a as boolean) && c && d)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || ((a as boolean) && (b || (c && d)))) {}
@@ -1723,7 +1722,7 @@ exports[`prefer-simplified-conditions > invalid(29): declare const flags: {a: bo
 
 Message:
 > 1 | declare const flags: {a: boolean; b: boolean; c: boolean; d: boolean}; const {a, b, c, d} = flags; const value = x || (a && b) || (a && c && d);
-    |                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | declare const flags: {a: boolean; b: boolean; c: boolean; d: boolean}; const {a, b, c, d} = flags; const value = x || (a && (b || (c && d)));
@@ -1888,7 +1887,7 @@ exports[`prefer-simplified-conditions > invalid(30): const element = <div>{x || 
 
 Message:
 > 1 | const element = <div>{x || (a && b) || (a && c && d) ? "yes" : "no"}</div>;
-    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | const element = <div>{x || (a && (b || (c && d))) ? "yes" : "no"}</div>;
@@ -1991,7 +1990,7 @@ exports[`prefer-simplified-conditions > invalid(31): if (x || (object.property &
 
 Message:
 > 1 | if (x || (object.property && a) || (object.property && b && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || (object.property && (a || (b && c)))) {}
@@ -2060,7 +2059,7 @@ exports[`prefer-simplified-conditions > invalid(32): if (x || (isFoo(node) && a)
 
 Message:
 > 1 | if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Suggestion 1/1: Simplify the condition.:
   1 | if (x || (isFoo(node) && (a || (b && c)))) {}
@@ -2111,7 +2110,7 @@ exports[`prefer-simplified-conditions > invalid(33): if (x || (object[\`key\`] &
 
 Message:
 > 1 | if (x || (object[\`key\`] && a) || (object.key && b && c)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || (object[\`key\`] && (a || (b && c)))) {}
@@ -2340,7 +2339,7 @@ exports[`prefer-simplified-conditions > invalid(4): if (x || (a && b) || (a && c
 
 Message:
 > 1 | if (x || (a && b) || (a && c) || y) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || (a && (b || c)) || y) {}
@@ -2622,7 +2621,7 @@ exports[`prefer-simplified-conditions > invalid(5): if ((x || (a && b)) || ((a &
 
 Message:
 > 1 | if ((x || (a && b)) || ((a && c) || y)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if ((x || (a && (b || c)) || y)) {}
@@ -2745,7 +2744,7 @@ exports[`prefer-simplified-conditions > invalid(6): if (x || ((a && b) || ((a &&
 
 Message:
 > 1 | if (x || ((a && b) || ((a && c) || y))) {}
-    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+    |           ^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
   1 | if (x || ((a && (b || c)) || y)) {}
