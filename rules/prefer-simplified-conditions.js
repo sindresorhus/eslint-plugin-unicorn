@@ -9,6 +9,7 @@ import {
 	getCommentSafeProblem,
 	getLogicalExpressionOperands,
 	getNegatedExpressionText,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getTokenStore,
 	isBoolean,
@@ -21,6 +22,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
 	shouldAddParenthesesToLogicalExpressionChild,
+	toLocation,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -406,8 +408,10 @@ function getLeadingCommonFactoringTerms(node, context) {
 
 	const before = getLogicalExpressionOperands(node.left, node.operator);
 	const after = getLogicalExpressionOperands(node.right, node.operator);
-	const leftOperands = getLogicalExpressionOperands(before.pop(), innerOperator);
-	const rightOperands = getLogicalExpressionOperands(after.shift(), innerOperator);
+	const leftGroup = before.pop();
+	const rightGroup = after.shift();
+	const leftOperands = getLogicalExpressionOperands(leftGroup, innerOperator);
+	const rightOperands = getLogicalExpressionOperands(rightGroup, innerOperator);
 	if (
 		leftOperands.length < 2
 		|| rightOperands.length < 2
@@ -430,6 +434,8 @@ function getLeadingCommonFactoringTerms(node, context) {
 
 	return {
 		common: leftOperands[0],
+		leftGroup,
+		rightGroup,
 		leftRemainingOperands: leftOperands.slice(1),
 		rightRemainingOperands: rightOperands.slice(1),
 		before,
@@ -545,13 +551,14 @@ function isSupportedExpression(node, context) {
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const getProblem = (node, fix, shouldSuggest = false) => {
+	const getProblem = (node, fix, {shouldSuggest = false, location} = {}) => {
 		if (!isSupportedExpression(node, context)) {
 			return;
 		}
 
 		return getCommentSafeProblem(context, {
 			node,
+			loc: location,
 			messageId: MESSAGE_ID,
 			...(shouldSuggest
 				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
@@ -599,10 +606,16 @@ const create = context => {
 			return;
 		}
 
+		const [start] = getParenthesizedRange(factoringTerms.leftGroup, context);
+		const [, end] = getParenthesizedRange(factoringTerms.rightGroup, context);
+
 		return getProblem(
 			node,
 			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
-			factoringTerms.shouldSuggest,
+			{
+				shouldSuggest: factoringTerms.shouldSuggest,
+				location: toLocation([start, end], context),
+			},
 		);
 	});
 };

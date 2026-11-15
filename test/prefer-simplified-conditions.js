@@ -1114,15 +1114,37 @@ ruleTester.snapshot({
 	],
 });
 
-test('factoring disjoint pairs settles through repeated fixes', t => {
+ruleTester({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				if (
+					isReady ||
+					isCached ||
+					(foo.bar && a) ||
+					((foo.bar && b) || fallback)
+				) {}
+			`,
+			output: 'if (\n\tisReady || isCached || (foo.bar && (a || b)) || fallback\n) {}',
+			errors: [{
+				messageId: ruleId, line: 4, column: 2, endLine: 5, endColumn: 17,
+			}],
+		},
+	],
+});
+
+test('factoring disjoint pairs reports each pair and settles through repeated fixes', t => {
 	const linter = new Linter();
 	const config = {
 		plugins: {unicorn: {rules: {[ruleId]: rule}}},
 		rules: {[`unicorn/${ruleId}`]: 'error'},
 	};
 	const code = 'if (x || (a && b) || (a && c) || y || (d && e) || (d && f)) {}';
-	const result = linter.verifyAndFix(code, config);
+	const highlightedText = linter.verify(code, config).map(({column, endColumn}) => code.slice(column - 1, endColumn - 1));
+	t.assert.deepStrictEqual(highlightedText, ['(a && b) || (a && c)', '(d && e) || (d && f)']);
 
+	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.output, 'if (x || (a && (b || c)) || y || (d && (e || f))) {}');
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
@@ -1309,6 +1331,8 @@ ruleTester.vue({
 			code: '<template><div v-if="x || (isFoo(value) && a) || (isFoo(value) && b && c)" /></template>',
 			errors: [{
 				messageId: 'prefer-simplified-conditions',
+				column: 27,
+				endColumn: 74,
 				suggestions: [{
 					messageId: 'suggestion',
 					output: '<template><div v-if="x || (isFoo(value) && (a || (b && c)))" /></template>',
