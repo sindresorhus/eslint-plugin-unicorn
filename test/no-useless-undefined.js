@@ -1024,3 +1024,51 @@ test({
 		].map(code => ({code, output: code.replace('(undefined)', '()'), errors: 1})),
 	],
 });
+
+// `return undefined` in a getter is kept, since `return;` conflicts with the `getter-return` rule
+test({
+	valid: [
+		outdent`
+			class Foo {
+				get bar() {
+					for (const item of this.items) {
+						if (item.isBar) {
+							return item;
+						}
+					}
+
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			const foo = {
+				get bar() {
+					return undefined;
+				},
+			};
+		`,
+		'class Foo { static get bar() { return undefined; } }',
+		{
+			code: 'class Foo { get bar() { return undefined; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'class Foo { get bar() { return () => { return undefined; }; } }',
+			output: 'class Foo { get bar() { return () => { return; }; } }',
+			errors,
+		},
+		{
+			code: 'class Foo { bar() { return undefined; } }',
+			output: 'class Foo { bar() { return; } }',
+			errors,
+		},
+		{
+			code: 'class Foo { set bar(value) { return undefined; } }',
+			output: 'class Foo { set bar(value) { return; } }',
+			errors,
+		},
+	],
+});

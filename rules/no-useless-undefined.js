@@ -151,6 +151,15 @@ const isUndefinedOrVoidReturnType = functionNode => {
 	return type === 'TSUndefinedKeyword' || type === 'TSVoidKeyword';
 };
 
+const shouldKeepReturnUndefined = functionNode => {
+	if (functionNode?.returnType) {
+		return !isUndefinedOrVoidReturnType(functionNode);
+	}
+
+	// A getter must return a value, so `return;` conflicts with the `getter-return` rule
+	return functionNode?.parent?.kind === 'get';
+};
+
 const isFunctionBindCall = node =>
 	!node.optional
 	&& node.callee.type === 'MemberExpression'
@@ -354,8 +363,7 @@ const create = context => {
 			parent.type === 'ReturnStatement'
 			&& parent.argument === node
 		) {
-			const functionNode = getFunction(sourceCode.getScope(node));
-			if (functionNode?.returnType && !isUndefinedOrVoidReturnType(functionNode)) {
+			if (shouldKeepReturnUndefined(getFunction(sourceCode.getScope(node)))) {
 				return;
 			}
 
