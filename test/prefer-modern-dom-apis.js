@@ -726,6 +726,16 @@ test({
 			}],
 		},
 		{
+			code: 'const reference = null; function insert(reference) { parent.insertBefore(child, reference); }',
+			errors: [{
+				messageId: 'replaceChildOrInsertBefore',
+				suggestions: [{
+					messageId: 'replaceChildOrInsertBeforeSuggestion',
+					output: 'const reference = null; function insert(reference) { reference.before(child); }',
+				}],
+			}],
+		},
+		{
 			code: outdent`
 				this.list.insertBefore(
 					/* Keep this. */ document.createElement('li'),
@@ -756,6 +766,19 @@ test({
 		},
 		{
 			code: 'parent.insertBefore(child, /* Keep this. */ parent.firstChild);',
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			code: 'parent.insertBefore(child, parent.firstChild /* May be null. */);',
+			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
+		},
+		{
+			code: outdent`
+				parent.insertBefore(
+					child,
+					null, // Insert at the end.
+				);
+			`,
 			errors: [{messageId: 'preferParentInsertion', suggestions: []}],
 		},
 		{

@@ -2,6 +2,7 @@ import {
 	getConstVariableInitializer,
 	getOnlyExpression,
 	getStaticPropertyName,
+	hasCommentInRange,
 	hasPossibleSideEffect,
 	hasTypeArguments,
 	isNodeValueNotDomNode,
@@ -133,8 +134,11 @@ const getParentInsertionProblem = (context, node, preferredMethod) => {
 		return problem;
 	}
 
+	const {sourceCode} = context;
 	const removalRange = getArgumentRemovalRange(reference, context);
-	if (!wouldRemoveComments(context, removalRange)) {
+	const [closingParenthesisStart] = sourceCode.getRange(sourceCode.getLastToken(node));
+	// A trailing comment can describe the removed reference even when it is outside the edit range.
+	if (!hasCommentInRange(context, [removalRange[0], closingParenthesisStart])) {
 		// `.append()` and `.prepend()` can convert a non-node argument to text instead of throwing.
 		problem.suggest = [{
 			messageId: 'preferParentInsertionSuggestion',
@@ -277,9 +281,9 @@ const create = context => {
 		}
 
 		if (
-			// We only allow Identifier for now
+			// The `.before()` and `.replaceWith()` rewrites use argument names.
 			node.arguments.every(node => node.type === 'Identifier' && node.name !== 'undefined')
-			// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
+			// Requiring an identifier receiver limits these rewrites to the first call in a chain.
 			&& node.callee.object.type === 'Identifier'
 		) {
 			return getReplaceChildOrInsertBeforeProblem(context, node);
