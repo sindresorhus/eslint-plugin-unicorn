@@ -50,6 +50,10 @@ test.snapshot({
 		'useRef(null)',
 		'React.useRef(null)',
 
+		// `Object.setPrototypeOf(foo, null)`
+		'Object.setPrototypeOf(foo, null)',
+		'Reflect.setPrototypeOf(foo, null)',
+
 		// Ignored
 		'if (foo === null) {}',
 		'if (null === foo) {}',
@@ -176,6 +180,12 @@ test.snapshot({
 		// Optional call
 		'useRef?.(null)',
 		'React.useRef?.(null)',
+		'Object.setPrototypeOf?.(foo, null)',
+		// `setPrototypeOf` not on `Object` or `Reflect`
+		'foo.setPrototypeOf(bar, null)',
+		// `setPrototypeOf` with `null` not as the second argument
+		'Object.setPrototypeOf(null, foo)',
+		'Object.setPrototypeOf(foo, null, bar)',
 	],
 });
 
