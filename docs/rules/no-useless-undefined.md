@@ -19,7 +19,7 @@ Using `undefined` as an arrow function body can make its purpose clearer. Set `c
 
 `return undefined` in a getter is ignored, since the [`getter-return`](https://eslint.org/docs/latest/rules/getter-return) rule requires getters to return a value. Getters defined with `Object.defineProperty()` are not detected.
 
-The rule treats TypeScript files and JavaScript files with `@ts-check` or JSDoc type annotations as typed code. It keeps `undefined` in `let` initializers and default values because it can affect inferred types and function signatures. It also keeps explicit `undefined` arguments because TypeScript can require them.
+The rule treats TypeScript files, Vue and Svelte components whose script parser exposes TypeScript nodes, and JavaScript files with `@ts-check` or JSDoc type annotations as typed code. It keeps `undefined` in `let` initializers and default values because it can affect inferred types and function signatures. It also keeps explicit `undefined` arguments because TypeScript can require them.
 
 In typed code, the rule checks `return undefined` only in functions with a TypeScript return annotation of `undefined` or `void`. It keeps `() => undefined` because removing the value can change the inferred return type to `void`.
 
@@ -112,7 +112,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Whether to check for trailing `undefined` arguments in JavaScript files without type annotations or `@ts-check`.
+Whether to check for trailing `undefined` arguments in untyped JavaScript.
 
 The rule skips known calls where an explicit `undefined` matters, such as `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`. It matches statically known names in dot and bracket notation.
 
@@ -138,7 +138,7 @@ foo(bar, baz, undefined);
 Type: `boolean`\
 Default: `true`
 
-Whether to check concise arrow function bodies in JavaScript files without type annotations or `@ts-check`.
+Whether to check concise arrow function bodies in untyped JavaScript.
 
 ```js
 /* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */

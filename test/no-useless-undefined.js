@@ -64,6 +64,12 @@ test.typescript({
 			output: 'function* values() {yield;}',
 			errors,
 		},
+		{
+			code: 'const noop = () => undefined;',
+			filename: 'file.js',
+			output: 'const noop = () => {};',
+			errors,
+		},
 	],
 });
 
@@ -97,6 +103,34 @@ nodeTest('preserve undefined in a processed TypeScript block', t => {
 	});
 	t.assert.deepStrictEqual(messages, []);
 });
+
+for (const component of ['vue', 'svelte']) {
+	const filename = `component.${component}`;
+	test[component]({
+		testerOptions: {
+			languageOptions: {parserOptions: {parser: {ts: parsers.typescript.implementation}}},
+		},
+		valid: [
+			{
+				code: outdent`
+					<script lang="ts">
+					function noop() { return undefined; }
+					const result: undefined = noop();
+					</script>
+				`,
+				filename,
+			},
+		],
+		invalid: [
+			{
+				code: '<script>const noop = () => undefined;</script>',
+				output: '<script>const noop = () => {};</script>',
+				filename,
+				errors,
+			},
+		],
+	});
+}
 
 // A conditional produces a value, while indexed access can expose a reference
 test({

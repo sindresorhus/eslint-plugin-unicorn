@@ -323,6 +323,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const isTypedSource = isTypeScriptFile(context.physicalFilename)
 		|| isTypeScriptFile(context.filename)
+		|| (/\.(?:vue|svelte)$/iu.test(context.physicalFilename) && Boolean(sourceCode.parserServices.esTreeNodeToTSNodeMap))
 		|| hasJavaScriptTypeAnnotations(context);
 	const isGlobalUndefined = node => isUndefined(node) && isGlobalIdentifier(node, context);
 
