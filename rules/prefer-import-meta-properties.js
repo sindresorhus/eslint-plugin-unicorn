@@ -6,6 +6,8 @@ import {
 	isNewExpression,
 	isMethodCall,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {getOutermostTypeScriptExpression} from './utils/index.js';
 
 const ERROR_DIRNAME = 'error/calculate-dirname';
 const ERROR_FILENAME = 'error/calculate-filename';
@@ -14,15 +16,14 @@ const messages = {
 	[ERROR_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
 };
 
-const isParentLiteral = node => {
-	const value = getStaticStringValue(node);
-	return value === '.' || value === './';
-};
-
 const isImportMeta = node =>
 	node.type === 'MetaProperty'
 	&& node.meta.name === 'import'
 	&& node.property.name === 'meta';
+
+const getPropertyName = (key, computed = false) => !computed && key.type === 'Identifier'
+	? key.name
+	: getStaticStringValue(key);
 
 function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCode}) {
 	if (!isCallExpression(node, {optional: false, argumentsLength: 1})) {
@@ -40,7 +41,8 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 		if (node.type === 'MemberExpression') {
 			if (!(
 				checkKind === 'property'
-				&& isMemberExpression(node, {property: functionName, computed: false, optional: false})
+				&& !node.optional
+				&& getPropertyName(node.property, node.computed) === functionName
 			)) {
 				return false;
 			}
@@ -57,11 +59,11 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 			return (
 				isMethodCall(node, {
 					object: 'process',
-					method: 'getBuiltinModule',
 					argumentsLength: 1,
 					optionalMember: false,
 					optionalCall: false,
 				})
+				&& getPropertyName(node.callee.property, node.callee.computed) === 'getBuiltinModule'
 				&& isModuleLiteral(node.arguments[0])
 			);
 		}
@@ -96,7 +98,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 			const specifier = define.node;
 			return checkKind === 'module'
 				? (specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier')
-				: (specifier?.type === 'ImportSpecifier' && specifier.imported.name === functionName);
+				: (specifier?.type === 'ImportSpecifier' && getPropertyName(specifier.imported) === functionName);
 		}
 
 		return define.type === 'Variable' && isBuiltinModuleFunctionPattern(define.name, checkKind);
@@ -127,9 +129,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 			if (!(
 				checkKind === 'property'
 				&& parent.value === node
-				&& !parent.computed
-				&& parent.key.type === 'Identifier'
-				&& parent.key.name === functionName
+				&& getPropertyName(parent.key, parent.computed) === functionName
 			)) {
 				return false;
 			}
@@ -180,59 +180,24 @@ function create(context) {
 		@type {import('estree').Node}
 		*/
 		const memberExpression = node.parent;
-		if (!isMemberExpression(memberExpression, {
-			properties: ['url', 'filename'],
-			computed: false,
-			optional: false,
-		})) {
+		if (!isMemberExpression(memberExpression, {optional: false})) {
 			return;
 		}
 
-		const propertyName = memberExpression.property.name;
+		const propertyName = getPropertyName(memberExpression.property, memberExpression.computed);
 		if (propertyName === 'url') {
-			// `url.fileURLToPath(import.meta.url)`
+			// `url.fileURLToPath(import.meta.url)` or `url.fileURLToPath(new URL(import.meta.url))`
+			// Directory URLs made with `new URL('.', import.meta.url)` or `new URL('./', import.meta.url)` convert to paths with a trailing separator.
+			const {parent} = memberExpression;
+			const argument = isNewExpression(parent, {name: 'URL', argumentsLength: 1}) && parent.arguments[0] === memberExpression
+				? parent
+				: memberExpression;
+			const conversion = argument.parent;
 			if (
-				isUrlFileURLToPathCall(memberExpression.parent, sourceCode)
-				&& memberExpression.parent.arguments[0] === memberExpression
+				isUrlFileURLToPathCall(conversion, sourceCode)
+				&& conversion.arguments[0] === argument
 			) {
-				yield iterateProblemsFromFilename(memberExpression.parent, {
-					reportFilenameNode: true,
-				});
-				return;
-			}
-
-			// `new URL(import.meta.url)`
-			// `new URL('.', import.meta.url)`
-			// `new URL('./', import.meta.url)`
-			if (isNewExpression(memberExpression.parent, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
-				const newUrl = memberExpression.parent;
-				const urlParent = newUrl.parent;
-
-				// `new URL(import.meta.url)`
-				if (
-					newUrl.arguments.length === 1
-					&& newUrl.arguments[0] === memberExpression
-					// `url.fileURLToPath(new URL(import.meta.url))`
-					&& isUrlFileURLToPathCall(urlParent, sourceCode)
-					&& urlParent.arguments[0] === newUrl
-				) {
-					yield iterateProblemsFromFilename(urlParent, {
-						reportFilenameNode: true,
-					});
-					return;
-				}
-
-				// `url.fileURLToPath(new URL(".", import.meta.url))`
-				// `url.fileURLToPath(new URL("./", import.meta.url))`
-				if (
-					newUrl.arguments.length === 2
-					&& isParentLiteral(newUrl.arguments[0])
-					&& newUrl.arguments[1] === memberExpression
-					&& isUrlFileURLToPathCall(urlParent, sourceCode)
-					&& urlParent.arguments[0] === newUrl
-				) {
-					yield getProblem(urlParent, 'dirname');
-				}
+				yield iterateProblemsFromFilename(conversion);
 			}
 
 			return;
@@ -245,9 +210,9 @@ function create(context) {
 		/**
 		Iterates over reports where a given filename expression node
 		would be used to convert it to a dirname.
-		@param { import('estree').Expression} node
+		@param {import('estree').SimpleCallExpression | import('estree').MemberExpression} node
 		*/
-		function * iterateProblemsFromFilename(node, {reportFilenameNode = false} = {}) {
+		function * iterateProblemsFromFilename(node) {
 			/**
 			@type {{parent: import('estree').Node}}
 			*/
@@ -262,7 +227,7 @@ function create(context) {
 				return;
 			}
 
-			if (reportFilenameNode) {
+			if (node.type === 'CallExpression') {
 				yield getProblem(node, 'filename');
 			}
 
@@ -308,10 +273,21 @@ function create(context) {
 			return {
 				node,
 				messageId: name === 'dirname' ? ERROR_DIRNAME : ERROR_FILENAME,
-				// The call is replaced as a whole, a comment inside it would be dropped
-				fix: sourceCode.getCommentsInside(node).length === 0
-					? fixer => fixer.replaceText(node, `import.meta.${name}`)
-					: undefined,
+				* fix(fixer, {abort}) {
+					// The call is replaced as a whole, a comment inside it would be dropped
+					if (sourceCode.getCommentsInside(node).length > 0) {
+						return abort();
+					}
+
+					const {parent} = getOutermostTypeScriptExpression(node);
+					if (parent.type === 'UnaryExpression' && parent.operator === 'delete') {
+						// Replacing the call with a property access would delete that property.
+						return abort();
+					}
+
+					yield fixer.replaceText(node, `import.meta.${name}`);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			};
 		}
 	});
