@@ -11,7 +11,7 @@ JavaScript allows functions and constructors to be called with too few or too ma
 
 This rule checks simple local functions where the expected argument count is clear. It also checks a conservative default set of built-in APIs.
 
-A built-in is checked in both directions, a local function only for too many arguments. A call with too few arguments to a local function is usually the call site disagreeing with an optional parameter or a caller that reads a value that may be absent, so it is left alone.
+The rule checks built-in calls for missing and excess arguments. It checks local function calls for arguments beyond the known maximum.
 
 ## Examples
 
@@ -20,6 +20,16 @@ A built-in is checked in both directions, a local function only for too many arg
 const sum = (first, second) => first + second;
 
 sum(1, 2, 3);
+```
+
+```ts
+const callback: (value: number) => number = () => 1;
+
+// ❌
+callback(2, 3);
+
+// ✅
+callback(2);
 ```
 
 ```js
@@ -140,8 +150,10 @@ new Set(...values);
 
 ## Limitations
 
-For inferred local functions, this rule intentionally only checks local function declarations, `const` function expressions, `const` arrow functions, and direct IIFEs. Imported functions, member calls, constructors, dynamic/reassigned function variables, overloaded TypeScript declarations, and calls with spread arguments are ignored unless they match a configured API pattern.
+The local function check covers direct IIFEs, local function declarations, and local variables initialized with a function expression or arrow function. It skips bindings with detected reassignments, imported functions, member calls, constructors, overloaded TypeScript declarations, and calls with spread arguments. Configured API patterns have their own checks.
 
-Spread argument contents are not analyzed, even for array literals or TypeScript tuples.
+For local TypeScript calls, the outermost type assertion at the call site takes precedence over the variable’s type annotation, which takes precedence over the outermost type assertion on its initializer. A call-site assertion such as `callback as typeof callback` uses the variable’s own type. The local check uses inline function types, skips types that require resolution, and ignores control-flow narrowing.
+
+Spread argument contents are not analyzed, even for array literals or TypeScript tuples. The local check treats rest parameters as accepting any number of additional arguments.
 
 Default built-in checks only apply when the built-in global is not shadowed.
