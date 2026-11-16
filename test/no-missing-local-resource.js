@@ -218,7 +218,13 @@ test({
 	testerOptions: commonMark,
 	valid: [],
 	invalid: [{
-		code: '[Bundle](../.ai-temporary/./app.js?raw=1#main)\n[Generated file](../generated%20file.js)\n[Ignored casing](../assets/LOGO.svg)\n[Wrong casing](../assets/logo.SVG)\n[Broken](./.ai-temporary/app.js)',
+		code: [
+			'[Bundle](../.ai-temporary/./app.js?raw=1#main)',
+			'[Generated file](../generated%20file.js)',
+			'[Ignored casing](../assets/LOGO.svg)',
+			'[Wrong casing](../assets/logo.SVG)',
+			'[Broken](./.ai-temporary/app.js)',
+		].join('\n'),
 		filename: nestedMarkdownFilename,
 		options: [{
 			ignore: [
