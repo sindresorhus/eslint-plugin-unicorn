@@ -11,6 +11,8 @@ The replacement argument of [`String#replace()`](https://developer.mozilla.org/e
 
 Use a literal string when the replacement is static. Use a replacement function when the replacement is dynamic.
 
+The rule recognizes callbacks from local code, TypeScript, and JSDoc. For direct references, it uses the declared TypeScript type if another function can reassign the variable. It skips known non-string receivers and, without full type information, `.classList.replace()` on possible DOM nodes.
+
 Direct, non-optional [`.repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) calls on string or no-substitution template literals without `$` are allowed. The arguments need not be static because only the receiver can introduce replacement patterns.
 
 ## Examples
