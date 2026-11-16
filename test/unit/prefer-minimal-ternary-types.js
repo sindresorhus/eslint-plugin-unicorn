@@ -855,6 +855,25 @@ test('ignores minimization that makes a rest call a standalone assertion', t => 
 	t.assert.deepStrictEqual(getMessages(code, program), []);
 });
 
+test('fixes type guard calls whose result is discarded by a sequence', t => {
+	const code = outdent`
+		declare function isString(value: unknown, ...messages: string[]): value is string;
+		declare const condition: boolean, value: string | number;
+		const count = (condition ? isString(value, "a") : isString(value, "b"), 1);
+		if (typeof value === "number") {
+			value.toFixed();
+		}
+	`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const [message] = getMessages(code, program);
+	const fix = message?.fix;
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, 'isString(value, condition ? "a" : "b")');
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
+});
+
 for (const {name, declarations, expression, unsafeExpression, options} of [
 	{
 		name: 'a shared type guard with rest parameters',
@@ -867,6 +886,12 @@ for (const {name, declarations, expression, unsafeExpression, options} of [
 		declarations: 'declare function isString(value: unknown, message: string): value is string;',
 		expression: 'condition ? isString(value, "a") : isString(value, "b")',
 		unsafeExpression: 'isString(value, condition ? "a" : "b")',
+	},
+	{
+		name: 'a type guard whose result is used through a sequence',
+		declarations: 'declare function prepare(): void; declare function isString(value: unknown, ...messages: string[]): value is string;',
+		expression: '(prepare(), condition ? isString(value, "a") : isString(value, "b"))',
+		unsafeExpression: '(prepare(), isString(value, condition ? "a" : "b"))',
 	},
 	{
 		name: 'varying type guards',

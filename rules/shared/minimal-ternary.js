@@ -13,6 +13,7 @@ import {
 	isParenthesized,
 	isSameTokens,
 	isTypeScriptFile,
+	isValueNotUsable,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from '../utils/index.js';
@@ -387,9 +388,8 @@ function canAffectCallControlFlow(node, signature, type, checker) {
 
 	// Boolean type predicates only affect code that uses the result.
 	const {parent} = node;
-	return Boolean(predicate)
-		&& parent.type !== 'ExpressionStatement'
-		&& (parent.type !== 'ConditionalExpression' || parent.parent.type !== 'ExpressionStatement');
+	const expression = parent.type === 'ConditionalExpression' ? parent : node;
+	return Boolean(predicate) && !isValueNotUsable(expression);
 }
 
 function isIndependentlyCheckedRestType(restType, checker) {

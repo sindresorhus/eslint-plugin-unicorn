@@ -81,7 +81,7 @@ With [type information](https://typescript-eslint.io/getting-started/typed-linti
 
 With type information, shared-callee calls with rest parameters, including `new` and `super()`, require a single visible signature of the relevant kind in each branch and the same resolved instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. For inferred calls, the rule checks the visible signature's rest type before call-site inference. It uses the resolved rest type for explicit type arguments and for `super()`, where TypeScript specializes the base constructor before checking the call.
 
-These conservative checks can also skip safe transformations. They are best-effort; review type-sensitive fixes.
+These checks can skip safe transformations. Review type-sensitive fixes.
 
 Without type information, TypeScript objects with shared non-literal values, even safe identifiers, receive suggestions instead of autofixes. Suggestions are subject to runtime and comment safeguards; review them for lost narrowing.
 
