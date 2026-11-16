@@ -932,7 +932,8 @@ const isThisParameter = parameter =>
 
 const isOptionalParameter = parameter =>
 	parameter?.type === 'AssignmentPattern'
-	|| parameter?.optional === true;
+	|| parameter?.optional === true
+	|| parameter?.typeAnnotation?.typeAnnotation?.type === 'TSVoidKeyword';
 
 const getArity = signatureParameters => {
 	const parameters = isThisParameter(signatureParameters[0])
@@ -1282,8 +1283,7 @@ const create = context => {
 		const arity = getArity(parameters);
 		const argumentCount = callExpression.arguments.length;
 
-		// In JavaScript a parameter without a default is still optional at the call site, so
-		// only report passing too many arguments to a user-defined function, never too few.
+		// For local functions, only report arguments beyond the known maximum.
 		if (argumentCount <= arity.maximum) {
 			return;
 		}

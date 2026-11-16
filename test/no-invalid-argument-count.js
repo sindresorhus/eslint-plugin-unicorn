@@ -1704,7 +1704,7 @@ ruleTest.typescript({
 		'const callback: (...values: number[]) => number = () => 1;\ncallback(2, 3);',
 		'const callback: (value: number) => number = (value: number, extra?: number) => value;\n(callback as (value: number, extra?: number) => number)(2, 3);',
 		'const callback = (() => 1) as (value: number) => number;\ncallback(2);',
-		'const callback = () => 1;\n(<(value: number) => number>callback)(2);',
+		'const callback = () => 1;\n(<(value: number) => number>callback)?.(2);',
 		'((() => 1) as (value: number) => number)(2);',
 		'type Callback = (value: number) => number;\nconst callback = (() => 1) as Callback;\ncallback(2);',
 		'const identity = (value: number) => value;\nconst callback = () => 1;\n(callback as typeof identity)(2);',
@@ -1727,6 +1727,24 @@ ruleTest.typescript({
 		{
 			code: 'const callback: (this: void, value?: number) => number = () => 1;\ncallback(2, 3);',
 			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (value: void) => number = () => 1;\ncallback();\ncallback(undefined, undefined);',
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.', line: 3}],
+		},
+		{
+			code: 'const callback: (value: undefined) => number = () => 1;\ncallback(undefined, undefined);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: outdent`
+				const callback: (value: number) => number = function inner() {
+					inner(1);
+					return 1;
+				};
+				callback(1);
+			`,
+			errors: [{message: 'Expected 0 arguments, but got 1 argument.', line: 2}],
 		},
 		{
 			code: 'const callback = (() => 1) as (value: number) => number;\ncallback(2, 3);',
