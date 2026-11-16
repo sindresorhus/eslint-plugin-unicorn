@@ -1136,6 +1136,7 @@ ruleTester.snapshot({
 		'if (x || (object.property && a) || (object.property && b && c)) {}',
 		'if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}',
 		'if (x || (object[`key`] && a) || (object.key && b && c)) {}',
+		'if ((isFoo(\n  value,\n) && a) || (isFoo(\n  value,\n) && b)) {}',
 	],
 });
 

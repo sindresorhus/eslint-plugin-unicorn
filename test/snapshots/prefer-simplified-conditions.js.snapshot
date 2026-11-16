@@ -2151,6 +2151,37 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(34): if ((isFoo(\n  value,\n) && a) || (isFoo(\n  value,\n) && b)) {} 1`] = `
+
+  1 | if ((isFoo(
+  2 |   value,
+  3 | ) && a) || (isFoo(
+  4 |   value,
+  5 | ) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(34): if ((isFoo(\n  value,\n) && a) || (isFoo(\n  value,\n) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((isFoo(
+    |     ^^^^^^^
+> 2 |   value,
+    | ^^^^^^^^
+> 3 | ) && a) || (isFoo(
+    | ^^^^^^^^^^^^^^^^^^
+> 4 |   value,
+    | ^^^^^^^^
+> 5 | ) && b)) {}
+    | ^^^^^^^ Consider factoring out \`isFoo(\\u{a}  value,\\u{a})\` from both groups.
+
+Suggestion 1/1: Factor out \`isFoo(\\u{a}  value,\\u{a})\`.:
+  1 | if (isFoo(
+  2 |   value,
+  3 | ) && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(35): if (((c || a) && (c || b)) && d) {} 1`] = `
 
   1 | if (((c || a) && (c || b)) && d) {}
