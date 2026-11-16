@@ -50,6 +50,10 @@ const pullRequestTemplateBasenames = ['pull_request_template.md', 'pull_request_
 const gitlabTemplateDirectories = ['.gitlab/issue_templates', '.gitlab/merge_request_templates'];
 const giteaAndForgejoTemplateDirectories = [...githubCommunityDirectories, '.gitea', '.forgejo'];
 const issueTemplateNames = ['ISSUE_TEMPLATE', 'issue_template'];
+const issueTemplateConfigDirectories = getPathsInDirectories(
+	giteaAndForgejoTemplateDirectories.filter(directory => directory !== '.'),
+	issueTemplateNames,
+);
 const mergeMessageDirectories = ['.gitea/default_merge_message', '.forgejo/default_merge_message'];
 const reservedFilePaths = new Set([
 	...getPathsInDirectories(githubCommunityDirectories, ['ACCESSIBILITY.md', 'CODEOWNERS', 'SUPPORT.md']),
@@ -58,6 +62,7 @@ const reservedFilePaths = new Set([
 		'PULL_REQUEST_TEMPLATE',
 		'pull_request_template',
 	].flatMap(stem => ['md', 'yml', 'yaml'].map(extension => `${stem}.${extension}`))),
+	...getPathsInDirectories(issueTemplateConfigDirectories, ['config.yml', 'config.yaml']),
 	...getPathsInDirectories(mergeMessageDirectories, [
 		'MERGE_TEMPLATE.md',
 		'REBASE_TEMPLATE.md',
@@ -68,6 +73,7 @@ const reservedFilePaths = new Set([
 	]),
 	'.bitbucket/CODEOWNERS',
 	'.bitbucket/pull_request_template.md',
+	'.bitbucket/teams.yaml',
 	'.forgejo/CODEOWNERS',
 	'.gitea/CODEOWNERS',
 	'.github/FUNDING.yml',
@@ -88,7 +94,8 @@ const reservedDirectoryPaths = new Set([
 	'.github',
 	'.gitlab',
 	...getPathsInDirectories(githubCommunityDirectories, ['PULL_REQUEST_TEMPLATE']),
-	...getPathsInDirectories([...giteaAndForgejoTemplateDirectories, '.gitlab'], issueTemplateNames),
+	...issueTemplateConfigDirectories,
+	...getPathsInDirectories(['.', '.gitlab'], issueTemplateNames),
 	...mergeMessageDirectories,
 	'.github/DISCUSSION_TEMPLATE',
 	...gitlabTemplateDirectories,

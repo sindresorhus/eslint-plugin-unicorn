@@ -152,7 +152,6 @@ ruleTest({
 ruleTest({
 	valid: [
 		...[
-			'.github/ISSUE_TEMPLATE/config.yml',
 			'.github/DISCUSSION_TEMPLATE/announcements.yml',
 			'.github/FUNDING.yml',
 			'.github/VULNERABILITY_REPORT.yml',
@@ -168,6 +167,25 @@ ruleTest({
 			filename,
 			name: filename,
 		})),
+		...[
+			'.bitbucket/teams.yaml',
+			'.forgejo/ISSUE_TEMPLATE/config.yml',
+			'.gitea/issue_template/config.yaml',
+			'.github/ISSUE_TEMPLATE/config.yml',
+		].map(filename => ({
+			...languages.yaml,
+			code: '{}',
+			filename,
+			name: filename,
+			options: [{case: 'pascalCase'}],
+		})),
+		{
+			...languages.yaml,
+			code: '{}',
+			filename: 'docs/issue_template/config.yaml',
+			name: 'docs/issue_template/config.yaml below a configured root',
+			options: [{case: 'pascalCase', directoryRoots: ['docs']}],
+		},
 		...[
 			'CODEOWNERS',
 			'docs/CODEOWNERS',
@@ -220,6 +238,24 @@ ruleTest({
 			code: 'name: bug',
 			filename: '.gitlab/ISSUE_TEMPLATE.yml',
 			errors: [{message: 'Filename is not in kebab case. Rename it to `issue-template.yml`.'}],
+		},
+		...[
+			'.github/ISSUE_TEMPLATE/Nested/config.yml',
+			'.gitlab/ISSUE_TEMPLATE/config.yml',
+			'ISSUE_TEMPLATE/config.yml',
+		].map(filename => ({
+			...languages.yaml,
+			code: '{}',
+			filename,
+			options: [{case: 'pascalCase'}],
+			errors: [{message: 'Filename is not in pascal case. Rename it to `Config.yml`.'}],
+		})),
+		{
+			...languages.yaml,
+			code: '{}',
+			filename: '.bitbucket/Nested/teams.yaml',
+			options: [{case: 'pascalCase'}],
+			errors: [{message: 'Filename is not in pascal case. Rename it to `Teams.yaml`.'}],
 		},
 		{
 			...languages.toml,
@@ -304,6 +340,24 @@ test('resolves directory paths from ESLint cwd', t => {
 	);
 
 	t.assert.deepStrictEqual(verify(['error', {directoryRoots: ['src/FooBar']}]), []);
+});
+
+test('resolves reserved paths from ESLint cwd', t => {
+	const lintDirectory = path.join(cwd, 'test');
+	const linter = new Linter({cwd: lintDirectory});
+	const config = {
+		files: ['**/*.md'],
+		language: markdownFile.language,
+		plugins: {markdown, unicorn},
+		rules: {'unicorn/filename-case': 'error'},
+	};
+	const templatePath = path.join('.github', 'Pull_Request_Template.md');
+	const verify = filename => linter.verify(markdownFile.code, config, {filename}).map(({message}) => message);
+
+	t.assert.deepStrictEqual(verify(path.join(lintDirectory, templatePath)), []);
+	t.assert.deepStrictEqual(verify(path.join(lintDirectory, 'nested', templatePath)), [
+		'Filename is not in kebab case. Rename it to `pull-request-template.md`.',
+	]);
 });
 
 test('checks filenames of non-JavaScript files', t => {

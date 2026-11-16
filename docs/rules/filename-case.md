@@ -19,7 +19,7 @@ Directory names are checked only when the file is inside the current working dir
 
 Conventional lowercase entrypoint filenames `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, and `index.vue` are intentionally ignored, including when `pascalCase` is selected. Their parent directories are still checked.
 
-The filename check allows files that tools find by name in any directory.
+The rule allows the following reserved filenames in any directory.
 
 - Agent instructions and skills use `AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`, `CLAUDE.local.md`, `GEMINI.md`, and `SKILL.md`.
 - Cargo uses `Cargo.toml` and `Cargo.lock`, CMake uses `CMakePresets.json` and `CMakeUserPresets.json`, and Helm uses `Chart.yaml` and `Chart.lock`.
@@ -31,7 +31,8 @@ Repository hosting exceptions are relative to ESLint's current working directory
 - GitHub uses `PULL_REQUEST_TEMPLATE/` in the root, `docs/`, or `.github/`, as well as `.github/ISSUE_TEMPLATE/` and `.github/DISCUSSION_TEMPLATE/`. Azure Repos uses case-insensitive `pull_request_template/` and `pull_request_template/branches/` directories in the root, `docs/`, `.azuredevops/`, or `.vsts/`.
 - GitLab uses `.gitlab/issue_templates/` and `.gitlab/merge_request_templates/`. The rule accepts any case for the stem of `Default.md` directly inside either directory.
 - Across Gitea and Forgejo, `ISSUE_TEMPLATE/` and `issue_template/` are supported in the root, `docs/`, `.forgejo/`, `.gitea/`, `.github/`, or `.gitlab/`. Their single-file `ISSUE_TEMPLATE` and `PULL_REQUEST_TEMPLATE` files use uppercase or lowercase stems and `.md`, `.yml`, or `.yaml` extensions in those locations other than `.gitlab/`. The rule exempts their named merge message templates in `.gitea/default_merge_message/` and `.forgejo/default_merge_message/`.
-- `CODEOWNERS` can appear in the root, `docs/`, `.github/`, `.gitlab/`, `.forgejo/`, `.gitea/`, or `.bitbucket/`.
+- GitHub uses `.github/ISSUE_TEMPLATE/config.yml` to configure its issue template chooser. Across Gitea and Forgejo, `config.yml` and `config.yaml` are also reserved directly inside the issue template directories under `docs/`, `.forgejo/`, `.gitea/`, and `.github/`.
+- `CODEOWNERS` can appear in the root, `docs/`, `.github/`, `.gitlab/`, `.forgejo/`, `.gitea/`, or `.bitbucket/`. Bitbucket Cloud can also use `.bitbucket/teams.yaml` alongside it.
 - GitHub uses `ACCESSIBILITY.md` and `SUPPORT.md` in the root, `docs/`, or `.github/`, and `CITATION.cff` in the root. It looks for `FUNDING.yml`, `VULNERABILITY_REPORT.yml`, and `VULNERABILITY_REPORT.yaml` in `.github/`.
 - The rule also allows the reserved root directory names `.bitbucket/`, `.forgejo/`, `.gitea/`, `.github/`, and `.gitlab/`. It accepts any case for the Azure Repos root directory names `.azuredevops/` and `.vsts/`. The configured style applies to ordinary directories such as `docs/`.
 
