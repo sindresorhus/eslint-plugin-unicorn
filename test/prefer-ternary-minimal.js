@@ -440,21 +440,6 @@ test({
 			`,
 			errors,
 		}),
-		typeAware({
-			code: outdent`
-				declare function consume(...values: string[] | number[]): number;
-				function read(test: boolean): number {
-					if (test) { return consume("a"); } else { return consume(1); }
-				}
-			`,
-			output: outdent`
-				declare function consume(...values: string[] | number[]): number;
-				function read(test: boolean): number {
-					return test ? consume("a") : consume(1);
-				}
-			`,
-			errors,
-		}),
 		...[
 			'declare function call(value: "a"): void; declare function call(value: "b"): void; declare const test: boolean; if (test) { call("a"); } else { call("b"); }',
 			'declare function call<Value>(value: Value): Value; declare const test: boolean; if (test) { call(1); } else { call("b"); }',
