@@ -30,6 +30,10 @@ test({
 			const dirname = path.win32.dirname(import.meta.filename);
 		`,
 		outdent`
+			import {win32 as path} from 'node:path';
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
 			import url from 'node:url';
 			const filename = url[(getName(), 'fileURLToPath')](import.meta.url);
 		`,
@@ -91,6 +95,19 @@ test({
 		{
 			code: 'import {"fileURLToPath" as convert} from "node:url"; const filename = convert(import.meta.url);',
 			output: 'import {"fileURLToPath" as convert} from "node:url"; const filename = import.meta.filename;',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				import {default as path} from 'node:path';
+				import {"default" as url} from 'node:url';
+				const directory = path.dirname(url.fileURLToPath(import.meta.url));
+			`,
+			output: outdent`
+				import {default as path} from 'node:path';
+				import {"default" as url} from 'node:url';
+				const directory = import.meta.dirname;
+			`,
 			errors: 1,
 		},
 	],

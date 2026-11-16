@@ -96,9 +96,13 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 			}
 
 			const specifier = define.node;
+			if (specifier.type === 'ImportSpecifier') {
+				const expectedName = checkKind === 'module' ? 'default' : functionName;
+				return getPropertyName(specifier.imported) === expectedName;
+			}
+
 			return checkKind === 'module'
-				? (specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier')
-				: (specifier?.type === 'ImportSpecifier' && getPropertyName(specifier.imported) === functionName);
+				&& (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier');
 		}
 
 		return define.type === 'Variable' && isBuiltinModuleFunctionPattern(define.name, checkKind);
