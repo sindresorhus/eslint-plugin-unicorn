@@ -13,6 +13,8 @@ This rule checks static local JavaScript, Markdown, HTML, and CSS resources rela
 
 The project root is the linted file's nearest Git repository root, or ESLint's working directory if the file is outside a Git repository. The rule uses the normalized path without resolving symlinks and skips paths outside this root. This includes relative links such as `../../issues/new` that point to GitHub pages outside the checkout.
 
+For JavaScript modules reached through symlinks, pass the real file path to ESLint to match [the default module resolution in Node.js](https://nodejs.org/api/esm.html#resolution-algorithm-specification).
+
 It checks JavaScript `new URL(resource, import.meta.url)` with a string literal or a template literal without interpolations; Markdown links, images, and reference definitions; HTML `href`, `src`, `poster`, `srcset`, and `imagesrcset` attributes; and CSS `url()` resources, `image-set()` strings, and `@import` targets. Files and directories are valid, including those reached through symlinks. JavaScript, HTML, and CSS casing-only mismatches are automatically fixed.
 
 URLs with a scheme, root-relative URLs, fragments, and configured template values are ignored. It does not infer extensions, check cross-file fragments, honor HTML `<base>`, parse raw Markdown HTML, or support percent-encoded path separators. JavaScript imports, JSX attributes, dynamic resource paths, and other URL bases are not checked. JavaScript URL strings containing tabs, carriage returns, or line feeds are ignored. Casing fixes are unavailable for Markdown, JavaScript string escapes, HTML character references, CSS escapes, and Unicode case mappings that change length.

@@ -353,6 +353,14 @@ test({
 	].map(code => ({code, filename: path.join(fixtureDirectory, 'app.js')})),
 	invalid: [
 		{
+			code: 'new URL("./guide.md/.", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './guide.md/.'}}],
+		},
+		{
+			code: 'new URL("./guide.md/child/%2E%2E?raw=1", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './guide.md/child/%2E%2E?raw=1'}}],
+		},
+		{
 			code: 'new URL("./assets/missing.svg", import.meta.url);',
 			errors: [{messageId: 'missing', data: {resource: './assets/missing.svg'}}],
 		},

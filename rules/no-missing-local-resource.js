@@ -91,7 +91,9 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	}
 
 	const decodedPath = decodedParts.join('/');
-	const normalizedPath = path.posix.normalize(decodedPath);
+	// A final dot segment resolves to a directory URL and needs a trailing slash.
+	const endsWithDotSegment = ['.', '..'].includes(decodedParts.at(-1));
+	const normalizedPath = path.posix.normalize(endsWithDotSegment ? decodedPath + '/' : decodedPath);
 	const resolvedPath = resourcePath.startsWith('./') && !normalizedPath.startsWith('.')
 		? './' + normalizedPath
 		: normalizedPath;
