@@ -9,21 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-JavaScript supplies `undefined` in several places, such as uninitialized variables and bare `return` statements. This rule checks uses of the global `undefined` that can be redundant.
-
-`var` initializers are ignored because they can reset an existing binding, including on each loop iteration.
-
-A default for an entire function parameter is kept because removing it can change the function's `length`.
-
-Using `undefined` as an arrow function body can make its purpose clearer. Set `checkArrowFunctionBody: false` to allow it.
-
-`return undefined` in a getter is ignored, since the [`getter-return`](https://eslint.org/docs/latest/rules/getter-return) rule requires getters to return a value. Getters defined with `Object.defineProperty()` are not detected.
-
-The rule treats TypeScript files, Vue and Svelte components whose script parser exposes TypeScript nodes, and JavaScript files with `@ts-check` or JSDoc type annotations as typed code. It keeps `undefined` in `let` initializers and default values because it can affect inferred types and function signatures. It also keeps explicit `undefined` arguments because TypeScript can require them.
-
-In typed code, the rule checks `return undefined` only in functions with a TypeScript return annotation of `undefined` or `void`. It keeps `() => undefined` because removing the value can change the inferred return type to `void`.
-
-When the return type is a union with a real value type, such as `number | undefined`, the explicit `undefined` is kept, since it can document intent and avoid conflicts with the [`consistent-return`](https://eslint.org/docs/latest/rules/consistent-return) rule.
+This rule flags redundant uses of the global `undefined`.
 
 ## Examples
 
@@ -101,11 +87,21 @@ const foo = index >= 0 ? array[index] : undefined;
 const foo = array[index];
 ```
 
-Guarded indexed access is reported with an editor suggestion instead of an autofix because removing the guard changes when the access is evaluated.
+The indexed access example gets an editor suggestion. Removing the guard changes when the access runs.
+
+## Exceptions
+
+- A `var` initializer can reset an existing binding.
+- Removing a default on the parameter itself can change the function's `length`.
+- Getters written with `get` keep `return undefined` to satisfy [`getter-return`](https://eslint.org/docs/latest/rules/getter-return).
+
+### Typed code
+
+Typed code includes TypeScript files, Vue and Svelte files whose parser provides a TypeScript node map, and JavaScript with `@ts-check` or JSDoc types.
+
+The rule keeps `undefined` in `let` initializers, defaults, call arguments, and concise arrows. It checks `return undefined` only with a `: undefined` or `: void` annotation. Without an annotation, removing `undefined` can change the inferred return type to `void`.
 
 ## Options
-
-Type: `object`
 
 ### checkArguments
 
@@ -114,71 +110,17 @@ Default: `true`
 
 Whether to check for trailing `undefined` arguments in untyped JavaScript.
 
-The rule skips known calls where an explicit `undefined` matters, such as `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`. It matches statically known names in dot and bracket notation.
-
-Other callees can still distinguish a trailing `undefined` from an omitted argument through `arguments.length` or rest parameters. Set `checkArguments: false` to preserve these calls.
-
-```js
-// ❌
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}] */
-foo(bar, baz, undefined);
-
-// ✅
-foo(bar, baz);
-```
-
-```js
-// ✅
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}] */
-foo(bar, baz, undefined);
-```
+The rule skips calls like `array.push(undefined)` and `array['push'](undefined)` by name. Set `checkArguments: false` if your functions use `arguments.length` or rest parameters to tell omitted arguments from `undefined`.
 
 ### checkArrowFunctionBody
 
 Type: `boolean`\
 Default: `true`
 
-Whether to check concise arrow function bodies in untyped JavaScript.
-
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
-// ❌
-const foo = () => undefined;
-```
-
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
-// ✅
-const foo = () => {};
-```
-
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}] */
-// ✅
-const foo = () => undefined;
-```
+Whether to check `() => undefined` in untyped JavaScript. Block-body `return` statements are checked separately.
 
 ## Conflicts with other ESLint rules
 
-Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options) to allow bare `return` statements in array callbacks. For getters defined with `Object.defineProperty()`, the same option in [`getter-return`](https://eslint.org/docs/rules/getter-return#options) allows the fix.
+Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/latest/rules/array-callback-return#options) to allow bare returns in array callbacks. The same option in [`getter-return`](https://eslint.org/docs/latest/rules/getter-return#options) allows bare returns in getters created with `Object.defineProperty()`.
 
-```js
-{
-	rules: {
-		'array-callback-return': [
-			'error',
-			{
-				allowImplicit: true,
-			},
-		],
-		'getter-return': [
-			'error',
-			{
-				allowImplicit: true,
-			},
-		],
-	},
-}
-```
-
-[`no-useless-return`](https://eslint.org/docs/latest/rules/no-useless-return) can remove a final bare `return` on a later autofix pass. If that leaves an empty function body, [`no-empty-function`](https://eslint.org/docs/latest/rules/no-empty-function) can report it. A comment in the body marks an intentionally empty function.
+[`no-useless-return`](https://eslint.org/docs/latest/rules/no-useless-return) can remove the bare `return` left by this rule. If the body becomes empty, a comment satisfies [`no-empty-function`](https://eslint.org/docs/latest/rules/no-empty-function).
