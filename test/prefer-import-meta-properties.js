@@ -138,7 +138,7 @@ test.snapshot({
 		'const dirname = path.dirname(import.meta.filename);',
 		outdent`
 			import path from "path";
-			// It is the same as dirname on macOS but returns different results on Windows.
+			// URL pathnames can contain percent escapes and use forward slashes even on Windows.
 			const notDirname = path.dirname(new URL(import.meta.url).pathname);
 		`,
 		outdent`
@@ -204,10 +204,10 @@ test.snapshot({
 			import {fileURLToPath} from "./url.js";
 			const filename = fileURLToPath(import.meta.url);
 		`,
-		// The base is not the current directory
+		// The URL may refer to a different file or directory.
 		outdent`
 			import {fileURLToPath} from "node:url";
-			const dirname = fileURLToPath(new URL(base, import.meta.url));
+			const dirname = fileURLToPath(new URL(reference, import.meta.url));
 		`,
 	],
 	invalid: [
