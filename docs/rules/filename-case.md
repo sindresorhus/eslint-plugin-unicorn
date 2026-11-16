@@ -17,8 +17,6 @@ Named virtual files created by processors are ignored to avoid duplicate reports
 
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
-Conventional lowercase entrypoint filenames `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, and `index.vue` are intentionally ignored, including when `pascalCase` is selected. Their parent directories are still checked.
-
 Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
 The case check ignores path segments starting with `$`, as they are commonly used for route parameters.
@@ -198,7 +196,7 @@ Don't forget that you must escape special characters that you don't want to be i
 Type: `boolean`\
 Default: `true`
 
-Whether to check directory names. Filenames are always checked.
+Whether to check directory names.
 
 ### directoryRoots
 
@@ -269,3 +267,23 @@ For example:
 ❌ FooBar.test-utils.js
 ❌ FooBar.test_utils.js
 ```
+
+## Built-in exceptions
+
+These filenames are allowed in any directory.
+
+- Entrypoints named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, or `index.vue`.
+- Agent files named `AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`, `CLAUDE.local.md`, `GEMINI.md`, or `SKILL.md`.
+- Build files named `Cargo.toml`, `Cargo.lock`, `CMakeLists.txt`, `CMakePresets.json`, `CMakeUserPresets.json`, `Chart.yaml`, or `Chart.lock`.
+- Julia project and manifest files named `Project.toml`, `JuliaProject.toml`, `Manifest.toml`, or `JuliaManifest.toml`, plus versioned manifests such as `Manifest-v1.12.toml`.
+
+Repository exceptions match [specific paths](../../rules/filename-case.js) relative to ESLint's current working directory.
+
+- `pull_request_template.md`, `pull_request_template.txt`, and `pull_request_template/` in the root or `docs/`, plus `.github/` for GitHub and `.azuredevops/` or `.vsts/` for Azure Repos. These hosts allow different casing and require the underscores. Bitbucket Cloud uses `.bitbucket/pull_request_template.md`.
+- Template directories such as `ISSUE_TEMPLATE/` and `.gitlab/issue_templates/`, chooser configs named `config.yml` or `config.yaml`, and Gitea and Forgejo merge message templates.
+- `CODEOWNERS`, Bitbucket's `.bitbucket/teams.yaml`, and GitHub community files such as `SUPPORT.md`, `CITATION.cff`, `VULNERABILITY_REPORT.yml`, and `VULNERABILITY_REPORT.yaml`.
+- Root metadata directories `.bitbucket/`, `.forgejo/`, `.gitea/`, `.github/`, and `.gitlab/`.
+
+Each exception applies only to the matching name. If lowercasing an extension yields a reserved filename, the rule suggests changing only that extension.
+
+Use `ignore` for other names whose spelling must be preserved, such as `.AzureDevOps` if changing it to `.azure-dev-ops` would break template discovery.

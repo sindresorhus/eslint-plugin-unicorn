@@ -18,14 +18,110 @@ const messages = {
 };
 
 const isIgnoredChar = char => !/^[\w-]$/.test(char);
-const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
-const isLowerCase = string => string === string.toLowerCase();
+const reservedBasenames = new Set([
+	'index.js',
+	'index.mjs',
+	'index.cjs',
+	'index.ts',
+	'index.tsx',
+	'index.vue',
+	'AGENTS.md',
+	'AGENTS.override.md',
+	'CLAUDE.md',
+	'CLAUDE.local.md',
+	'GEMINI.md',
+	'SKILL.md',
+	'Cargo.lock',
+	'Cargo.toml',
+	'Chart.lock',
+	'Chart.yaml',
+	'CMakeLists.txt',
+	'CMakePresets.json',
+	'CMakeUserPresets.json',
+	'Project.toml',
+	'JuliaProject.toml',
+	'Manifest.toml',
+	'JuliaManifest.toml',
+]);
+const versionedJuliaManifestRegex = /^(?:Julia)?Manifest-v\d+\.\d+\.toml$/u;
+const githubCommunityDirectories = ['.', 'docs', '.github'];
+// GitHub and Azure Repos accept any casing for pull request template names, but require the underscores.
+const pullRequestTemplateParents = [...githubCommunityDirectories, '.azuredevops', '.vsts'];
+const pullRequestTemplateBasenames = ['pull_request_template.md', 'pull_request_template.txt'];
+const gitlabTemplateDirectories = ['.gitlab/issue_templates', '.gitlab/merge_request_templates'];
+const giteaAndForgejoTemplateDirectories = [...githubCommunityDirectories, '.gitea', '.forgejo'];
+const issueTemplateNames = ['ISSUE_TEMPLATE', 'issue_template'];
+const issueTemplateConfigDirectories = getPathsInDirectories(
+	giteaAndForgejoTemplateDirectories.filter(directory => directory !== '.'),
+	issueTemplateNames,
+);
+const mergeMessageDirectories = ['.gitea/default_merge_message', '.forgejo/default_merge_message'];
+// GitHub accepts lowercase accessibility.md and funding.yml. GitLab's Default.md is case-insensitive.
+const reservedFilePaths = new Set([
+	...getPathsInDirectories(githubCommunityDirectories, ['CODEOWNERS', 'SUPPORT.md']),
+	...getPathsInDirectories(giteaAndForgejoTemplateDirectories, [
+		...issueTemplateNames,
+		'PULL_REQUEST_TEMPLATE',
+		'pull_request_template',
+	].flatMap(stem => ['md', 'yml', 'yaml'].map(extension => `${stem}.${extension}`))),
+	...getPathsInDirectories(issueTemplateConfigDirectories, ['config.yml', 'config.yaml']),
+	...getPathsInDirectories(mergeMessageDirectories, [
+		'MERGE_TEMPLATE.md',
+		'REBASE_TEMPLATE.md',
+		'REBASE-MERGE_TEMPLATE.md',
+		'SQUASH_TEMPLATE.md',
+		'MANUALLY-MERGED_TEMPLATE.md',
+		'REBASE-UPDATE-ONLY_TEMPLATE.md',
+	]),
+	'.bitbucket/CODEOWNERS',
+	'.bitbucket/pull_request_template.md',
+	'.bitbucket/teams.yaml',
+	'.forgejo/CODEOWNERS',
+	'.gitea/CODEOWNERS',
+	'.gitea/default_merge_message/DEFAULT_TEMPLATE.md',
+	'.github/VULNERABILITY_REPORT.yml',
+	'.github/VULNERABILITY_REPORT.yaml',
+	'.gitlab/CODEOWNERS',
+	'CITATION.cff',
+]);
+const caseInsensitiveReservedFilePaths = new Set(getPathsInDirectories(pullRequestTemplateParents, pullRequestTemplateBasenames));
+const reservedDirectoryPaths = new Set([
+	'.bitbucket',
+	'.forgejo',
+	'.gitea',
+	'.github',
+	'.gitlab',
+	...issueTemplateConfigDirectories,
+	...getPathsInDirectories(['.', '.gitlab'], issueTemplateNames),
+	...mergeMessageDirectories,
+	'.github/DISCUSSION_TEMPLATE',
+	...gitlabTemplateDirectories,
+]);
+// Azure Repos also treats .azuredevops, .vsts, and branches as case-insensitive. Only pull_request_template needs its underscores preserved.
+const caseInsensitiveReservedDirectoryPaths = new Set(getPathsInDirectories(pullRequestTemplateParents, ['pull_request_template']));
 const alphanumericRegex = /^[\da-z]+$/i;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
 
 const isAsciiDigit = char => char >= '0' && char <= '9';
 const isAsciiLowercaseLetter = char => char >= 'a' && char <= 'z';
 const isAsciiUppercaseLetter = char => char >= 'A' && char <= 'Z';
+
+function getPathsInDirectories(directories, names) {
+	return directories.flatMap(directory => names.map(name => path.posix.join(directory, name)));
+}
+
+function isReservedFilename(basename, directoryPath) {
+	if (reservedBasenames.has(basename) || versionedJuliaManifestRegex.test(basename)) {
+		return true;
+	}
+
+	if (directoryPath === undefined) {
+		return false;
+	}
+
+	const filePath = path.posix.join(directoryPath, basename);
+	return reservedFilePaths.has(filePath) || caseInsensitiveReservedFilePaths.has(filePath.toLowerCase());
+}
 
 function camelCaseWithoutAcronyms(string) {
 	return camelCase(camelCase(string));
@@ -179,44 +275,11 @@ function getRenamedNames(words, caseFunctions, {leading, trailing}) {
 	return [...new Set(names)];
 }
 
-function getFilenameParts(basename, {multipleFileExtensions}) {
-	const extension = path.extname(basename);
-	const filename = path.basename(basename, extension);
-
-	const parts = {
-		filename,
-		additionalExtensions: '',
-		extension,
-	};
-
-	if (multipleFileExtensions) {
-		const [firstPart] = filename.split('.', 1);
-		Object.assign(parts, {
-			filename: firstPart,
-			additionalExtensions: filename.slice(firstPart.length),
-		});
-	}
-
-	return parts;
-}
-
 function isInsideCwd(relativePath) {
 	return relativePath !== ''
 		&& relativePath !== '..'
 		&& !relativePath.startsWith(`..${path.sep}`)
 		&& !path.isAbsolute(relativePath);
-}
-
-function getPathSegments(filePath, cwd) {
-	const relativePath = path.relative(cwd, path.resolve(cwd, filePath));
-
-	if (!isInsideCwd(relativePath)) {
-		return [path.basename(filePath)];
-	}
-
-	return relativePath
-		.split(path.sep)
-		.filter(segment => segment !== '.');
 }
 
 function validatePatternOption(optionName, patterns) {
@@ -236,20 +299,21 @@ function isDirectoryRoot(directoryPath, directoryRoots) {
 	});
 }
 
-function getDirectoriesToCheck(pathSegments, directoryRoots) {
-	const directories = pathSegments.slice(0, -1);
+function getDirectoriesToCheck(directorySegments, directoryRoots) {
+	const directories = [];
 	let directoryPath = '';
-	let directoryStartIndex = 0;
 
-	for (const [index, directory] of directories.entries()) {
+	for (const directory of directorySegments) {
 		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
 
 		if (isDirectoryRoot(directoryPath, directoryRoots)) {
-			directoryStartIndex = index + 1;
+			directories.length = 0;
+		} else if (!reservedDirectoryPaths.has(directoryPath) && !caseInsensitiveReservedDirectoryPaths.has(directoryPath.toLowerCase())) {
+			directories.push(directory);
 		}
 	}
 
-	return directories.slice(directoryStartIndex);
+	return directories;
 }
 
 const leadingUnderscoresRegex = /^_+/;
@@ -349,20 +413,17 @@ const create = context => {
 	const chosenCaseFunctions = chosenCases.map(caseName => cases[caseName].fn);
 
 	onRoot(context, () => {
-		const pathSegments = getPathSegments(physicalFilename, context.cwd);
-		const basename = pathSegments.at(-1);
-		const {
-			filename,
-			additionalExtensions,
-			extension,
-		} = getFilenameParts(basename, {multipleFileExtensions: isMultipleFileExtensions});
+		const relativePath = path.relative(context.cwd, path.resolve(context.cwd, physicalFilename));
+		const isInsideWorkingDirectory = isInsideCwd(relativePath);
+		const pathSegments = isInsideWorkingDirectory ? relativePath.split(path.sep) : [path.basename(physicalFilename)];
 
 		if (pathSegments.some(segment => ignoreRegexps.some(regexp => regexp.test(segment)))) {
 			return;
 		}
 
+		const directorySegments = pathSegments.slice(0, -1);
 		if (isCheckDirectories) {
-			for (const directory of getDirectoriesToCheck(pathSegments, directoryRoots)) {
+			for (const directory of getDirectoriesToCheck(directorySegments, directoryRoots)) {
 				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions);
 
 				if (report) {
@@ -371,19 +432,24 @@ const create = context => {
 			}
 		}
 
-		if (ignoredByDefault.has(basename)) {
-			return;
-		}
-
+		const basename = pathSegments.at(-1);
+		const extension = path.extname(basename);
+		const lowercaseExtension = extension.toLowerCase();
+		const stem = basename.slice(0, basename.length - extension.length);
+		const filenameWithLowercaseExtension = stem + lowercaseExtension;
+		const directoryPath = isInsideWorkingDirectory ? directorySegments.join('/') : undefined;
+		const filename = isMultipleFileExtensions ? stem.split('.', 1)[0] : stem;
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || isValidName(words, chosenCaseFunctions);
+		const isValid = isReservedFilename(filenameWithLowercaseExtension, directoryPath)
+			|| filename.startsWith('$')
+			|| isValidName(words, chosenCaseFunctions);
 
 		if (isValid) {
-			if (!isLowerCase(extension)) {
+			if (extension !== lowercaseExtension) {
 				return {
 					loc: {column: 0, line: 1},
 					messageId: MESSAGE_ID_EXTENSION,
-					data: {filename: filename + additionalExtensions + extension.toLowerCase(), extension},
+					data: {filename: filenameWithLowercaseExtension, extension},
 				};
 			}
 
@@ -392,7 +458,7 @@ const create = context => {
 
 		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: additionalExtensions + extension.toLowerCase(),
+			trailing: stem.slice(filename.length) + lowercaseExtension,
 		});
 
 		return {
