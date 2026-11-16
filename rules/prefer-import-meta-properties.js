@@ -208,8 +208,7 @@ function create(context) {
 		}
 
 		/**
-		Iterates over reports where a given filename expression node
-		would be used to convert it to a dirname.
+		Reports legacy filename conversions and dirname calls that use the filename.
 		@param {import('estree').SimpleCallExpression | import('estree').MemberExpression} node
 		*/
 		function * iterateProblemsFromFilename(node) {
@@ -266,7 +265,7 @@ function create(context) {
 		}
 
 		/**
-		@param { import('estree').Node} node
+		@param {import('estree').Node} node
 		@param {'dirname' | 'filename'} name
 		*/
 		function getProblem(node, name) {

@@ -13,6 +13,11 @@ test({
 			import {fileURLToPath} from 'url';
 			const dirname = fileURLToPath(new URL('./', import.meta.url));
 		`,
+		outdent`
+			import {dirname} from 'node:path';
+			import {fileURLToPath} from 'node:url';
+			const parentDirectory = dirname(fileURLToPath(new URL('.', import.meta.url)));
+		`,
 		'process.getBuiltinModule(`node:url`).fileURLToPath(new URL(`.\\u002f`, import.meta.url))',
 		'process.getBuiltinModule(`node:url`).fileURLToPath(new URL(tag`./`, import.meta.url))',
 		'process.getBuiltinModule(`node:${name}`).fileURLToPath(import.meta.url)', // eslint-disable-line no-template-curly-in-string
@@ -68,26 +73,14 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'import path from "node:path"; const directory = path[`dirname`](import.meta["filename"]);',
-			output: 'import path from "node:path"; const directory = import.meta.dirname;',
+			code: 'import {fileURLToPath} from "node:url"; const filename = fileURLToPath(import.meta.url)as string;',
+			output: 'import {fileURLToPath} from "node:url"; const filename = import.meta.filename as string;',
 			errors: 1,
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'import {fileURLToPath} from "node:url"; const filename = fileURLToPath(import.meta["url"]);',
 			output: 'import {fileURLToPath} from "node:url"; const filename = import.meta.filename;',
-			errors: 1,
-		},
-		{
-			code: outdent`
-				import {dirname} from 'node:path';
-				import {fileURLToPath} from 'node:url';
-				const directory = dirname(fileURLToPath(new URL(import.meta.url)));
-			`,
-			output: outdent`
-				import {dirname} from 'node:path';
-				import {fileURLToPath} from 'node:url';
-				const directory = import.meta.dirname;
-			`,
 			errors: 1,
 		},
 		{
@@ -202,6 +195,12 @@ test.snapshot({
 			import path from "path";
 			const dirname = path.dirname(import.meta.filename);
 		`,
+		outdent`
+			import {dirname} from 'node:path';
+			import {fileURLToPath} from 'node:url';
+			const directory = dirname(fileURLToPath(new URL(import.meta.url)));
+		`,
+		'import path from "node:path"; const directory = path[`dirname`](import.meta["filename"]);',
 		outdent`
 			import { fileURLToPath } from "url";
 			const filename = fileURLToPath(import.meta.url);
