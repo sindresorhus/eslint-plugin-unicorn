@@ -410,6 +410,51 @@ test({
 			output: 'declare function guard(value: unknown, ...messages: string[]): value is string; declare const test: boolean; guard(1, test ? "a" : "b");',
 			errors,
 		}),
+		typeAware({
+			code: outdent`
+				declare class Base { constructor(...values: string[]); }
+				class Derived extends Base {
+					constructor(test: boolean) {
+						if (test) { super("a"); } else { super("b"); }
+					}
+				}
+			`,
+			output: outdent`
+				declare class Base { constructor(...values: string[]); }
+				class Derived extends Base {
+					constructor(test: boolean) {
+						super(test ? "a" : "b");
+					}
+				}
+			`,
+			errors,
+		}),
+		typeAware({
+			code: outdent`
+				declare class Base { constructor(...values: [string] | [number]); }
+				class Derived extends Base {
+					constructor(test: boolean) {
+						if (test) { super("a"); } else { super(1); }
+					}
+				}
+			`,
+			errors,
+		}),
+		typeAware({
+			code: outdent`
+				declare function consume(...values: string[] | number[]): number;
+				function read(test: boolean): number {
+					if (test) { return consume("a"); } else { return consume(1); }
+				}
+			`,
+			output: outdent`
+				declare function consume(...values: string[] | number[]): number;
+				function read(test: boolean): number {
+					return test ? consume("a") : consume(1);
+				}
+			`,
+			errors,
+		}),
 		...[
 			'declare function call(value: "a"): void; declare function call(value: "b"): void; declare const test: boolean; if (test) { call("a"); } else { call("b"); }',
 			'declare function call<Value>(value: Value): Value; declare const test: boolean; if (test) { call(1); } else { call("b"); }',

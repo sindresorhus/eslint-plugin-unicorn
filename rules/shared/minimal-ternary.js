@@ -408,7 +408,8 @@ function canMinimizeRestCall(consequent, alternate, resolvedSignature, {checker,
 	const restDeclaration = resolvedSignature.declaration.parameters.at(-1);
 	for (const call of [consequent, alternate]) {
 		const calleeType = parserServices.getTypeAtLocation(call.callee);
-		const visibleSignatures = call.type === 'CallExpression' ? calleeType.getCallSignatures() : calleeType.getConstructSignatures();
+		const isConstructorCall = call.type === 'NewExpression' || call.callee.type === 'Super';
+		const visibleSignatures = isConstructorCall ? calleeType.getConstructSignatures() : calleeType.getCallSignatures();
 		// A combined argument may select another overload even if the original calls selected the same one.
 		if (visibleSignatures.length !== 1) {
 			return false;

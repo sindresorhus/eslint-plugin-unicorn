@@ -792,6 +792,60 @@ for (const {name, code} of [
 	});
 }
 
+test('preserves evolving array element inference when merging push calls', t => {
+	const code = outdent`
+		declare const test: boolean;
+		const list = [];
+		test ? list.push(1) : list.push("two");
+		const items: (number | string)[] = list;
+		// @ts-expect-error The array can contain numbers.
+		const strings: string[] = list;
+		// @ts-expect-error The array can contain strings.
+		const numbers: number[] = list;
+	`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const [message] = getMessages(code, program);
+	const fix = message?.fix;
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, 'list.push(test ? 1 : "two")');
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
+});
+
+test('ignores an evolving array push in an unreachable branch', t => {
+	const declarations = 'const list = [];';
+	const assignment = 'const items: number[] = list;';
+	const code = `${declarations} true ? list.push(1) : list.push("two"); ${assignment}`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	t.assert.ok(getMessages(code)[0]?.fix);
+	const rewritten = `${declarations} list.push(true ? 1 : "two"); ${assignment}`;
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(rewritten)), [2322]);
+	t.assert.deepStrictEqual(getMessages(code, program), []);
+});
+
+test('fixes super calls with a destructured rest tuple', t => {
+	const code = outdent`
+		declare class Base {
+			constructor(...[label, ...counts]: [string, ...number[]]);
+		}
+		class Derived extends Base {
+			constructor(test: boolean) {
+				test ? super("label", 1) : super("label", 2);
+			}
+		}
+	`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const [message] = getMessages(code, program);
+	const fix = message?.fix;
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, 'super("label", test ? 1 : 2)');
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
+});
+
 test('ignores minimization that makes a rest call a standalone assertion', t => {
 	const declarations = 'declare const condition: boolean, value: unknown; declare function assertValue(value: unknown, ...messages: string[]): asserts value; const assertAlias = assertValue;';
 	const code = `${declarations} condition ? assertAlias(value, "a") : assertAlias(value, "b");`;
