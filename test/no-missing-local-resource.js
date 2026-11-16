@@ -218,18 +218,18 @@ test({
 	testerOptions: commonMark,
 	valid: [],
 	invalid: [{
-		code: '[Bundle](../dist/./app.js?raw=1#main)\n[Generated file](../generated%20file.js)\n[Ignored casing](../assets/LOGO.svg)\n[Wrong casing](../assets/logo.SVG)\n[Broken](./dist/app.js)',
+		code: '[Bundle](../.ai-temporary/./app.js?raw=1#main)\n[Generated file](../generated%20file.js)\n[Ignored casing](../assets/LOGO.svg)\n[Wrong casing](../assets/logo.SVG)\n[Broken](./.ai-temporary/app.js)',
 		filename: nestedMarkdownFilename,
 		options: [{
 			ignore: [
-				'test/fixtures/no-missing-local-resource/dist/**',
+				'test/fixtures/no-missing-local-resource/.ai-temporary/**',
 				'test/fixtures/no-missing-local-resource/generated file.js',
 				'test/fixtures/no-missing-local-resource/assets/*.svg',
 			],
 		}],
 		errors: [
 			{messageId: 'incorrect-case', data: {resource: '../assets/logo.svg'}, line: 4},
-			{messageId: 'missing', data: {resource: './dist/app.js'}},
+			{messageId: 'missing', data: {resource: './.ai-temporary/app.js'}},
 		],
 	}],
 });
@@ -339,6 +339,7 @@ test({
 		'new URL("./encoded%20name.md", import.meta.url);',
 		'new URL("./encoded%23name.md", import.meta.url);',
 		'new URL("./directory/", import.meta.url);',
+		'new URL("./directory/.", import.meta.url);',
 		'new URL("https://example.com/missing.svg", import.meta.url);',
 		'new URL("/missing.svg", import.meta.url);',
 		'new URL("#icon", import.meta.url);',
