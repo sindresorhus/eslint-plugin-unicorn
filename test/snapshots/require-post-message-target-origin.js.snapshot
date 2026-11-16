@@ -10,100 +10,12 @@ Message:
 > 1 | window.postMessage(message)
     |                           ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/2: Use \`window.location.origin\`.:
-  1 | window.postMessage(message, window.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | window.postMessage(message, '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage(message, '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(10): document.defaultView.postMessage(message) 1`] = `
-
-  1 | document.defaultView.postMessage(message)
-
-`;
-
-exports[`require-post-message-target-origin > invalid(10): document.defaultView.postMessage(message) 2`] = `
-
-Message:
-> 1 | document.defaultView.postMessage(message)
-    |                                         ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | document.defaultView.postMessage(message, self.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | document.defaultView.postMessage(message, '*')
-
-`;
-
-exports[`require-post-message-target-origin > invalid(11): getWindow().postMessage(message) 1`] = `
-
-  1 | getWindow().postMessage(message)
-
-`;
-
-exports[`require-post-message-target-origin > invalid(11): getWindow().postMessage(message) 2`] = `
-
-Message:
-> 1 | getWindow().postMessage(message)
-    |                                ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | getWindow().postMessage(message, self.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | getWindow().postMessage(message, '*')
-
-`;
-
-exports[`require-post-message-target-origin > invalid(12): declare const port: MessagePort; port.postMessage(\"ping\") 1`] = `
-
-  1 | declare const port: MessagePort; port.postMessage("ping")
-
-`;
-
-exports[`require-post-message-target-origin > invalid(12): declare const port: MessagePort; port.postMessage(\"ping\") 2`] = `
-
-Message:
-> 1 | declare const port: MessagePort; port.postMessage("ping")
-    |                                                         ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/3: Use \`port.location.origin\`.:
-  1 | declare const port: MessagePort; port.postMessage("ping", port.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const port: MessagePort; port.postMessage("ping", self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const port: MessagePort; port.postMessage("ping", '*')
-
-`;
-
-exports[`require-post-message-target-origin > invalid(13): window.postMessage(\"ping\") 1`] = `
-
-Filename: file.ts
-
-  1 | window.postMessage("ping")
-
-`;
-
-exports[`require-post-message-target-origin > invalid(13): window.postMessage(\"ping\") 2`] = `
-
-Message:
-> 1 | window.postMessage("ping")
-    |                          ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/2: Use \`window.location.origin\`.:
-  1 | window.postMessage("ping", window.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | window.postMessage("ping", '*')
-
-`;
-
-exports[`require-post-message-target-origin > invalid(14): declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(10): declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -111,71 +23,37 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(14): declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(10): declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage("ping")
     |                                                                                  ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage("ping", self.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage("ping", '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | declare const iframe: HTMLIFrameElement; iframe.contentWindow!.postMessage("ping", '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(15): declare const target: any; target.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(11): declare const iframe: any; iframe.contentWindow.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
-  1 | declare const target: any; target.postMessage("ping")
+  1 | declare const iframe: any; iframe.contentWindow.postMessage("ping")
 
 `;
 
-exports[`require-post-message-target-origin > invalid(15): declare const target: any; target.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(11): declare const iframe: any; iframe.contentWindow.postMessage(\"ping\") 2`] = `
 
 Message:
-> 1 | declare const target: any; target.postMessage("ping")
-    |                                                     ^ Missing the \`targetOrigin\` argument.
+> 1 | declare const iframe: any; iframe.contentWindow.postMessage("ping")
+    |                                                                   ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: any; target.postMessage("ping", target.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: any; target.postMessage("ping", self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: any; target.postMessage("ping", '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | declare const iframe: any; iframe.contentWindow.postMessage("ping", '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(16): declare const target: {postMessage: any}; target.postMessage(\"ping\") 1`] = `
-
-Filename: file.ts
-
-  1 | declare const target: {postMessage: any}; target.postMessage("ping")
-
-`;
-
-exports[`require-post-message-target-origin > invalid(16): declare const target: {postMessage: any}; target.postMessage(\"ping\") 2`] = `
-
-Message:
-> 1 | declare const target: {postMessage: any}; target.postMessage("ping")
-    |                                                                    ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: {postMessage: any}; target.postMessage("ping", target.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: {postMessage: any}; target.postMessage("ping", self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: {postMessage: any}; target.postMessage("ping", '*')
-
-`;
-
-exports[`require-post-message-target-origin > invalid(17): declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(12): declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -183,24 +61,15 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(17): declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(12): declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage("ping")
     |                                                                                                                                                  ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage("ping", target.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage("ping", self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: {postMessage(message: unknown): void; postMessage(message: unknown, targetOrigin: string): void}; target.postMessage("ping", '*')
-
 `;
 
-exports[`require-post-message-target-origin > invalid(18): declare const target: Window | undefined; target?.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(13): declare const target: Window | undefined; target?.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -208,24 +77,18 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(18): declare const target: Window | undefined; target?.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(13): declare const target: Window | undefined; target?.postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const target: Window | undefined; target?.postMessage("ping")
     |                                                                     ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: Window | undefined; target?.postMessage("ping", target.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: Window | undefined; target?.postMessage("ping", self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: Window | undefined; target?.postMessage("ping", '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | declare const target: Window | undefined; target?.postMessage("ping", '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(19): declare const target: Window | MessagePort; target.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(14): declare const target: Window | MessagePort; target.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -233,44 +96,31 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(19): declare const target: Window | MessagePort; target.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(14): declare const target: Window | MessagePort; target.postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const target: Window | MessagePort; target.postMessage("ping")
     |                                                                      ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: Window | MessagePort; target.postMessage("ping", target.location.origin)
+`;
 
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: Window | MessagePort; target.postMessage("ping", self.location.origin)
+exports[`require-post-message-target-origin > invalid(15): declare const target: Window | {postMessage: Function}; target.postMessage(\"ping\") 1`] = `
 
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: Window | MessagePort; target.postMessage("ping", '*')
+Filename: file.ts
+
+  1 | declare const target: Window | {postMessage: Function}; target.postMessage("ping")
 
 `;
 
-exports[`require-post-message-target-origin > invalid(2): self.postMessage(message) 1`] = `
-
-  1 | self.postMessage(message)
-
-`;
-
-exports[`require-post-message-target-origin > invalid(2): self.postMessage(message) 2`] = `
+exports[`require-post-message-target-origin > invalid(15): declare const target: Window | {postMessage: Function}; target.postMessage(\"ping\") 2`] = `
 
 Message:
-> 1 | self.postMessage(message)
-    |                         ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | self.postMessage(message, self.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | self.postMessage(message, '*')
+> 1 | declare const target: Window | {postMessage: Function}; target.postMessage("ping")
+    |                                                                                  ^ Missing the \`targetOrigin\` argument.
 
 `;
 
-exports[`require-post-message-target-origin > invalid(20): function send<T extends Window>(target: T) {target.postMessage(\"ping\")} 1`] = `
+exports[`require-post-message-target-origin > invalid(16): function send<T extends Window>(target: T) {target.postMessage(\"ping\")} 1`] = `
 
 Filename: file.ts
 
@@ -278,24 +128,18 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(20): function send<T extends Window>(target: T) {target.postMessage(\"ping\")} 2`] = `
+exports[`require-post-message-target-origin > invalid(16): function send<T extends Window>(target: T) {target.postMessage(\"ping\")} 2`] = `
 
 Message:
 > 1 | function send<T extends Window>(target: T) {target.postMessage("ping")}
     |                                                                      ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | function send<T extends Window>(target: T) {target.postMessage("ping", target.location.origin)}
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | function send<T extends Window>(target: T) {target.postMessage("ping", self.location.origin)}
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | function send<T extends Window>(target: T) {target.postMessage("ping", '*')}
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | function send<T extends Window>(target: T) {target.postMessage("ping", '/')}
 
 `;
 
-exports[`require-post-message-target-origin > invalid(21): declare const target: unknown; (target as Window).postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(17): declare const target: unknown; (target as Window).postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -303,21 +147,18 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(21): declare const target: unknown; (target as Window).postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(17): declare const target: unknown; (target as Window).postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const target: unknown; (target as Window).postMessage("ping")
     |                                                                     ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | declare const target: unknown; (target as Window).postMessage("ping", self.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | declare const target: unknown; (target as Window).postMessage("ping", '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | declare const target: unknown; (target as Window).postMessage("ping", '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(22): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 1`] = `
+exports[`require-post-message-target-origin > invalid(18): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 1`] = `
 
 Filename: file.ts
 
@@ -325,174 +166,333 @@ Filename: file.ts
 
 `;
 
-exports[`require-post-message-target-origin > invalid(22): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 2`] = `
+exports[`require-post-message-target-origin > invalid(18): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 2`] = `
 
 Message:
 > 1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping")
     |                                                                                                                                  ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`target.location.origin\`.:
-  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", target.location.origin)
+`;
 
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", self.location.origin)
+exports[`require-post-message-target-origin > invalid(19): declare const target: {postMessage(message: unknown, targetOrigin?: \"https://example.com\"): void}; target.postMessage(\"ping\") 1`] = `
 
-Suggestion 3/3: Use \`'*'\`.:
-  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", '*')
+Filename: file.ts
+
+  1 | declare const target: {postMessage(message: unknown, targetOrigin?: "https://example.com"): void}; target.postMessage("ping")
 
 `;
 
-exports[`require-post-message-target-origin > invalid(3): globalThis.postMessage(message) 1`] = `
-
-  1 | globalThis.postMessage(message)
-
-`;
-
-exports[`require-post-message-target-origin > invalid(3): globalThis.postMessage(message) 2`] = `
+exports[`require-post-message-target-origin > invalid(19): declare const target: {postMessage(message: unknown, targetOrigin?: \"https://example.com\"): void}; target.postMessage(\"ping\") 2`] = `
 
 Message:
-> 1 | globalThis.postMessage(message)
-    |                               ^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/2: Use \`globalThis.location.origin\`.:
-  1 | globalThis.postMessage(message, globalThis.location.origin)
-
-Suggestion 2/2: Use \`'*'\`.:
-  1 | globalThis.postMessage(message, '*')
+> 1 | declare const target: {postMessage(message: unknown, targetOrigin?: "https://example.com"): void}; target.postMessage("ping")
+    |                                                                                                                             ^ Missing the \`targetOrigin\` argument.
 
 `;
 
-exports[`require-post-message-target-origin > invalid(4): foo.postMessage(message ) 1`] = `
+exports[`require-post-message-target-origin > invalid(2): window.parent.postMessage(message ) 1`] = `
 
-  1 | foo.postMessage(message )
+  1 | window.parent.postMessage(message )
 
 `;
 
-exports[`require-post-message-target-origin > invalid(4): foo.postMessage(message ) 2`] = `
+exports[`require-post-message-target-origin > invalid(2): window.parent.postMessage(message ) 2`] = `
 
 Message:
-> 1 | foo.postMessage(message )
-    |                        ^^ Missing the \`targetOrigin\` argument.
+> 1 | window.parent.postMessage(message )
+    |                                  ^^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`foo.location.origin\`.:
-  1 | foo.postMessage(message , foo.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | foo.postMessage(message , self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | foo.postMessage(message , '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.parent.postMessage(message , '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(5): foo?.postMessage(message ) 1`] = `
+exports[`require-post-message-target-origin > invalid(20): window.postMessage?.(message) 1`] = `
 
-  1 | foo?.postMessage(message )
+  1 | window.postMessage?.(message)
 
 `;
 
-exports[`require-post-message-target-origin > invalid(5): foo?.postMessage(message ) 2`] = `
+exports[`require-post-message-target-origin > invalid(20): window.postMessage?.(message) 2`] = `
 
 Message:
-> 1 | foo?.postMessage(message )
-    |                         ^^ Missing the \`targetOrigin\` argument.
+> 1 | window.postMessage?.(message)
+    |                             ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`foo.location.origin\`.:
-  1 | foo?.postMessage(message , foo.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | foo?.postMessage(message , self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | foo?.postMessage(message , '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage?.(message, '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(6): foo.postMessage( ((message)) ) 1`] = `
+exports[`require-post-message-target-origin > invalid(21): (iframe?.contentWindow)?.postMessage(message) 1`] = `
 
-  1 | foo.postMessage( ((message)) )
+  1 | (iframe?.contentWindow)?.postMessage(message)
 
 `;
 
-exports[`require-post-message-target-origin > invalid(6): foo.postMessage( ((message)) ) 2`] = `
+exports[`require-post-message-target-origin > invalid(21): (iframe?.contentWindow)?.postMessage(message) 2`] = `
 
 Message:
-> 1 | foo.postMessage( ((message)) )
-    |                             ^^ Missing the \`targetOrigin\` argument.
+> 1 | (iframe?.contentWindow)?.postMessage(message)
+    |                                             ^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`foo.location.origin\`.:
-  1 | foo.postMessage( ((message)) , foo.location.origin)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | foo.postMessage( ((message)) , self.location.origin)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | foo.postMessage( ((message)) , '*')
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | (iframe?.contentWindow)?.postMessage(message, '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(7): foo.postMessage(message,) 1`] = `
+exports[`require-post-message-target-origin > invalid(22): window.postMessage(message /* Keep this comment */) 1`] = `
 
-  1 | foo.postMessage(message,)
+  1 | window.postMessage(message /* Keep this comment */)
 
 `;
 
-exports[`require-post-message-target-origin > invalid(7): foo.postMessage(message,) 2`] = `
+exports[`require-post-message-target-origin > invalid(22): window.postMessage(message /* Keep this comment */) 2`] = `
 
 Message:
-> 1 | foo.postMessage(message,)
-    |                         ^ Missing the \`targetOrigin\` argument.
+> 1 | window.postMessage(message /* Keep this comment */)
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^ Missing the \`targetOrigin\` argument.
 
-Suggestion 1/3: Use \`foo.location.origin\`.:
-  1 | foo.postMessage(message, foo.location.origin,)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | foo.postMessage(message, self.location.origin,)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | foo.postMessage(message, '*',)
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage(message /* Keep this comment */, '/')
 
 `;
 
-exports[`require-post-message-target-origin > invalid(8): foo.postMessage(message , ) 1`] = `
+exports[`require-post-message-target-origin > invalid(23): declare const target: {postMessage(message: string, origin: \"/\"): void} & Window; target.postMessage(\"ping\") 1`] = `
 
-  1 | foo.postMessage(message , )
+Filename: file.ts
+
+  1 | declare const target: {postMessage(message: string, origin: "/"): void} & Window; target.postMessage("ping")
 
 `;
 
-exports[`require-post-message-target-origin > invalid(8): foo.postMessage(message , ) 2`] = `
+exports[`require-post-message-target-origin > invalid(23): declare const target: {postMessage(message: string, origin: \"/\"): void} & Window; target.postMessage(\"ping\") 2`] = `
 
 Message:
-> 1 | foo.postMessage(message , )
-    |                          ^^ Missing the \`targetOrigin\` argument.
-
-Suggestion 1/3: Use \`foo.location.origin\`.:
-  1 | foo.postMessage(message ,  foo.location.origin,)
-
-Suggestion 2/3: Use \`self.location.origin\`.:
-  1 | foo.postMessage(message ,  self.location.origin,)
-
-Suggestion 3/3: Use \`'*'\`.:
-  1 | foo.postMessage(message ,  '*',)
+> 1 | declare const target: {postMessage(message: string, origin: "/"): void} & Window; target.postMessage("ping")
+    |                                                                                                            ^ Missing the \`targetOrigin\` argument.
 
 `;
 
-exports[`require-post-message-target-origin > invalid(9): foo.window.postMessage(message) 1`] = `
+exports[`require-post-message-target-origin > invalid(24): window.postMessage(message, {}) 1`] = `
 
-  1 | foo.window.postMessage(message)
+  1 | window.postMessage(message, {})
 
 `;
 
-exports[`require-post-message-target-origin > invalid(9): foo.window.postMessage(message) 2`] = `
+exports[`require-post-message-target-origin > invalid(24): window.postMessage(message, {}) 2`] = `
 
 Message:
-> 1 | foo.window.postMessage(message)
-    |                               ^ Missing the \`targetOrigin\` argument.
+> 1 | window.postMessage(message, {})
+    |                             ^^ Missing the \`targetOrigin\` option.
 
-Suggestion 1/2: Use \`self.location.origin\`.:
-  1 | foo.window.postMessage(message, self.location.origin)
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage(message, {targetOrigin: '/'})
 
-Suggestion 2/2: Use \`'*'\`.:
-  1 | foo.window.postMessage(message, '*')
+`;
+
+exports[`require-post-message-target-origin > invalid(25): iframe.contentWindow?.postMessage(message, {[\"transfer\"]: [port],}) 1`] = `
+
+  1 | iframe.contentWindow?.postMessage(message, {["transfer"]: [port],})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(25): iframe.contentWindow?.postMessage(message, {[\"transfer\"]: [port],}) 2`] = `
+
+Message:
+> 1 | iframe.contentWindow?.postMessage(message, {["transfer"]: [port],})
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^ Missing the \`targetOrigin\` option.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | iframe.contentWindow?.postMessage(message, {targetOrigin: '/', ["transfer"]: [port],})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(26): window.postMessage(message, {/* Keep this comment */}) 1`] = `
+
+  1 | window.postMessage(message, {/* Keep this comment */})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(26): window.postMessage(message, {/* Keep this comment */}) 2`] = `
+
+Message:
+> 1 | window.postMessage(message, {/* Keep this comment */})
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Missing the \`targetOrigin\` option.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage(message, {targetOrigin: '/' /* Keep this comment */})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(27): declare const target: Window; target.postMessage(\"ping\", {}) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const target: Window; target.postMessage("ping", {})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(27): declare const target: Window; target.postMessage(\"ping\", {}) 2`] = `
+
+Message:
+> 1 | declare const target: Window; target.postMessage("ping", {})
+    |                                                          ^^ Missing the \`targetOrigin\` option.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | declare const target: Window; target.postMessage("ping", {targetOrigin: '/'})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(28): declare const target: Window | MessagePort; target.postMessage(\"ping\", {transfer: []}) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const target: Window | MessagePort; target.postMessage("ping", {transfer: []})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(28): declare const target: Window | MessagePort; target.postMessage(\"ping\", {transfer: []}) 2`] = `
+
+Message:
+> 1 | declare const target: Window | MessagePort; target.postMessage("ping", {transfer: []})
+    |                                                                        ^^^^^^^^^^^^^^ Missing the \`targetOrigin\` option.
+
+`;
+
+exports[`require-post-message-target-origin > invalid(29): window.postMessage(\"ping\", {transfer: []} satisfies {transfer?: Transferable[]}) 1`] = `
+
+Filename: file.ts
+
+  1 | window.postMessage("ping", {transfer: []} satisfies {transfer?: Transferable[]})
+
+`;
+
+exports[`require-post-message-target-origin > invalid(29): window.postMessage(\"ping\", {transfer: []} satisfies {transfer?: Transferable[]}) 2`] = `
+
+Message:
+> 1 | window.postMessage("ping", {transfer: []} satisfies {transfer?: Transferable[]})
+    |                            ^^^^^^^^^^^^^^ Missing the \`targetOrigin\` option.
+
+`;
+
+exports[`require-post-message-target-origin > invalid(3): window.top?.postMessage(message ) 1`] = `
+
+  1 | window.top?.postMessage(message )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(3): window.top?.postMessage(message ) 2`] = `
+
+Message:
+> 1 | window.top?.postMessage(message )
+    |                                ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.top?.postMessage(message , '/')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(4): window.opener.postMessage( ((message)) ) 1`] = `
+
+  1 | window.opener.postMessage( ((message)) )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(4): window.opener.postMessage( ((message)) ) 2`] = `
+
+Message:
+> 1 | window.opener.postMessage( ((message)) )
+    |                                       ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.opener.postMessage( ((message)) , '/')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(5): iframe.contentWindow.postMessage(message,) 1`] = `
+
+  1 | iframe.contentWindow.postMessage(message,)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(5): iframe.contentWindow.postMessage(message,) 2`] = `
+
+Message:
+> 1 | iframe.contentWindow.postMessage(message,)
+    |                                          ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | iframe.contentWindow.postMessage(message, '/',)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(6): iframe.contentWindow?.postMessage(message , ) 1`] = `
+
+  1 | iframe.contentWindow?.postMessage(message , )
+
+`;
+
+exports[`require-post-message-target-origin > invalid(6): iframe.contentWindow?.postMessage(message , ) 2`] = `
+
+Message:
+> 1 | iframe.contentWindow?.postMessage(message , )
+    |                                            ^^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | iframe.contentWindow?.postMessage(message ,  '/',)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(7): document.defaultView.postMessage(message) 1`] = `
+
+  1 | document.defaultView.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(7): document.defaultView.postMessage(message) 2`] = `
+
+Message:
+> 1 | document.defaultView.postMessage(message)
+    |                                         ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | document.defaultView.postMessage(message, '/')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(8): iframe.contentWindow!.postMessage(message) 1`] = `
+
+  1 | iframe.contentWindow!.postMessage(message)
+
+`;
+
+exports[`require-post-message-target-origin > invalid(8): iframe.contentWindow!.postMessage(message) 2`] = `
+
+Message:
+> 1 | iframe.contentWindow!.postMessage(message)
+    |                                          ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | iframe.contentWindow!.postMessage(message, '/')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(9): window.postMessage(\"ping\") 1`] = `
+
+Filename: file.ts
+
+  1 | window.postMessage("ping")
+
+`;
+
+exports[`require-post-message-target-origin > invalid(9): window.postMessage(\"ping\") 2`] = `
+
+Message:
+> 1 | window.postMessage("ping")
+    |                          ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/1: Use \`'/'\` for explicit same-origin delivery.:
+  1 | window.postMessage("ping", '/')
 
 `;
