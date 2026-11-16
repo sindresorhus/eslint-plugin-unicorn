@@ -61,64 +61,13 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(1): function f(foo: Type = undefined) {} 1`] = `
-
-  1 | function f(foo: Type = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(1): function f(foo: Type = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo: Type = undefined) {}
-    |                        ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?: Type) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(10): foo.bind?.(bar, undefined) 1`] = `
-
-  1 | foo.bind?.(bar, undefined)
-
-`;
-
-exports[`no-useless-undefined > invalid(10): foo.bind?.(bar, undefined) 2`] = `
-
-Message:
-> 1 | foo.bind?.(bar, undefined)
-    |                 ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | foo.bind?.(bar)
-
-`;
-
-exports[`no-useless-undefined > invalid(10): function f(foo = undefined) {} 1`] = `
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(10): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(11): foo[bind](bar, undefined) 1`] = `
+exports[`no-useless-undefined > invalid(10): foo[bind](bar, undefined) 1`] = `
 
   1 | foo[bind](bar, undefined)
 
 `;
 
-exports[`no-useless-undefined > invalid(11): foo[bind](bar, undefined) 2`] = `
+exports[`no-useless-undefined > invalid(10): foo[bind](bar, undefined) 2`] = `
 
 Message:
 > 1 | foo[bind](bar, undefined)
@@ -129,30 +78,13 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(11): function f(foo = undefined) {} 1`] = `
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(11): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(12): foo.notBind(bar, undefined) 1`] = `
+exports[`no-useless-undefined > invalid(11): foo.notBind(bar, undefined) 1`] = `
 
   1 | foo.notBind(bar, undefined)
 
 `;
 
-exports[`no-useless-undefined > invalid(12): foo.notBind(bar, undefined) 2`] = `
+exports[`no-useless-undefined > invalid(11): foo.notBind(bar, undefined) 2`] = `
 
 Message:
 > 1 | foo.notBind(bar, undefined)
@@ -163,79 +95,13 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(12): function f(foo = undefined) {} 1`] = `
-
-Filename: foo.js
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(12): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(13): const referencedExports =\n\tcompilation.getDependencyReferencedExports(\n\t\t/** @type {Dependency} */ (connection.dependency),\n\t\tundefined\n\t); 1`] = `
-
-  1 | const referencedExports =
-  2 | 	compilation.getDependencyReferencedExports(
-  3 | 		/** @type {Dependency} */ (connection.dependency),
-  4 | 		undefined
-  5 | 	);
-
-`;
-
-exports[`no-useless-undefined > invalid(13): const referencedExports =\n\tcompilation.getDependencyReferencedExports(\n\t\t/** @type {Dependency} */ (connection.dependency),\n\t\tundefined\n\t); 2`] = `
-
-Message:
-  1 | const referencedExports =
-  2 | 	compilation.getDependencyReferencedExports(
-  3 | 		/** @type {Dependency} */ (connection.dependency),
-> 4 | 		undefined
-    | 		^^^^^^^^^ Do not use useless \`undefined\`.
-  5 | 	);
-
-Output:
-  1 | const referencedExports =
-  2 | 	compilation.getDependencyReferencedExports(
-  3 | 		/** @type {Dependency} */ (connection.dependency)
-  4 | 	);
-
-`;
-
-exports[`no-useless-undefined > invalid(13): function f(foo = undefined) {} 1`] = `
-
-Filename: foo.ts
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(13): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(14): foo( ((a)), ((undefined)), ((undefined)), ) 1`] = `
+exports[`no-useless-undefined > invalid(12): foo( ((a)), ((undefined)), ((undefined)), ) 1`] = `
 
   1 | foo( ((a)), ((undefined)), ((undefined)), )
 
 `;
 
-exports[`no-useless-undefined > invalid(14): foo( ((a)), ((undefined)), ((undefined)), ) 2`] = `
+exports[`no-useless-undefined > invalid(12): foo( ((a)), ((undefined)), ((undefined)), ) 2`] = `
 
 Message:
 > 1 | foo( ((a)), ((undefined)), ((undefined)), )
@@ -246,32 +112,13 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(14): function f(foo = undefined) {} 1`] = `
-
-Filename: foo.MTs
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(14): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(15): foo( ((undefined)), ((undefined)), ) 1`] = `
+exports[`no-useless-undefined > invalid(13): foo( ((undefined)), ((undefined)), ) 1`] = `
 
   1 | foo( ((undefined)), ((undefined)), )
 
 `;
 
-exports[`no-useless-undefined > invalid(15): foo( ((undefined)), ((undefined)), ) 2`] = `
+exports[`no-useless-undefined > invalid(13): foo( ((undefined)), ((undefined)), ) 2`] = `
 
 Message:
 > 1 | foo( ((undefined)), ((undefined)), )
@@ -279,80 +126,6 @@ Message:
 
 Output:
   1 | foo( ((undefined)), )
-
-`;
-
-exports[`no-useless-undefined > invalid(15): function f(foo = undefined) {} 1`] = `
-
-Filename: foo.cts
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(15): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(16): function f(foo = undefined) {} 1`] = `
-
-Filename: foo.tsx
-
-  1 | function f(foo = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(16): function f(foo = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined) {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(17): function a({foo} = undefined) {} 1`] = `
-
-Filename: foo.ts
-
-  1 | function a({foo} = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(17): function a({foo} = undefined) {} 2`] = `
-
-Message:
-> 1 | function a({foo} = undefined) {}
-    |                    ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function a({foo}?) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(2): function f(foo?: Type = undefined) {} 1`] = `
-
-  1 | function f(foo?: Type = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(2): function f(foo?: Type = undefined) {} 2`] = `
-
-Message:
-> 1 | function f(foo?: Type = undefined) {}
-    |                         ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo?: Type) {}
 
 `;
 
@@ -390,40 +163,6 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(3): function f(foo = undefined): string {} 1`] = `
-
-  1 | function f(foo = undefined): string {}
-
-`;
-
-exports[`no-useless-undefined > invalid(3): function f(foo = undefined): string {} 2`] = `
-
-Message:
-> 1 | function f(foo = undefined): string {}
-    |                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(foo): string {}
-
-`;
-
-exports[`no-useless-undefined > invalid(4): function f(): string { let bar = undefined; } 1`] = `
-
-  1 | function f(): string { let bar = undefined; }
-
-`;
-
-exports[`no-useless-undefined > invalid(4): function f(): string { let bar = undefined; } 2`] = `
-
-Message:
-> 1 | function f(): string { let bar = undefined; }
-    |                                  ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | function f(): string { let bar; }
-
-`;
-
 exports[`no-useless-undefined > invalid(4): let a = undefined, b = 2; 1`] = `
 
   1 | let a = undefined, b = 2;
@@ -438,23 +177,6 @@ Message:
 
 Output:
   1 | let a, b = 2;
-
-`;
-
-exports[`no-useless-undefined > invalid(5): const f = (): string => { let bar = undefined; }; 1`] = `
-
-  1 | const f = (): string => { let bar = undefined; };
-
-`;
-
-exports[`no-useless-undefined > invalid(5): const f = (): string => { let bar = undefined; }; 2`] = `
-
-Message:
-> 1 | const f = (): string => { let bar = undefined; };
-    |                                     ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | const f = (): string => { let bar; };
 
 `;
 
@@ -505,23 +227,6 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(6): const f = function(foo: Type = undefined) {} 1`] = `
-
-  1 | const f = function(foo: Type = undefined) {}
-
-`;
-
-exports[`no-useless-undefined > invalid(6): const f = function(foo: Type = undefined) {} 2`] = `
-
-Message:
-> 1 | const f = function(foo: Type = undefined) {}
-    |                                ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | const f = function(foo?: Type) {}
-
-`;
-
 exports[`no-useless-undefined > invalid(6): function * foo() {\n\tyield /* */ (\n\t\t/* */\n\t\t(\n\t\t\t/* */\n\t\t\tundefined\n\t\t\t/* */\n\t\t)\n\t\t/* */\n\t) /* */ ;\n} 1`] = `
 
    1 | function * foo() {
@@ -569,23 +274,6 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(7): const f = (foo: Type = undefined) => {} 1`] = `
-
-  1 | const f = (foo: Type = undefined) => {}
-
-`;
-
-exports[`no-useless-undefined > invalid(7): const f = (foo: Type = undefined) => {} 2`] = `
-
-Message:
-> 1 | const f = (foo: Type = undefined) => {}
-    |                        ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | const f = (foo?: Type) => {}
-
-`;
-
 exports[`no-useless-undefined > invalid(7): const foo = () => /* */ (\n\t/* */\n\t(\n\t\t/* */\n\t\tundefined\n\t\t/* */\n\t)\n\t/* */\n); 1`] = `
 
   1 | const foo = () => /* */ (
@@ -627,23 +315,6 @@ Output:
 
 `;
 
-exports[`no-useless-undefined > invalid(8): const f = {method(foo: Type = undefined){}} 1`] = `
-
-  1 | const f = {method(foo: Type = undefined){}}
-
-`;
-
-exports[`no-useless-undefined > invalid(8): const f = {method(foo: Type = undefined){}} 2`] = `
-
-Message:
-> 1 | const f = {method(foo: Type = undefined){}}
-    |                               ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | const f = {method(foo?: Type){}}
-
-`;
-
 exports[`no-useless-undefined > invalid(8): foo.bind(undefined) 1`] = `
 
   1 | foo.bind(undefined)
@@ -675,22 +346,5 @@ Message:
 
 Output:
   1 | bind(foo)
-
-`;
-
-exports[`no-useless-undefined > invalid(9): const f = class {method(foo: Type = undefined){}} 1`] = `
-
-  1 | const f = class {method(foo: Type = undefined){}}
-
-`;
-
-exports[`no-useless-undefined > invalid(9): const f = class {method(foo: Type = undefined){}} 2`] = `
-
-Message:
-> 1 | const f = class {method(foo: Type = undefined){}}
-    |                                     ^^^^^^^^^ Do not use useless \`undefined\`.
-
-Output:
-  1 | const f = class {method(foo?: Type){}}
 
 `;

@@ -9,17 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
-
-`var` initializers are ignored because they can reset an existing binding, including on each loop iteration.
-
-This rule does not check function call arguments in TypeScript files because TypeScript can require an explicit `undefined` argument when the parameter type includes `undefined`.
-
-Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
-
-`return undefined` in a getter is ignored, since the [`getter-return`](https://eslint.org/docs/latest/rules/getter-return) rule requires getters to return a value. Getters defined with `Object.defineProperty()` are not detected.
-
-In TypeScript, when a function has an explicit return type, `return undefined` is only reported if that type is `undefined` or `void`. When the return type is a union with a real value type, such as `number | undefined`, the explicit `undefined` is kept, since it can document intent and avoid conflicts with the [`consistent-return`](https://eslint.org/docs/latest/rules/consistent-return) rule.
+This rule flags redundant uses of the global `undefined`.
 
 ## Examples
 
@@ -73,16 +63,6 @@ function* foo() {
 
 ```js
 // ❌
-function foo(bar = undefined) {
-}
-
-// ✅
-function foo(bar) {
-}
-```
-
-```js
-// ❌
 function foo({bar = undefined}) {
 }
 
@@ -107,83 +87,40 @@ const foo = index >= 0 ? array[index] : undefined;
 const foo = array[index];
 ```
 
-Guarded indexed access is reported with an editor suggestion instead of an autofix because removing the guard changes when the access is evaluated.
+The indexed access example gets an editor suggestion. Removing the guard changes when the access runs.
+
+## Exceptions
+
+- A `var` initializer can reset an existing binding.
+- Removing a default on the parameter itself can change the function's `length`.
+- Getters written with `get` keep `return undefined` to satisfy [`getter-return`](https://eslint.org/docs/latest/rules/getter-return).
+
+### Typed code
+
+Typed code includes TypeScript files, Vue and Svelte files whose parser provides a TypeScript node map, and JavaScript with `@ts-check` or JSDoc types.
+
+The rule keeps `undefined` in `let` initializers, defaults, call arguments, and concise arrows. It checks `return undefined` only with a `: undefined` or `: void` annotation. Without an annotation, removing `undefined` can change the inferred return type to `void`.
 
 ## Options
-
-Type: `object`
 
 ### checkArguments
 
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `undefined` at the end of function call arguments in JavaScript files. TypeScript files are not checked because the compiler determines whether an argument can be omitted. Pass `checkArguments: false` to disable checking them in JavaScript files.
+Whether to check for trailing `undefined` arguments in untyped JavaScript.
 
-Calls where a trailing `undefined` is not the same as no argument, like `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`, are ignored. These functions are matched by name.
-
-```js
-// ❌
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}] */
-foo(bar, baz, undefined);
-
-// ✅
-foo(bar, baz);
-```
-
-```js
-// ✅
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}] */
-foo(bar, baz, undefined);
-```
+The rule skips calls like `array.push(undefined)` and `array['push'](undefined)` by name. Set `checkArguments: false` if your functions use `arguments.length` or rest parameters to tell omitted arguments from `undefined`.
 
 ### checkArrowFunctionBody
 
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunctionBody: false` to disable checking them.
+Whether to check `() => undefined` in untyped JavaScript. Block-body `return` statements are checked separately.
 
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
-// ❌
-const foo = () => undefined;
-```
+## Conflicts with other ESLint rules
 
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
-// ✅
-const foo = () => {};
-```
+Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/latest/rules/array-callback-return#options) to allow bare returns in array callbacks. The same option in [`getter-return`](https://eslint.org/docs/latest/rules/getter-return#options) allows bare returns in getters created with `Object.defineProperty()`.
 
-```js
-/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}] */
-// ✅
-const foo = () => undefined;
-```
-
-## Conflict with ESLint `array-callback-return` and `getter-return` rules
-
-We recommend setting `allowImplicit` option to `true` for these ESLint rules:
-
-- [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options)
-- [`getter-return`](https://eslint.org/docs/rules/getter-return#options)
-
-```js
-{
-	rules: {
-		'array-callback-return': [
-			'error',
-			{
-				allowImplicit: true,
-			},
-		],
-		'getter-return': [
-			'error',
-			{
-				allowImplicit: true,
-			},
-		],
-	},
-}
-```
+[`no-useless-return`](https://eslint.org/docs/latest/rules/no-useless-return) can remove the bare `return` left by this rule. If the body becomes empty, a comment satisfies [`no-empty-function`](https://eslint.org/docs/latest/rules/no-empty-function).

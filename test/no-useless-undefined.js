@@ -1,7 +1,9 @@
+import {test as nodeTest} from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {rule, test} = getTester(import.meta);
 
 const messageId = 'no-useless-undefined';
 const suggestionMessageId = 'no-useless-undefined/suggestion';
@@ -17,6 +19,118 @@ const errorsWithoutSuggestion = [{
 }];
 const optionsIgnoreArguments = [{checkArguments: false}];
 const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
+
+test({
+	valid: [],
+	invalid: [
+		[
+			'function foo() {return ( // comment  \n\tundefined);}',
+			'function foo() {return // comment  \n;}',
+		],
+		[
+			'function* foo() {yield ( // comment  \r\n\tundefined);}',
+			'function* foo() {yield // comment  \r\n;}',
+		],
+		...['\u2028', '\u2029'].map(linebreak => [
+			`const foo = () => ( // comment${linebreak}\tundefined);`,
+			`const foo = () => // comment${linebreak} {};`,
+		]),
+	].map(([code, output]) => ({code, output, errors})),
+});
+
+test.typescript({
+	valid: [
+		...[
+			'class Foo { get value(): undefined { return undefined; } }',
+			'class Foo { static get value(): undefined { return undefined; } }',
+			'const object = {get value(): undefined {return undefined;}};',
+			'function foo(first: number | undefined = undefined, second: number) { return second; }',
+			'function foo(first: number | undefined = undefined) { return first; }',
+			'function foo(first = undefined) { return first; }',
+			'function foo({first}: {first: number} = undefined) { return first; }',
+			'function foo({first = undefined} = {}) { return first; }',
+			'class Foo { constructor(public value: number | undefined = undefined) {} } new Foo();',
+			'export let value = undefined;',
+			'let value: number | undefined = undefined; const result: undefined = value;',
+			// The enclosing function's return type is irrelevant to whether removing a default or local initializer changes type inference
+			'function foo(value = undefined): undefined { return value; }',
+			'function foo(): undefined { let value = undefined; return value; }',
+		].map(code => ({code, filename: 'file.ts'})),
+	],
+	invalid: [
+		{
+			code: 'function* values() {yield undefined;}',
+			filename: 'file.ts',
+			output: 'function* values() {yield;}',
+			errors,
+		},
+		{
+			code: 'const noop = () => undefined;',
+			filename: 'file.js',
+			output: 'const noop = () => {};',
+			errors,
+		},
+	],
+});
+
+test({
+	valid: [
+		'// @ts-check\nfunction foo() { return undefined; }',
+		'// @ts-check\nfunction foo({value = undefined} = {}) {return value;}',
+		'// @ts-check\nexport let value = undefined;',
+		'/** @type {undefined} */ const result = (() => undefined)();',
+		'/** @param {undefined} value */ function foo(value) {} foo(undefined);',
+		'function foo(undefined) { return undefined; }',
+		'function foo(undefined) { return bar(undefined); }',
+		'function foo(undefined) { return index >= 0 ? array[index] : undefined; }',
+		'function foo(undefined) { const {value = undefined} = {}; let copy = undefined; return [value, copy]; }',
+		'const undefined = 1; const foo = () => undefined;',
+		'function foo(bar = undefined) {}',
+		'const foo = ({bar} = undefined) => bar;',
+	],
+	invalid: [],
+});
+
+nodeTest('preserve undefined in a processed TypeScript block', t => {
+	const linter = new Linter();
+	const messages = linter.verify('function foo() {return undefined;}', {
+		files: ['**/*.ts'],
+		plugins: {unicorn: {rules: {[messageId]: rule}}},
+		rules: {[`unicorn/${messageId}`]: 'error'},
+	}, {
+		filename: 'example.md/0_example.ts',
+		physicalFilename: 'example.md',
+	});
+	t.assert.deepStrictEqual(messages, []);
+});
+
+for (const component of ['vue', 'svelte']) {
+	const filename = `component.${component}`;
+	test[component]({
+		testerOptions: {
+			languageOptions: {parserOptions: {parser: {ts: parsers.typescript.implementation}}},
+		},
+		valid: [
+			{
+				code: outdent`
+					<script lang="ts">
+					function noop() { return undefined; }
+					const result: undefined = noop();
+					</script>
+				`,
+				filename,
+			},
+		],
+		invalid: [
+			{
+				code: '<script>const noop = () => undefined;</script>',
+				output: '<script>const noop = () => {};</script>',
+				filename,
+				errors,
+			},
+		],
+	});
+}
 
 // A conditional produces a value, while indexed access can expose a reference
 test({
@@ -113,8 +227,11 @@ test({
 		'map.set(foo, undefined);',
 		'array.push(foo, undefined);',
 		'array.push(undefined);',
+		'array["push"](undefined);',
+		'(array?.push)(undefined);',
 		'array.unshift(foo, undefined);',
 		'array.unshift(undefined);',
+		'array[`unshift`](undefined);',
 		'createContext(undefined);',
 		'React.createContext(undefined);',
 		'useRef(undefined);',
@@ -134,6 +251,9 @@ test({
 		'foo.bind(...[undefined], undefined)',
 		'foo.bind(bar, baz, undefined)',
 		'foo?.bind(bar, undefined)',
+		'foo["bind"](bar, undefined)',
+		'foo.bind?.(bar, undefined)',
+		'(foo?.bind)(bar, undefined)',
 
 		// `checkArguments: false`
 		{
@@ -172,6 +292,12 @@ test({
 			errors,
 		},
 		{
+			code: 'const foo = () => {return undefined;};',
+			output: 'const foo = () => {return;};',
+			options: optionsIgnoreArrowFunctionBody,
+			errors,
+		},
+		{
 			code: 'function foo() {return       undefined;}',
 			output: 'function foo() {return;}',
 			errors,
@@ -204,6 +330,11 @@ test({
 		{
 			code: 'foo(undefined);',
 			output: 'foo();',
+			errors,
+		},
+		{
+			code: 'foo["bind"](undefined);',
+			output: 'foo["bind"]();',
 			errors,
 		},
 		{
@@ -270,11 +401,6 @@ test({
 		{
 			code: 'const [foo = undefined] = [];',
 			output: 'const [foo] = [];',
-			errors,
-		},
-		{
-			code: 'function foo(bar = undefined) {}',
-			output: 'function foo(bar) {}',
 			errors,
 		},
 		{
@@ -398,6 +524,38 @@ test({
 
 test.typescript({
 	valid: [
+		{
+			code: 'function noop() {return undefined;} const result: undefined = noop();',
+			filename: 'file.ts',
+		},
+		{
+			code: 'const noop = function () {return undefined;};',
+			filename: 'file.mts',
+		},
+		{
+			code: 'class Foo { async method() {doSomething(); return undefined;} }',
+			filename: 'file.cts',
+		},
+		{
+			code: 'const noop = () => {return undefined;};',
+			filename: 'file.tsx',
+		},
+		{
+			code: 'const noop = () => undefined;',
+			filename: 'file.ts',
+		},
+		{
+			code: outdent`
+				function foo(): undefined {
+					function nested() {
+						return undefined;
+					}
+
+					return nested();
+				}
+			`,
+			filename: 'file.ts',
+		},
 		// https://github.com/zeit/next.js/blob/3af0fe5cf2542237f34d106872d104c3606b1858/packages/next/build/utils.ts#L620
 		'prerenderPaths?.add(entry)',
 		// #880
@@ -511,6 +669,7 @@ test.typescript({
 	invalid: [
 		{
 			code: 'function shouldBeFlagged(): undefined {return undefined;}',
+			filename: 'file.ts',
 			output: 'function shouldBeFlagged(): undefined {return;}',
 			errors,
 		},
@@ -521,6 +680,7 @@ test.typescript({
 		},
 		{
 			code: 'function shouldBeFlagged(): void {return undefined;}',
+			filename: 'file.ts',
 			output: 'function shouldBeFlagged(): void {return;}',
 			errors,
 		},
@@ -649,40 +809,6 @@ test.typescript({
 		{
 			code: outdent`
 				class A {
-					get method(): undefined {
-						return undefined;
-					}
-				}
-			`,
-			output: outdent`
-				class A {
-					get method(): undefined {
-						return;
-					}
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				class A {
-					static get method(): undefined {
-						return undefined;
-					}
-				}
-			`,
-			output: outdent`
-				class A {
-					static get method(): undefined {
-						return;
-					}
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				class A {
 					#method(): undefined {
 						return undefined;
 					}
@@ -713,27 +839,6 @@ test.typescript({
 				}
 			`,
 			errors,
-		},
-		{
-			code: outdent`
-				function foo():undefined {
-					function nested() {
-						return undefined;
-					}
-
-					return nested();
-				}
-			`,
-			output: outdent`
-				function foo():undefined {
-					function nested() {
-						return;
-					}
-
-					return nested();
-				}
-			`,
-			errors: 1,
 		},
 		{
 			code: 'const foo = (index as number) >= 0 ? array[index as number] : undefined;',
@@ -768,7 +873,16 @@ test.typescript({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		// https://github.com/webpack/webpack/blob/0f84d1e3bf69915dc060f23ced9dfa468a884a42/lib/wasm-sync/WasmFinalizeExportsPlugin.js#L49
+		outdent`
+			const referencedExports =
+				compilation.getDependencyReferencedExports(
+					/** @type {Dependency} */ (connection.dependency),
+					undefined
+				);
+		`,
+	],
 	invalid: [
 		outdent`
 			foo(
@@ -822,17 +936,8 @@ test.snapshot({
 		`,
 		'foo.bind(undefined)',
 		'bind(foo, undefined)',
-		'foo.bind?.(bar, undefined)',
 		'foo[bind](bar, undefined)',
 		'foo.notBind(bar, undefined)',
-		// https://github.com/webpack/webpack/blob/0f84d1e3bf69915dc060f23ced9dfa468a884a42/lib/wasm-sync/WasmFinalizeExportsPlugin.js#L49
-		outdent`
-			const referencedExports =
-				compilation.getDependencyReferencedExports(
-					/** @type {Dependency} */ (connection.dependency),
-					undefined
-				);
-		`,
 		'foo( ((a)), ((undefined)), ((undefined)), )',
 		'foo( ((undefined)), ((undefined)), )',
 	],
@@ -871,47 +976,12 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
-	testerOptions: {
-		languageOptions: {parser: parsers.typescript},
-	},
-	valid: [],
-	invalid: [
-		'function f(foo: Type = undefined) {}',
-		'function f(foo?: Type = undefined) {}',
-		// The enclosing function's return type is irrelevant to a redundant default or local initializer
-		'function f(foo = undefined): string {}',
-		'function f(): string { let bar = undefined; }',
-		'const f = (): string => { let bar = undefined; };',
-		'const f = function(foo: Type = undefined) {}',
-		'const f = (foo: Type = undefined) => {}',
-		'const f = {method(foo: Type = undefined){}}',
-		'const f = class {method(foo: Type = undefined){}}',
-		'function f(foo = undefined) {}',
-		...[
-			undefined,
-			'foo.js',
-			'foo.ts',
-			'foo.MTs',
-			'foo.cts',
-			'foo.tsx',
-		].map(filename => ({
-			code: 'function f(foo = undefined) {}',
-			filename,
-		})),
-		{
-			code: 'function a({foo} = undefined) {}',
-			filename: 'foo.ts',
-		},
-	],
-});
-
 test({
 	valid: [],
 	invalid: [
 		// A comment in the removed range would be dropped
 		{
-			code: 'function f(a /* keep */ = undefined) {}',
+			code: 'function f({a /* keep */ = undefined}) {}',
 			errors: 1,
 		},
 		{
@@ -927,8 +997,8 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'function f(/* keep */ a = undefined) {}',
-			output: 'function f(/* keep */ a) {}',
+			code: 'function f({/* keep */ a = undefined}) {}',
+			output: 'function f({/* keep */ a}) {}',
 			errors: 1,
 		},
 		{
@@ -947,13 +1017,7 @@ test.typescript({
 		'async function f() { await using resource = undefined; }',
 		'for (using resource = undefined; ; ) { break; }',
 	],
-	invalid: [
-		{
-			code: 'let resource = undefined;',
-			output: 'let resource;',
-			errors,
-		},
-	],
+	invalid: [],
 });
 
 // A binding pattern requires an initializer, and the parentheses around the value must go too
@@ -967,7 +1031,7 @@ test({
 	invalid: [
 		...[
 			['let foo = (undefined);', 'let foo;'],
-			['function foo(bar = (undefined)) {}', 'function foo(bar) {}'],
+			['function foo({bar = (undefined)}) {}', 'function foo({bar}) {}'],
 			['const {bar = (undefined)} = object;', 'const {bar} = object;'],
 		].map(([code, output]) => ({code, output, errors: 1})),
 	],
