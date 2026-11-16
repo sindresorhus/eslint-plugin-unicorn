@@ -41,7 +41,6 @@ function create(context) {
 		if (!isMethodCall(node, {
 			method: 'postMessage',
 			argumentsLength: 1,
-			optionalCall: false,
 		})) {
 			return;
 		}
