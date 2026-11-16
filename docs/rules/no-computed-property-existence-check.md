@@ -40,7 +40,7 @@ if ('key' in object) {}
 if (object['key']) {}
 ```
 
-The rule allows direct toggles such as `flags[key] = !flags[key]` when both accesses match the same property and have no detectable side effects. A binary key expression such as `index + 1` can match by source text. A direct `super[key]` read can still report because it can read from the parent prototype while assignment writes to the instance.
+The rule allows direct toggles such as `flags[key] = !flags[key]` when both accesses match the same property and have no detectable side effects. A binary key expression such as `index + 1` can match by source text after removing TypeScript wrappers. The rule still checks a direct `super[key]` read because `super[key] = !super[key]` can read from the parent prototype and write to the instance.
 
 When type information is available and the property value is a known `boolean`, the access is a value read rather than an existence check, so it's allowed:
 

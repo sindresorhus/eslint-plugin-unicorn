@@ -14,6 +14,7 @@ import {
 	isWeakMap,
 	isWeakSet,
 	unwrapChainAndTypeScriptExpression,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -59,12 +60,14 @@ function isSameProperty(left, right, context) {
 	}
 
 	const {sourceCode} = context;
+	const leftKey = unwrapTypeScriptExpression(left.property);
+	const rightKey = unwrapTypeScriptExpression(right.property);
 	return isSameReference(left, right)
 		|| (
-			right.property.type === 'BinaryExpression'
+			rightKey.type === 'BinaryExpression'
 			&& left.computed
 			&& isSameReference(left.object, right.object)
-			&& sourceCode.getText(left.property) === sourceCode.getText(right.property)
+			&& sourceCode.getText(leftKey) === sourceCode.getText(rightKey)
 		);
 }
 

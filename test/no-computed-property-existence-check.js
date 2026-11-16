@@ -213,6 +213,10 @@ test({
 			code: 'kept[index] = (!kept[index]!) as boolean;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'kept[(index + 1) as number] = !kept[(index + 1)!];',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		...[
@@ -223,6 +227,7 @@ test({
 			'({})[index + 1] = !({})[index + 1];',
 			'(/flag/)[index] = !(/flag/)[index];',
 			'kept[(kept = replacement, 0)] = !kept[0 + 0];',
+			'state.flags[0 + 0] = !state[(state.flags = replacement, "flags")][0 + 0];',
 			'kept[nextIndex()] = !kept[nextIndex()];',
 			'kept[key`next`] = !kept[key`next`];',
 			'kept[{["__proto__"]: null}] = !kept[index];',
