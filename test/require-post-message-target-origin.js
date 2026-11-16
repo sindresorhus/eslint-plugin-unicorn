@@ -32,6 +32,7 @@ test.snapshot({
 		'window.postMessage(message, {__proto__: options})',
 		'worker.postMessage(message, {transfer: [port]})',
 		'window.postMessage(...message)',
+		'window.postMessage(...arguments_, {})',
 		'window[postMessage](message)',
 		'window["postMessage"](message)',
 		'window.notPostMessage(message)',
