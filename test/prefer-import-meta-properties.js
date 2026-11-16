@@ -33,6 +33,14 @@ test({
 			import {win32 as path} from 'node:path';
 			const dirname = path.dirname(import.meta.filename);
 		`,
+		{
+			code: 'import type {default as pathFromTypes} from "node:path"; const dirname = pathFromTypes.dirname(import.meta.filename);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type fileURLToPath as convertFromTypes} from "node:url"; const filename = convertFromTypes(import.meta.url);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			import url from 'node:url';
 			const filename = url[(getName(), 'fileURLToPath')](import.meta.url);

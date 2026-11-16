@@ -7,7 +7,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getOutermostTypeScriptExpression} from './utils/index.js';
+import {getOutermostTypeScriptExpression, isRuntimeImportSpecifier} from './utils/index.js';
 
 const ERROR_DIRNAME = 'error/calculate-dirname';
 const ERROR_FILENAME = 'error/calculate-filename';
@@ -91,7 +91,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 	*/
 	function isBuiltinModuleFunctionDefinition(define, checkKind) {
 		if (define.type === 'ImportBinding') {
-			if (!isModuleLiteral(define.parent.source)) {
+			if (!isModuleLiteral(define.parent.source) || !isRuntimeImportSpecifier(define.node)) {
 				return false;
 			}
 
