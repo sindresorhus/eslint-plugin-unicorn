@@ -1,5 +1,5 @@
 import {isIdentifierNamed, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isGlobalIdentifier, unwrapTypeScriptExpression, withTypeInformation} from './utils/index.js';
+import {isGlobalIdentifier, unwrapChainAndTypeScriptExpression, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'error';
 const messages = {
@@ -7,7 +7,7 @@ const messages = {
 };
 
 function isWindowReceiver(receiver, context) {
-	const node = unwrapTypeScriptExpression(receiver);
+	const node = unwrapChainAndTypeScriptExpression(receiver);
 	if (isIdentifierNamed(node, 'window')) {
 		return isGlobalIdentifier(node, context);
 	}
@@ -28,7 +28,7 @@ function getTargetOriginSupport(type) {
 	const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
 	const signatures = types.flatMap(type => type.getCallSignatures());
 	if (signatures.length > 0) {
-		return signatures.some(({parameters}) => parameters.some(({name}) => name === 'targetOrigin'));
+		return signatures.some(({parameters}) => parameters[1]?.name === 'targetOrigin');
 	}
 }
 

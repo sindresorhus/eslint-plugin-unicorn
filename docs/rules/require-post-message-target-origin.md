@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule requires an explicit target origin for single-argument calls to [`Window#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage). If you omit the target origin, the browser only delivers the message to a window with the sender's origin. Use `'/'` to make that behavior explicit, or specify the expected origin of a cross-origin window.
+This rule checks single-argument calls to [`Window#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) written in dot notation. If you omit the target origin, the browser only delivers the message to a window with the sender's origin. Use `'/'` to make that behavior explicit, or specify the expected origin of a cross-origin window.
 
-When TypeScript provides call signatures, the rule reports a call if any signature has a `targetOrigin` parameter. Methods such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()` have no such parameter.
+When TypeScript provides call signatures, the rule reports a call if any signature names its second parameter `targetOrigin`. Methods such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()` have no such parameter.
 
 Without call signatures, the rule checks the global `window`, `window.parent`, `window.top`, `window.opener`, `document.defaultView`, and `.contentWindow`. Untyped aliases such as `target.postMessage()` are ignored.
 

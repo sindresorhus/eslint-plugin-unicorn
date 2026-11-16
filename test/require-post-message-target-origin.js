@@ -40,6 +40,8 @@ test.snapshot({
 		typeAware('new MessageChannel().port1.postMessage("ping")'),
 		typeAware('new BroadcastChannel("updates").postMessage("ping")'),
 		typeAware('declare const port: {postMessage(message: unknown): void}; port.postMessage("ping")'),
+		typeAware('declare const target: {postMessage(targetOrigin: string): void}; target.postMessage("https://example.com")'),
+		typeAware('declare const target: {postMessage(message: unknown, options?: object, targetOrigin?: string): void}; target.postMessage("ping")'),
 		typeAware('declare const port: MessagePort | undefined; port?.postMessage("ping")'),
 		typeAware('declare const target: MessagePort | BroadcastChannel; target.postMessage("ping")'),
 		typeAware('function send<T extends MessagePort>(target: T) {target.postMessage("ping")}'),
@@ -71,5 +73,6 @@ test.snapshot({
 		typeAware('declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping")'),
 		typeAware('declare const target: {postMessage(message: unknown, targetOrigin?: "https://example.com"): void}; target.postMessage("ping")'),
 		'window.postMessage?.(message)',
+		'(iframe?.contentWindow)?.postMessage(message)',
 	],
 });
