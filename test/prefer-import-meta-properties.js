@@ -55,7 +55,6 @@ test({
 		},
 		{
 			code: 'import {fileURLToPath} from "node:url"; delete fileURLToPath(import.meta.url);',
-			output: null,
 			errors: 1,
 		},
 		{
@@ -65,7 +64,6 @@ test({
 		},
 		{
 			code: 'import {dirname} from "node:path"; const filename = import.meta.filename; delete (dirname(filename) as string);',
-			output: null,
 			errors: 1,
 			languageOptions: {parser: parsers.typescript},
 		},
