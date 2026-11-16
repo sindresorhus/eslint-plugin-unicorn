@@ -1,6 +1,6 @@
 # no-null
 
-📝 Disallow the use of the `null` literal.
+📝 Disallow the use of `null`.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Disallow the use of the `null` literal, to encourage using `undefined` instead. Using one absence value within a codebase reduces ambiguity when APIs exchange missing values. You can learn more in <https://github.com/sindresorhus/meta/discussions/7>
+Disallow the use of the `null` literal and the `null` type, to encourage using `undefined` instead. Using one absence value within a codebase reduces ambiguity when APIs exchange missing values. You can learn more in <https://github.com/sindresorhus/meta/discussions/7>
 
 ## Examples
 
@@ -29,6 +29,16 @@ if (bar == null) {}
 if (bar == undefined) {}
 ```
 
+```ts
+// ❌
+let foo: string | null;
+
+// ✅
+let foo: string | undefined;
+```
+
+`null` types have suggestions only. Nullable ref types in `useRef` and `React.useRef` calls are allowed; other required `null` types need a disable comment.
+
 ```js
 // ✅
 const foo = Object.create(null);
@@ -43,6 +53,8 @@ Object.setPrototypeOf(foo, null);
 // ✅
 if (foo === null) {}
 ```
+
+With full type information and strict null checks, TypeScript allows `null` arguments and property assignments when the parameter or property is declared by a standard library or dependency and accepts `null` but rejects `undefined`. Generic and overloaded signatures are not inferred. Unresolved calls use name-based exceptions for selected DOM namespace, WebGL binding, and `replaceTrack` methods, so unrelated methods may also match.
 
 ## Options
 
