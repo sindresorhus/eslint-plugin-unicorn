@@ -11,11 +11,7 @@ The replacement argument of [`String#replace()`](https://developer.mozilla.org/e
 
 Use a literal string when the replacement is static. Use a replacement function when the replacement is dynamic.
 
-The rule recognizes local replacement functions and checks whether TypeScript identifies other values as callable. If the checker cannot determine the type, the rule can infer callbacks from constant aliases and TypeScript or JSDoc annotations. This includes function types and type literals with call signatures. For named interfaces with call signatures, the rule relies on the TypeScript checker.
-
-For a direct variable reference, the syntax fallback requires a binding without reassignments. If another function can write to that binding, the rule checks its declared TypeScript type.
-
-The rule checks string primitives and boxed `String` objects and skips receivers declared as `DOMTokenList`. Without full type information, it also treats `.classList.replace()` as a DOM call when the object could be a DOM node. Other custom `replace()` methods may be reported when the receiver type is unknown.
+The rule recognizes callbacks from local code, TypeScript, and JSDoc. For direct references, it uses the declared TypeScript type if another function can reassign the variable. It skips known non-string receivers and, without full type information, `.classList.replace()` on possible DOM nodes.
 
 Direct, non-optional [`.repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) calls on string or no-substitution template literals without `$` are allowed. The arguments need not be static because only the receiver can introduce replacement patterns.
 
