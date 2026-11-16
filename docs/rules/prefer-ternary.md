@@ -17,7 +17,7 @@ Direct arrows remain in identifier assignments and initializers to preserve func
 
 Calls, method calls, constructors, binary expressions, member access, objects, and arrays use the same shallow matching as [`prefer-minimal-ternary`](./prefer-minimal-ternary.md). Matching `await`, `yield`, `yield*`, and `throw` wrappers are preserved. Entirely different expressions remain untouched by default.
 
-Fixes move the ternary directly into the varying part when runtime and type safety allow it. Otherwise, returns and assignments retain the full ternary conversion; other statements may be reported without a fix. Type-sensitive object transformations can offer suggestions instead. See [`prefer-minimal-ternary`'s autofix limitations](./prefer-minimal-ternary.md#autofix-limitations).
+Fixes move the ternary directly into the varying part when runtime and type safety allow it. Otherwise, returns and assignments retain the full ternary conversion; other statements may be reported without a fix. Type-sensitive object transformations can offer suggestions instead. See [`prefer-minimal-ternary`'s autofix limitations](./prefer-minimal-ternary.md#limitations).
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
