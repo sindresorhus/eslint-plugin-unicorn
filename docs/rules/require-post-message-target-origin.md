@@ -9,15 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule checks calls to [`Window#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) written in dot notation. It reports calls with just a message and calls with an inline options object that omits `targetOrigin`. It skips options passed by reference and object literals with spreads, computed keys it cannot resolve, or a `__proto__` key.
+Require an explicit target origin for [`Window#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage). The rule checks calls in dot notation with just a message or with inline options that lack `targetOrigin`. It skips options variables and objects with spreads, unresolved keys, or `__proto__`.
 
-If you omit the target origin, the browser only delivers the message to a window with the sender's origin. Use `'/'` to make that behavior explicit, or specify the expected origin of a cross-origin window.
-
-When TypeScript provides call signatures, the rule looks for a signature whose second parameter is named `targetOrigin`. For inline options objects, each possible method type must have known signatures, and all signatures must come from TypeScript's standard library. Methods such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()` have no `targetOrigin` parameter.
-
-Without call signatures, the rule checks the global `window`, `window.parent`, `window.top`, `window.opener`, `document.defaultView`, and `.contentWindow`. Untyped aliases such as `target.postMessage()` are ignored.
-
-The editor suggestion adds `'/'` as the second argument or as the `targetOrigin` property. When TypeScript provides call signatures, each possible method type must have a window signature, and all overloads must come from TypeScript's standard library. The rule withholds the suggestion for options objects wrapped in TypeScript syntax such as `satisfies`, because the type can restrict their properties. For cross-origin delivery, enter the expected origin yourself.
+Use `'/'` to make the browser's same-origin default explicit. For cross-origin delivery, specify the expected origin.
 
 ## Examples
 
@@ -25,15 +19,24 @@ The editor suggestion adds `'/'` as the second argument or as the `targetOrigin`
 // ❌
 window.postMessage(data);
 
-// ✅ - Deliver only to the sender's origin
+// ✅
 window.postMessage(data, '/');
 ```
 
 ```js
-// ❌ - Sending to iframe without specifying origin
 const iframe = document.querySelector('iframe');
+
+// ❌
 iframe.contentWindow.postMessage(data, {transfer: [port]});
 
-// ✅ - Specify the exact origin you expect
-iframe.contentWindow.postMessage(data, {targetOrigin: 'https://expected-iframe-origin.com', transfer: [port]});
+// ✅
+iframe.contentWindow.postMessage(data, {targetOrigin: 'https://example.com', transfer: [port]});
 ```
+
+## Type information
+
+Without call signatures, the rule checks the global `window`, its `parent`, `top`, and `opener` properties, `document.defaultView`, and `.contentWindow`.
+
+With signatures, the rule looks for a second parameter named `targetOrigin`. The inline options check and the editor suggestion require known signatures from TypeScript's standard library for every possible method type. For the suggestion, every type must also have a `targetOrigin` signature.
+
+The editor can add `'/'` as the second argument or as `targetOrigin` in a plain object literal. Options wrapped in TypeScript syntax such as `satisfies` get a diagnostic without an edit.
