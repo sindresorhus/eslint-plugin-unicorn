@@ -53,7 +53,7 @@ test.snapshot({
 		typeAware('declare const wrapper: {contentWindow: MessagePort | {postMessage: {}}}; wrapper.contentWindow.postMessage("ping")'),
 	],
 	invalid: [
-		'window.postMessage(message)',
+		{code: 'window.postMessage(message)', languageOptions: {globals: {window: 'off'}}},
 		'window.parent.postMessage(message )',
 		'window.top?.postMessage(message )',
 		'window.opener.postMessage( ((message)) )',
