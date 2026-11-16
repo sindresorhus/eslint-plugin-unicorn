@@ -4,38 +4,23 @@
 
 🚫 Disabled by default.
 
-💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
-
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Specifying the `targetOrigin` argument with [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) is a security best practice. It ensures that sensitive messages are only delivered to the intended recipient, preventing accidentally sending data to a window with an unexpected origin due to navigation or redirects.
+This rule requires an explicit target origin for single-argument calls to [`Window#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage). If you omit the target origin, the browser only delivers the message to a window with the sender's origin. Use `'/'` to make that behavior explicit, or specify the expected origin of a cross-origin window.
 
-When TypeScript type information is available, this rule ignores methods whose call signatures have no `targetOrigin` parameter, such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()`.
+When TypeScript provides call signatures, the rule reports a call if any signature has a `targetOrigin` parameter. Methods such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()` have no such parameter.
 
-Without type information, or when any possible method type has no known call signatures (such as `any` or `Function`), this rule cannot distinguish between `window.postMessage()` and other `.postMessage()` methods.
+Without call signatures, the rule checks the global `window`, `window.parent`, `window.top`, `window.opener`, `document.defaultView`, and `.contentWindow`. Untyped aliases such as `target.postMessage()` are ignored.
 
 ## Examples
 
 ```js
-// ❌ - Missing targetOrigin, message could be intercepted
-window.postMessage(sensitiveData);
-
-// ✅ - Explicit target origin prevents security issues
-window.postMessage(sensitiveData, 'https://trusted-domain.com');
-```
-
-```js
 // ❌
-window.postMessage({token: authToken});
+window.postMessage(data);
 
-// ✅ - Always specify the target origin
-window.postMessage({token: authToken}, 'https://api.example.com');
-```
-
-```js
-// ✅ - '*' is acceptable when sending non-sensitive public data
-window.postMessage({publicData: 'hello'}, '*');
+// ✅ - Deliver only to the sender's origin
+window.postMessage(data, '/');
 ```
 
 ```js

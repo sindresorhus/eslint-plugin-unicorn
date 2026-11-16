@@ -1,13 +1,36 @@
-import {isMethodCall} from './ast/index.js';
-import {appendArgument} from './fix/index.js';
-import {withTypeInformation} from './utils/index.js';
+import {isIdentifierNamed, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isGlobalIdentifier, unwrapTypeScriptExpression, withTypeInformation} from './utils/index.js';
 
-const ERROR = 'error';
-const SUGGESTION = 'suggestion';
+const MESSAGE_ID = 'error';
 const messages = {
-	[ERROR]: 'Missing the `targetOrigin` argument.',
-	[SUGGESTION]: 'Use `{{code}}`.',
+	[MESSAGE_ID]: 'Missing the `targetOrigin` argument.',
 };
+
+function isWindowReceiver(receiver, context) {
+	const node = unwrapTypeScriptExpression(receiver);
+	if (isIdentifierNamed(node, 'window')) {
+		return isGlobalIdentifier(node, context);
+	}
+
+	if (isMemberExpression(node, 'contentWindow')) {
+		return true;
+	}
+
+	return (
+		isMemberExpression(node, {object: 'document', property: 'defaultView'})
+		|| isMemberExpression(node, {object: 'window', properties: ['parent', 'top', 'opener']})
+	) && isGlobalIdentifier(node.object, context);
+}
+
+function getTargetOriginSupport(type) {
+	const nonNullableType = type.getNonNullableType();
+	// Inspect union members separately so TypeScript does not discard the Window overload with `targetOrigin` when combining signatures.
+	const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
+	const signatures = types.flatMap(type => type.getCallSignatures());
+	if (signatures.length > 0) {
+		return signatures.some(({parameters}) => parameters.some(({name}) => name === 'targetOrigin'));
+	}
+}
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -23,48 +46,19 @@ function create(context) {
 			return;
 		}
 
-		if (withTypeInformation(node.callee, context, ({type}) => {
-			const nonNullableType = type.getNonNullableType();
-			// Inspect union members separately so TypeScript does not discard the Window overload with `targetOrigin` when combining signatures.
-			const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
-			const signatureLists = types.map(type => type.getCallSignatures());
-			return signatureLists.every(signatures => signatures.length > 0)
-				&& signatureLists.flat().every(({parameters}) => parameters.every(({name}) => name !== 'targetOrigin'));
-		})) {
+		const hasTargetOrigin = withTypeInformation(node.callee, context, ({type}) => getTargetOriginSupport(type));
+		if (!(hasTargetOrigin ?? isWindowReceiver(node.callee.object, context))) {
 			return;
 		}
 
 		const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-		const replacements = [];
-		const target = node.callee.object;
-		if (target.type === 'Identifier') {
-			const {name} = target;
-
-			replacements.push(`${name}.location.origin`);
-
-			if (!['self', 'window', 'globalThis'].includes(name)) {
-				replacements.push('self.location.origin');
-			}
-		} else {
-			replacements.push('self.location.origin');
-		}
-
-		replacements.push('\'*\'');
 
 		return {
 			loc: {
 				start: sourceCode.getLoc(penultimateToken).end,
 				end: sourceCode.getLoc(lastToken).end,
 			},
-			messageId: ERROR,
-			suggest: replacements.map(code => ({
-				messageId: SUGGESTION,
-				data: {code},
-				/**
-				@param {import('eslint').Rule.RuleFixer} fixer
-				*/
-				fix: fixer => appendArgument(fixer, node, code, context),
-			})),
+			messageId: MESSAGE_ID,
 		};
 	});
 }
@@ -78,11 +72,10 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
-			// Turned off because without type information we can't distinguish `window.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
-			// See #1396
+			// Turned off because requiring an explicit target origin is a convention. The default already limits delivery to the same origin.
+			// See #1396 for the history of ambiguous receivers.
 			recommended: false,
 		},
-		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
