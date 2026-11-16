@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
+import {minimatch} from 'minimatch';
 import {getStaticStringValue, isNewExpression} from './ast/index.js';
 import {isNodeMatchesNameOrPath, isVirtualFilename, unwrapTypeScriptExpression} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
@@ -140,6 +141,20 @@ function hasLengthChangingCaseMapping(rawPath, correctedPath) {
 	return rawPath.split('/').some((part, index) => decodePercentEncoded(part).length !== correctedParts[index].length);
 }
 
+function getProjectDirectory(documentDirectory, fallbackDirectory) {
+	let directory = documentDirectory;
+	while (!fs.existsSync(path.join(directory, '.git'))) {
+		const parentDirectory = path.dirname(directory);
+		if (parentDirectory === directory) {
+			return fallbackDirectory;
+		}
+
+		directory = parentDirectory;
+	}
+
+	return directory;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -151,7 +166,9 @@ const create = context => {
 		return;
 	}
 
-	const documentDirectory = path.dirname(context.physicalFilename);
+	const {ignore} = context.options[0];
+	const documentDirectory = path.resolve(context.cwd, path.dirname(context.physicalFilename));
+	let projectDirectory;
 	const resourceCache = new Map();
 	const directoryEntriesCache = new Map();
 	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
@@ -240,6 +257,17 @@ const create = context => {
 		}
 
 		const resource = path.resolve(documentDirectory, resourcePath);
+		projectDirectory ??= getProjectDirectory(documentDirectory, context.cwd);
+		const relativePath = path.relative(projectDirectory, resource).replaceAll(path.sep, '/');
+		if (
+			relativePath === '..'
+			|| relativePath.startsWith('../')
+			|| path.isAbsolute(relativePath)
+			|| ignore.some(pattern => minimatch(relativePath, pattern, {nocomment: true, nonegate: true}))
+		) {
+			return;
+		}
+
 		let directory = documentDirectory;
 		let hasIncorrectCase = false;
 		const correctedParts = [];
@@ -297,8 +325,12 @@ const create = context => {
 			return;
 		}
 
-		const resourceRange = valueRange && [valueRange[0] + leadingWhitespaceLength, valueRange[0] + leadingWhitespaceLength + resource.length];
 		const resourceResult = getResourceResult(localResource.path);
+		if (!resourceResult) {
+			return;
+		}
+
+		const resourceRange = valueRange && [valueRange[0] + leadingWhitespaceLength, valueRange[0] + leadingWhitespaceLength + resource.length];
 		const loc = resourceRange && {
 			start: context.sourceCode.getLocFromIndex(resourceRange[0]),
 			end: context.sourceCode.getLocFromIndex(resourceRange[1]),
@@ -422,7 +454,19 @@ const config = {
 			recommended: false,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				ignore: {
+					type: 'array',
+					uniqueItems: true,
+					items: {type: 'string', minLength: 1},
+					description: 'Glob patterns for resource paths to ignore.',
+				},
+			},
+		}],
+		defaultOptions: [{ignore: []}],
 		messages,
 		languages: [
 			'js/js',

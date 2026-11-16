@@ -1,8 +1,13 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import {test as nodeTest} from 'node:test';
 import {fileURLToPath} from 'node:url';
 import css from '@eslint/css';
 import html from '@html-eslint/eslint-plugin';
 import markdown from '@eslint/markdown';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -150,6 +155,64 @@ test.snapshot({
 		markdownCase('[Missing](./guide.md/)'),
 		cssCase(String.raw`.icon { background: url(./assets/LOG\4F.svg); }`),
 	],
+});
+
+nodeTest('uses the nearest Git root or falls back to ESLint cwd', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-local-resource-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	const repository = path.join(directory, 'repository');
+	const worktree = path.join(repository, 'worktree');
+	fs.mkdirSync(worktree, {recursive: true});
+
+	const linter = new Linter({cwd: directory});
+	const lint = () => linter.verify(
+		'[Release](../../../releases/latest/download/app.zip)\n[New issue](../../issues/new)\n[Discussions](%2E%2E/discussions)\n[Missing](./missing.md)',
+		{
+			files: ['**/*.md'],
+			language: 'markdown/commonmark',
+			plugins: {markdown, unicorn},
+			rules: {'unicorn/no-missing-local-resource': 'error'},
+		},
+		{filename: path.join(worktree, 'readme.md')},
+	).map(({message}) => message);
+
+	t.assert.deepStrictEqual(lint(), [
+		'Resource `../../issues/new` does not exist.',
+		'Resource `%2E%2E/discussions` does not exist.',
+		'Resource `./missing.md` does not exist.',
+	]);
+
+	fs.mkdirSync(path.join(repository, '.git'));
+	t.assert.deepStrictEqual(lint(), [
+		'Resource `%2E%2E/discussions` does not exist.',
+		'Resource `./missing.md` does not exist.',
+	]);
+
+	fs.writeFileSync(path.join(worktree, '.git'), 'gitdir: ../.git/worktrees/worktree\n');
+	t.assert.deepStrictEqual(lint(), ['Resource `./missing.md` does not exist.']);
+});
+
+test({
+	testerOptions: commonMark,
+	valid: [],
+	invalid: [{
+		code: '[Bundle](../dist/./app.js?raw=1#main)\n[Generated file](../generated%20file.js)\n[Ignored casing](../assets/LOGO.svg)\n[Wrong casing](../assets/logo.SVG)\n[Broken](./dist/app.js)',
+		filename: nestedMarkdownFilename,
+		options: [{
+			ignore: [
+				'test/fixtures/no-missing-local-resource/dist/**',
+				'test/fixtures/no-missing-local-resource/generated file.js',
+				'test/fixtures/no-missing-local-resource/assets/*.svg',
+			],
+		}],
+		errors: [
+			{messageId: 'incorrect-case', data: {resource: '../assets/logo.svg'}, line: 4},
+			{messageId: 'missing', data: {resource: './dist/app.js'}},
+		],
+	}],
 });
 
 test({
