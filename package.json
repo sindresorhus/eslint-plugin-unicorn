@@ -70,6 +70,7 @@
 		"identifier-regex": "^1.1.0",
 		"indent-string": "^5.0.0",
 		"is-builtin-module": "^5.0.0",
+		"minimatch": "^11.0.8",
 		"parse5": "^8.0.1",
 		"pluralize": "^8.0.0",
 		"quote-js-string": "^0.1.0",

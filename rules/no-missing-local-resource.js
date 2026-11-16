@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
+import {minimatch} from 'minimatch';
 import {getStaticStringValue, isNewExpression} from './ast/index.js';
 import {isNodeMatchesNameOrPath, isVirtualFilename, unwrapTypeScriptExpression} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
@@ -90,7 +91,9 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	}
 
 	const decodedPath = decodedParts.join('/');
-	const normalizedPath = path.posix.normalize(decodedPath);
+	// A final dot segment resolves to a directory URL and needs a trailing slash.
+	const endsWithDotSegment = ['.', '..'].includes(decodedParts.at(-1));
+	const normalizedPath = path.posix.normalize(endsWithDotSegment ? decodedPath + '/' : decodedPath);
 	const resolvedPath = resourcePath.startsWith('./') && !normalizedPath.startsWith('.')
 		? './' + normalizedPath
 		: normalizedPath;
@@ -140,6 +143,33 @@ function hasLengthChangingCaseMapping(rawPath, correctedPath) {
 	return rawPath.split('/').some((part, index) => decodePercentEncoded(part).length !== correctedParts[index].length);
 }
 
+function getProjectDirectory(documentDirectory, fallbackDirectory) {
+	let directory = documentDirectory;
+	while (!fs.existsSync(path.join(directory, '.git'))) {
+		const parentDirectory = path.dirname(directory);
+		if (parentDirectory === directory) {
+			return fallbackDirectory;
+		}
+
+		directory = parentDirectory;
+	}
+
+	return directory;
+}
+
+function resourceExists(resource, requiresDirectory) {
+	if (!requiresDirectory) {
+		return fs.existsSync(resource);
+	}
+
+	// Windows ignores a trailing separator and finds a file of that name, so check for a directory explicitly
+	try {
+		return fs.statSync(path.resolve(resource)).isDirectory();
+	} catch {
+		return false;
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -151,7 +181,9 @@ const create = context => {
 		return;
 	}
 
-	const documentDirectory = path.dirname(context.physicalFilename);
+	const {ignore} = context.options[0];
+	const documentDirectory = path.resolve(context.cwd, path.dirname(context.physicalFilename));
+	let projectDirectory;
 	const resourceCache = new Map();
 	const directoryEntriesCache = new Map();
 	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
@@ -240,6 +272,18 @@ const create = context => {
 		}
 
 		const resource = path.resolve(documentDirectory, resourcePath);
+		projectDirectory ??= getProjectDirectory(documentDirectory, context.cwd);
+		const relativePath = path.relative(projectDirectory, resource).replaceAll(path.sep, '/');
+		if (
+			relativePath === '..'
+			|| relativePath.startsWith('../')
+			|| path.isAbsolute(relativePath)
+			|| ignore.some(pattern => minimatch(relativePath, pattern, {nocomment: true, nonegate: true}))
+		) {
+			return;
+		}
+
+		const requiresDirectory = resourcePath.endsWith('/');
 		let directory = documentDirectory;
 		let hasIncorrectCase = false;
 		const correctedParts = [];
@@ -253,7 +297,7 @@ const create = context => {
 
 			const entries = getDirectoryEntries(directory);
 			if (!entries) {
-				const result = {exists: fs.existsSync(resource)};
+				const result = {exists: resourceExists(resource, requiresDirectory)};
 				resourceCache.set(resourcePath, result);
 				return result;
 			}
@@ -270,11 +314,7 @@ const create = context => {
 			directory += path.sep + correctedPart;
 		}
 
-		const exists = resourcePath.endsWith('/')
-			// Windows ignores a trailing separator and finds a file of that name, so check for a directory explicitly
-			? fs.statSync(path.resolve(directory), {throwIfNoEntry: false})?.isDirectory() === true
-			: fs.existsSync(directory);
-		const result = exists
+		const result = resourceExists(directory, requiresDirectory)
 			? {
 				exists: true,
 				correctedPath: hasIncorrectCase ? correctedParts.join('/') : undefined,
@@ -297,8 +337,12 @@ const create = context => {
 			return;
 		}
 
-		const resourceRange = valueRange && [valueRange[0] + leadingWhitespaceLength, valueRange[0] + leadingWhitespaceLength + resource.length];
 		const resourceResult = getResourceResult(localResource.path);
+		if (!resourceResult) {
+			return;
+		}
+
+		const resourceRange = valueRange && [valueRange[0] + leadingWhitespaceLength, valueRange[0] + leadingWhitespaceLength + resource.length];
 		const loc = resourceRange && {
 			start: context.sourceCode.getLocFromIndex(resourceRange[0]),
 			end: context.sourceCode.getLocFromIndex(resourceRange[1]),
@@ -422,7 +466,19 @@ const config = {
 			recommended: false,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				ignore: {
+					type: 'array',
+					uniqueItems: true,
+					items: {type: 'string', minLength: 1},
+					description: 'Glob patterns for resource paths to ignore.',
+				},
+			},
+		}],
+		defaultOptions: [{ignore: []}],
 		messages,
 		languages: [
 			'js/js',

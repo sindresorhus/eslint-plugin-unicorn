@@ -1,8 +1,13 @@
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import {test as nodeTest} from 'node:test';
 import {fileURLToPath} from 'node:url';
 import css from '@eslint/css';
 import html from '@html-eslint/eslint-plugin';
 import markdown from '@eslint/markdown';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -152,6 +157,89 @@ test.snapshot({
 	],
 });
 
+nodeTest('uses the nearest Git root or falls back to ESLint cwd', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-local-resource-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	const repository = path.join(directory, 'repository');
+	const worktree = path.join(repository, 'worktree');
+	fs.mkdirSync(worktree, {recursive: true});
+
+	const linter = new Linter({cwd: directory});
+	const lint = () => linter.verify(
+		'[Release](../../../releases/latest/download/app.zip)\n[New issue](../../issues/new)\n[Discussions](%2E%2E/discussions)\n[Generated](../generated.js)\n[Missing](./missing.md)',
+		{
+			files: ['**/*.md'],
+			language: 'markdown/commonmark',
+			plugins: {markdown, unicorn},
+			rules: {'unicorn/no-missing-local-resource': ['error', {ignore: ['generated.js']}]},
+		},
+		{filename: path.join('repository', 'worktree', 'readme.md')},
+	).map(({message}) => message);
+
+	t.assert.deepStrictEqual(lint(), [
+		'Resource `../../issues/new` does not exist.',
+		'Resource `%2E%2E/discussions` does not exist.',
+		'Resource `../generated.js` does not exist.',
+		'Resource `./missing.md` does not exist.',
+	]);
+
+	fs.mkdirSync(path.join(repository, '.git'));
+	t.assert.deepStrictEqual(lint(), [
+		'Resource `%2E%2E/discussions` does not exist.',
+		'Resource `./missing.md` does not exist.',
+	]);
+
+	fs.writeFileSync(path.join(worktree, '.git'), 'gitdir: ../.git/worktrees/worktree\n');
+	t.assert.deepStrictEqual(lint(), ['Resource `./missing.md` does not exist.']);
+});
+
+nodeTest('reports directory URLs that point to a symlink loop', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-local-resource-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	const link = path.join(directory, 'loop');
+	fs.symlinkSync(link, link, 'junction');
+
+	const linter = new Linter({cwd: directory});
+	const messages = linter.verify('new URL("./loop/", import.meta.url);', {
+		plugins: {unicorn},
+		rules: {'unicorn/no-missing-local-resource': 'error'},
+	}, {filename: 'index.js'});
+
+	t.assert.deepStrictEqual(messages.map(({message}) => message), ['Resource `./loop/` does not exist.']);
+});
+
+test({
+	testerOptions: commonMark,
+	valid: [],
+	invalid: [{
+		code: [
+			'[Bundle](../.ai-temporary/./app.js?raw=1#main)',
+			'[Generated file](../generated%20file.js)',
+			'[Ignored casing](../assets/LOGO.svg)',
+			'[Wrong casing](../assets/logo.SVG)',
+			'[Broken](./.ai-temporary/app.js)',
+		].join('\n'),
+		filename: nestedMarkdownFilename,
+		options: [{
+			ignore: [
+				'test/fixtures/no-missing-local-resource/.ai-temporary/**',
+				'test/fixtures/no-missing-local-resource/generated file.js',
+				'test/fixtures/no-missing-local-resource/assets/*.svg',
+			],
+		}],
+		errors: [
+			{messageId: 'incorrect-case', data: {resource: '../assets/logo.svg'}, line: 4},
+			{messageId: 'missing', data: {resource: './.ai-temporary/app.js'}},
+		],
+	}],
+});
+
 test({
 	testerOptions: {
 		language: 'css/css',
@@ -257,6 +345,7 @@ test({
 		'new URL("./encoded%20name.md", import.meta.url);',
 		'new URL("./encoded%23name.md", import.meta.url);',
 		'new URL("./directory/", import.meta.url);',
+		'new URL("./directory/.", import.meta.url);',
 		'new URL("https://example.com/missing.svg", import.meta.url);',
 		'new URL("/missing.svg", import.meta.url);',
 		'new URL("#icon", import.meta.url);',
@@ -270,6 +359,14 @@ test({
 		'fetch("./missing.svg");',
 	].map(code => ({code, filename: path.join(fixtureDirectory, 'app.js')})),
 	invalid: [
+		{
+			code: 'new URL("./guide.md/.", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './guide.md/.'}}],
+		},
+		{
+			code: 'new URL("./guide.md/child/%2E%2E?raw=1", import.meta.url);',
+			errors: [{messageId: 'missing', data: {resource: './guide.md/child/%2E%2E?raw=1'}}],
+		},
 		{
 			code: 'new URL("./assets/missing.svg", import.meta.url);',
 			errors: [{messageId: 'missing', data: {resource: './assets/missing.svg'}}],
