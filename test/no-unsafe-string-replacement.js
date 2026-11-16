@@ -44,6 +44,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'type Replacer = {(match: string): string; label: string}; function run(text: string, replacer: Replacer) { text.replace(/pattern/, replacer); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function replacer<Value>(match: Value) { return String(match); } text.replace(/pattern/, replacer<string>);',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -52,6 +56,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'element.classList.replace(oldClass, newClass);',
+		'const tokens = element.classList; tokens.replace(oldClass, newClass);',
 		'const editor = {replace(range, text) {}}; editor.replace(range, text);',
 		{
 			code: 'template.replace("{url}", "https://example.com" as string)',
@@ -134,6 +139,13 @@ test.snapshot({
 			declare const callbacks: {replaceMatch: (match: string) => string};
 			text.replace(/pattern/, callbacks.replaceMatch);
 		`),
+		typeAware(outdent`
+			declare const text: string;
+			declare const replacement: string | ((match: string) => string);
+			if (typeof replacement === 'function') {
+				text.replace(/pattern/, replacement);
+			}
+		`),
 	],
 	invalid: [
 		'template.replace("{url}", htmlEscape(url))',
@@ -198,5 +210,13 @@ test.snapshot({
 		},
 		'const labels = {classList: "old"}; labels.classList.replace("old", replacement);',
 		typeAware('const text = new String("old"); declare const replacement: string; text.replaceAll("old", replacement);'),
+		{
+			code: 'function run(text: string, replacement: string | ((match: string) => string)) { text.replace(/pattern/, replacement); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Replacement = {new(): object}; function run(text: string, replacement: Replacement) { text.replace(/pattern/, replacement); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

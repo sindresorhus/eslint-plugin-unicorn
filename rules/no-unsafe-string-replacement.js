@@ -29,7 +29,8 @@ const isDirectReplacementFunction = (node, context) => {
 const {isTarget: isInferredReplacementFunction} = createTypeCheckers({
 	targetTypeNames: new Set(),
 	isTargetNode: isDirectReplacementFunction,
-	isTargetTypeAnnotation: node => node?.type === 'TSFunctionType',
+	isTargetTypeAnnotation: node => node?.type === 'TSFunctionType'
+		|| (node?.type === 'TSTypeLiteral' && node.members.some(member => member.type === 'TSCallSignatureDeclaration')),
 	isTargetJSDocumentType: type => type?.kind === 'function',
 });
 
