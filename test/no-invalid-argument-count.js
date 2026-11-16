@@ -1697,6 +1697,69 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest.typescript({
+	valid: [
+		'const callback: (value: number) => number = () => 1;\ncallback(2);',
+		'type Callback = (value: number) => number;\nconst callback: Callback = () => 1;\ncallback(2);',
+		'const callback: (...values: number[]) => number = () => 1;\ncallback(2, 3);',
+		'const callback: (value: number) => number = (value: number, extra?: number) => value;\n(callback as (value: number, extra?: number) => number)(2, 3);',
+		'const callback = (() => 1) as (value: number) => number;\ncallback(2);',
+		'const callback = () => 1;\n(<(value: number) => number>callback)(2);',
+		'((() => 1) as (value: number) => number)(2);',
+		'type Callback = (value: number) => number;\nconst callback = (() => 1) as Callback;\ncallback(2);',
+		'const identity = (value: number) => value;\nconst callback = () => 1;\n(callback as typeof identity)(2);',
+		'const callback = () => 1;\n(callback as any)(2);',
+		outdent`
+			type Callback = (first: number, second: number) => number;
+			const callback: () => number = () => 1;
+			((callback as (first: number) => number) as Callback)(2, 3);
+		`,
+	],
+	invalid: [
+		{
+			code: 'const callback: (value: number) => number = (value, extra?: number) => value;\ncallback(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback = (first = 0, second: number) => second;\ncallback(1, 2, 3);',
+			errors: [{message: 'Expected 2 arguments, but got 3 arguments.'}],
+		},
+		{
+			code: 'const callback: (this: void, value?: number) => number = () => 1;\ncallback(2, 3);',
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback = (() => 1) as (value: number) => number;\ncallback(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (value: number, extra?: number) => number = () => 1;\n((callback as unknown) as (value: number) => number)!(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (value: number) => number = (() => 1) as (...values: number[]) => number;\ncallback(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (value: number) => number = () => 1;\ncallback!(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (value: number) => number = () => 1;\n((callback as (...values: number[]) => number) as typeof callback)(2, 3);',
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback: (first: number, second: number) => number = () => 1;\ncallback(2, 3);',
+			options: [{callback: 1}],
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const callback = (() => 1) satisfies (value: number) => number;\ncallback(2);',
+			errors: [{message: 'Expected 0 arguments, but got 1 argument.'}],
+		},
+	],
+});
+
 test('validates options schema', t => {
 	const linter = new Linter({configType: 'flat'});
 

@@ -140,8 +140,10 @@ new Set(...values);
 
 ## Limitations
 
-For inferred local functions, this rule intentionally only checks local function declarations, `const` function expressions, `const` arrow functions, and direct IIFEs. Imported functions, member calls, constructors, dynamic/reassigned function variables, overloaded TypeScript declarations, and calls with spread arguments are ignored unless they match a configured API pattern.
+The local function check covers direct IIFEs, local function declarations, and local variables initialized with a function expression or arrow function. It skips reassigned functions and variables, imported functions, member calls, constructors, overloaded TypeScript declarations, and calls with spread arguments. Configured API patterns have their own checks.
 
-Spread argument contents are not analyzed, even for array literals or TypeScript tuples.
+For TypeScript calls, a call-site assertion takes precedence over a variable’s type annotation, which takes precedence over an assertion on its initializer. A call-site assertion such as `callback as typeof callback` uses the variable’s own type. The local check uses inline function types, skips types that require resolution, and ignores control-flow narrowing.
+
+Spread argument contents are not analyzed, even for array literals or TypeScript tuples. The local check treats rest parameters as accepting any number of additional arguments.
 
 Default built-in checks only apply when the built-in global is not shadowed.

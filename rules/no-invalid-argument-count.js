@@ -3,6 +3,7 @@ import {isFunction} from './ast/index.js';
 import {
 	getFunctionFromIdentifier,
 	isGlobalIdentifier,
+	isTypeScriptExpressionWrapper,
 	memoizeByOptions,
 	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
@@ -930,58 +931,77 @@ const isThisParameter = parameter =>
 	&& parameter.name === 'this';
 
 const isOptionalParameter = parameter =>
-	parameter.type === 'AssignmentPattern'
-	|| parameter.type === 'RestElement'
-	|| parameter.optional === true;
+	parameter?.type === 'AssignmentPattern'
+	|| parameter?.optional === true;
 
-const getArity = functionNode => {
-	const parameters = isThisParameter(functionNode.params[0])
-		? functionNode.params.slice(1)
-		: functionNode.params;
-	let minimum = parameters.length;
-	let hasRest = false;
-
-	for (const parameter of parameters.toReversed()) {
-		if (parameter.type === 'RestElement') {
-			hasRest = true;
-		}
-
-		if (!isOptionalParameter(parameter)) {
-			break;
-		}
-
-		minimum--;
-	}
+const getArity = signatureParameters => {
+	const parameters = isThisParameter(signatureParameters[0])
+		? signatureParameters.slice(1)
+		: signatureParameters;
+	const lastParameter = parameters.at(-1);
 
 	return {
-		minimum,
-		maximum: hasRest ? Infinity : parameters.length,
+		maximum: lastParameter?.type === 'RestElement' ? Infinity : parameters.length,
+		hasOptionalTrailingParameter: isOptionalParameter(lastParameter),
 	};
 };
 
-const getFunctionNode = (callExpression, context) => {
-	const callee = unwrapChainAndTypeScriptExpression(callExpression.callee);
+const getAssertedType = (node, callee) => {
+	while (node?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node)) {
+		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+			const {typeAnnotation} = node;
+			// A self-referencing `typeof` assertion uses the callee's type before any assertions.
+			if (
+				typeAnnotation.type === 'TSTypeQuery'
+				&& callee?.type === 'Identifier'
+				&& typeAnnotation.exprName.type === 'Identifier'
+				&& typeAnnotation.exprName.name === callee.name
+			) {
+				return;
+			}
 
-	if (isFunction(callee)) {
-		return callee;
+			return typeAnnotation;
+		}
+
+		node = node.expression;
+	}
+};
+
+const getFunctionParameters = (callExpression, context) => {
+	const callee = unwrapChainAndTypeScriptExpression(callExpression.callee);
+	let definition;
+	let functionNode;
+
+	if (callee.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(callee), callee);
+		// Overload signatures can accept more arguments than the implementation declares.
+		if (variable?.defs.length !== 1) {
+			return;
+		}
+
+		[definition] = variable.defs;
+		functionNode = getFunctionFromIdentifier(callee, context);
+	} else if (isFunction(callee)) {
+		functionNode = callee;
 	}
 
-	// Overload signatures can accept more arguments than the implementation declares.
-	if (
-		callee.type === 'Identifier'
-		&& findVariable(context.sourceCode.getScope(callee), callee)?.defs.length !== 1
-	) {
+	if (!functionNode) {
 		return;
 	}
 
-	return getFunctionFromIdentifier(callee, context);
+	const annotation = getAssertedType(callExpression.callee, callee)
+		?? definition?.name.typeAnnotation?.typeAnnotation
+		?? getAssertedType(definition?.node.init);
+	if (!annotation || annotation.type === 'TSFunctionType') {
+		return (annotation ?? functionNode).params;
+	}
 };
 
 // Only too-many-arguments is reported for user-defined functions, so this only ever describes an upper bound.
-const getExpectedText = ({minimum, maximum}) =>
-	minimum === maximum
-		? formatArgumentCount(maximum)
-		: `at most ${formatArgumentCount(maximum)}`;
+const getExpectedText = ({maximum, hasOptionalTrailingParameter}) =>
+	hasOptionalTrailingParameter
+		? `at most ${formatArgumentCount(maximum)}`
+		: formatArgumentCount(maximum);
 
 const hasInvalidArgumentCount = ({minimum, maximum}, argumentCount) =>
 	argumentCount < minimum || argumentCount > maximum;
@@ -1254,12 +1274,12 @@ const create = context => {
 			return;
 		}
 
-		const functionNode = getFunctionNode(callExpression, context);
-		if (!functionNode) {
+		const parameters = getFunctionParameters(callExpression, context);
+		if (!parameters) {
 			return;
 		}
 
-		const arity = getArity(functionNode);
+		const arity = getArity(parameters);
 		const argumentCount = callExpression.arguments.length;
 
 		// In JavaScript a parameter without a default is still optional at the call site, so
