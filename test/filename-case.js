@@ -39,7 +39,9 @@ ruleTest({
 		'.VSTS/Pull_Request_Template/branches/main.md',
 		'.vsts/pull_request_template/review.md',
 		'.gitlab/issue_templates/bug.md',
+		'.gitlab/issue_templates/DefAult.md',
 		'.gitlab/merge_request_templates/change.md',
+		'.gitlab/merge_request_templates/DefAult.md',
 		'.gitea/pull_request_template.md',
 		'.forgejo/PULL_REQUEST_TEMPLATE.md',
 		'docs/ISSUE_TEMPLATE.md',
@@ -81,6 +83,19 @@ ruleTest({
 			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
 		},
 		{
+			filename: '.gitlab/merge_request_templates/sub/DefAult.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `def-ault.md`.'}],
+		},
+		{
+			filename: '.Gitlab/merge_request_templates/DefAult.md',
+			options: [{checkDirectories: false}],
+			errors: [{message: 'Filename is not in kebab case. Rename it to `def-ault.md`.'}],
+		},
+		{
+			filename: '.gitlab/merge_request_templates/DefAult.MD',
+			errors: [{message: 'File extension `.MD` is not in lowercase. Rename it to `DefAult.md`.'}],
+		},
+		{
 			filename: '.AzureDevOps/BadName.md',
 			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
 		},
@@ -108,8 +123,8 @@ ruleTest({
 			options: [{case: 'pascalCase'}],
 		})),
 		{
-			filename: '.github/ISSUE_TEMPLATE/nested/Bug.md',
-			options: [{case: 'pascalCase', directoryRoots: ['.github/ISSUE_TEMPLATE/nested']}],
+			filename: 'docs/ISSUE_TEMPLATE/Bug.md',
+			options: [{case: 'pascalCase', directoryRoots: ['docs/ISSUE_TEMPLATE']}],
 		},
 	].map(testCase => ({...markdownFile, ...testCase, name: testCase.filename})),
 	invalid: [
@@ -145,6 +160,7 @@ ruleTest({
 			'.forgejo/pull_request_template.yaml',
 			'.gitea/ISSUE_TEMPLATE.yml',
 			'charts/widget/Chart.yaml',
+			'charts/widget/Chart.lock',
 			'CITATION.cff',
 		].map(filename => ({
 			...languages.yaml,
@@ -159,6 +175,7 @@ ruleTest({
 			'.gitlab/CODEOWNERS',
 			'.bitbucket/CODEOWNERS',
 			'.gitea/CODEOWNERS',
+			'.forgejo/CODEOWNERS',
 		].map(filename => ({code: '// Ownership', filename, name: filename})),
 		...['CMakePresets.json', 'CMakeUserPresets.json'].map(filename => ({
 			...languages.json,
@@ -168,6 +185,7 @@ ruleTest({
 		})),
 		...[
 			'packages/widget/Cargo.toml',
+			'packages/widget/Cargo.lock',
 			'packages/widget/Project.toml',
 			'packages/widget/JuliaProject.toml',
 			'packages/widget/Manifest.toml',
@@ -180,6 +198,11 @@ ruleTest({
 		})),
 	],
 	invalid: [
+		{
+			code: '// Ownership',
+			filename: 'src/.forgejo/CODEOWNERS',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `codeowners`.'}],
+		},
 		{
 			...languages.yaml,
 			code: 'github: octocat',
@@ -203,6 +226,13 @@ ruleTest({
 			code: 'name = "widget"',
 			filename: 'packages/widget/Manifest-v1.12.backup.toml',
 			errors: [{message: 'Filename is not in kebab case. Rename it to `manifest-v1.12.backup.toml`.'}],
+		},
+		{
+			...languages.toml,
+			code: 'name = "widget"',
+			filename: 'packages/widget/JuliaManifest-v1.12.TOML',
+			options: [{multipleFileExtensions: false}],
+			errors: [{message: 'File extension `.TOML` is not in lowercase. Rename it to `JuliaManifest-v1.12.toml`.'}],
 		},
 	].map(testCase => ({...testCase, name: testCase.filename})),
 });

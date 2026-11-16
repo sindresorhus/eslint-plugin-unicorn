@@ -31,7 +31,9 @@ const reservedBasenames = new Set([
 	'CLAUDE.local.md',
 	'GEMINI.md',
 	'SKILL.md',
+	'Cargo.lock',
 	'Cargo.toml',
+	'Chart.lock',
 	'Chart.yaml',
 	'CMakePresets.json',
 	'CMakeUserPresets.json',
@@ -44,7 +46,8 @@ const versionedJuliaManifestRegex = /^(?:Julia)?Manifest-v\d+\.\d+\.toml$/u;
 const githubCommunityDirectories = ['.', 'docs', '.github'];
 const azureMetadataDirectories = ['.azuredevops', '.vsts'];
 const azurePullRequestTemplateParents = ['.', 'docs', ...azureMetadataDirectories];
-const pullRequestTemplateBasenames = new Set(['pull_request_template.md', 'pull_request_template.txt']);
+const pullRequestTemplateBasenames = ['pull_request_template.md', 'pull_request_template.txt'];
+const gitlabTemplateDirectories = ['.gitlab/issue_templates', '.gitlab/merge_request_templates'];
 const giteaAndForgejoTemplateDirectories = [...githubCommunityDirectories, '.gitea', '.forgejo'];
 const issueTemplateNames = ['ISSUE_TEMPLATE', 'issue_template'];
 const mergeMessageDirectories = ['.gitea/default_merge_message', '.forgejo/default_merge_message'];
@@ -65,6 +68,7 @@ const reservedFilePaths = new Set([
 	]),
 	'.bitbucket/CODEOWNERS',
 	'.bitbucket/pull_request_template.md',
+	'.forgejo/CODEOWNERS',
 	'.gitea/CODEOWNERS',
 	'.github/FUNDING.yml',
 	'.github/VULNERABILITY_REPORT.yml',
@@ -72,6 +76,11 @@ const reservedFilePaths = new Set([
 	'.gitlab/CODEOWNERS',
 	'CITATION.cff',
 ]);
+const reservedFilePathsWithCaseInsensitiveBasename = new Set([
+	...getPathsInDirectories(['.github'], pullRequestTemplateBasenames),
+	...getPathsInDirectories(gitlabTemplateDirectories, ['default.md']),
+]);
+const caseInsensitiveReservedFilePaths = new Set(getPathsInDirectories(azurePullRequestTemplateParents, pullRequestTemplateBasenames));
 const reservedDirectoryPaths = new Set([
 	'.bitbucket',
 	'.forgejo',
@@ -82,8 +91,7 @@ const reservedDirectoryPaths = new Set([
 	...getPathsInDirectories([...giteaAndForgejoTemplateDirectories, '.gitlab'], issueTemplateNames),
 	...mergeMessageDirectories,
 	'.github/DISCUSSION_TEMPLATE',
-	'.gitlab/issue_templates',
-	'.gitlab/merge_request_templates',
+	...gitlabTemplateDirectories,
 ]);
 const caseInsensitiveReservedDirectoryPaths = new Set([
 	...azureMetadataDirectories,
@@ -109,11 +117,10 @@ function isReservedFilename(basename, directoryPath) {
 		return false;
 	}
 
-	return reservedFilePaths.has(path.posix.join(directoryPath, basename))
-		|| (pullRequestTemplateBasenames.has(basename.toLowerCase()) && (
-			githubCommunityDirectories.includes(directoryPath)
-			|| azurePullRequestTemplateParents.includes(directoryPath.toLowerCase())
-		));
+	const filePath = path.posix.join(directoryPath, basename);
+	return reservedFilePaths.has(filePath)
+		|| reservedFilePathsWithCaseInsensitiveBasename.has(path.posix.join(directoryPath, basename.toLowerCase()))
+		|| caseInsensitiveReservedFilePaths.has(filePath.toLowerCase());
 }
 
 function camelCaseWithoutAcronyms(string) {
@@ -313,11 +320,11 @@ function isDirectoryRoot(directoryPath, directoryRoots) {
 	});
 }
 
-function getDirectoriesToCheck(pathSegments, directoryRoots) {
+function getDirectoriesToCheck(directorySegments, directoryRoots) {
 	const directories = [];
 	let directoryPath = '';
 
-	for (const directory of pathSegments.slice(0, -1)) {
+	for (const directory of directorySegments) {
 		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
 
 		if (isDirectoryRoot(directoryPath, directoryRoots)) {
@@ -435,8 +442,9 @@ const create = context => {
 			return;
 		}
 
+		const directorySegments = pathSegments.slice(0, -1);
 		if (isCheckDirectories) {
-			for (const directory of getDirectoriesToCheck(pathSegments, directoryRoots)) {
+			for (const directory of getDirectoriesToCheck(directorySegments, directoryRoots)) {
 				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions);
 
 				if (report) {
@@ -452,7 +460,7 @@ const create = context => {
 		} = getFilenameParts(pathSegments.at(-1), {multipleFileExtensions: isMultipleFileExtensions});
 		const lowercaseExtension = extension.toLowerCase();
 		const filenameWithLowercaseExtension = filename + additionalExtensions + lowercaseExtension;
-		const directoryPath = isInsideWorkingDirectory ? pathSegments.slice(0, -1).join('/') || '.' : undefined;
+		const directoryPath = isInsideWorkingDirectory ? directorySegments.join('/') : undefined;
 		const {leading, words} = splitName(filename);
 		const isValid = isReservedFilename(filenameWithLowercaseExtension, directoryPath)
 			|| filename.startsWith('$')
