@@ -105,6 +105,14 @@ const OPAQUE_IDENTIFIER_URIS = [
 	'http://www.springframework.org/schema/beans',
 	'http://www.springframework.org/schema/integration',
 	'http://www.springframework.org/schema/integration/security',
+	'http://json-schema.org/schema#',
+	'http://json-schema.org/draft-03/schema#',
+	'http://json-schema.org/draft-04/schema#',
+	'http://json-schema.org/draft-04/hyper-schema#',
+	'http://json-schema.org/draft-04/links#',
+	'http://json-schema.org/draft-06/schema#',
+	'http://json-schema.org/draft-07/schema#',
+	'http://json-schema.org/draft-07/schema',
 ];
 
 ruleTest.snapshot({
@@ -245,6 +253,10 @@ ruleTest.snapshot({
 		'const uri = "http://purl.org/dc/terms/title?format=xml";',
 		'const uri = "http://purl.org/dc/terms/title.";',
 		'const uri = "http://schemas.android.com/apk/res/android.";',
+		// Only JSON Schema meta-schema identifiers are ignored, not other pages on the same host
+		'const url = "http://json-schema.org/learn/getting-started-step-by-step";',
+		'const uri = "http://json-schema.org/draft-07/schema/extra";',
+		'const uri = "http://json-schema.org/draft-08/schema#";',
 		// A reserved suffix only counts as the last label
 		'const url = "http://test.com";',
 		'const url = "http://local.example.com";',
@@ -383,6 +395,14 @@ const languageCases = [
 		language: 'markdown/gfm',
 		code: '| URL |\n| --- |\n| http://sindresorhus.com |',
 		output: '| URL |\n| --- |\n| https://sindresorhus.com |',
+		errors: 1,
+	},
+	{
+		name: 'JSON with a JSON Schema meta-schema identifier',
+		filename: 'fixture.json',
+		language: 'json/json',
+		code: '{"$schema": "http://json-schema.org/draft-07/schema#", "homepage": "http://sindresorhus.com"}',
+		output: '{"$schema": "http://json-schema.org/draft-07/schema#", "homepage": "https://sindresorhus.com"}',
 		errors: 1,
 	},
 	{

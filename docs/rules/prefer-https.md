@@ -15,7 +15,7 @@ This rule checks source text, including strings, template literals, JSX, comment
 
 URLs without a public-looking top-level domain are ignored. For example, `http://localhost`, `http://example`, and `http://127.0.0.1` are allowed. Reserved non-public top-level domains are ignored too: `.example`, `.internal`, `.invalid`, `.local`, `.localdomain`, `.localhost`, `.onion`, and `.test`.
 
-Some well-known XML identifiers are also ignored because rewriting them to `https:` would change their meaning.
+Some well-known XML identifiers and the JSON Schema meta-schema identifiers (like `http://json-schema.org/draft-07/schema#`) are also ignored because rewriting them to `https:` would change their meaning.
 
 ## Options
 
