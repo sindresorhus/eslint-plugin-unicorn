@@ -26,28 +26,27 @@ ruleTest({
 		'PULL_REQUEST_TEMPLATE/bug.md',
 		'docs/PULL_REQUEST_TEMPLATE/bug.md',
 		'.github/PULL_REQUEST_TEMPLATE/bug.md',
+		'.github/Pull_Request_Template/bug.md',
 		'.github/ISSUE_TEMPLATE/bug.md',
 		'docs/SUPPORT.md',
-		'.github/ACCESSIBILITY.md',
+		'.github/accessibility.md',
+		'native/CMakeLists.txt',
 		'.bitbucket/pull_request_template.md',
 		'.azuredevops/Pull_Request_Template.md',
-		'.AzureDevOps/Pull_Request_Template.txt',
 		'.vsts/pull_request_template.txt',
 		'pull_request_template/branches/main.md',
 		'.azuredevops/Pull_Request_Template/branches/main.md',
-		'.azuredevops/pull_request_template/BrAnches/main.md',
-		'.VSTS/Pull_Request_Template/branches/main.md',
 		'.vsts/pull_request_template/review.md',
 		'.gitlab/issue_templates/bug.md',
-		'.gitlab/issue_templates/DefAult.md',
+		'.gitlab/issue_templates/default.md',
 		'.gitlab/merge_request_templates/change.md',
-		'.gitlab/merge_request_templates/DefAult.md',
 		'.gitea/pull_request_template.md',
 		'.forgejo/PULL_REQUEST_TEMPLATE.md',
 		'docs/ISSUE_TEMPLATE.md',
 		'.gitlab/issue_template/bug.md',
 		'.forgejo/ISSUE_TEMPLATE/bug.md',
 		'.gitea/default_merge_message/REBASE-MERGE_TEMPLATE.md',
+		'.gitea/default_merge_message/DEFAULT_TEMPLATE.md',
 		'.forgejo/default_merge_message/SQUASH_TEMPLATE.md',
 		'AGENTS.md',
 		'packages/widget/AGENTS.md',
@@ -65,6 +64,7 @@ ruleTest({
 			'src/.azuredevops/pull_request_template.md',
 			'.bitbucket/pull_request_template.txt',
 			'.bitbucket/PULL_REQUEST_TEMPLATE.md',
+			'.gitea/Pull_Request_Template.md',
 			'.gitea/pull_request_template.txt',
 			path.resolve('..', 'pull_request_template.md'),
 		].map(filename => ({
@@ -84,21 +84,24 @@ ruleTest({
 			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
 		},
 		{
-			filename: '.gitlab/merge_request_templates/sub/DefAult.md',
-			errors: [{message: 'Filename is not in kebab case. Rename it to `def-ault.md`.'}],
+			filename: '.gitlab/merge_request_templates/Default.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `default.md`.'}],
 		},
 		{
-			filename: '.Gitlab/merge_request_templates/DefAult.md',
-			options: [{checkDirectories: false}],
-			errors: [{message: 'Filename is not in kebab case. Rename it to `def-ault.md`.'}],
+			filename: '.github/ACCESSIBILITY.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `accessibility.md`.'}],
 		},
 		{
-			filename: '.gitlab/merge_request_templates/DefAult.MD',
-			errors: [{message: 'File extension `.MD` is not in lowercase. Rename it to `DefAult.md`.'}],
+			filename: '.forgejo/default_merge_message/DEFAULT_TEMPLATE.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `default-template.md`.'}],
 		},
 		{
-			filename: '.AzureDevOps/BadName.md',
-			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
+			filename: '.azuredevops/pull_request_template/Branches/main.md',
+			errors: [{message: 'Directory name `Branches` is not in kebab case. Rename it to `branches`.'}],
+		},
+		{
+			filename: '.VSTS/Pull_Request_Template/branches/main.md',
+			errors: [{message: 'Directory name `.VSTS` is not in kebab case. Rename it to `.vsts`.'}],
 		},
 		{
 			filename: 'src/.AzureDevOps/Pull_Request_Template.md',
@@ -131,6 +134,14 @@ ruleTest({
 			filename: 'docs/ISSUE_TEMPLATE/Bug.md',
 			options: [{case: 'pascalCase', directoryRoots: ['docs/ISSUE_TEMPLATE']}],
 		},
+		{
+			filename: '.AzureDevOps/Pull_Request_Template.txt',
+			options: [{checkDirectories: false}],
+		},
+		{
+			filename: '.Github/pull_request_template.md',
+			options: [{checkDirectories: false}],
+		},
 	].map(testCase => ({...markdownFile, ...testCase, name: testCase.filename})),
 	invalid: [
 		{
@@ -139,9 +150,9 @@ ruleTest({
 			errors: [{message: 'Filename is not in pascal case. Rename it to `Bug.md`.'}],
 		},
 		{
-			filename: '.Github/pull_request_template.md',
-			options: [{checkDirectories: false}],
-			errors: [{message: 'Filename is not in kebab case. Rename it to `pull-request-template.md`.'}],
+			filename: '.Github/ISSUE_TEMPLATE/Bug.md',
+			options: [{case: 'pascalCase'}],
+			errors: [{message: 'Directory name `ISSUE_TEMPLATE` is not in pascal case. Rename it to `IssueTemplate`.'}],
 		},
 		{
 			filename: '.bitbucket/pull_request_template.MD',
@@ -158,7 +169,7 @@ ruleTest({
 	valid: [
 		...[
 			'.github/DISCUSSION_TEMPLATE/announcements.yml',
-			'.github/FUNDING.yml',
+			'.github/funding.yml',
 			'.github/VULNERABILITY_REPORT.yml',
 			'.github/VULNERABILITY_REPORT.yaml',
 			'.forgejo/pull_request_template.yaml',
@@ -229,7 +240,7 @@ ruleTest({
 		{
 			...languages.yaml,
 			code: 'github: octocat',
-			filename: 'src/.github/FUNDING.yml',
+			filename: '.github/FUNDING.yml',
 			errors: [{message: 'Filename is not in kebab case. Rename it to `funding.yml`.'}],
 		},
 		{

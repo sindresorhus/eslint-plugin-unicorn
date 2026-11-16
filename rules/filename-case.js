@@ -35,6 +35,7 @@ const reservedBasenames = new Set([
 	'Cargo.toml',
 	'Chart.lock',
 	'Chart.yaml',
+	'CMakeLists.txt',
 	'CMakePresets.json',
 	'CMakeUserPresets.json',
 	'Project.toml',
@@ -44,8 +45,8 @@ const reservedBasenames = new Set([
 ]);
 const versionedJuliaManifestRegex = /^(?:Julia)?Manifest-v\d+\.\d+\.toml$/u;
 const githubCommunityDirectories = ['.', 'docs', '.github'];
-const azureMetadataDirectories = ['.azuredevops', '.vsts'];
-const azurePullRequestTemplateParents = ['.', 'docs', ...azureMetadataDirectories];
+// GitHub and Azure Repos accept any casing for pull request template names, but require the underscores.
+const pullRequestTemplateParents = [...githubCommunityDirectories, '.azuredevops', '.vsts'];
 const pullRequestTemplateBasenames = ['pull_request_template.md', 'pull_request_template.txt'];
 const gitlabTemplateDirectories = ['.gitlab/issue_templates', '.gitlab/merge_request_templates'];
 const giteaAndForgejoTemplateDirectories = [...githubCommunityDirectories, '.gitea', '.forgejo'];
@@ -55,8 +56,9 @@ const issueTemplateConfigDirectories = getPathsInDirectories(
 	issueTemplateNames,
 );
 const mergeMessageDirectories = ['.gitea/default_merge_message', '.forgejo/default_merge_message'];
+// GitHub accepts lowercase accessibility.md and funding.yml. GitLab's Default.md is case-insensitive.
 const reservedFilePaths = new Set([
-	...getPathsInDirectories(githubCommunityDirectories, ['ACCESSIBILITY.md', 'CODEOWNERS', 'SUPPORT.md']),
+	...getPathsInDirectories(githubCommunityDirectories, ['CODEOWNERS', 'SUPPORT.md']),
 	...getPathsInDirectories(giteaAndForgejoTemplateDirectories, [
 		...issueTemplateNames,
 		'PULL_REQUEST_TEMPLATE',
@@ -76,34 +78,27 @@ const reservedFilePaths = new Set([
 	'.bitbucket/teams.yaml',
 	'.forgejo/CODEOWNERS',
 	'.gitea/CODEOWNERS',
-	'.github/FUNDING.yml',
+	'.gitea/default_merge_message/DEFAULT_TEMPLATE.md',
 	'.github/VULNERABILITY_REPORT.yml',
 	'.github/VULNERABILITY_REPORT.yaml',
 	'.gitlab/CODEOWNERS',
 	'CITATION.cff',
 ]);
-const reservedFilePathsWithCaseInsensitiveBasename = new Set([
-	...getPathsInDirectories(['.github'], pullRequestTemplateBasenames),
-	...getPathsInDirectories(gitlabTemplateDirectories, ['default.md']),
-]);
-const caseInsensitiveReservedFilePaths = new Set(getPathsInDirectories(azurePullRequestTemplateParents, pullRequestTemplateBasenames));
+const caseInsensitiveReservedFilePaths = new Set(getPathsInDirectories(pullRequestTemplateParents, pullRequestTemplateBasenames));
 const reservedDirectoryPaths = new Set([
 	'.bitbucket',
 	'.forgejo',
 	'.gitea',
 	'.github',
 	'.gitlab',
-	...getPathsInDirectories(githubCommunityDirectories, ['PULL_REQUEST_TEMPLATE']),
 	...issueTemplateConfigDirectories,
 	...getPathsInDirectories(['.', '.gitlab'], issueTemplateNames),
 	...mergeMessageDirectories,
 	'.github/DISCUSSION_TEMPLATE',
 	...gitlabTemplateDirectories,
 ]);
-const caseInsensitiveReservedDirectoryPaths = new Set([
-	...azureMetadataDirectories,
-	...getPathsInDirectories(azurePullRequestTemplateParents, ['pull_request_template', 'pull_request_template/branches']),
-]);
+// Azure Repos also treats .azuredevops, .vsts, and branches as case-insensitive. Only pull_request_template needs its underscores preserved.
+const caseInsensitiveReservedDirectoryPaths = new Set(getPathsInDirectories(pullRequestTemplateParents, ['pull_request_template']));
 const alphanumericRegex = /^[\da-z]+$/i;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
 
@@ -125,9 +120,7 @@ function isReservedFilename(basename, directoryPath) {
 	}
 
 	const filePath = path.posix.join(directoryPath, basename);
-	return reservedFilePaths.has(filePath)
-		|| reservedFilePathsWithCaseInsensitiveBasename.has(path.posix.join(directoryPath, basename.toLowerCase()))
-		|| caseInsensitiveReservedFilePaths.has(filePath.toLowerCase());
+	return reservedFilePaths.has(filePath) || caseInsensitiveReservedFilePaths.has(filePath.toLowerCase());
 }
 
 function camelCaseWithoutAcronyms(string) {

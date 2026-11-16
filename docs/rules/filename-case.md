@@ -17,27 +17,6 @@ Named virtual files created by processors are ignored to avoid duplicate reports
 
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
-Conventional lowercase entrypoint filenames `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, and `index.vue` are intentionally ignored, including when `pascalCase` is selected. Their parent directories are still checked.
-
-The rule allows the following reserved filenames in any directory.
-
-- Agent instructions and skills use `AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`, `CLAUDE.local.md`, `GEMINI.md`, and `SKILL.md`.
-- Cargo uses `Cargo.toml` and `Cargo.lock`, CMake uses `CMakePresets.json` and `CMakeUserPresets.json`, and Helm uses `Chart.yaml` and `Chart.lock`.
-- Julia uses `Project.toml`, `JuliaProject.toml`, `Manifest.toml`, and `JuliaManifest.toml`, including manifest names with a version such as `Manifest-v1.12.toml`.
-
-Each exception applies only to the matching filename or directory name. When lowercasing an extension yields a reserved filename, the rule suggests changing only the extension.
-
-Repository hosting exceptions are relative to ESLint's current working directory.
-
-- GitHub and Azure Repos use `pull_request_template.md` or `pull_request_template.txt` in the root or `docs/`. GitHub also checks `.github/`, and Azure Repos checks `.azuredevops/` and `.vsts/`. The rule accepts any case for the template stem and requires lowercase extensions. Bitbucket Cloud's reserved path is `.bitbucket/pull_request_template.md`.
-- GitHub uses `PULL_REQUEST_TEMPLATE/` in the root, `docs/`, or `.github/`, as well as `.github/ISSUE_TEMPLATE/` and `.github/DISCUSSION_TEMPLATE/`. Azure Repos uses case-insensitive `pull_request_template/` and `pull_request_template/branches/` directories in the root, `docs/`, `.azuredevops/`, or `.vsts/`.
-- GitLab uses `.gitlab/issue_templates/` and `.gitlab/merge_request_templates/`. The rule accepts any case for the stem of `Default.md` directly inside either directory.
-- Across Gitea and Forgejo, `ISSUE_TEMPLATE/` and `issue_template/` are supported in the root, `docs/`, `.forgejo/`, `.gitea/`, `.github/`, or `.gitlab/`. Their single-file `ISSUE_TEMPLATE` and `PULL_REQUEST_TEMPLATE` files use uppercase or lowercase stems and `.md`, `.yml`, or `.yaml` extensions in those locations other than `.gitlab/`. The rule exempts their named merge message templates in `.gitea/default_merge_message/` and `.forgejo/default_merge_message/`.
-- GitHub uses `.github/ISSUE_TEMPLATE/config.yml` to configure its issue template chooser. Across Gitea and Forgejo, `config.yml` and `config.yaml` are also reserved directly inside the issue template directories under `docs/`, `.forgejo/`, `.gitea/`, and `.github/`.
-- `CODEOWNERS` can appear in the root, `docs/`, `.github/`, `.gitlab/`, `.forgejo/`, `.gitea/`, or `.bitbucket/`. Bitbucket Cloud can also use `.bitbucket/teams.yaml` alongside it.
-- GitHub uses `ACCESSIBILITY.md` and `SUPPORT.md` in the root, `docs/`, or `.github/`, and `CITATION.cff` in the root. It looks for `FUNDING.yml`, `VULNERABILITY_REPORT.yml`, and `VULNERABILITY_REPORT.yaml` in `.github/`.
-- The rule also allows the reserved root directory names `.bitbucket/`, `.forgejo/`, `.gitea/`, `.github/`, and `.gitlab/`. It accepts any case for the Azure Repos root directory names `.azuredevops/` and `.vsts/`. The configured style applies to ordinary directories such as `docs/`.
-
 Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
 The case check ignores path segments starting with `$`, as they are commonly used for route parameters.
@@ -288,3 +267,23 @@ For example:
 ❌ FooBar.test-utils.js
 ❌ FooBar.test_utils.js
 ```
+
+## Built-in exceptions
+
+These filenames are allowed in any directory.
+
+- Entrypoints named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, or `index.vue`.
+- Agent files named `AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`, `CLAUDE.local.md`, `GEMINI.md`, or `SKILL.md`.
+- Build files named `Cargo.toml`, `Cargo.lock`, `CMakeLists.txt`, `CMakePresets.json`, `CMakeUserPresets.json`, `Chart.yaml`, or `Chart.lock`.
+- Julia project and manifest files named `Project.toml`, `JuliaProject.toml`, `Manifest.toml`, or `JuliaManifest.toml`, plus versioned manifests such as `Manifest-v1.12.toml`.
+
+Repository exceptions match [specific paths](../../rules/filename-case.js) relative to ESLint's current working directory.
+
+- `pull_request_template.md`, `pull_request_template.txt`, and `pull_request_template/` in the root or `docs/`, plus `.github/` for GitHub and `.azuredevops/` or `.vsts/` for Azure Repos. These hosts allow different casing and require the underscores. Bitbucket Cloud uses `.bitbucket/pull_request_template.md`.
+- Template directories such as `ISSUE_TEMPLATE/` and `.gitlab/issue_templates/`, chooser configs named `config.yml` or `config.yaml`, and Gitea and Forgejo merge message templates.
+- `CODEOWNERS`, Bitbucket's `.bitbucket/teams.yaml`, and GitHub community files such as `SUPPORT.md`, `CITATION.cff`, `VULNERABILITY_REPORT.yml`, and `VULNERABILITY_REPORT.yaml`.
+- Root metadata directories `.bitbucket/`, `.forgejo/`, `.gitea/`, `.github/`, and `.gitlab/`.
+
+Each exception applies only to the matching name. If lowercasing an extension yields a reserved filename, the rule suggests changing only that extension.
+
+Use `ignore` for other names whose spelling must be preserved, such as `.AzureDevOps` if changing it to `.azure-dev-ops` would break template discovery.
