@@ -264,6 +264,59 @@ const cases = [
 		diagnostic: 2345,
 	},
 	{
+		name: 'a union of rest tuples with a shared literal argument',
+		declarations: 'declare function consume(...values: [string, "p"] | [number, "p"]): void; declare const test: boolean;',
+		expression: 'test ? consume("a", "p") : consume(1, "p")',
+		unsafeExpression: 'consume(test ? "a" : 1, "p")',
+		diagnostic: 2345,
+	},
+	{
+		name: 'a union of arrays as a rest parameter',
+		declarations: 'declare function consume(...values: string[] | number[]): void; declare const test: boolean;',
+		expression: 'test ? consume("a") : consume(1)',
+		unsafeExpression: 'consume(test ? "a" : 1)',
+		diagnostic: 2345,
+	},
+	{
+		name: 'a union of arrays spread into a rest tuple',
+		declarations: 'declare function consume(...values: [label: string, ...(string[] | number[])]): void; declare const test: boolean;',
+		expression: 'test ? consume("label", "a") : consume("label", 1)',
+		unsafeExpression: 'consume("label", test ? "a" : 1)',
+		diagnostic: 2345,
+	},
+	{
+		name: 'overload resolution for rest calls that select the same signature',
+		declarations: outdent`
+			type IsUnion<Type, All = Type> = Type extends unknown ? [All] extends [Type] ? false : true : never;
+			declare function format<Value extends "a" | "b">(...values: [Value, ...([IsUnion<Value>] extends [true] ? [] : [never])]): number;
+			declare function format(...values: ("a" | "b")[]): string;
+			declare const test: boolean;
+		`,
+		resultType: 'string',
+		expression: 'test ? format("a") : format("b")',
+		unsafeExpression: 'format(test ? "a" : "b")',
+		diagnostic: 2322,
+	},
+	{
+		name: 'generic inference for separate calls with compatible parameter types',
+		declarations: outdent`
+			type Left = {base: true; left?: string};
+			type Right = {base: true; right?: string};
+			declare const left: Left, right: Right, test: boolean;
+			declare function consume<Value>(value: Value, ...items: (Extract<keyof Value, "left" | "right"> extends never ? string : number)[]): void;
+		`,
+		expression: 'test ? consume(left, 1) : consume(right, 1)',
+		unsafeExpression: 'consume(test ? left : right, 1)',
+		diagnostic: 2345,
+	},
+	{
+		name: 'evolving array inference with a parenthesized push callee',
+		declarations: 'declare const test: boolean; const list = []; list.push("seed");',
+		expression: 'test ? (list.push)("a") : list.push(2)',
+		unsafeExpression: '(list.push)(test ? "a" : 2)',
+		diagnostic: 2345,
+	},
+	{
 		name: 'correlated constructor rest tuple arguments',
 		declarations: 'declare class Box {constructor(...arguments_: ["a", string] | ["b", number]);} declare const value: string | number;',
 		expression: 'typeof value === "string" ? new Box("a", value) : new Box("b", value)',
@@ -553,6 +606,54 @@ const safeCases = [
 		fixedExpression: 'read(test ? "a" : 1)',
 	},
 	{
+		name: 'Math.max calls',
+		declarations: 'declare const test: boolean;',
+		expression: 'test ? Math.max(1, 2) : Math.max(1, 3)',
+		fixedExpression: 'Math.max(1, test ? 2 : 3)',
+	},
+	{
+		name: 'calls with a readonly array rest parameter',
+		declarations: 'declare function consume(...values: readonly (string | number)[]): void; declare const test: boolean;',
+		expression: 'test ? consume("a") : consume(1)',
+		fixedExpression: 'consume(test ? "a" : 1)',
+	},
+	{
+		name: 'calls with an explicitly any-typed rest parameter',
+		declarations: 'declare function consume(...values: any): void; declare const test: boolean;',
+		expression: 'test ? consume("a") : consume(1)',
+		fixedExpression: 'consume(test ? "a" : 1)',
+	},
+	{
+		name: 'calls with a tuple rest parameter derived from another signature',
+		declarations: 'declare function source(label: string, count: number): void; declare function consume(...values: Parameters<typeof source>): void; declare const test: boolean;',
+		expression: 'test ? consume("a", 1) : consume("a", 2)',
+		fixedExpression: 'consume("a", test ? 1 : 2)',
+	},
+	{
+		name: 'calls with a readonly tuple rest parameter with an optional element',
+		declarations: 'declare function consume(...values: readonly [label: string, count?: number]): void; declare const test: boolean;',
+		expression: 'test ? consume("a", 1) : consume("a", undefined)',
+		fixedExpression: 'consume("a", test ? 1 : undefined)',
+	},
+	{
+		name: 'calls with a readonly tuple rest parameter ending in a generic array',
+		declarations: outdent`
+			type Values<Value> = readonly [label: string, ...values: Value[]];
+			declare function consume<Value>(...values: Values<Value>): Value;
+			declare const test: boolean, first: number, second: number;
+		`,
+		expression: 'test ? consume("label", first) : consume("label", second)',
+		fixedExpression: 'consume("label", test ? first : second)',
+		resultType: 'number',
+	},
+	{
+		name: 'calls with an explicit generic rest tuple',
+		declarations: 'declare function consume<Values extends unknown[]>(...values: Values): Values; declare const test: boolean;',
+		expression: 'test ? consume<[string, number]>("label", 1) : consume<[string, number]>("label", 2)',
+		fixedExpression: 'consume<[string, number]>("label", test ? 1 : 2)',
+		resultType: '[string, number]',
+	},
+	{
 		name: 'the same overload',
 		declarations: 'declare function read(value: string): string; declare function read(value: number): number; declare const test: boolean;',
 		expression: 'test ? read("a") : read("b")',
@@ -563,6 +664,12 @@ const safeCases = [
 		declarations: 'declare class Box { constructor(value: string | number); } declare const test: boolean;',
 		expression: 'test ? new Box("a") : new Box(1)',
 		fixedExpression: 'new Box(test ? "a" : 1)',
+	},
+	{
+		name: 'constructors with an array rest parameter after a positional parameter',
+		declarations: 'declare class Box {constructor(label: string, ...values: number[])} declare const test: boolean;',
+		expression: 'test ? new Box("a", 1) : new Box("a", 2)',
+		fixedExpression: 'new Box("a", test ? 1 : 2)',
 	},
 	{
 		name: 'ordinary object properties',
@@ -604,9 +711,10 @@ const safeCases = [
 	},
 ];
 
-for (const {name, declarations, expression, fixedExpression, options, syntaxFix = true} of safeCases) {
+for (const {name, declarations, expression, fixedExpression, resultType, options, syntaxFix = true} of safeCases) {
 	test(`fixes ${name} with type information`, t => {
-		const code = `${declarations} const result = ${expression};`;
+		const declaration = `${declarations} const result${resultType ? `: ${resultType}` : ''} = `;
+		const code = `${declaration}${expression};`;
 		const program = getProgram(code);
 		t.assert.deepStrictEqual(getDiagnostics(program), []);
 		const syntaxMessages = getMessages(code, undefined, options);
@@ -622,17 +730,94 @@ for (const {name, declarations, expression, fixedExpression, options, syntaxFix 
 		const {fix} = messages[0];
 		t.assert.ok(fix);
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-		t.assert.strictEqual(output, `${declarations} const result = ${fixedExpression};`);
+		t.assert.strictEqual(output, `${declaration}${fixedExpression};`);
 		t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
 	});
 }
 
-test('ignores shared-callee minimization with rest parameters', t => {
-	const code = 'declare function consume(...values: string[]): void; declare const condition: boolean; condition ? consume("a") : consume("b");';
+for (const {name, code} of [
+	{
+		name: 'a rest tuple with a middle array',
+		code: outdent`
+			declare function consume(...values: [label: string, ...counts: number[], enabled: boolean]): void;
+			declare const test: boolean;
+			test ? consume("label", 1, true) : consume("label", 2, true);
+		`,
+	},
+	{
+		name: 'a rest tuple with an inferred variadic element',
+		code: outdent`
+			declare function consume<Values extends unknown[]>(...values: [label: string, ...counts: Values]): void;
+			declare const test: boolean, first: number, second: number;
+			test ? consume("label", first) : consume("label", second);
+		`,
+	},
+]) {
+	test(`ignores minimization of ${name}`, t => {
+		const program = getProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+		t.assert.ok(getMessages(code)[0]?.fix);
+		t.assert.deepStrictEqual(getMessages(code, program), []);
+	});
+}
+
+test('ignores minimization that makes a rest call a standalone assertion', t => {
+	const declarations = 'declare const condition: boolean, value: unknown; declare function assertValue(value: unknown, ...messages: string[]): asserts value; const assertAlias = assertValue;';
+	const code = `${declarations} condition ? assertAlias(value, "a") : assertAlias(value, "b");`;
 	const program = getProgram(code);
 	t.assert.deepStrictEqual(getDiagnostics(program), []);
-	const messages = getMessages(code, program);
-	t.assert.deepStrictEqual(messages, []);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(`${declarations} assertAlias(value, condition ? "a" : "b");`)), [2775]);
+	t.assert.deepStrictEqual(getMessages(code, program), []);
+});
+
+for (const {name, declarations, expression, unsafeExpression, options} of [
+	{
+		name: 'a shared type guard with rest parameters',
+		declarations: 'declare function isString(value: unknown, ...messages: string[]): value is string;',
+		expression: 'condition ? isString(value, "a") : isString(value, "b")',
+		unsafeExpression: 'isString(value, condition ? "a" : "b")',
+	},
+	{
+		name: 'a shared type guard with positional parameters',
+		declarations: 'declare function isString(value: unknown, message: string): value is string;',
+		expression: 'condition ? isString(value, "a") : isString(value, "b")',
+		unsafeExpression: 'isString(value, condition ? "a" : "b")',
+	},
+	{
+		name: 'varying type guards',
+		declarations: 'declare function first(value: unknown, ...messages: string[]): value is string; declare function second(value: unknown, ...messages: string[]): value is string;',
+		expression: 'condition ? first(value, "a") : second(value, "a")',
+		unsafeExpression: '(condition ? first : second)(value, "a")',
+		options: {checkVaryingBase: true},
+	},
+]) {
+	test(`ignores minimization that changes narrowing from ${name}`, t => {
+		const beforeCondition = `declare const condition: boolean, value: string | number; ${declarations} if (`;
+		const afterCondition = ') { if (typeof value === "number") { value.toFixed(); } }';
+		const code = beforeCondition + expression + afterCondition;
+		const program = getProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+		t.assert.deepStrictEqual(getDiagnostics(getProgram(beforeCondition + unsafeExpression + afterCondition)), [2339]);
+		t.assert.deepStrictEqual(getMessages(code, program, options), []);
+	});
+}
+
+test('ignores minimization that makes a never-returning rest call standalone', t => {
+	const declarations = 'declare const condition: boolean; declare function fail(...messages: string[]): never; let value: string | number = "value";';
+	const code = `${declarations} condition ? fail("a") : fail("b"); value.toLowerCase();`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(`${declarations} fail(condition ? "a" : "b"); value.toLowerCase();`)), [2339]);
+	t.assert.deepStrictEqual(getMessages(code, program), []);
+});
+
+test('ignores minimization that exposes a never-returning call in a sequence', t => {
+	const declarations = 'declare const condition: boolean; declare function fail(message: string): never; let value: string | number = "value";';
+	const code = `${declarations} (condition ? fail("a") : fail("b"), value.toLowerCase());`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(`${declarations} (fail(condition ? "a" : "b"), value.toLowerCase());`)), [2339]);
+	t.assert.deepStrictEqual(getMessages(code, program), []);
 });
 
 test('fixes typed JavaScript calls with JSDoc parameters', t => {
@@ -657,7 +842,8 @@ test('fixes typed JavaScript calls with JSDoc parameters', t => {
 	t.assert.deepStrictEqual(getDiagnostics(getProgram(output, sourceFilename)), []);
 });
 
-test('ignores typed JavaScript minimization with JSDoc rest parameters', t => {
+test('fixes typed JavaScript minimization with JSDoc rest parameters', t => {
+	const sourceFilename = path.resolve('file.js');
 	const code = outdent`
 		/** @param {...string} values */
 		function read(...values) {
@@ -666,13 +852,18 @@ test('ignores typed JavaScript minimization with JSDoc rest parameters', t => {
 		const condition = Boolean(1);
 		const result = condition ? read("a") : read("b");
 	`;
-	const program = getProgram(code, path.resolve('file.js'));
+	const program = getProgram(code, sourceFilename);
 	t.assert.deepStrictEqual(getDiagnostics(program), []);
 	const syntaxMessages = getMessages(code);
 	t.assert.strictEqual(syntaxMessages.length, 1);
 	t.assert.ok(syntaxMessages[0].fix);
 	const messages = getMessages(code, program);
-	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(messages.length, 1);
+	const {fix} = messages[0];
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, 'read(condition ? "a" : "b")');
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output, sourceFilename)), []);
 });
 
 test('preserves shared method receivers and argument evaluation order', t => {

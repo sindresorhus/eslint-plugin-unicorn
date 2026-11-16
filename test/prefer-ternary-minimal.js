@@ -380,10 +380,30 @@ test({
 			output: 'declare function call(value: number): void; declare const test: boolean, a: number, b: number; call(test ? a : b);',
 			errors,
 		}),
+		typeAware({
+			code: 'declare const list: number[], test: boolean; if (test) { list.push(1); } else { list.push(2); }',
+			output: 'declare const list: number[], test: boolean; list.push(test ? 1 : 2);',
+			errors,
+		}),
+		typeAware({
+			code: 'declare function consume(...values: [string, number]): void; declare const test: boolean; if (test) { consume("a", 1); } else { consume("a", 2); }',
+			output: 'declare function consume(...values: [string, number]): void; declare const test: boolean; consume("a", test ? 1 : 2);',
+			errors,
+		}),
+		typeAware({
+			code: 'declare class Box {constructor(...values: [string, ...number[]])} declare const test: boolean; if (test) { new Box("a", 1); } else { new Box("a", 2); }',
+			output: 'declare class Box {constructor(...values: [string, ...number[]])} declare const test: boolean; new Box("a", test ? 1 : 2);',
+			errors,
+		}),
+		typeAware({
+			code: 'declare function guard(value: unknown, ...messages: string[]): value is string; declare const test: boolean; if (test) { guard(1, "a"); } else { guard(1, "b"); }',
+			output: 'declare function guard(value: unknown, ...messages: string[]): value is string; declare const test: boolean; guard(1, test ? "a" : "b");',
+			errors,
+		}),
 		...[
 			'declare function call(value: "a"): void; declare function call(value: "b"): void; declare const test: boolean; if (test) { call("a"); } else { call("b"); }',
 			'declare function call<Value>(value: Value): Value; declare const test: boolean; if (test) { call(1); } else { call("b"); }',
-			'declare function call(...values: number[]): void; declare const test: boolean; if (test) { call(1); } else { call(2); }',
+			'declare function call(...values: string[] | number[]): void; declare const test: boolean; if (test) { call("a"); } else { call(1); }',
 		].map(code => typeAware({code, errors})),
 		typeAware({
 			code: 'type Thing = {type: "a"; property: number} | {type: "b"; property: string}; function unicorn(type: Thing["type"]) { if (type === "a") { throw {type, property: 0}; } else { throw {type, property: ""}; } }',
