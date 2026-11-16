@@ -518,37 +518,54 @@ Output:
 
 `;
 
-exports[`prefer-https > invalid(37): const url = \"http://test.com\"; 1`] = `
+exports[`prefer-https > invalid(37): const url = \"http://json-schema.org/learn/getting-started-step-by-step\"; 1`] = `
 
-  1 | const url = "http://test.com";
+  1 | const url = "http://json-schema.org/learn/getting-started-step-by-step";
 
 `;
 
-exports[`prefer-https > invalid(37): const url = \"http://test.com\"; 2`] = `
+exports[`prefer-https > invalid(37): const url = \"http://json-schema.org/learn/getting-started-step-by-step\"; 2`] = `
 
 Message:
-> 1 | const url = "http://test.com";
-    |              ^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
+> 1 | const url = "http://json-schema.org/learn/getting-started-step-by-step";
+    |              ^^^^^^^^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
 
 Output:
-  1 | const url = "https://test.com";
+  1 | const url = "https://json-schema.org/learn/getting-started-step-by-step";
 
 `;
 
-exports[`prefer-https > invalid(38): const url = \"http://local.example.com\"; 1`] = `
+exports[`prefer-https > invalid(38): const uri = \"http://json-schema.org/draft-07/schema/extra\"; 1`] = `
 
-  1 | const url = "http://local.example.com";
+  1 | const uri = "http://json-schema.org/draft-07/schema/extra";
 
 `;
 
-exports[`prefer-https > invalid(38): const url = \"http://local.example.com\"; 2`] = `
+exports[`prefer-https > invalid(38): const uri = \"http://json-schema.org/draft-07/schema/extra\"; 2`] = `
 
 Message:
-> 1 | const url = "http://local.example.com";
-    |              ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
+> 1 | const uri = "http://json-schema.org/draft-07/schema/extra";
+    |              ^^^^^^^^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
 
 Output:
-  1 | const url = "https://local.example.com";
+  1 | const uri = "https://json-schema.org/draft-07/schema/extra";
+
+`;
+
+exports[`prefer-https > invalid(39): const uri = \"http://json-schema.org/draft-08/schema#\"; 1`] = `
+
+  1 | const uri = "http://json-schema.org/draft-08/schema#";
+
+`;
+
+exports[`prefer-https > invalid(39): const uri = \"http://json-schema.org/draft-08/schema#\"; 2`] = `
+
+Message:
+> 1 | const uri = "http://json-schema.org/draft-08/schema#";
+    |              ^^^^^^^^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
+
+Output:
+  1 | const uri = "https://json-schema.org/draft-08/schema#";
 
 `;
 
@@ -566,6 +583,40 @@ Message:
 
 Output:
   1 | // https://sindresorhus.com,
+
+`;
+
+exports[`prefer-https > invalid(40): const url = \"http://test.com\"; 1`] = `
+
+  1 | const url = "http://test.com";
+
+`;
+
+exports[`prefer-https > invalid(40): const url = \"http://test.com\"; 2`] = `
+
+Message:
+> 1 | const url = "http://test.com";
+    |              ^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
+
+Output:
+  1 | const url = "https://test.com";
+
+`;
+
+exports[`prefer-https > invalid(41): const url = \"http://local.example.com\"; 1`] = `
+
+  1 | const url = "http://local.example.com";
+
+`;
+
+exports[`prefer-https > invalid(41): const url = \"http://local.example.com\"; 2`] = `
+
+Message:
+> 1 | const url = "http://local.example.com";
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer HTTPS over HTTP.
+
+Output:
+  1 | const url = "https://local.example.com";
 
 `;
 

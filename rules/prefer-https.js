@@ -61,6 +61,8 @@ const IGNORED_URI_PATTERNS = [
 	// Build and framework identifiers
 	/^http:\/\/maven\.apache\.org\/(?:EXTENSIONS|METADATA|POM|SETTINGS|TOOLCHAINS)\/\d+(?:\.\d+)+$/v,
 	/^http:\/\/www\.springframework\.org\/schema\/[\w\-]+(?:\/[\w\-]+)*$/v,
+	// JSON Schema meta-schemas for draft-03 to draft-07, which validators look up by their exact `$id`. Draft 2019-09 and later use `https://json-schema.org/draft/…/schema` as the `$id`, so an `http:` URL for those drafts is wrong, and it is intentionally still reported.
+	/^http:\/\/json-schema\.org\/(?:draft-0[3-7]\/)?(?:hyper-schema|links|schema)#?$/v,
 ];
 
 function getHostname(authority) {
