@@ -9,17 +9,21 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
+JavaScript supplies `undefined` in several places, such as uninitialized variables and bare `return` statements. This rule checks uses of the global `undefined` that can be redundant.
 
 `var` initializers are ignored because they can reset an existing binding, including on each loop iteration.
 
-This rule does not check function call arguments in TypeScript files because TypeScript can require an explicit `undefined` argument when the parameter type includes `undefined`.
+A default for an entire function parameter is kept because removing it can change the function's `length`.
 
-Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
+Using `undefined` as an arrow function body can make its purpose clearer. Set `checkArrowFunctionBody: false` to allow it.
 
 `return undefined` in a getter is ignored, since the [`getter-return`](https://eslint.org/docs/latest/rules/getter-return) rule requires getters to return a value. Getters defined with `Object.defineProperty()` are not detected.
 
-In TypeScript, when a function has an explicit return type, `return undefined` is only reported if that type is `undefined` or `void`. When the return type is a union with a real value type, such as `number | undefined`, the explicit `undefined` is kept, since it can document intent and avoid conflicts with the [`consistent-return`](https://eslint.org/docs/latest/rules/consistent-return) rule.
+The rule treats TypeScript files and JavaScript files with `@ts-check` or JSDoc type annotations as typed code. It keeps `undefined` in `let` initializers and default values because it can affect inferred types and function signatures. It also keeps explicit `undefined` arguments because TypeScript can require them.
+
+In typed code, the rule checks `return undefined` only in functions with a TypeScript return annotation of `undefined` or `void`. It keeps `() => undefined` because removing the value can change the inferred return type to `void`.
+
+When the return type is a union with a real value type, such as `number | undefined`, the explicit `undefined` is kept, since it can document intent and avoid conflicts with the [`consistent-return`](https://eslint.org/docs/latest/rules/consistent-return) rule.
 
 ## Examples
 
@@ -73,16 +77,6 @@ function* foo() {
 
 ```js
 // ❌
-function foo(bar = undefined) {
-}
-
-// ✅
-function foo(bar) {
-}
-```
-
-```js
-// ❌
 function foo({bar = undefined}) {
 }
 
@@ -118,9 +112,11 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `undefined` at the end of function call arguments in JavaScript files. TypeScript files are not checked because the compiler determines whether an argument can be omitted. Pass `checkArguments: false` to disable checking them in JavaScript files.
+Whether to check for trailing `undefined` arguments in JavaScript files without type annotations or `@ts-check`.
 
-Calls where a trailing `undefined` is not the same as no argument, like `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`, are ignored. These functions are matched by name.
+The rule skips known calls where an explicit `undefined` matters, such as `array.push(undefined)`, `array.splice(start, undefined)`, `Math.max(undefined)`, and `String(undefined)`. It matches statically known names in dot and bracket notation.
+
+Other callees can still distinguish a trailing `undefined` from an omitted argument through `arguments.length` or rest parameters. Set `checkArguments: false` to preserve these calls.
 
 ```js
 // ❌
@@ -142,7 +138,7 @@ foo(bar, baz, undefined);
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunctionBody: false` to disable checking them.
+Whether to check concise arrow function bodies in JavaScript files without type annotations or `@ts-check`.
 
 ```js
 /* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
@@ -164,10 +160,7 @@ const foo = () => undefined;
 
 ## Conflict with ESLint `array-callback-return` and `getter-return` rules
 
-We recommend setting `allowImplicit` option to `true` for these ESLint rules:
-
-- [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options)
-- [`getter-return`](https://eslint.org/docs/rules/getter-return#options)
+Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options) to allow bare `return` statements in array callbacks. For getters defined with `Object.defineProperty()`, the same option in [`getter-return`](https://eslint.org/docs/rules/getter-return#options) allows the fix.
 
 ```js
 {

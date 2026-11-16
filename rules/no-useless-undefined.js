@@ -1,4 +1,4 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	fixSpaceAroundKeyword,
 	getArgumentRemovalRange,
@@ -6,17 +6,21 @@ import {
 	replaceNodeOrTokenAndSpacesBefore,
 } from './fix/index.js';
 import {
-	isUndefined,
 	isFunction,
 	isMemberExpression,
+	isUndefined,
 } from './ast/index.js';
 import {
+	getEnclosingFunction,
 	getParenthesizedRange,
 	getStaticNumberValue,
 	hasCommentInRange,
+	hasJavaScriptTypeAnnotations,
+	isGlobalIdentifier,
 	isReferenceContext,
 	isTypeScriptFile,
 	needsSemicolon,
+	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -117,17 +121,18 @@ const methodsWithUndefinedArgument = new Set([
 	// https://vuejs.org/api/reactivity-core.html#ref
 	'ref',
 ]);
-const shouldIgnore = node => {
+const shouldIgnoreCall = call => {
+	const callee = unwrapChainAndTypeScriptExpression(call.callee);
 	let name;
 
-	if (node.type === 'Identifier') {
-		name = node.name;
-	} else if (
-		node.type === 'MemberExpression'
-		&& node.computed === false
-		&& node.property.type === 'Identifier'
-	) {
-		name = node.property.name;
+	if (callee.type === 'Identifier') {
+		name = callee.name;
+	} else if (callee.type === 'MemberExpression') {
+		name = getPropertyName(callee);
+		// Ignore bound arguments in `Function#bind()`, but allow removing an undefined `this` argument.
+		if (name === 'bind' && call.arguments.length !== 1) {
+			return true;
+		}
 	}
 
 	return compareFunctionNames.has(name)
@@ -136,36 +141,22 @@ const shouldIgnore = node => {
 		|| /^set[A-Z]/v.test(name);
 };
 
-const getFunction = scope => {
-	for (; scope; scope = scope.upper) {
-		if (scope.type === 'function') {
-			return scope.block;
-		}
-	}
-};
-
-// Matches a "pure-nothing" return type (`undefined` or `void`), where `return undefined` is always useless.
-// Union types like `number | undefined` are intentionally excluded, so the explicit `undefined` is preserved (#880).
-const isUndefinedOrVoidReturnType = functionNode => {
-	const type = functionNode.returnType?.typeAnnotation?.type;
-	return type === 'TSUndefinedKeyword' || type === 'TSVoidKeyword';
-};
-
-const shouldKeepReturnUndefined = functionNode => {
-	if (functionNode?.returnType) {
-		return !isUndefinedOrVoidReturnType(functionNode);
-	}
-
+const shouldKeepReturnUndefined = (functionNode, isTypedSource) => {
 	// A getter must return a value, so `return;` conflicts with the `getter-return` rule
-	return functionNode?.parent?.kind === 'get';
-};
+	if (functionNode?.parent?.kind === 'get') {
+		return true;
+	}
 
-const isFunctionBindCall = node =>
-	!node.optional
-	&& node.callee.type === 'MemberExpression'
-	&& !node.callee.computed
-	&& node.callee.property.type === 'Identifier'
-	&& node.callee.property.name === 'bind';
+	if (!functionNode?.returnType) {
+		// Removing `undefined` can change the inferred return type to `void`.
+		return isTypedSource;
+	}
+
+	// Check explicit return annotations of `undefined` or `void`.
+	// Union types like `number | undefined` are intentionally excluded, so the explicit `undefined` is preserved (#880).
+	const type = functionNode.returnType.typeAnnotation?.type;
+	return type !== 'TSUndefinedKeyword' && type !== 'TSVoidKeyword';
+};
 
 const lowerBoundComparison = {
 	left: {
@@ -330,21 +321,25 @@ function getIndexedAccessTestValidity(test, access) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isTypedSource = isTypeScriptFile(context.physicalFilename)
+		|| isTypeScriptFile(context.filename)
+		|| hasJavaScriptTypeAnnotations(context);
+	const isGlobalUndefined = node => isUndefined(node) && isGlobalIdentifier(node, context);
 
-	const getProblem = (node, fix, checkFunctionReturnType) => {
-		if (checkFunctionReturnType) {
-			const functionNode = getFunction(sourceCode.getScope(node));
-			if (functionNode?.returnType) {
-				return;
-			}
+	const getProblem = (node, fix) => ({node, messageId, fix});
+
+	const getInitializerRemovalProblem = (node, target) => getProblem(node, (fixer, {abort}) => {
+		const [, start] = sourceCode.getRange(target);
+		// Remove the parentheses around the value to avoid leaving them dangling.
+		const [, end] = getParenthesizedRange(node, context);
+
+		// A comment between the target and the value would be removed as part of the range.
+		if (hasCommentInRange(context, [start, end])) {
+			return abort();
 		}
 
-		return {
-			node,
-			messageId,
-			fix,
-		};
-	};
+		return fixer.removeRange([start, end]);
+	});
 
 	const options = context.options[0];
 
@@ -352,7 +347,7 @@ const create = context => {
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, context);
 
 	context.on('Identifier', node => {
-		if (!isUndefined(node)) {
+		if (!isGlobalUndefined(node)) {
 			return;
 		}
 
@@ -363,7 +358,7 @@ const create = context => {
 			parent.type === 'ReturnStatement'
 			&& parent.argument === node
 		) {
-			if (shouldKeepReturnUndefined(getFunction(sourceCode.getScope(node)))) {
+			if (shouldKeepReturnUndefined(getEnclosingFunction(parent), isTypedSource)) {
 				return;
 			}
 
@@ -385,16 +380,21 @@ const create = context => {
 			);
 		}
 
+		if (isTypedSource) {
+			return;
+		}
+
 		// `() => undefined`
 		if (
 			options.checkArrowFunctionBody
 			&& parent.type === 'ArrowFunctionExpression'
 			&& parent.body === node
+			// Preserve explicit return types even when the filename has no TypeScript extension.
+			&& !parent.returnType
 		) {
 			return getProblem(
 				node,
 				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, context),
-				/* CheckFunctionReturnType */ true,
 			);
 		}
 
@@ -407,63 +407,23 @@ const create = context => {
 			// A binding pattern requires an initializer, `let {foo} = undefined;` cannot become `let {foo};`
 			&& parent.id.type === 'Identifier'
 		) {
-			return getProblem(
-				node,
-				function * (fixer, {abort}) {
-					const [, start] = sourceCode.getRange(parent.id);
-					// Drop the parentheses around the value too, they would be left dangling
-					const [, end] = getParenthesizedRange(node, context);
-
-					// The removed range includes everything between the id and the value, a comment would be dropped
-					if (hasCommentInRange(context, [start, end])) {
-						return abort();
-					}
-
-					yield fixer.removeRange([start, end]);
-				},
-			);
+			return getInitializerRemovalProblem(node, parent.id);
 		}
 
 		// `const {foo = undefined} = {}`
 		if (
 			parent.type === 'AssignmentPattern'
 			&& parent.right === node
+			// Removing a default on the parameter itself can change the function's `length`.
+			&& !isFunction(parent.parent)
 		) {
-			return getProblem(
-				node,
-				function * (fixer, {abort}) {
-					const assignmentPattern = parent;
-					const {left} = assignmentPattern;
-					const [, start] = sourceCode.getRange(left);
-					// Drop the parentheses around the value too, they would be left dangling
-					const [, end] = getParenthesizedRange(node, context);
-
-					// The removed range includes everything between the left and the value, a comment would be dropped
-					if (hasCommentInRange(context, [start, end])) {
-						return abort();
-					}
-
-					yield fixer.removeRange([start, end]);
-					if (
-						(left.typeAnnotation || isTypeScriptFile(context.physicalFilename))
-						&& !left.optional
-						&& isFunction(assignmentPattern.parent)
-						&& assignmentPattern.parent.params.includes(assignmentPattern)
-					) {
-						yield (
-							left.typeAnnotation
-								? fixer.insertTextBefore(left.typeAnnotation, '?')
-								: fixer.insertTextAfter(left, '?')
-						);
-					}
-				},
-			);
+			return getInitializerRemovalProblem(node, parent.left);
 		}
 	});
 
 	context.on('ConditionalExpression', node => {
-		const isConsequentUndefined = isUndefined(node.consequent);
-		const isAlternateUndefined = isUndefined(node.alternate);
+		const isConsequentUndefined = isGlobalUndefined(node.consequent);
+		const isAlternateUndefined = isGlobalUndefined(node.alternate);
 
 		if (isConsequentUndefined === isAlternateUndefined) {
 			return;
@@ -505,7 +465,7 @@ const create = context => {
 		return problem;
 	});
 
-	if (!options.checkArguments || isTypeScriptFile(context.physicalFilename)) {
+	if (!options.checkArguments || isTypedSource) {
 		return;
 	}
 
@@ -513,12 +473,7 @@ const create = context => {
 		const argumentNodes = node.arguments;
 		const lastArgument = argumentNodes.at(-1);
 
-		if (!isUndefined(lastArgument) || shouldIgnore(node.callee)) {
-			return;
-		}
-
-		// Ignore arguments in `Function#bind()`, but not `this` argument
-		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+		if (!isGlobalUndefined(lastArgument) || shouldIgnoreCall(node)) {
 			return;
 		}
 
