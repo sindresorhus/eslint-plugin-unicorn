@@ -13,7 +13,7 @@ Node.js 20.11 introduced [`import.meta.dirname`](https://nodejs.org/api/esm.html
 
 `import.meta.filename` is equivalent to `fileURLToPath(import.meta.url)`, and `import.meta.dirname` is equivalent to `path.dirname(import.meta.filename)`.
 
-The rule allows `fileURLToPath(new URL('.', import.meta.url))` and the equivalent `'./'` form because both return paths with a trailing separator.
+The rule allows `fileURLToPath(new URL('.', import.meta.url))` and the equivalent `'./'` form because both return paths with a trailing separator. If path normalization is acceptable, `path.join(import.meta.dirname, './')` also returns a path with the native trailing separator.
 
 ## Examples
 
