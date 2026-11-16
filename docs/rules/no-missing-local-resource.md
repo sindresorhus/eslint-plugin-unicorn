@@ -11,15 +11,13 @@
 
 This rule checks static local JavaScript, Markdown, HTML, and CSS resources relative to the linted file. It catches broken links, missing assets, and casing that only works on a case-insensitive filesystem.
 
-The project root is the linted file's nearest Git repository root, or ESLint's working directory if the file is outside a Git repository. The rule uses the normalized path without resolving symlinks and skips paths outside this root. This includes relative links such as `../../issues/new` that point to GitHub pages outside the checkout.
+The project root is the linted file's nearest Git root, or ESLint's working directory outside Git repositories. The rule skips paths outside this root without resolving symlinks.
 
-For JavaScript modules reached through symlinks, pass the real file path to ESLint to match [the default module resolution in Node.js](https://nodejs.org/api/esm.html#resolution-algorithm-specification).
+For symlinked JavaScript modules, lint the real path to match [Node.js module resolution](https://nodejs.org/api/esm.html#resolution-algorithm-specification).
 
 It checks JavaScript `new URL(resource, import.meta.url)` with a string literal or a template literal without interpolations; Markdown links, images, and reference definitions; HTML `href`, `src`, `poster`, `srcset`, and `imagesrcset` attributes; and CSS `url()` resources, `image-set()` strings, and `@import` targets. Files and directories are valid, including those reached through symlinks. JavaScript, HTML, and CSS casing-only mismatches are automatically fixed.
 
 URLs with a scheme, root-relative URLs, fragments, and configured template values are ignored. It does not infer extensions, check cross-file fragments, honor HTML `<base>`, parse raw Markdown HTML, or support percent-encoded path separators. JavaScript imports, JSX attributes, dynamic resource paths, and other URL bases are not checked. JavaScript URL strings containing tabs, carriage returns, or line feeds are ignored. Casing fixes are unavailable for Markdown, JavaScript string escapes, HTML character references, CSS escapes, and Unicode case mappings that change length.
-
-If a resource exists only after dependency installation, a build, or at run time, lint after it exists or add its path to [`ignore`](#ignore).
 
 ## Examples
 
@@ -65,13 +63,16 @@ const logo = new URL('./assets/logo.svg', import.meta.url);
 
 ### `ignore`
 
-Glob patterns for resource paths to skip, such as files a build creates. The default is `[]`.
+Case-sensitive globs for paths to skip, such as build output. Defaults to `[]`. Globs match decoded, normalized paths relative to the project root, excluding queries and fragments.
 
-Patterns match the decoded, normalized path relative to the project root. Matching is case-sensitive and ignores URL queries and fragments. Use `/` as the separator and omit leading `./` and trailing `/`. Include the leading dot in a hidden name, as in `.ai-temporary/**`. Use `dist/**` for paths inside `dist` and `dist` for the directory itself.
+Use `/` separators without leading `./` or trailing `/`. Include the dot in hidden names. `dist` matches the directory, and `dist/**` matches its contents.
 
 ```js
 {
-	'unicorn/no-missing-local-resource': ['error', {ignore: ['dist/**', '.ai-temporary/**', 'site/options.js']}],
+	ignore: [
+		'dist/**',
+		'site/options.js',
+	],
 }
 ```
 
