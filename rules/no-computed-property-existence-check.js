@@ -1,4 +1,5 @@
 import {
+	getBooleanAncestor,
 	getCallArgumentText,
 	getOutermostChainAndTypeScriptExpression,
 	getParenthesizedRange,
@@ -73,12 +74,12 @@ function isSameProperty(left, right, context) {
 
 function isUsedAsExistenceCheck(node, context) {
 	const access = getOutermostChainAndTypeScriptExpression(node);
-	const negation = access.parent;
-	if (negation.type !== 'UnaryExpression' || negation.operator !== '!') {
+	const {node: booleanValue, isNegative} = getBooleanAncestor(access, context);
+	if (!isNegative) {
 		return isBooleanContext(access, context);
 	}
 
-	const assignment = getOutermostChainAndTypeScriptExpression(negation).parent;
+	const assignment = getOutermostChainAndTypeScriptExpression(booleanValue).parent;
 	return !(
 		assignment.type === 'AssignmentExpression'
 		&& assignment.operator === '='

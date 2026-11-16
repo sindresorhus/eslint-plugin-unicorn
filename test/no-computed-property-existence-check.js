@@ -205,6 +205,9 @@ test.snapshot({
 test({
 	valid: [
 		'kept[index] = !kept[index];',
+		'kept[index] = !!!kept[index];',
+		'kept[index] = !Boolean(kept[index]);',
+		'kept[index] = Boolean(!kept[index]);',
 		'kept[index] = !((kept)[/* keep */ index]);',
 		'kept[index + 1] = !kept[index + 1];',
 		'state.flags[index + 1] = !state["flags"][index + 1];',
@@ -225,6 +228,11 @@ test({
 			'kept[index + 1] = !kept[index + 2];',
 			'kept[index] = !removed[index];',
 			'kept[index] = !!kept[index];',
+			'kept[index] = Boolean(kept[index]);',
+			'kept[index] = !Boolean(!kept[index]);',
+			'kept[index] = Boolean?.(!kept[index]);',
+			'function toggle(Boolean) { kept[index] = Boolean(!kept[index]); }',
+			'kept[index] = !kept[index] || fallback;',
 			'kept[index] ||= !kept[index];',
 			'({})[index + 1] = !({})[index + 1];',
 			'(/flag/)[index] = !(/flag/)[index];',
