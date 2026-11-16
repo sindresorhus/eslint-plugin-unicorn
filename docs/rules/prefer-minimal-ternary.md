@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-For a shared callee, the receiver can be an identifier, literal, static template literal, `this`, `super`, or a member chain. A computed key can be a literal, static template literal, identifier, or `this`. Optional chains and calls within shared receivers or keys are ignored.
+Shared receivers and computed keys support identifiers, literals, static template literals, and `this`. Receivers also support `super` and member chains. Both exclude optional chains and nested calls.
 
 ```js
 // ❌
@@ -77,11 +77,9 @@ Matching ignores comments and whitespace between tokens, including in TypeScript
 
 Comments, unsafe evaluation reordering, Vue directive attributes, and statement bodies inside Vue interpolations prevent autofixes.
 
-With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, reachability, overload resolution, generic inference, or correlated types. This includes calls with assertion signatures or a `never` return type.
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips rewrites that could change narrowing, reachability, overload resolution, generic inference, or type correlations. Review type-sensitive fixes.
 
-With type information, shared-callee calls with rest parameters, including `new` and `super()`, require a single visible signature of the relevant kind in each branch and the same resolved instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. For inferred calls, the rule checks the visible signature's rest type before call-site inference. It uses the resolved rest type for explicit type arguments and for `super()`, where TypeScript specializes the base constructor before checking the call.
-
-These checks can skip safe transformations. Review type-sensitive fixes.
+For calls to the same function or constructor with rest parameters, both branches must resolve to the same instantiation of a single visible signature. The rule supports arrays, `any`, and tuples with positional elements and at most one trailing array rest element. It skips rest unions such as `string[] | number[]`.
 
 Without type information, TypeScript objects with shared non-literal values, even safe identifiers, receive suggestions instead of autofixes. Suggestions are subject to runtime and comment safeguards; review them for lost narrowing.
 
