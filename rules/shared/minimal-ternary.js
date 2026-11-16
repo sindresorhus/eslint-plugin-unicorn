@@ -392,24 +392,7 @@ function canAffectCallControlFlow(node, signature, type, checker) {
 		&& (parent.type !== 'ConditionalExpression' || parent.parent.type !== 'ExpressionStatement');
 }
 
-function canMinimizeRestCall(consequent, alternate, signature, {checker, parserServices}) {
-	const declaration = signature.declaration.parameters.at(-1);
-	const parameter = signature.parameters.at(-1);
-	if (parameter?.valueDeclaration !== declaration) {
-		return false;
-	}
-
-	// A combined argument may select another overload even if the original calls selected the same one.
-	for (const {callee} of [consequent, alternate]) {
-		const calleeType = parserServices.getTypeAtLocation(callee);
-		const signatures = consequent.type === 'CallExpression' ? calleeType.getCallSignatures() : calleeType.getConstructSignatures();
-		if (signatures.length !== 1) {
-			return false;
-		}
-	}
-
-	// Use the declared type when inference is active so an instantiated array cannot hide a generic argument group.
-	const restType = hasTypeArguments(consequent) ? checker.getTypeOfSymbol(parameter) : checker.getTypeAtLocation(declaration);
+function isIndependentlyCheckedRestType(restType, checker) {
 	if (!checker.isTupleType(restType)) {
 		// TypeScript treats an any-typed rest parameter as any[].
 		return checker.isArrayType(restType) || restType === checker.getAnyType();
@@ -419,6 +402,27 @@ function canMinimizeRestCall(consequent, alternate, signature, {checker, parserS
 	const {elementFlags, fixedLength} = restType.target;
 	return fixedLength === elementFlags.length
 		|| (fixedLength === elementFlags.length - 1 && elementFlags.at(-1) === 4); // ElementFlags.Rest.
+}
+
+function canMinimizeRestCall(consequent, alternate, resolvedSignature, {checker, parserServices}) {
+	const restDeclaration = resolvedSignature.declaration.parameters.at(-1);
+	for (const call of [consequent, alternate]) {
+		const calleeType = parserServices.getTypeAtLocation(call.callee);
+		const visibleSignatures = call.type === 'CallExpression' ? calleeType.getCallSignatures() : calleeType.getConstructSignatures();
+		// A combined argument may select another overload even if the original calls selected the same one.
+		if (visibleSignatures.length !== 1) {
+			return false;
+		}
+
+		// The visible signature includes enclosing type substitutions. Explicit type arguments also bypass call inference.
+		const signature = hasTypeArguments(call) ? resolvedSignature : visibleSignatures[0];
+		const restParameter = signature.parameters.at(-1);
+		if (restParameter?.valueDeclaration !== restDeclaration || !isIndependentlyCheckedRestType(checker.getTypeOfSymbol(restParameter), checker)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**

@@ -285,6 +285,13 @@ const cases = [
 		diagnostic: 2345,
 	},
 	{
+		name: 'a union of rest tuples in a specialized callable type',
+		declarations: 'interface Consumer<Values extends unknown[]> { (...values: Values): void; } declare const consume: Consumer<[string] | [number]>, test: boolean;',
+		expression: 'test ? consume("a") : consume(1)',
+		unsafeExpression: 'consume(test ? "a" : 1)',
+		diagnostic: 2345,
+	},
+	{
 		name: 'overload resolution for rest calls that select the same signature',
 		declarations: outdent`
 			type IsUnion<Type, All = Type> = Type extends unknown ? [All] extends [Type] ? false : true : never;
@@ -652,6 +659,30 @@ const safeCases = [
 		expression: 'test ? consume<[string, number]>("label", 1) : consume<[string, number]>("label", 2)',
 		fixedExpression: 'consume<[string, number]>("label", test ? 1 : 2)',
 		resultType: '[string, number]',
+	},
+	{
+		name: 'calls through an alias with an explicit generic rest tuple',
+		declarations: 'declare function consume<Values extends unknown[]>(...values: Values): Values; const consumePair = consume<[string, number]>; declare const test: boolean;',
+		expression: 'test ? consumePair("label", 1) : consumePair("label", 2)',
+		fixedExpression: 'consumePair("label", test ? 1 : 2)',
+		resultType: '[string, number]',
+	},
+	{
+		name: 'generic calls with a rest tuple supplied by the enclosing type',
+		declarations: outdent`
+			interface Consumer<Values extends unknown[]> { <Label>(label: Label, ...values: Values): Label; }
+			declare const consume: Consumer<[string, number]>, label: string, test: boolean;
+		`,
+		expression: 'test ? consume(label, "label", 1) : consume(label, "label", 2)',
+		fixedExpression: 'consume(label, "label", test ? 1 : 2)',
+		resultType: 'string',
+	},
+	{
+		name: 'contextually typed callbacks passed to an array rest parameter',
+		declarations: 'declare function read(...readers: ((value: number) => string)[]): string; declare const test: boolean;',
+		expression: 'test ? read(value => value.toFixed()) : read(value => value.toExponential())',
+		fixedExpression: 'read(test ? value => value.toFixed() : value => value.toExponential())',
+		resultType: 'string',
 	},
 	{
 		name: 'the same overload',

@@ -79,7 +79,7 @@ Comments, unsafe evaluation reordering, Vue directive attributes, and statement 
 
 With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, reachability, overload resolution, generic inference, or correlated types. This includes calls with assertion signatures or a `never` return type.
 
-For shared-callee calls and constructors with rest parameters, the callee must have a single visible signature of the relevant kind, and both branches must resolve to the same instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. The rule checks the declared rest type unless the call supplies explicit type arguments.
+With type information, shared-callee calls and constructors with rest parameters require a single visible signature of the relevant kind in each branch, and both branches must resolve to the same instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. The rule checks the rest type of the visible signature before inferring type arguments. When the call supplies explicit type arguments, it uses the resolved rest type.
 
 These conservative checks can also skip safe transformations. They are best-effort; review type-sensitive fixes.
 

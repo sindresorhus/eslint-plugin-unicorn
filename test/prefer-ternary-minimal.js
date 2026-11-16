@@ -391,8 +391,18 @@ test({
 			errors,
 		}),
 		typeAware({
-			code: 'declare class Box {constructor(...values: [string, ...number[]])} declare const test: boolean; if (test) { new Box("a", 1); } else { new Box("a", 2); }',
-			output: 'declare class Box {constructor(...values: [string, ...number[]])} declare const test: boolean; new Box("a", test ? 1 : 2);',
+			code: outdent`
+				declare class Box<Values extends unknown[]> {constructor(...values: Values)}
+				const NumberBox = Box<[string, ...number[]]>;
+				declare const test: boolean;
+				if (test) { new NumberBox("a", 1); } else { new NumberBox("a", 2); }
+			`,
+			output: outdent`
+				declare class Box<Values extends unknown[]> {constructor(...values: Values)}
+				const NumberBox = Box<[string, ...number[]]>;
+				declare const test: boolean;
+				new NumberBox("a", test ? 1 : 2);
+			`,
 			errors,
 		}),
 		typeAware({
@@ -405,6 +415,17 @@ test({
 			'declare function call<Value>(value: Value): Value; declare const test: boolean; if (test) { call(1); } else { call("b"); }',
 			'declare function call(...values: string[] | number[]): void; declare const test: boolean; if (test) { call("a"); } else { call(1); }',
 		].map(code => typeAware({code, errors})),
+		typeAware({
+			code: outdent`
+				type Assertions = {first(value: unknown): asserts value is string; second(value: unknown): asserts value is string};
+				declare const checks: Assertions, test: boolean;
+				declare let value: unknown;
+				if (test) { checks.first(value); } else { checks.second(value); }
+				value.toUpperCase();
+			`,
+			options: ['always', {checkComputedMemberAccess: true}],
+			errors,
+		}),
 		typeAware({
 			code: 'type Thing = {type: "a"; property: number} | {type: "b"; property: string}; function unicorn(type: Thing["type"]) { if (type === "a") { throw {type, property: 0}; } else { throw {type, property: ""}; } }',
 			errors: [{
