@@ -1,5 +1,4 @@
 import outdent from 'outdent';
-import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -8,8 +7,8 @@ const typeAware = code => ({
 	code,
 	filename: 'file.ts',
 	languageOptions: {
-		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parser: parsers.typescript,
+		parserOptions: {project: false, projectService: {allowDefaultProject: ['*.ts']}},
 	},
 });
 
@@ -35,6 +34,25 @@ test.snapshot({
 		'template.replace("{url}", String.raw`https://example.com`)',
 		'template.replace("{url}", () => htmlEscape(url))',
 		'template.replace("{url}", function () { return htmlEscape(url); })',
+		'text.replace(/pattern/, replacer); function replacer() { return replacement; }',
+		'const replacer = () => replacement; text.replaceAll(/pattern/g, replacer);',
+		'function replacer() { return replacement; } const alias = replacer; const callback = alias; text.replace(/pattern/, callback);',
+		'/** @param {function(string): string} replacer */ function run(replacer) { text.replace(/pattern/, replacer); }',
+		'/** @type {(() => string) | undefined} */ const replacer = () => replacement; text.replace(/pattern/, replacer);',
+		{
+			code: 'function run(text: string, replacer: (match: string) => string) { text.replace(/pattern/, replacer); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function replacer<Value>(match: Value) { return String(match); } text.replace(/pattern/, replacer<string>);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function replacer<Value>(match: Value) { return String(match); } const callback = replacer<string>; text.replace(/pattern/, callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'element.classList.replace(oldClass, newClass);',
+		'const editor = {replace(range, text) {}}; editor.replace(range, text);',
 		{
 			code: 'template.replace("{url}", "https://example.com" as string)',
 			languageOptions: {parser: parsers.typescript},
@@ -95,6 +113,27 @@ test.snapshot({
 			declare function useRouter(): {replace(href: string, options: unknown): void};
 			useRouter().replace(pathname, options);
 		`),
+		typeAware(outdent`
+			interface TextEditorEdit {
+				replace(range: {start: number; end: number}, text: string): void;
+			}
+			declare const editor: {edit(callback: (edit: TextEditorEdit) => void): void};
+			declare const range: {start: number; end: number};
+			declare const replacement: string;
+			editor.edit(edit => edit.replace(range, replacement));
+		`),
+		typeAware(outdent`
+			function change(value: string | DOMTokenList, replacement: string) {
+				if (typeof value !== 'string') {
+					value.replace('old', replacement);
+				}
+			}
+		`),
+		typeAware(outdent`
+			declare const text: string;
+			declare const callbacks: {replaceMatch: (match: string) => string};
+			text.replace(/pattern/, callbacks.replaceMatch);
+		`),
 	],
 	invalid: [
 		'template.replace("{url}", htmlEscape(url))',
@@ -145,5 +184,19 @@ test.snapshot({
 		'text.replace("pattern", "&$".repeat(2))',
 		String.raw`text.replace("pattern", "\u0024".repeat(2))`,
 		'template.replace("{url}", {"toString": () => url})',
+		'function replacer() { return ""; } replacer = replacement; text.replace(/pattern/, replacer);',
+		'function replacer() { return ""; } function run(replacer) { text.replace(/pattern/, replacer); }',
+		typeAware('declare const text: string; declare const replacement: string; text.replace(/pattern/, replacement);'),
+		typeAware('declare const labels: {classList: string}; declare const replacement: string; labels.classList.replace(/pattern/, replacement);'),
+		'labels.classList.replaceAll(pattern, replacement);',
+		typeAware('declare const labels: {classList: string | DOMTokenList}; declare const replacement: string; labels.classList.replace("old", replacement);'),
+		'let replacer = () => ""; replacer = replacement; const callback = replacer; text.replace(/pattern/, callback);',
+		typeAware('declare const text: String; declare const replacement: string; text.replaceAll("old", replacement);'),
+		{
+			code: 'function run(text: string, replacement: new () => object) { text.replace(/pattern/, replacement); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const labels = {classList: "old"}; labels.classList.replace("old", replacement);',
+		typeAware('const text = new String("old"); declare const replacement: string; text.replaceAll("old", replacement);'),
 	],
 });

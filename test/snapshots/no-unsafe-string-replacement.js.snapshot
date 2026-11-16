@@ -424,6 +424,50 @@ Message:
 
 `;
 
+exports[`no-unsafe-string-replacement > invalid(37): function replacer() { return \"\"; } replacer = replacement; text.replace(/pattern/, replacer); 1`] = `
+
+  1 | function replacer() { return ""; } replacer = replacement; text.replace(/pattern/, replacer);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(37): function replacer() { return \"\"; } replacer = replacement; text.replace(/pattern/, replacer); 2`] = `
+
+Message:
+> 1 | function replacer() { return ""; } replacer = replacement; text.replace(/pattern/, replacer);
+    |                                                                                    ^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(38): function replacer() { return \"\"; } function run(replacer) { text.replace(/pattern/, replacer); } 1`] = `
+
+  1 | function replacer() { return ""; } function run(replacer) { text.replace(/pattern/, replacer); }
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(38): function replacer() { return \"\"; } function run(replacer) { text.replace(/pattern/, replacer); } 2`] = `
+
+Message:
+> 1 | function replacer() { return ""; } function run(replacer) { text.replace(/pattern/, replacer); }
+    |                                                                                     ^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(39): declare const text: string; declare const replacement: string; text.replace(/pattern/, replacement); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const text: string; declare const replacement: string; text.replace(/pattern/, replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(39): declare const text: string; declare const replacement: string; text.replace(/pattern/, replacement); 2`] = `
+
+Message:
+> 1 | declare const text: string; declare const replacement: string; text.replace(/pattern/, replacement);
+    |                                                                                        ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
 exports[`no-unsafe-string-replacement > invalid(4): template.replace(\"{url}\", options.replacement) 1`] = `
 
   1 | template.replace("{url}", options.replacement)
@@ -435,6 +479,126 @@ exports[`no-unsafe-string-replacement > invalid(4): template.replace(\"{url}\", 
 Message:
 > 1 | template.replace("{url}", options.replacement)
     |                           ^^^^^^^^^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(40): declare const labels: {classList: string}; declare const replacement: string; labels.classList.replace(/pattern/, replacement); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const labels: {classList: string}; declare const replacement: string; labels.classList.replace(/pattern/, replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(40): declare const labels: {classList: string}; declare const replacement: string; labels.classList.replace(/pattern/, replacement); 2`] = `
+
+Message:
+> 1 | declare const labels: {classList: string}; declare const replacement: string; labels.classList.replace(/pattern/, replacement);
+    |                                                                                                                   ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(41): labels.classList.replaceAll(pattern, replacement); 1`] = `
+
+  1 | labels.classList.replaceAll(pattern, replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(41): labels.classList.replaceAll(pattern, replacement); 2`] = `
+
+Message:
+> 1 | labels.classList.replaceAll(pattern, replacement);
+    |                                      ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(42): declare const labels: {classList: string | DOMTokenList}; declare const replacement: string; labels.classList.replace(\"old\", replacement); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const labels: {classList: string | DOMTokenList}; declare const replacement: string; labels.classList.replace("old", replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(42): declare const labels: {classList: string | DOMTokenList}; declare const replacement: string; labels.classList.replace(\"old\", replacement); 2`] = `
+
+Message:
+> 1 | declare const labels: {classList: string | DOMTokenList}; declare const replacement: string; labels.classList.replace("old", replacement);
+    |                                                                                                                              ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(43): let replacer = () => \"\"; replacer = replacement; const callback = replacer; text.replace(/pattern/, callback); 1`] = `
+
+  1 | let replacer = () => ""; replacer = replacement; const callback = replacer; text.replace(/pattern/, callback);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(43): let replacer = () => \"\"; replacer = replacement; const callback = replacer; text.replace(/pattern/, callback); 2`] = `
+
+Message:
+> 1 | let replacer = () => ""; replacer = replacement; const callback = replacer; text.replace(/pattern/, callback);
+    |                                                                                                     ^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(44): declare const text: String; declare const replacement: string; text.replaceAll(\"old\", replacement); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const text: String; declare const replacement: string; text.replaceAll("old", replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(44): declare const text: String; declare const replacement: string; text.replaceAll(\"old\", replacement); 2`] = `
+
+Message:
+> 1 | declare const text: String; declare const replacement: string; text.replaceAll("old", replacement);
+    |                                                                                       ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(45): function run(text: string, replacement: new () => object) { text.replace(/pattern/, replacement); } 1`] = `
+
+  1 | function run(text: string, replacement: new () => object) { text.replace(/pattern/, replacement); }
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(45): function run(text: string, replacement: new () => object) { text.replace(/pattern/, replacement); } 2`] = `
+
+Message:
+> 1 | function run(text: string, replacement: new () => object) { text.replace(/pattern/, replacement); }
+    |                                                                                     ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(46): const labels = {classList: \"old\"}; labels.classList.replace(\"old\", replacement); 1`] = `
+
+  1 | const labels = {classList: "old"}; labels.classList.replace("old", replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(46): const labels = {classList: \"old\"}; labels.classList.replace(\"old\", replacement); 2`] = `
+
+Message:
+> 1 | const labels = {classList: "old"}; labels.classList.replace("old", replacement);
+    |                                                                    ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(47): const text = new String(\"old\"); declare const replacement: string; text.replaceAll(\"old\", replacement); 1`] = `
+
+Filename: file.ts
+
+  1 | const text = new String("old"); declare const replacement: string; text.replaceAll("old", replacement);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(47): const text = new String(\"old\"); declare const replacement: string; text.replaceAll(\"old\", replacement); 2`] = `
+
+Message:
+> 1 | const text = new String("old"); declare const replacement: string; text.replaceAll("old", replacement);
+    |                                                                                           ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replaceAll()\`.
 
 `;
 

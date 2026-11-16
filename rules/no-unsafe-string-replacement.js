@@ -6,14 +6,32 @@ import {
 } from './ast/index.js';
 import {
 	getConstVariableInitializer,
+	getFunctionFromIdentifier,
+	isKnownNonDomNode,
 	isKnownNonString,
+	isNodeValueNotDomNode,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'no-unsafe-string-replacement';
 const messages = {
 	[MESSAGE_ID]: 'Do not use a non-literal replacement value with `String#{{method}}()`.',
 };
+
+const stringReceiverTypeNames = new Set(['string', 'String']);
+const isDirectReplacementFunction = (node, context) => {
+	const expression = unwrapTypeScriptExpression(node);
+	return isFunction(expression) || Boolean(getFunctionFromIdentifier(expression, context));
+};
+
+const {isTarget: isInferredReplacementFunction} = createTypeCheckers({
+	targetTypeNames: new Set(),
+	isTargetNode: isDirectReplacementFunction,
+	isTargetTypeAnnotation: node => node?.type === 'TSFunctionType',
+	isTargetJSDocumentType: type => type?.kind === 'function',
+});
 
 const isStaticTemplateLiteral = node =>
 	node.type === 'TemplateLiteral'
@@ -43,13 +61,15 @@ const isSafeStringRepeat = node => {
 	return stringValue !== undefined && !stringValue.includes('$');
 };
 
-const isAllowedReplacement = (node, sourceCode) => {
-	node = unwrapTypeScriptExpression(node);
+const isAllowedReplacement = (node, context) => {
+	const expression = unwrapTypeScriptExpression(node);
 
-	return getStaticStringValue(node) !== undefined
-		|| isStaticStringRawTaggedTemplate(node, sourceCode)
-		|| isSafeStringRepeat(node)
-		|| isFunction(node);
+	return getStaticStringValue(expression) !== undefined
+		|| isStaticStringRawTaggedTemplate(expression, context.sourceCode)
+		|| isSafeStringRepeat(expression)
+		|| isDirectReplacementFunction(node, context)
+		|| (withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+			?? isInferredReplacementFunction(node, context));
 };
 
 const objectCoercionPropertyNames = new Set([
@@ -71,6 +91,10 @@ const isPlainObjectReplacement = (node, context) => {
 			&& !objectCoercionPropertyNames.has(property.key.name ?? property.key.value));
 };
 
+const isLikelyDomClassList = (node, context) =>
+	isMemberExpression(node, 'classList')
+	&& !isKnownNonDomNode(node.object, context, {isNonTargetNode: isNodeValueNotDomNode});
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -84,24 +108,24 @@ const create = context => {
 		}
 
 		const [, replacement] = node.arguments;
-		if (isAllowedReplacement(replacement, context.sourceCode)) {
+		if (isAllowedReplacement(replacement, context) || isPlainObjectReplacement(replacement, context)) {
 			return;
 		}
 
-		if (isPlainObjectReplacement(replacement, context)) {
-			return;
-		}
-
-		if (isKnownNonString(node.callee.object, context)) {
+		const {name: method} = node.callee.property;
+		const canInferClassListByName = method === 'replace' && !context.sourceCode.parserServices?.program;
+		if (isKnownNonString(node.callee.object, context, {
+			targetTypeNames: stringReceiverTypeNames,
+			isNonTargetNode: receiver => receiver.type === 'ObjectExpression'
+				|| (canInferClassListByName && isLikelyDomClassList(receiver, context)),
+		})) {
 			return;
 		}
 
 		return {
 			node: replacement,
 			messageId: MESSAGE_ID,
-			data: {
-				method: node.callee.property.name,
-			},
+			data: {method},
 		};
 	});
 };
