@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-Method calls support identifiers, literals, `this`, `super`, and member chains. Computed keys must be literals, identifiers, or `this`. Optional chains and calls within receivers or keys are ignored.
+For a shared callee, the receiver can be an identifier, literal, static template literal, `this`, `super`, or a member chain. A computed key can be a literal, static template literal, identifier, or `this`. Optional chains and calls within shared receivers or keys are ignored.
 
 ```js
 // ❌

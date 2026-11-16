@@ -305,6 +305,21 @@ const cases = [
 		diagnostic: 2322,
 	},
 	{
+		name: 'overload resolution for constructors that select the same rest signature',
+		declarations: outdent`
+			type IsUnion<Type, All = Type> = Type extends unknown ? [All] extends [Type] ? false : true : never;
+			declare const Format: {
+				new<Value extends "a" | "b">(...values: [Value, ...([IsUnion<Value>] extends [true] ? [] : [never])]): {kind: "generic"};
+				new(...values: ("a" | "b")[]): {kind: "plain"};
+			};
+			declare const test: boolean;
+		`,
+		resultType: '{kind: "plain"}',
+		expression: 'test ? new Format("a") : new Format("b")',
+		unsafeExpression: 'new Format(test ? "a" : "b")',
+		diagnostic: 2322,
+	},
+	{
 		name: 'generic inference for separate calls with compatible parameter types',
 		declarations: outdent`
 			type Left = {base: true; left?: string};
@@ -643,6 +658,13 @@ const safeCases = [
 		fixedExpression: 'consume("a", test ? 1 : undefined)',
 	},
 	{
+		name: 'computed method calls with an optional tuple prefix and trailing rest array',
+		declarations: 'declare const writer: {write(...values: readonly [label?: string, ...counts: number[]]): number}, test: boolean;',
+		expression: 'test ? writer[`write`](undefined, 1) : writer["write"](undefined, 2)',
+		fixedExpression: 'writer[`write`](undefined, test ? 1 : 2)',
+		resultType: 'number',
+	},
+	{
 		name: 'calls with a readonly tuple rest parameter ending in a generic array',
 		declarations: outdent`
 			type Values<Value> = readonly [label: string, ...values: Value[]];
@@ -872,6 +894,28 @@ test('fixes type guard calls whose result is discarded by a sequence', t => {
 	t.assert.strictEqual(fix.text, 'isString(value, condition ? "a" : "b")');
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
+});
+
+test('ignores minimization that exposes a receiver assertion in a sequence', t => {
+	const code = outdent`
+		interface Value {
+			data: string | number;
+			assertString(...messages: string[]): asserts this is this & {data: string};
+		}
+		declare const value: Value, test: boolean;
+		const count = (test ? value.assertString("a") : value.assertString("b"), 1);
+		if (typeof value.data === "number") {
+			value.data.toFixed();
+		}
+	`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const [syntaxMessage] = getMessages(code);
+	const fix = syntaxMessage?.fix;
+	t.assert.ok(fix);
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), [2339]);
+	t.assert.deepStrictEqual(getMessages(code, program), []);
 });
 
 for (const {name, declarations, expression, unsafeExpression, options} of [
