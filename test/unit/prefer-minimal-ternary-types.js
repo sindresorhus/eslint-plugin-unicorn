@@ -28,7 +28,8 @@ function getDiagnostics(program) {
 		.map(diagnostic => diagnostic.code);
 }
 
-function applyFix(code, {range: [start, end], text}) {
+function applyFix(code, {range, text}) {
+	const [start, end] = range;
 	return code.slice(0, start) + text + code.slice(end);
 }
 
@@ -1051,7 +1052,8 @@ test('ignores grouped rest arguments in a JSDoc-typed call', t => {
 	const [syntaxMessage] = getMessages(code);
 	const fix = syntaxMessage?.fix;
 	t.assert.ok(fix);
-	t.assert.deepStrictEqual(getDiagnostics(getProgram(applyFix(code, fix), sourceFilename)), [2345]);
+	const output = applyFix(code, fix);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output, sourceFilename)), [2345]);
 	t.assert.deepStrictEqual(getMessages(code, program), []);
 });
 
