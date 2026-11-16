@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStringIfConstant} from '@eslint-community/eslint-utils';
 import {getStaticStringValue} from '../ast/index.js';
 import {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 
@@ -8,7 +8,7 @@ import {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression
 Gets the property name of a given node.
 The node can be a MemberExpression, a Property, or a MethodDefinition.
 
-If the name is dynamic, this returns `null`.
+If the name cannot be determined, this returns `undefined`.
 
 For examples:
 
@@ -17,20 +17,20 @@ For examples:
 	a['b']		// => "b"
 	a[`b`]		// => "b"
 	a[100]		// => "100"
-	a[b]		  // => null
-	a["a" + "b"]  // => null
-	a[tag`b`]	 // => null
-	a[`${b}`]	 // => null
+	a[b]		  // => undefined
+	a["a" + "b"]  // => "ab"
+	a[tag`b`]	 // => undefined
+	a[`${b}`]	 // => undefined
 
 	let a = {b: 1}			// => "b"
 	let a = {["b"]: 1}		// => "b"
 	let a = {['b']: 1}		// => "b"
 	let a = {[`b`]: 1}		// => "b"
 	let a = {[100]: 1}		// => "100"
-	let a = {[b]: 1}		  // => null
-	let a = {["a" + "b"]: 1}  // => null
-	let a = {[tag`b`]: 1}	 // => null
-	let a = {[`${b}`]: 1}	 // => null
+	let a = {[b]: 1}		  // => undefined
+	let a = {["a" + "b"]: 1}  // => "ab"
+	let a = {[tag`b`]: 1}	 // => undefined
+	let a = {[`${b}`]: 1}	 // => undefined
 @param {ASTNode} node The node to get.
 @returns {string|undefined} The property name if static. Otherwise, undefined.
 */
@@ -64,12 +64,7 @@ function getStaticPropertyName(node) {
 			return property.name;
 		}
 
-		const staticResult = getStaticValue(property);
-		if (!staticResult) {
-			return;
-		}
-
-		return String(staticResult.value);
+		return getStringIfConstant(property) ?? undefined;
 	}
 }
 

@@ -24,3 +24,9 @@ test('compares static strings by their decoded value', t => {
 		t.assert.strictEqual(isSameReference(leftNode, rightNode), expected, `${left} / ${right}`);
 	}
 });
+
+test('treats a property key that cannot convert to a string as unknown', t => {
+	const [objectKey, stringKey] = parse('object[{toString: null}]; object.fixed;', {ecmaVersion: 'latest'}).body.map(({expression}) => expression);
+	t.assert.strictEqual(isSameReference(objectKey, stringKey), false);
+	t.assert.strictEqual(isSameReference(stringKey, objectKey), false);
+});

@@ -4,9 +4,11 @@ import {
 	getParenthesizedRange,
 	hasBooleanType,
 	hasOptionalChainElement,
+	hasPossibleSideEffect,
 	isBoolean,
 	isBooleanContext,
 	isMap,
+	isSameReference,
 	isSet,
 	isString,
 	isWeakMap,
@@ -44,8 +46,34 @@ function isStaticPropertyKey(node) {
 		);
 }
 
+function isSameProperty(left, right, context) {
+	if (left.type !== 'MemberExpression' || hasPossibleSideEffect(left, context) || hasPossibleSideEffect(right, context)) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	return isSameReference(left, right)
+		|| (
+			right.property.type === 'BinaryExpression'
+			&& left.computed
+			&& isSameReference(left.object, right.object)
+			&& sourceCode.getText(left.property) === sourceCode.getText(right.property)
+		);
+}
+
 function isUsedAsExistenceCheck(node, context) {
-	return isBooleanContext(getOutermostChainAndTypeScriptExpression(node), context);
+	const access = getOutermostChainAndTypeScriptExpression(node);
+	const negation = access.parent;
+	if (negation.type !== 'UnaryExpression' || negation.operator !== '!') {
+		return isBooleanContext(access, context);
+	}
+
+	const assignment = getOutermostChainAndTypeScriptExpression(negation).parent;
+	return !(
+		assignment.type === 'AssignmentExpression'
+		&& assignment.operator === '='
+		&& isSameProperty(unwrapChainAndTypeScriptExpression(assignment.left), node, context)
+	);
 }
 
 function isSimpleInSuggestionOperand(node) {

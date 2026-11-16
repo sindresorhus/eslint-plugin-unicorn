@@ -40,6 +40,8 @@ if ('key' in object) {}
 if (object['key']) {}
 ```
 
+Direct toggles such as `flags[key] = !flags[key]` are allowed when the rule can match both accesses to the same property. A binary key expression such as `index + 1` can match by source text. Accesses with detectable side effects, such as function calls in the key, remain subject to the check.
+
 When type information is available and the property value is a known `boolean`, the access is a value read rather than an existence check, so it's allowed:
 
 ```ts
