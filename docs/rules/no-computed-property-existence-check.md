@@ -40,7 +40,7 @@ if ('key' in object) {}
 if (object['key']) {}
 ```
 
-The rule allows toggles such as `flags[key] = !flags[key]`. The right-hand side can be a chain of `!` operators and direct calls to the global `Boolean`, as in `flags[key] = !Boolean(flags[key])`. The result must be the negated truthiness of the same property, and both accesses must have no detectable side effects. For binary keys such as `index + 1`, the rule can also compare their exact source text after removing outer TypeScript wrappers. The rule still checks a direct `super[key]` read because `super[key] = !super[key]` can read from the parent prototype and write to the instance.
+Toggles like `flags[key] = !flags[key]` and `flags[key] = !Boolean(flags[key])` with the global `Boolean` are allowed when both accesses match and have no detectable side effects. Binary keys can match by exact text after removing outer TypeScript wrappers. The rule still checks direct `super[key]` reads because assignment can write to a different object.
 
 When type information is available and the property value is a known `boolean`, the access is a value read rather than an existence check, so it's allowed:
 
