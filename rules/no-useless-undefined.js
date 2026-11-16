@@ -499,11 +499,11 @@ const schema = [
 		properties: {
 			checkArguments: {
 				type: 'boolean',
-				description: 'Whether to check function arguments.',
+				description: 'Whether to check for trailing `undefined` arguments in untyped JavaScript.',
 			},
 			checkArrowFunctionBody: {
 				type: 'boolean',
-				description: 'Whether to check arrow function bodies.',
+				description: 'Whether to check concise arrow function bodies in untyped JavaScript.',
 			},
 		},
 	},

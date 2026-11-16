@@ -292,6 +292,12 @@ test({
 			errors,
 		},
 		{
+			code: 'const foo = () => {return undefined;};',
+			output: 'const foo = () => {return;};',
+			options: optionsIgnoreArrowFunctionBody,
+			errors,
+		},
+		{
 			code: 'function foo() {return       undefined;}',
 			output: 'function foo() {return;}',
 			errors,
