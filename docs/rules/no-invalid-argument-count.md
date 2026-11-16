@@ -11,7 +11,7 @@ JavaScript allows functions and constructors to be called with too few or too ma
 
 This rule checks simple local functions where the expected argument count is clear. It also checks a conservative default set of built-in APIs.
 
-A built-in is checked in both directions, a local function only for too many arguments. A call with too few arguments to a local function is usually the call site disagreeing with an optional parameter or a caller that reads a value that may be absent, so it is left alone.
+The rule checks built-in calls for missing and excess arguments. It checks local function calls for arguments beyond the known maximum.
 
 ## Examples
 

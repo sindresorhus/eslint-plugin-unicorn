@@ -1718,23 +1718,23 @@ ruleTest.typescript({
 	invalid: [
 		{
 			code: 'const callback: (value: number) => number = (value, extra?: number) => value;\ncallback(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback = (first = 0, second: number) => second;\ncallback(1, 2, 3);',
-			errors: [{message: 'Expected 2 arguments, but got 3 arguments.'}],
+			errors: [{message: 'Expected at most 2 arguments, but got 3 arguments.'}],
 		},
 		{
 			code: 'const callback: (this: void, value?: number) => number = () => 1;\ncallback(2, 3);',
 			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
-			code: 'const callback: (value: void) => number = () => 1;\ncallback();\ncallback(undefined, undefined);',
-			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.', line: 3}],
+			code: 'const callback: (this: void) => number = () => 1;\ncallback(2);',
+			errors: [{message: 'Expected 0 arguments, but got 1 argument.'}],
 		},
 		{
-			code: 'const callback: (value: undefined) => number = () => 1;\ncallback(undefined, undefined);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			code: 'const callback: (value: void | number) => number = () => 1;\ncallback();\ncallback(1, 2);',
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.', line: 3}],
 		},
 		{
 			code: outdent`
@@ -1748,23 +1748,23 @@ ruleTest.typescript({
 		},
 		{
 			code: 'const callback = (() => 1) as (value: number) => number;\ncallback(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback: (value: number, extra?: number) => number = () => 1;\n((callback as unknown) as (value: number) => number)!(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback: (value: number) => number = (() => 1) as (...values: number[]) => number;\ncallback(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback: (value: number) => number = () => 1;\ncallback!(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback: (value: number) => number = () => 1;\n((callback as (...values: number[]) => number) as typeof callback)(2, 3);',
-			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback: (first: number, second: number) => number = () => 1;\ncallback(2, 3);',

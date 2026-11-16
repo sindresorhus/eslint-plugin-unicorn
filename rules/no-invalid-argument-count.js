@@ -930,23 +930,6 @@ const isThisParameter = parameter =>
 	parameter?.type === 'Identifier'
 	&& parameter.name === 'this';
 
-const isOptionalParameter = parameter =>
-	parameter?.type === 'AssignmentPattern'
-	|| parameter?.optional === true
-	|| parameter?.typeAnnotation?.typeAnnotation?.type === 'TSVoidKeyword';
-
-const getArity = signatureParameters => {
-	const parameters = isThisParameter(signatureParameters[0])
-		? signatureParameters.slice(1)
-		: signatureParameters;
-	const lastParameter = parameters.at(-1);
-
-	return {
-		maximum: lastParameter?.type === 'RestElement' ? Infinity : parameters.length,
-		hasOptionalTrailingParameter: isOptionalParameter(lastParameter),
-	};
-};
-
 const getAssertedType = (node, callee) => {
 	while (node?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node)) {
 		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
@@ -997,12 +980,6 @@ const getFunctionParameters = (callExpression, context) => {
 		return (annotation ?? functionNode).params;
 	}
 };
-
-// Only too-many-arguments is reported for user-defined functions, so this only ever describes an upper bound.
-const getExpectedText = ({maximum, hasOptionalTrailingParameter}) =>
-	hasOptionalTrailingParameter
-		? `at most ${formatArgumentCount(maximum)}`
-		: formatArgumentCount(maximum);
 
 const hasInvalidArgumentCount = ({minimum, maximum}, argumentCount) =>
 	argumentCount < minimum || argumentCount > maximum;
@@ -1276,23 +1253,25 @@ const create = context => {
 		}
 
 		const parameters = getFunctionParameters(callExpression, context);
-		if (!parameters) {
+		if (!parameters || parameters.at(-1)?.type === 'RestElement') {
 			return;
 		}
 
-		const arity = getArity(parameters);
+		const maximum = isThisParameter(parameters[0]) ? parameters.length - 1 : parameters.length;
 		const argumentCount = callExpression.arguments.length;
 
 		// For local functions, only report arguments beyond the known maximum.
-		if (argumentCount <= arity.maximum) {
+		if (argumentCount <= maximum) {
 			return;
 		}
 
+		// Describe the upper bound without implying a minimum for user-defined functions.
+		const expected = formatArgumentCount(maximum);
 		return {
 			node: callExpression.callee,
 			messageId: MESSAGE_ID,
 			data: {
-				expected: getExpectedText(arity),
+				expected: maximum === 0 ? expected : `at most ${expected}`,
 				actual: formatArgumentCount(argumentCount),
 			},
 		};
