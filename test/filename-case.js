@@ -7,9 +7,205 @@ import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
 import toml from 'eslint-plugin-toml';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+const markdownFile = {
+	code: '# Title',
+	language: 'markdown/gfm',
+	plugins: {markdown},
+};
+
+ruleTest({
+	valid: [
+		'pull_request_template.md',
+		'docs/pull_request_template.md',
+		'.github/Pull_Request_Template.md',
+		'.github/pull_request_template.txt',
+		'PULL_REQUEST_TEMPLATE/bug.md',
+		'docs/PULL_REQUEST_TEMPLATE/bug.md',
+		'.github/PULL_REQUEST_TEMPLATE/bug.md',
+		'.github/ISSUE_TEMPLATE/bug.md',
+		'docs/SUPPORT.md',
+		'.github/ACCESSIBILITY.md',
+		'.bitbucket/pull_request_template.md',
+		'.azuredevops/Pull_Request_Template.md',
+		'.AzureDevOps/Pull_Request_Template.txt',
+		'.vsts/pull_request_template.txt',
+		'pull_request_template/branches/main.md',
+		'.azuredevops/Pull_Request_Template/branches/main.md',
+		'.azuredevops/pull_request_template/BrAnches/main.md',
+		'.VSTS/Pull_Request_Template/branches/main.md',
+		'.vsts/pull_request_template/review.md',
+		'.gitlab/issue_templates/bug.md',
+		'.gitlab/merge_request_templates/change.md',
+		'.gitea/pull_request_template.md',
+		'.forgejo/PULL_REQUEST_TEMPLATE.md',
+		'docs/ISSUE_TEMPLATE.md',
+		'.gitlab/issue_template/bug.md',
+		'.forgejo/ISSUE_TEMPLATE/bug.md',
+		'.gitea/default_merge_message/REBASE-MERGE_TEMPLATE.md',
+		'.forgejo/default_merge_message/SQUASH_TEMPLATE.md',
+		'AGENTS.md',
+		'packages/widget/AGENTS.md',
+		'packages/widget/AGENTS.override.md',
+		'CLAUDE.md',
+		'CLAUDE.local.md',
+		'GEMINI.md',
+		'.agents/skills/widget/SKILL.md',
+	].map(filename => ({...markdownFile, filename, name: filename})),
+	invalid: [
+		...[
+			'src/docs/pull_request_template.md',
+			'src/.bitbucket/pull_request_template.md',
+			'src/.azuredevops/pull_request_template.md',
+			'.bitbucket/pull_request_template.txt',
+			'.bitbucket/PULL_REQUEST_TEMPLATE.md',
+			'.gitea/pull_request_template.txt',
+			path.resolve('..', 'pull_request_template.md'),
+		].map(filename => ({
+			filename,
+			errors: [{message: `Filename is not in kebab case. Rename it to \`pull-request-template${path.extname(filename)}\`.`}],
+		})),
+		{
+			filename: 'src/PULL_REQUEST_TEMPLATE/bug.md',
+			errors: [{message: 'Directory name `PULL_REQUEST_TEMPLATE` is not in kebab case. Rename it to `pull-request-template`.'}],
+		},
+		{
+			filename: '.github/ISSUE_TEMPLATE/BadName.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
+		},
+		{
+			filename: '.gitlab/issue_templates/BadName.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
+		},
+		{
+			filename: '.AzureDevOps/BadName.md',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
+		},
+		{
+			filename: 'src/.gitlab/issue_templates/bug.md',
+			errors: [{message: 'Directory name `issue_templates` is not in kebab case. Rename it to `issue-templates`.'}],
+		},
+		{
+			filename: 'docs/Pull_Request_Template.MD',
+			errors: [{message: 'File extension `.MD` is not in lowercase. Rename it to `Pull_Request_Template.md`.'}],
+		},
+	].map(testCase => ({...markdownFile, ...testCase, name: testCase.filename})),
+});
+
+ruleTest({
+	valid: [
+		...[
+			'.github/ISSUE_TEMPLATE/Bug.md',
+			'.gitlab/merge_request_templates/Change.md',
+			'.bitbucket/pull_request_template.md',
+			'.gitea/ISSUE_TEMPLATE/Bug.md',
+			'.forgejo/ISSUE_TEMPLATE/Bug.md',
+		].map(filename => ({
+			filename,
+			options: [{case: 'pascalCase'}],
+		})),
+		{
+			filename: '.github/ISSUE_TEMPLATE/nested/Bug.md',
+			options: [{case: 'pascalCase', directoryRoots: ['.github/ISSUE_TEMPLATE/nested']}],
+		},
+	].map(testCase => ({...markdownFile, ...testCase, name: testCase.filename})),
+	invalid: [
+		{
+			filename: '.github/ISSUE_TEMPLATE/bug.md',
+			options: [{case: 'pascalCase'}],
+			errors: [{message: 'Filename is not in pascal case. Rename it to `Bug.md`.'}],
+		},
+		{
+			filename: '.Github/pull_request_template.md',
+			options: [{checkDirectories: false}],
+			errors: [{message: 'Filename is not in kebab case. Rename it to `pull-request-template.md`.'}],
+		},
+		{
+			filename: '.bitbucket/pull_request_template.MD',
+			errors: [{message: 'File extension `.MD` is not in lowercase. Rename it to `pull_request_template.md`.'}],
+		},
+		{
+			filename: 'packages/widget/AGENTS.override.MD',
+			errors: [{message: 'File extension `.MD` is not in lowercase. Rename it to `AGENTS.override.md`.'}],
+		},
+	].map(testCase => ({...markdownFile, ...testCase, name: testCase.filename})),
+});
+
+ruleTest({
+	valid: [
+		...[
+			'.github/ISSUE_TEMPLATE/config.yml',
+			'.github/DISCUSSION_TEMPLATE/announcements.yml',
+			'.github/FUNDING.yml',
+			'.github/VULNERABILITY_REPORT.yml',
+			'.github/VULNERABILITY_REPORT.yaml',
+			'.forgejo/pull_request_template.yaml',
+			'.gitea/ISSUE_TEMPLATE.yml',
+			'charts/widget/Chart.yaml',
+			'CITATION.cff',
+		].map(filename => ({
+			...languages.yaml,
+			code: 'value: true',
+			filename,
+			name: filename,
+		})),
+		...[
+			'CODEOWNERS',
+			'docs/CODEOWNERS',
+			'.github/CODEOWNERS',
+			'.gitlab/CODEOWNERS',
+			'.bitbucket/CODEOWNERS',
+			'.gitea/CODEOWNERS',
+		].map(filename => ({code: '// Ownership', filename, name: filename})),
+		...['CMakePresets.json', 'CMakeUserPresets.json'].map(filename => ({
+			...languages.json,
+			code: '{"version": 10}',
+			filename,
+			name: filename,
+		})),
+		...[
+			'packages/widget/Cargo.toml',
+			'packages/widget/Project.toml',
+			'packages/widget/JuliaProject.toml',
+			'packages/widget/Manifest.toml',
+			'packages/widget/JuliaManifest-v1.12.toml',
+		].map(filename => ({
+			...languages.toml,
+			code: 'name = "widget"',
+			filename,
+			name: filename,
+		})),
+	],
+	invalid: [
+		{
+			...languages.yaml,
+			code: 'github: octocat',
+			filename: 'src/.github/FUNDING.yml',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `funding.yml`.'}],
+		},
+		{
+			...languages.yaml,
+			code: 'name: widget',
+			filename: 'charts/widget/Chart.YAML',
+			errors: [{message: 'File extension `.YAML` is not in lowercase. Rename it to `Chart.yaml`.'}],
+		},
+		{
+			...languages.yaml,
+			code: 'name: bug',
+			filename: '.gitlab/ISSUE_TEMPLATE.yml',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `issue-template.yml`.'}],
+		},
+		{
+			...languages.toml,
+			code: 'name = "widget"',
+			filename: 'packages/widget/Manifest-v1.12.backup.toml',
+			errors: [{message: 'Filename is not in kebab case. Rename it to `manifest-v1.12.backup.toml`.'}],
+		},
+	].map(testCase => ({...testCase, name: testCase.filename})),
+});
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(

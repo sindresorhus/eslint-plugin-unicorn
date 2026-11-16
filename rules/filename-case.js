@@ -18,14 +18,103 @@ const messages = {
 };
 
 const isIgnoredChar = char => !/^[\w-]$/.test(char);
-const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
-const isLowerCase = string => string === string.toLowerCase();
+const reservedBasenames = new Set([
+	'index.js',
+	'index.mjs',
+	'index.cjs',
+	'index.ts',
+	'index.tsx',
+	'index.vue',
+	'AGENTS.md',
+	'AGENTS.override.md',
+	'CLAUDE.md',
+	'CLAUDE.local.md',
+	'GEMINI.md',
+	'SKILL.md',
+	'Cargo.toml',
+	'Chart.yaml',
+	'CMakePresets.json',
+	'CMakeUserPresets.json',
+	'Project.toml',
+	'JuliaProject.toml',
+	'Manifest.toml',
+	'JuliaManifest.toml',
+]);
+const versionedJuliaManifestRegex = /^(?:Julia)?Manifest-v\d+\.\d+\.toml$/u;
+const githubCommunityDirectories = ['.', 'docs', '.github'];
+const azureMetadataDirectories = ['.azuredevops', '.vsts'];
+const azurePullRequestTemplateParents = ['.', 'docs', ...azureMetadataDirectories];
+const pullRequestTemplateBasenames = new Set(['pull_request_template.md', 'pull_request_template.txt']);
+const giteaAndForgejoTemplateDirectories = [...githubCommunityDirectories, '.gitea', '.forgejo'];
+const issueTemplateNames = ['ISSUE_TEMPLATE', 'issue_template'];
+const mergeMessageDirectories = ['.gitea/default_merge_message', '.forgejo/default_merge_message'];
+const reservedFilePaths = new Set([
+	...getPathsInDirectories(githubCommunityDirectories, ['ACCESSIBILITY.md', 'CODEOWNERS', 'SUPPORT.md']),
+	...getPathsInDirectories(giteaAndForgejoTemplateDirectories, [
+		...issueTemplateNames,
+		'PULL_REQUEST_TEMPLATE',
+		'pull_request_template',
+	].flatMap(stem => ['md', 'yml', 'yaml'].map(extension => `${stem}.${extension}`))),
+	...getPathsInDirectories(mergeMessageDirectories, [
+		'MERGE_TEMPLATE.md',
+		'REBASE_TEMPLATE.md',
+		'REBASE-MERGE_TEMPLATE.md',
+		'SQUASH_TEMPLATE.md',
+		'MANUALLY-MERGED_TEMPLATE.md',
+		'REBASE-UPDATE-ONLY_TEMPLATE.md',
+	]),
+	'.bitbucket/CODEOWNERS',
+	'.bitbucket/pull_request_template.md',
+	'.gitea/CODEOWNERS',
+	'.github/FUNDING.yml',
+	'.github/VULNERABILITY_REPORT.yml',
+	'.github/VULNERABILITY_REPORT.yaml',
+	'.gitlab/CODEOWNERS',
+	'CITATION.cff',
+]);
+const reservedDirectoryPaths = new Set([
+	'.bitbucket',
+	'.forgejo',
+	'.gitea',
+	'.github',
+	'.gitlab',
+	...getPathsInDirectories(githubCommunityDirectories, ['PULL_REQUEST_TEMPLATE']),
+	...getPathsInDirectories([...giteaAndForgejoTemplateDirectories, '.gitlab'], issueTemplateNames),
+	...mergeMessageDirectories,
+	'.github/DISCUSSION_TEMPLATE',
+	'.gitlab/issue_templates',
+	'.gitlab/merge_request_templates',
+]);
+const caseInsensitiveReservedDirectoryPaths = new Set([
+	...azureMetadataDirectories,
+	...getPathsInDirectories(azurePullRequestTemplateParents, ['pull_request_template', 'pull_request_template/branches']),
+]);
 const alphanumericRegex = /^[\da-z]+$/i;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
 
 const isAsciiDigit = char => char >= '0' && char <= '9';
 const isAsciiLowercaseLetter = char => char >= 'a' && char <= 'z';
 const isAsciiUppercaseLetter = char => char >= 'A' && char <= 'Z';
+
+function getPathsInDirectories(directories, names) {
+	return directories.flatMap(directory => names.map(name => path.posix.join(directory, name)));
+}
+
+function isReservedFilename(basename, directoryPath) {
+	if (reservedBasenames.has(basename) || versionedJuliaManifestRegex.test(basename)) {
+		return true;
+	}
+
+	if (directoryPath === undefined) {
+		return false;
+	}
+
+	return reservedFilePaths.has(path.posix.join(directoryPath, basename))
+		|| (pullRequestTemplateBasenames.has(basename.toLowerCase()) && (
+			githubCommunityDirectories.includes(directoryPath)
+			|| azurePullRequestTemplateParents.includes(directoryPath.toLowerCase())
+		));
+}
 
 function camelCaseWithoutAcronyms(string) {
 	return camelCase(camelCase(string));
@@ -207,18 +296,6 @@ function isInsideCwd(relativePath) {
 		&& !path.isAbsolute(relativePath);
 }
 
-function getPathSegments(filePath, cwd) {
-	const relativePath = path.relative(cwd, path.resolve(cwd, filePath));
-
-	if (!isInsideCwd(relativePath)) {
-		return [path.basename(filePath)];
-	}
-
-	return relativePath
-		.split(path.sep)
-		.filter(segment => segment !== '.');
-}
-
 function validatePatternOption(optionName, patterns) {
 	if (patterns.some(pattern => typeof pattern !== 'string' && !isRegExp(pattern))) {
 		throw new TypeError(`The \`${optionName}\` option only accepts strings and regular expressions.`);
@@ -237,19 +314,20 @@ function isDirectoryRoot(directoryPath, directoryRoots) {
 }
 
 function getDirectoriesToCheck(pathSegments, directoryRoots) {
-	const directories = pathSegments.slice(0, -1);
+	const directories = [];
 	let directoryPath = '';
-	let directoryStartIndex = 0;
 
-	for (const [index, directory] of directories.entries()) {
+	for (const directory of pathSegments.slice(0, -1)) {
 		directoryPath = directoryPath ? `${directoryPath}/${directory}` : directory;
 
 		if (isDirectoryRoot(directoryPath, directoryRoots)) {
-			directoryStartIndex = index + 1;
+			directories.length = 0;
+		} else if (!reservedDirectoryPaths.has(directoryPath) && !caseInsensitiveReservedDirectoryPaths.has(directoryPath.toLowerCase())) {
+			directories.push(directory);
 		}
 	}
 
-	return directories.slice(directoryStartIndex);
+	return directories;
 }
 
 const leadingUnderscoresRegex = /^_+/;
@@ -349,13 +427,9 @@ const create = context => {
 	const chosenCaseFunctions = chosenCases.map(caseName => cases[caseName].fn);
 
 	onRoot(context, () => {
-		const pathSegments = getPathSegments(physicalFilename, context.cwd);
-		const basename = pathSegments.at(-1);
-		const {
-			filename,
-			additionalExtensions,
-			extension,
-		} = getFilenameParts(basename, {multipleFileExtensions: isMultipleFileExtensions});
+		const relativePath = path.relative(context.cwd, path.resolve(context.cwd, physicalFilename));
+		const isInsideWorkingDirectory = isInsideCwd(relativePath);
+		const pathSegments = isInsideWorkingDirectory ? relativePath.split(path.sep) : [path.basename(physicalFilename)];
 
 		if (pathSegments.some(segment => ignoreRegexps.some(regexp => regexp.test(segment)))) {
 			return;
@@ -371,19 +445,25 @@ const create = context => {
 			}
 		}
 
-		if (ignoredByDefault.has(basename)) {
-			return;
-		}
-
+		const {
+			filename,
+			additionalExtensions,
+			extension,
+		} = getFilenameParts(pathSegments.at(-1), {multipleFileExtensions: isMultipleFileExtensions});
+		const lowercaseExtension = extension.toLowerCase();
+		const filenameWithLowercaseExtension = filename + additionalExtensions + lowercaseExtension;
+		const directoryPath = isInsideWorkingDirectory ? pathSegments.slice(0, -1).join('/') || '.' : undefined;
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || isValidName(words, chosenCaseFunctions);
+		const isValid = isReservedFilename(filenameWithLowercaseExtension, directoryPath)
+			|| filename.startsWith('$')
+			|| isValidName(words, chosenCaseFunctions);
 
 		if (isValid) {
-			if (!isLowerCase(extension)) {
+			if (extension !== lowercaseExtension) {
 				return {
 					loc: {column: 0, line: 1},
 					messageId: MESSAGE_ID_EXTENSION,
-					data: {filename: filename + additionalExtensions + extension.toLowerCase(), extension},
+					data: {filename: filenameWithLowercaseExtension, extension},
 				};
 			}
 
@@ -392,7 +472,7 @@ const create = context => {
 
 		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: additionalExtensions + extension.toLowerCase(),
+			trailing: additionalExtensions + lowercaseExtension,
 		});
 
 		return {
