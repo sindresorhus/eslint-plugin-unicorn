@@ -1,9 +1,12 @@
 import {isIdentifierNamed, isMemberExpression, isMethodCall} from './ast/index.js';
+import {appendArgument} from './fix/index.js';
 import {isGlobalIdentifier, unwrapChainAndTypeScriptExpression, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'error';
+const SUGGESTION_ID = 'same-origin';
 const messages = {
 	[MESSAGE_ID]: 'Missing the `targetOrigin` argument.',
+	[SUGGESTION_ID]: 'Use `\'/\'` for explicit same-origin delivery.',
 };
 
 function isWindowReceiver(receiver, context) {
@@ -22,13 +25,26 @@ function isWindowReceiver(receiver, context) {
 	) && isGlobalIdentifier(node.object, context);
 }
 
-function getTargetOriginSupport(type) {
+const hasTargetOriginSignature = signatures => signatures.some(({parameters}) => parameters[1]?.name === 'targetOrigin');
+
+function getReportKind({type, program}) {
 	const nonNullableType = type.getNonNullableType();
 	// Inspect union members separately so TypeScript does not discard the Window overload with `targetOrigin` when combining signatures.
 	const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
-	const signatures = types.flatMap(type => type.getCallSignatures());
-	if (signatures.length > 0) {
-		return signatures.some(({parameters}) => parameters[1]?.name === 'targetOrigin');
+	const signatureLists = types.map(type => type.getCallSignatures());
+
+	if (signatureLists.some(signatures => hasTargetOriginSignature(signatures))) {
+		const canSuggest = signatureLists.every(signatures => hasTargetOriginSignature(signatures))
+			&& signatureLists.flat().every(signature => {
+				const declaration = signature.getDeclaration();
+				return declaration && program.isSourceFileDefaultLibrary(declaration.getSourceFile());
+			});
+
+		return canSuggest ? 'suggest' : 'report';
+	}
+
+	if (signatureLists.some(signatures => signatures.length > 0)) {
+		return 'ignore';
 	}
 }
 
@@ -45,8 +61,9 @@ function create(context) {
 			return;
 		}
 
-		const hasTargetOrigin = withTypeInformation(node.callee, context, ({type}) => getTargetOriginSupport(type));
-		if (!(hasTargetOrigin ?? isWindowReceiver(node.callee.object, context))) {
+		const reportKind = withTypeInformation(node.callee, context, getReportKind)
+			?? (isWindowReceiver(node.callee.object, context) ? 'suggest' : 'ignore');
+		if (reportKind === 'ignore') {
 			return;
 		}
 
@@ -58,6 +75,12 @@ function create(context) {
 				end: sourceCode.getLoc(lastToken).end,
 			},
 			messageId: MESSAGE_ID,
+			suggest: reportKind === 'suggest'
+				? [{
+					messageId: SUGGESTION_ID,
+					fix: fixer => appendArgument(fixer, node, '\'/\'', context),
+				}]
+				: undefined,
 		};
 	});
 }
@@ -75,6 +98,7 @@ const config = {
 			// See #1396 for the history of ambiguous receivers.
 			recommended: false,
 		},
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

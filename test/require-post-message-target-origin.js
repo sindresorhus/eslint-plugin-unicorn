@@ -74,5 +74,7 @@ test.snapshot({
 		typeAware('declare const target: {postMessage(message: unknown, targetOrigin?: "https://example.com"): void}; target.postMessage("ping")'),
 		'window.postMessage?.(message)',
 		'(iframe?.contentWindow)?.postMessage(message)',
+		'window.postMessage(message /* Keep this comment */)',
+		typeAware('declare const target: {postMessage(message: string, origin: "/"): void} & Window; target.postMessage("ping")'),
 	],
 });

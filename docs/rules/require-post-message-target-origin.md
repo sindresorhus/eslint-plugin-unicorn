@@ -4,6 +4,8 @@
 
 🚫 Disabled by default.
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -12,6 +14,8 @@ This rule checks single-argument calls to [`Window#postMessage()`](https://devel
 When TypeScript provides call signatures, the rule reports a call if any signature names its second parameter `targetOrigin`. Methods such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()` have no such parameter.
 
 Without call signatures, the rule checks the global `window`, `window.parent`, `window.top`, `window.opener`, `document.defaultView`, and `.contentWindow`. Untyped aliases such as `target.postMessage()` are ignored.
+
+The editor suggestion inserts `'/'` for these window receivers when call signatures are unavailable. With type information, each possible method type must have a window signature, and all overloads must come from TypeScript's standard library. For cross-origin delivery, enter the expected origin yourself.
 
 ## Examples
 
