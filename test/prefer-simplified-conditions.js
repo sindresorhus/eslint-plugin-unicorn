@@ -153,51 +153,62 @@ ruleTester({
 		},
 		{
 			code: 'if ((a == null /* keep */ && b) || (a == null && c)) {}',
-			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+			errors: [{messageId: 'factoring', suggestions: []}],
 		},
 		{
 			code: 'if ((getValue() > 1 /* keep */ && a) || (getValue() > 1 && b)) {}',
-			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+			errors: [{messageId: 'factoring', suggestions: []}],
+		},
+		{
+			code: outdent`
+				if (
+					// Only when ready
+					(isFoo(node) && a) ||
+					// Or when cached
+					(isFoo(node) && b)
+				) {}
+			`,
+			errors: [{messageId: 'factoring', data: {term: 'isFoo(node)'}, suggestions: []}],
 		},
 		{
 			code: 'for ((key in getObject() && false) || (key in getObject() && true);;) {break;}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'for ((key in getObject() && (false || true));;) {break;}'}],
 			}],
 		},
 		{
 			code: 'if ((getValue() > 1 && a) || (getValue() > 1 && b)) {}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'if (getValue() > 1 && (a || b)) {}'}],
 			}],
 		},
 		{
 			code: 'if ((x > -getLimit() && a) || (x > -getLimit() && b)) {}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'if (x > -getLimit() && (a || b)) {}'}],
 			}],
 		},
 		{
 			code: 'if ((typeof getValue() === "string" && a) || (typeof getValue() === "string" && b)) {}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'if (typeof getValue() === "string" && (a || b)) {}'}],
 			}],
 		},
 		{
 			code: 'if ((void sideEffect() && a) || (void sideEffect() && b)) {}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'if (void sideEffect() && (a || b)) {}'}],
 			}],
 		},
 		{
 			code: 'if ((a && getValue() < 1) || (a && b)) {}',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{messageId: 'suggestion', output: 'if (a && (getValue() < 1 || b)) {}'}],
 			}],
 		},
@@ -491,6 +502,7 @@ ruleTester.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		'if (!(!a || !b /* comment */)) {}',
 	],
 });
 
@@ -851,24 +863,29 @@ ruleTester({
 			'(callback || (callback && other))?.();',
 			'(tag || (tag && other))`text`;',
 			'(eval || (eval && other))("typeof local");',
-		].map(code => ({code, errors: [{messageId: 'prefer-simplified-conditions'}]})),
+		].map(code => ({code, errors: [{messageId: 'absorption'}]})),
 		...[
 			'(callback || (callback && other))!();',
 			'delete ((value || (value && other)) as unknown);',
 		].map(code => ({
 			code,
 			languageOptions: {parser: parsers.typescript},
-			errors: [{messageId: 'prefer-simplified-conditions'}],
+			errors: [{messageId: 'absorption'}],
 		})),
 		{
 			code: 'const result = value || (value && other);',
 			output: 'const result = value;',
-			errors: [{messageId: 'prefer-simplified-conditions'}],
+			errors: [{messageId: 'absorption'}],
+		},
+		{
+			code: 'if ("\u{7}\u{202E}" || ("\u{7}\u{202E}" && other)) {}',
+			output: 'if ("\u{7}\u{202E}") {}',
+			errors: [{messageId: 'absorption', data: {term: String.raw`"\u{7}\u{202e}"`}}],
 		},
 		{
 			code: 'new (Constructor || (Constructor && other))();',
 			output: 'new (Constructor)();',
-			errors: [{messageId: 'prefer-simplified-conditions'}],
+			errors: [{messageId: 'absorption'}],
 		},
 	],
 });
@@ -940,22 +957,27 @@ for (const languageOptions of [
 			[
 				'/** @param {boolean} flag */ function run(flag) { return !(!flag && other); }',
 				'/** @param {boolean} flag */ function run(flag) { return flag || !other; }',
+				'de-morgan',
 			],
 			[
 				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return !(!first || !second); }',
 				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first && second; }',
+				'de-morgan',
 			],
 			[
 				'/** @param {string} text */ function run(text) { return !(!text.includes("x") && other); }',
 				'/** @param {string} text */ function run(text) { return text.includes("x") || !other; }',
+				'de-morgan',
 			],
 			[
 				'/** @returns {boolean} */ function read() { return source; } !(!read() || other);',
 				'/** @returns {boolean} */ function read() { return source; } read() && !other;',
+				'de-morgan',
 			],
 			[
 				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return (first && second) || first; }',
 				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first; }',
+				'absorption',
 			],
 			[
 				[
@@ -966,17 +988,20 @@ for (const languageOptions of [
 					'/** @param {boolean} first\n * @param {boolean} second\n * @param {boolean} third */',
 					'function run(first, second, third) { return first && (second || third); }',
 				].join('\n'),
+				'factoring',
 			],
 			[
 				'/** @param {Set<string>} values */ function run(values) { return !(!values.has(key) || other); }',
 				'/** @param {Set<string>} values */ function run(values) { return values.has(key) && !other; }',
+				'de-morgan',
 			],
 			[
 				'/** @param {string} flag */ function run(/** @type {boolean} */ flag) { return !(!flag && other); }',
 				'/** @param {string} flag */ function run(/** @type {boolean} */ flag) { return flag || !other; }',
+				'de-morgan',
 			],
-		].map(([code, output]) => ({
-			code, output, filename: 'file.ts', errors: [{messageId: 'prefer-simplified-conditions'}],
+		].map(([code, output, messageId]) => ({
+			code, output, filename: 'file.ts', errors: [{messageId}],
 		})),
 	});
 
@@ -991,7 +1016,7 @@ for (const languageOptions of [
 			].join('\n'),
 			filename: 'file.ts',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{
 					messageId: 'suggestion',
 					output: [
@@ -1034,7 +1059,7 @@ ruleTester.svelte({
 			code: '{(/x/.test(value) === true && false) || (/x/.test(value) === true && true)}',
 			errors: [
 				{
-					messageId: 'prefer-simplified-conditions',
+					messageId: 'factoring',
 					suggestions: [
 						{
 							messageId: 'suggestion',
@@ -1111,6 +1136,7 @@ ruleTester.snapshot({
 		'if (x || (object.property && a) || (object.property && b && c)) {}',
 		'if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}',
 		'if (x || (object[`key`] && a) || (object.key && b && c)) {}',
+		'if ((isFoo(\n  value,\n) && a) || (isFoo(\n  value,\n) && b)) {}',
 	],
 });
 
@@ -1128,7 +1154,7 @@ ruleTester({
 			`,
 			output: 'if (\n\tisReady || isCached || (foo.bar && (a || b)) || fallback\n) {}',
 			errors: [{
-				messageId: ruleId, line: 4, column: 2, endLine: 5, endColumn: 17,
+				messageId: 'factoring', line: 4, column: 2, endLine: 5, endColumn: 17,
 			}],
 		},
 	],
@@ -1141,8 +1167,13 @@ test('factoring disjoint pairs reports each pair and settles through repeated fi
 		rules: {[`unicorn/${ruleId}`]: 'error'},
 	};
 	const code = 'if (x || (a && b) || (a && c) || y || (d && e) || (d && f)) {}';
-	const highlightedText = linter.verify(code, config).map(({column, endColumn}) => code.slice(column - 1, endColumn - 1));
+	const reports = linter.verify(code, config);
+	const highlightedText = reports.map(({column, endColumn}) => code.slice(column - 1, endColumn - 1));
 	t.assert.deepStrictEqual(highlightedText, ['(a && b) || (a && c)', '(d && e) || (d && f)']);
+	t.assert.deepStrictEqual(reports.map(({message}) => message), [
+		'Both groups start with `a`. Consider checking it once.',
+		'Both groups start with `d`. Consider checking it once.',
+	]);
 
 	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.output, 'if (x || (a && (b || c)) || y || (d && (e || f))) {}');
@@ -1318,10 +1349,10 @@ ruleTester.vue({
 ruleTester.vue({
 	valid: [],
 	invalid: [
-		'<template><div v-if="(a && b /* keep */) || (a && c)" /></template>',
-		'<template><div v-if="(isFoo(value) /* keep */ && a) || (isFoo(value) && b)" /></template>',
-		'<template><div v-if="!(!a && b /* keep */)" /></template>',
-	].map(code => ({code, errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}]})),
+		['<template><div v-if="(a && b /* keep */) || (a && c)" /></template>', 'factoring'],
+		['<template><div v-if="(isFoo(value) /* keep */ && a) || (isFoo(value) && b)" /></template>', 'factoring'],
+		['<template><div v-if="!(!a && b /* keep */)" /></template>', 'de-morgan'],
+	].map(([code, messageId]) => ({code, errors: [{messageId, suggestions: []}]})),
 });
 
 ruleTester.vue({
@@ -1330,7 +1361,7 @@ ruleTester.vue({
 		{
 			code: '<template><div v-if="x || (isFoo(value) && a) || (isFoo(value) && b && c)" /></template>',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				column: 27,
 				endColumn: 74,
 				suggestions: [{
@@ -1342,7 +1373,7 @@ ruleTester.vue({
 		{
 			code: '<template><div v-if="(Array.isArray(value) && a) || (Array.isArray(value) && b)" /></template>',
 			errors: [{
-				messageId: 'prefer-simplified-conditions',
+				messageId: 'factoring',
 				suggestions: [{
 					messageId: 'suggestion',
 					output: '<template><div v-if="Array.isArray(value) && (a || b)" /></template>',
