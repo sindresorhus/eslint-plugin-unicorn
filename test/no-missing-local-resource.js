@@ -169,19 +169,20 @@ nodeTest('uses the nearest Git root or falls back to ESLint cwd', t => {
 
 	const linter = new Linter({cwd: directory});
 	const lint = () => linter.verify(
-		'[Release](../../../releases/latest/download/app.zip)\n[New issue](../../issues/new)\n[Discussions](%2E%2E/discussions)\n[Missing](./missing.md)',
+		'[Release](../../../releases/latest/download/app.zip)\n[New issue](../../issues/new)\n[Discussions](%2E%2E/discussions)\n[Generated](../generated.js)\n[Missing](./missing.md)',
 		{
 			files: ['**/*.md'],
 			language: 'markdown/commonmark',
 			plugins: {markdown, unicorn},
-			rules: {'unicorn/no-missing-local-resource': 'error'},
+			rules: {'unicorn/no-missing-local-resource': ['error', {ignore: ['generated.js']}]},
 		},
-		{filename: path.join(worktree, 'readme.md')},
+		{filename: path.join('repository', 'worktree', 'readme.md')},
 	).map(({message}) => message);
 
 	t.assert.deepStrictEqual(lint(), [
 		'Resource `../../issues/new` does not exist.',
 		'Resource `%2E%2E/discussions` does not exist.',
+		'Resource `../generated.js` does not exist.',
 		'Resource `./missing.md` does not exist.',
 	]);
 
@@ -193,6 +194,24 @@ nodeTest('uses the nearest Git root or falls back to ESLint cwd', t => {
 
 	fs.writeFileSync(path.join(worktree, '.git'), 'gitdir: ../.git/worktrees/worktree\n');
 	t.assert.deepStrictEqual(lint(), ['Resource `./missing.md` does not exist.']);
+});
+
+nodeTest('reports directory URLs that point to a symlink loop', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-local-resource-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	const link = path.join(directory, 'loop');
+	fs.symlinkSync(link, link, 'junction');
+
+	const linter = new Linter({cwd: directory});
+	const messages = linter.verify('new URL("./loop/", import.meta.url);', {
+		plugins: {unicorn},
+		rules: {'unicorn/no-missing-local-resource': 'error'},
+	}, {filename: 'index.js'});
+
+	t.assert.deepStrictEqual(messages.map(({message}) => message), ['Resource `./loop/` does not exist.']);
 });
 
 test({

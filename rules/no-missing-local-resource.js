@@ -155,6 +155,19 @@ function getProjectDirectory(documentDirectory, fallbackDirectory) {
 	return directory;
 }
 
+function resourceExists(resource, requiresDirectory) {
+	if (!requiresDirectory) {
+		return fs.existsSync(resource);
+	}
+
+	// Windows ignores a trailing separator and finds a file of that name, so check for a directory explicitly
+	try {
+		return fs.statSync(path.resolve(resource)).isDirectory();
+	} catch {
+		return false;
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -268,6 +281,7 @@ const create = context => {
 			return;
 		}
 
+		const requiresDirectory = resourcePath.endsWith('/');
 		let directory = documentDirectory;
 		let hasIncorrectCase = false;
 		const correctedParts = [];
@@ -281,7 +295,7 @@ const create = context => {
 
 			const entries = getDirectoryEntries(directory);
 			if (!entries) {
-				const result = {exists: fs.existsSync(resource)};
+				const result = {exists: resourceExists(resource, requiresDirectory)};
 				resourceCache.set(resourcePath, result);
 				return result;
 			}
@@ -298,11 +312,7 @@ const create = context => {
 			directory += path.sep + correctedPart;
 		}
 
-		const exists = resourcePath.endsWith('/')
-			// Windows ignores a trailing separator and finds a file of that name, so check for a directory explicitly
-			? fs.statSync(path.resolve(directory), {throwIfNoEntry: false})?.isDirectory() === true
-			: fs.existsSync(directory);
-		const result = exists
+		const result = resourceExists(directory, requiresDirectory)
 			? {
 				exists: true,
 				correctedPath: hasIncorrectCase ? correctedParts.join('/') : undefined,

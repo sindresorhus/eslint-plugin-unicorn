@@ -13,11 +13,11 @@ This rule checks static local JavaScript, Markdown, HTML, and CSS resources rela
 
 The project root is the linted file's nearest Git repository root, or ESLint's working directory if the file is outside a Git repository. The rule uses the normalized path without resolving symlinks and skips paths outside this root. This includes relative links such as `../../issues/new` that point to GitHub pages outside the checkout.
 
-It checks JavaScript `new URL(resource, import.meta.url)` with a string literal or a template literal without interpolations; Markdown links, images, and reference definitions; HTML `href`, `src`, `poster`, `srcset`, and `imagesrcset` attributes; and CSS `url()` resources, `image-set()` strings, and `@import` targets. Files, directories, and symlinks are valid. JavaScript, HTML, and CSS casing-only mismatches are automatically fixed.
+It checks JavaScript `new URL(resource, import.meta.url)` with a string literal or a template literal without interpolations; Markdown links, images, and reference definitions; HTML `href`, `src`, `poster`, `srcset`, and `imagesrcset` attributes; and CSS `url()` resources, `image-set()` strings, and `@import` targets. Files and directories are valid, including those reached through symlinks. JavaScript, HTML, and CSS casing-only mismatches are automatically fixed.
 
 URLs with a scheme, root-relative URLs, fragments, and configured template values are ignored. It does not infer extensions, check cross-file fragments, honor HTML `<base>`, parse raw Markdown HTML, or support percent-encoded path separators. JavaScript imports, JSX attributes, dynamic resource paths, and other URL bases are not checked. JavaScript URL strings containing tabs, carriage returns, or line feeds are ignored. Casing fixes are unavailable for Markdown, JavaScript string escapes, HTML character references, CSS escapes, and Unicode case mappings that change length.
 
-If a resource only exists after dependency installation, a build, or at run time, lint after it exists or add its path to [`ignore`](#ignore).
+If a resource exists only after dependency installation, a build, or at run time, lint after it exists or add its path to [`ignore`](#ignore).
 
 ## Examples
 
