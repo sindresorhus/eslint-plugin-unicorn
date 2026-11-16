@@ -140,8 +140,11 @@ test.snapshot({
 			}
 		`),
 		typeAware(outdent`
+			interface Replacer {
+				(match: string): string;
+			}
 			declare const text: string;
-			declare const callbacks: {replaceMatch: (match: string) => string};
+			declare const callbacks: {replaceMatch: Replacer};
 			text.replace(/pattern/, callbacks.replaceMatch);
 		`),
 		typeAware(outdent`
@@ -154,13 +157,6 @@ test.snapshot({
 			function replacer(match: string) { return match; }
 			const callback: any = replacer;
 			text.replace(/pattern/, callback);
-		`),
-		typeAware(outdent`
-			declare const text: string;
-			declare const replacement: string | ((match: string) => string);
-			if (typeof replacement === 'function') {
-				text.replace(/pattern/, replacement);
-			}
 		`),
 		typeAware(outdent`
 			declare const text: string;
@@ -260,6 +256,15 @@ test.snapshot({
 			}
 			update();
 			text.replace(/pattern/, callback);
+		`),
+		typeAware(outdent`
+			declare const text: string;
+			declare const replacement: string | ((match: string) => string);
+			if (typeof replacement === 'function') {
+				text.replace(/pattern/, replacement);
+			} else {
+				text.replace(/pattern/, replacement);
+			}
 		`),
 	],
 });

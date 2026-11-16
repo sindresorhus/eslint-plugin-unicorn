@@ -704,6 +704,34 @@ Message:
 
 `;
 
+exports[`no-unsafe-string-replacement > invalid(53): declare const text: string;\ndeclare const replacement: string | ((match: string) => string);\nif (typeof replacement === 'function') {\n\ttext.replace(/pattern/, replacement);\n} else {\n\ttext.replace(/pattern/, replacement);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const text: string;
+  2 | declare const replacement: string | ((match: string) => string);
+  3 | if (typeof replacement === 'function') {
+  4 | 	text.replace(/pattern/, replacement);
+  5 | } else {
+  6 | 	text.replace(/pattern/, replacement);
+  7 | }
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(53): declare const text: string;\ndeclare const replacement: string | ((match: string) => string);\nif (typeof replacement === 'function') {\n\ttext.replace(/pattern/, replacement);\n} else {\n\ttext.replace(/pattern/, replacement);\n} 2`] = `
+
+Message:
+  1 | declare const text: string;
+  2 | declare const replacement: string | ((match: string) => string);
+  3 | if (typeof replacement === 'function') {
+  4 | 	text.replace(/pattern/, replacement);
+  5 | } else {
+> 6 | 	text.replace(/pattern/, replacement);
+    | 	                        ^^^^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+  7 | }
+
+`;
+
 exports[`no-unsafe-string-replacement > invalid(6): template.replace(\"{url}\", String(url)) 1`] = `
 
   1 | template.replace("{url}", String(url))
