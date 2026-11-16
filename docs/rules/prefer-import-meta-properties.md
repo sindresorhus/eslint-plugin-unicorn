@@ -9,19 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) and [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename) have been introduced in ES modules.
+Node.js 20.11 introduced [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) and [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename) for ES modules loaded from a `file:` URL. Enable this rule for those modules.
 
-These built-in properties avoid converting `import.meta.url` and calling path helpers, so file-path code is shorter and clearer.
+`import.meta.filename` is equivalent to `fileURLToPath(import.meta.url)`, and `import.meta.dirname` is equivalent to `path.dirname(import.meta.filename)`.
 
-> `import.meta.filename` is the same as the `url.fileURLToPath()` of the `import.meta.url`.\
-> `import.meta.dirname` is the same as the `path.dirname()` of the `import.meta.filename`.
-
-This rule replaces legacy patterns with `import.meta.{dirname,filename}`.
+The rule allows `fileURLToPath(new URL('.', import.meta.url))` and the equivalent `'./'` form because both return paths with a trailing separator. If path normalization is acceptable, `path.join(import.meta.dirname, './')` also returns a path with the native trailing separator.
 
 ## Examples
 
 ```js
-import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 // ❌
@@ -37,8 +33,6 @@ import {fileURLToPath} from 'node:url';
 
 // ❌
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const dirname = path.dirname(import.meta.filename);
-const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // ✅
 const dirname = import.meta.dirname;
