@@ -317,9 +317,12 @@ function getDirectoriesToCheck(directorySegments, directoryRoots) {
 }
 
 const leadingUnderscoresRegex = /^_+/;
+const trailingUnderscoresRegex = /_+$/;
 function splitName(name) {
 	const leading = leadingUnderscoresRegex.exec(name)?.[0] ?? '';
-	const remainder = name.slice(leading.length);
+	// Keep trailing underscores when the name also has leading ones, like Jest's `__tests__` and `__mocks__` directories.
+	const trailing = leading ? (trailingUnderscoresRegex.exec(name.slice(leading.length))?.[0] ?? '') : '';
+	const remainder = name.slice(leading.length, name.length - trailing.length);
 
 	const words = [];
 
@@ -340,6 +343,7 @@ function splitName(name) {
 
 	return {
 		leading,
+		trailing,
 		words,
 	};
 }
@@ -361,7 +365,7 @@ function formatCaseNames(chosenCases) {
 }
 
 function getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions) {
-	const {leading, words} = splitName(directory);
+	const {leading, trailing, words} = splitName(directory);
 
 	if (directory.startsWith('$') || isValidName(words, chosenCaseFunctions)) {
 		return;
@@ -369,7 +373,7 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCaseFunctions) 
 
 	const renamedDirectories = getRenamedNames(words, chosenCaseFunctions, {
 		leading,
-		trailing: '',
+		trailing,
 	});
 
 	return {
@@ -439,7 +443,7 @@ const create = context => {
 		const filenameWithLowercaseExtension = stem + lowercaseExtension;
 		const directoryPath = isInsideWorkingDirectory ? directorySegments.join('/') : undefined;
 		const filename = isMultipleFileExtensions ? stem.split('.', 1)[0] : stem;
-		const {leading, words} = splitName(filename);
+		const {leading, trailing, words} = splitName(filename);
 		const isValid = isReservedFilename(filenameWithLowercaseExtension, directoryPath)
 			|| filename.startsWith('$')
 			|| isValidName(words, chosenCaseFunctions);
@@ -458,7 +462,7 @@ const create = context => {
 
 		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: stem.slice(filename.length) + lowercaseExtension,
+			trailing: trailing + stem.slice(filename.length) + lowercaseExtension,
 		});
 
 		return {
