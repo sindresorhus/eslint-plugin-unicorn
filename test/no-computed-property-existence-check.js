@@ -202,6 +202,53 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [
+		'kept[index] = !kept[index];',
+		'kept[index] = !!!kept[index];',
+		'kept[index] = !Boolean(kept[index]);',
+		'kept[index] = Boolean(!kept[index]);',
+		'kept[index] = !((kept)[/* keep */ index]);',
+		'kept[index + 1] = !kept[index + 1];',
+		'state.flags[index + 1] = !state["flags"][index + 1];',
+		'if (this.flags[row.id] = !this.flags[row.id]) {}',
+		'class Child extends Parent { toggle(key) { super.flags[key] = !super.flags[key]; } }',
+		{
+			code: 'kept[index] = (!kept[index]!) as boolean;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'kept[(index + 1) as number] = !kept[(index + 1)!];',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		...[
+			'kept[first] = !kept[second];',
+			'kept[index + 1] = !kept[index + 2];',
+			'kept[index] = !removed[index];',
+			'kept[index] = !!kept[index];',
+			'kept[index] = Boolean(kept[index]);',
+			'kept[index] = !Boolean(!kept[index]);',
+			'kept[index] = Boolean?.(!kept[index]);',
+			'function toggle(Boolean) { kept[index] = Boolean(!kept[index]); }',
+			'kept[index] = !kept[index] || fallback;',
+			'kept[index] ||= !kept[index];',
+			'({})[index + 1] = !({})[index + 1];',
+			'(/flag/)[index] = !(/flag/)[index];',
+			'kept[(kept = replacement, 0)] = !kept[0 + 0];',
+			'state.flags[0 + 0] = !state[(state.flags = replacement, "flags")][0 + 0];',
+			'kept[nextIndex()] = !kept[nextIndex()];',
+			'kept[key`next`] = !kept[key`next`];',
+			'kept[{["__proto__"]: null}] = !kept[index];',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'class Child extends Parent { toggle(key) { super[key] = !super[key]; } }',
+			errors: [{messageId: 'no-computed-property-existence-check/error', suggestions: []}],
+		},
+	],
+});
+
 // `map[key]` does not read a `Map` entry, and `string[index]` is a character read
 test({
 	valid: [

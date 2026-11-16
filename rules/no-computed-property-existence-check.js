@@ -1,17 +1,21 @@
 import {
+	getBooleanAncestor,
 	getCallArgumentText,
 	getOutermostChainAndTypeScriptExpression,
 	getParenthesizedRange,
 	hasBooleanType,
 	hasOptionalChainElement,
+	hasPossibleSideEffect,
 	isBoolean,
 	isBooleanContext,
 	isMap,
+	isSameReference,
 	isSet,
 	isString,
 	isWeakMap,
 	isWeakSet,
 	unwrapChainAndTypeScriptExpression,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -44,8 +48,43 @@ function isStaticPropertyKey(node) {
 		);
 }
 
+function isSameProperty(left, right, context) {
+	const receiver = unwrapChainAndTypeScriptExpression(right.object);
+	if (
+		left.type !== 'MemberExpression'
+		// Direct `super[key]` can write to `this`, and a regular expression literal creates a fresh receiver.
+		|| !['Identifier', 'MemberExpression', 'ThisExpression'].includes(receiver.type)
+		|| hasPossibleSideEffect(left, context)
+		|| hasPossibleSideEffect(right, context)
+	) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const leftKey = unwrapTypeScriptExpression(left.property);
+	const rightKey = unwrapTypeScriptExpression(right.property);
+	return isSameReference(left, right)
+		|| (
+			rightKey.type === 'BinaryExpression'
+			&& left.computed
+			&& isSameReference(left.object, right.object)
+			&& sourceCode.getText(leftKey) === sourceCode.getText(rightKey)
+		);
+}
+
 function isUsedAsExistenceCheck(node, context) {
-	return isBooleanContext(getOutermostChainAndTypeScriptExpression(node), context);
+	const access = getOutermostChainAndTypeScriptExpression(node);
+	const {node: booleanValue, isNegative} = getBooleanAncestor(access, context);
+	if (!isNegative) {
+		return isBooleanContext(access, context);
+	}
+
+	const assignment = getOutermostChainAndTypeScriptExpression(booleanValue).parent;
+	return !(
+		assignment.type === 'AssignmentExpression'
+		&& assignment.operator === '='
+		&& isSameProperty(unwrapChainAndTypeScriptExpression(assignment.left), node, context)
+	);
 }
 
 function isSimpleInSuggestionOperand(node) {

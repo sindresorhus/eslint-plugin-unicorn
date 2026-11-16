@@ -40,6 +40,8 @@ if ('key' in object) {}
 if (object['key']) {}
 ```
 
+Toggles like `flags[key] = !flags[key]` and `flags[key] = !Boolean(flags[key])` with the global `Boolean` are allowed when both accesses match and have no detectable side effects. Binary keys can match by exact text after removing outer TypeScript wrappers. The rule still checks direct `super[key]` reads because assignment can write to a different object.
+
 When type information is available and the property value is a known `boolean`, the access is a value read rather than an existence check, so it's allowed:
 
 ```ts
