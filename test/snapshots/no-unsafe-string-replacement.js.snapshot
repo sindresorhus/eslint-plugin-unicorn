@@ -644,6 +644,22 @@ Message:
 
 `;
 
+exports[`no-unsafe-string-replacement > invalid(50): declare const text: string; declare const callback: any; text.replace(/pattern/, callback); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const text: string; declare const callback: any; text.replace(/pattern/, callback);
+
+`;
+
+exports[`no-unsafe-string-replacement > invalid(50): declare const text: string; declare const callback: any; text.replace(/pattern/, callback); 2`] = `
+
+Message:
+> 1 | declare const text: string; declare const callback: any; text.replace(/pattern/, callback);
+    |                                                                                  ^^^^^^^^ Do not use a non-literal replacement value with \`String#replace()\`.
+
+`;
+
 exports[`no-unsafe-string-replacement > invalid(6): template.replace(\"{url}\", String(url)) 1`] = `
 
   1 | template.replace("{url}", String(url))

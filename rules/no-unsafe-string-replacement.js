@@ -10,6 +10,7 @@ import {
 	isKnownNonDomNode,
 	isKnownNonString,
 	isNodeValueNotDomNode,
+	isUnknownType,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from './utils/index.js';
@@ -20,7 +21,11 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use a non-literal replacement value with `String#{{method}}()`.',
 };
 
-const stringReceiverTypeNames = new Set(['string', 'String']);
+const receiverTypeOptions = {
+	targetTypeNames: new Set(['string', 'String']),
+	nonTargetTypeNames: new Set(['DOMTokenList']),
+};
+
 const isDirectReplacementFunction = (node, context) => {
 	const expression = unwrapTypeScriptExpression(node);
 	return isFunction(expression) || Boolean(getFunctionFromIdentifier(expression, context));
@@ -69,7 +74,7 @@ const isAllowedReplacement = (node, context) => {
 		|| isStaticStringRawTaggedTemplate(expression, context.sourceCode)
 		|| isSafeStringRepeat(expression)
 		|| isDirectReplacementFunction(node, context)
-		|| (withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+		|| (withTypeInformation(node, context, ({type}) => isUnknownType(type) ? undefined : type.getCallSignatures().length > 0)
 			?? isInferredReplacementFunction(node, context));
 };
 
@@ -116,7 +121,7 @@ const create = context => {
 		const {name: method} = node.callee.property;
 		const canInferClassListByName = method === 'replace' && !context.sourceCode.parserServices?.program;
 		if (isKnownNonString(node.callee.object, context, {
-			targetTypeNames: stringReceiverTypeNames,
+			...receiverTypeOptions,
 			isNonTargetNode: receiver => receiver.type === 'ObjectExpression'
 				|| (canInferClassListByName && isLikelyDomClassList(receiver, context)),
 		})) {

@@ -57,6 +57,11 @@ test.snapshot({
 		},
 		'element.classList.replace(oldClass, newClass);',
 		'const tokens = element.classList; tokens.replace(oldClass, newClass);',
+		'/** @param {DOMTokenList} tokens */ function run(tokens) { tokens.replace(oldClass, newClass); }',
+		{
+			code: 'function run(tokens: DOMTokenList, oldClass: string, newClass: string) { tokens.replace(oldClass, newClass); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const editor = {replace(range, text) {}}; editor.replace(range, text);',
 		{
 			code: 'template.replace("{url}", "https://example.com" as string)',
@@ -141,6 +146,17 @@ test.snapshot({
 		`),
 		typeAware(outdent`
 			declare const text: string;
+			declare const replacement: unknown;
+			text.replace(/pattern/, replacement as (match: string) => string);
+		`),
+		typeAware(outdent`
+			declare const text: string;
+			function replacer(match: string) { return match; }
+			const callback: any = replacer;
+			text.replace(/pattern/, callback);
+		`),
+		typeAware(outdent`
+			declare const text: string;
 			declare const replacement: string | ((match: string) => string);
 			if (typeof replacement === 'function') {
 				text.replace(/pattern/, replacement);
@@ -218,5 +234,6 @@ test.snapshot({
 			code: 'type Replacement = {new(): object}; function run(text: string, replacement: Replacement) { text.replace(/pattern/, replacement); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware('declare const text: string; declare const callback: any; text.replace(/pattern/, callback);'),
 	],
 });
