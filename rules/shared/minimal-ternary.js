@@ -8,10 +8,12 @@ import {
 	getVisitorChildNodes,
 	hasOptionalChainElement,
 	hasSameTypeArguments,
+	hasTypeArguments,
 	isConstEnumReference,
 	isParenthesized,
 	isSameTokens,
 	isTypeScriptFile,
+	isValueNotUsable,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from '../utils/index.js';
@@ -372,6 +374,59 @@ function getExpressionItems(node) {
 	return node.type === 'ObjectExpression' ? node.properties.map(property => property.value) : node.elements ?? node.arguments;
 }
 
+function canAffectCallControlFlow(node, signature, type, checker) {
+	if (node.type !== 'CallExpression' || !signature) {
+		return false;
+	}
+
+	const predicate = checker.getTypePredicateOfSignature(signature);
+	// Exposing an assertion or never-returning call can change narrowing or reachability.
+	const isAssertion = predicate?.kind === 2 || predicate?.kind === 3; // AssertsThis and AssertsIdentifier.
+	if (isAssertion || type.intrinsicName === 'never') {
+		return true;
+	}
+
+	// Boolean type predicates only affect code that uses the result.
+	const {parent} = node;
+	const expression = parent.type === 'ConditionalExpression' ? parent : node;
+	return Boolean(predicate) && !isValueNotUsable(expression);
+}
+
+function isIndependentlyCheckedRestType(restType, checker) {
+	if (!checker.isTupleType(restType)) {
+		// TypeScript treats an any-typed rest parameter as any[].
+		return checker.isArrayType(restType) || restType === checker.getAnyType();
+	}
+
+	// TypeScript checks fixed tuple elements and a trailing array rest element independently.
+	const {elementFlags, fixedLength} = restType.target;
+	return fixedLength === elementFlags.length
+		|| (fixedLength === elementFlags.length - 1 && elementFlags.at(-1) === 4); // ElementFlags.Rest.
+}
+
+function canMinimizeRestCall(consequent, alternate, resolvedSignature, {checker, parserServices}) {
+	const restDeclaration = resolvedSignature.declaration.parameters.at(-1);
+	for (const call of [consequent, alternate]) {
+		const calleeType = parserServices.getTypeAtLocation(call.callee);
+		const isSuperCall = call.callee.type === 'Super';
+		const isConstructorCall = call.type === 'NewExpression' || isSuperCall;
+		const visibleSignatures = isConstructorCall ? calleeType.getConstructSignatures() : calleeType.getCallSignatures();
+		// A combined argument may select another overload even if the original calls selected the same one.
+		if (visibleSignatures.length !== 1) {
+			return false;
+		}
+
+		// Use the visible signature before call-site inference. TypeScript specializes the base constructor before checking a super call.
+		const signature = isSuperCall || hasTypeArguments(call) ? resolvedSignature : visibleSignatures[0];
+		const restParameter = signature.parameters.at(-1);
+		if (restParameter?.valueDeclaration !== restDeclaration || !isIndependentlyCheckedRestType(checker.getTypeOfSymbol(restParameter), checker)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 /**
 Check whether factoring the branches preserves their types, or return undefined when type information is unavailable.
 */
@@ -424,10 +479,6 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 			|| !isSameExpression(left.object, right.object, context)
 			|| hasCompatibleExpressionTypes(left.object, right.object);
 
-		if (consequent.type === 'CallExpression' && !hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
-			return false;
-		}
-
 		const alternateType = parserServices.getTypeAtLocation(alternate);
 		// Combining distinct branch types can lose discriminant correlations and generic or tuple inference.
 		if (!areTypesCompatible(type, alternateType)) {
@@ -435,6 +486,21 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 		}
 
 		if (consequent.type === 'CallExpression' || consequent.type === 'NewExpression') {
+			if (!hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
+				return false;
+			}
+
+			const consequentNode = parserServices.esTreeNodeToTSNodeMap.get(consequent);
+			const alternateNode = parserServices.esTreeNodeToTSNodeMap.get(alternate);
+			const consequentSignature = checker.getResolvedSignature(consequentNode);
+			const alternateSignature = checker.getResolvedSignature(alternateNode);
+			if (
+				canAffectCallControlFlow(consequent, consequentSignature, type, checker)
+				|| canAffectCallControlFlow(alternate, alternateSignature, alternateType, checker)
+			) {
+				return false;
+			}
+
 			if (!isSameExpression(consequent.callee, alternate.callee, context)) {
 				const consequentCalleeType = parserServices.getTypeAtLocation(consequent.callee);
 				const alternateCalleeType = parserServices.getTypeAtLocation(alternate.callee);
@@ -442,18 +508,19 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 			}
 
 			// Separate overloads or generic instantiations can accept each branch while rejecting their combined arguments.
-			const consequentNode = parserServices.esTreeNodeToTSNodeMap.get(consequent);
-			const alternateNode = parserServices.esTreeNodeToTSNodeMap.get(alternate);
-			const consequentSignature = checker.getResolvedSignature(consequentNode);
-			const alternateSignature = checker.getResolvedSignature(alternateNode);
 			if (
 				!consequentSignature?.declaration
 				|| consequentSignature.declaration !== alternateSignature?.declaration
 				|| consequentSignature.parameters.length !== alternateSignature.parameters.length
-				// Rest parameters can correlate argument types that lose their relationship when combined.
-				|| consequentSignature.declaration.parameters.some(parameter => parameter.dotDotDotToken)
 			) {
 				return false;
+			}
+
+			const restParameter = consequentSignature.declaration.parameters.at(-1);
+			// Rest parameters checked as a group can correlate argument types that lose their relationship when combined.
+			if (restParameter?.dotDotDotToken) {
+				return consequentSignature === alternateSignature
+					&& canMinimizeRestCall(consequent, alternate, consequentSignature, {checker, parserServices});
 			}
 
 			return consequentSignature.parameters.every((parameter, index) => {
