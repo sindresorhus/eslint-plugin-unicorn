@@ -1171,8 +1171,8 @@ test('factoring disjoint pairs reports each pair and settles through repeated fi
 	const highlightedText = reports.map(({column, endColumn}) => code.slice(column - 1, endColumn - 1));
 	t.assert.deepStrictEqual(highlightedText, ['(a && b) || (a && c)', '(d && e) || (d && f)']);
 	t.assert.deepStrictEqual(reports.map(({message}) => message), [
-		'Consider factoring out `a` from both groups.',
-		'Consider factoring out `d` from both groups.',
+		'Both groups start with `a`. Consider checking it once.',
+		'Both groups start with `d`. Consider checking it once.',
 	]);
 
 	const result = linter.verifyAndFix(code, config);

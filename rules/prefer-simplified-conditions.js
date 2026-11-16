@@ -42,10 +42,10 @@ const MESSAGE_ID_ABSORPTION = 'absorption';
 const MESSAGE_ID_FACTORING = 'factoring';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID_DE_MORGAN]: 'Move the outer `!` to both operands and change `{{operator}}` to `{{replacementOperator}}` (De Morgan’s law).',
-	[MESSAGE_ID_ABSORPTION]: 'This expression has the same value as `{{term}}`.',
-	[MESSAGE_ID_FACTORING]: 'Consider factoring out `{{term}}` from both groups.',
-	[MESSAGE_ID_SUGGESTION]: 'Factor out `{{term}}`.',
+	[MESSAGE_ID_DE_MORGAN]: 'Change `{{operator}}` to `{{replacementOperator}}` and put `!` on each side instead of around the whole group.',
+	[MESSAGE_ID_ABSORPTION]: 'Only `{{term}}` matters here.',
+	[MESSAGE_ID_FACTORING]: 'Both groups start with `{{term}}`. Consider checking it once.',
+	[MESSAGE_ID_SUGGESTION]: 'Check `{{term}}` once.',
 };
 
 const simpleNodeTypes = new Set([
