@@ -207,6 +207,7 @@ test({
 		'kept[index] = !kept[index];',
 		'kept[index] = !((kept)[/* keep */ index]);',
 		'kept[index + 1] = !kept[index + 1];',
+		'state.flags[index + 1] = !state["flags"][index + 1];',
 		'if (this.flags[row.id] = !this.flags[row.id]) {}',
 		'class Child extends Parent { toggle(key) { super.flags[key] = !super.flags[key]; } }',
 		{
@@ -223,6 +224,7 @@ test({
 			'kept[first] = !kept[second];',
 			'kept[index + 1] = !kept[index + 2];',
 			'kept[index] = !removed[index];',
+			'kept[index] = !!kept[index];',
 			'kept[index] ||= !kept[index];',
 			'({})[index + 1] = !({})[index + 1];',
 			'(/flag/)[index] = !(/flag/)[index];',

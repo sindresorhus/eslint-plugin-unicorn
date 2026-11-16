@@ -48,7 +48,7 @@ function getStaticPropertyName(node) {
 			return getStaticPropertyName(node.expression);
 		}
 
-		// Only reachable when use this to get class/object member key
+		// Read the key from an object property or class method.
 		/* node:coverage ignore next 5 */
 		case 'Property':
 		case 'MethodDefinition': {
