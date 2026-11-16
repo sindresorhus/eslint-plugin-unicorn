@@ -24,6 +24,13 @@ test.snapshot({
 		'window.postMessage',
 		'window.postMessage()',
 		'window.postMessage(message, targetOrigin, transfer)',
+		'window.postMessage(message, {targetOrigin, transfer})',
+		'window.postMessage(message, {["targetOrigin"]: targetOrigin})',
+		'window.postMessage(message, options)',
+		'window.postMessage(message, {...options})',
+		'window.postMessage(message, {[key]: value})',
+		'window.postMessage(message, {__proto__: options})',
+		'worker.postMessage(message, {transfer: [port]})',
 		'window.postMessage(...message)',
 		'window[postMessage](message)',
 		'window["postMessage"](message)',
@@ -37,10 +44,13 @@ test.snapshot({
 		{code: 'declare const port: MessagePort; port.postMessage("ping")', languageOptions: {parser: parsers.typescript}},
 		typeAware('declare const parentPort: {postMessage(value: unknown, transferList?: readonly unknown[]): void} | null; parentPort!.postMessage("done")'),
 		typeAware('new Worker("./worker.js").postMessage("start")'),
+		typeAware('declare const wrapper: {contentWindow: MessagePort}; wrapper.contentWindow.postMessage("ping", {transfer: []})'),
 		typeAware('new MessageChannel().port1.postMessage("ping")'),
 		typeAware('new BroadcastChannel("updates").postMessage("ping")'),
 		typeAware('declare const port: {postMessage(message: unknown): void}; port.postMessage("ping")'),
 		typeAware('declare const target: {postMessage(targetOrigin: string): void}; target.postMessage("https://example.com")'),
+		typeAware('declare const target: {postMessage(message: unknown, targetOrigin: {host: string}): void}; target.postMessage("ping", {host: "example.com"})'),
+		typeAware('declare const target: {postMessage(message: unknown, targetOrigin: {host: string}): void} & Window; target.postMessage("ping", {host: "example.com"})'),
 		typeAware('declare const target: {postMessage(message: unknown, options?: object, targetOrigin?: string): void}; target.postMessage("ping")'),
 		typeAware('declare const port: MessagePort | undefined; port?.postMessage("ping")'),
 		typeAware('declare const target: MessagePort | BroadcastChannel; target.postMessage("ping")'),
@@ -50,6 +60,7 @@ test.snapshot({
 		typeAware('declare const target: any; target.postMessage("ping")'),
 		typeAware('declare const target: {postMessage: any}; target.postMessage("ping")'),
 		typeAware('declare const target: MessagePort | {postMessage: Function}; target.postMessage("ping")'),
+		typeAware('declare const target: Window | {postMessage: Function}; target.postMessage("ping", {})'),
 		typeAware('declare const wrapper: {contentWindow: MessagePort | {postMessage: {}}}; wrapper.contentWindow.postMessage("ping")'),
 	],
 	invalid: [
@@ -76,5 +87,25 @@ test.snapshot({
 		'(iframe?.contentWindow)?.postMessage(message)',
 		'window.postMessage(message /* Keep this comment */)',
 		typeAware('declare const target: {postMessage(message: string, origin: "/"): void} & Window; target.postMessage("ping")'),
+		'window.postMessage(message, {})',
+		'iframe.contentWindow?.postMessage(message, {["transfer"]: [port],})',
+		'window.postMessage(message, {/* Keep this comment */})',
+		typeAware('declare const target: Window; target.postMessage("ping", {})'),
+		typeAware('declare const target: Window | MessagePort; target.postMessage("ping", {transfer: []})'),
+		typeAware('window.postMessage("ping", {transfer: []} satisfies {transfer?: Transferable[]})'),
 	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'window.postMessage(message, {\r\n  // Keep with the transfer list\r\n  transfer: [port],\r\n})',
+		errors: [{
+			messageId: 'missing-option',
+			suggestions: [{
+				messageId: 'same-origin',
+				output: 'window.postMessage(message, {\r\n  targetOrigin: \'/\',\r\n  // Keep with the transfer list\r\n  transfer: [port],\r\n})',
+			}],
+		}],
+	}],
 });
