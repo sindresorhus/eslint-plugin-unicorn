@@ -1701,6 +1701,7 @@ ruleTest.typescript({
 	valid: [
 		'const callback: (value: number) => number = () => 1;\ncallback(2);',
 		'type Callback = (value: number) => number;\nconst callback: Callback = () => 1;\ncallback(2);',
+		'type Callback = (value: number) => number;\nlet callback: Callback = (() => 1) as () => number;\ncallback(2);',
 		'const callback: (...values: number[]) => number = () => 1;\ncallback(2, 3);',
 		'const callback: (value: number) => number = (value: number, extra?: number) => value;\n(callback as (value: number, extra?: number) => number)(2, 3);',
 		'const callback = (() => 1) as (value: number) => number;\ncallback(2);',
@@ -1759,6 +1760,14 @@ ruleTest.typescript({
 		{
 			code: 'const callback: (value: number, extra?: number) => number = () => 1;\n((callback as unknown) as (value: number) => number)!(2, 3);',
 			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: outdent`
+				type Callback = (first: number, second: number) => number;
+				const callback: Callback = () => 1;
+				(callback as (value: number) => number)(2, 3);
+			`,
+			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.', line: 3}],
 		},
 		{
 			code: 'const callback: (value: number) => number = (() => 1) as (...values: number[]) => number;\ncallback(2, 3);',

@@ -934,7 +934,7 @@ const getAssertedType = (node, callee) => {
 	while (node?.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node)) {
 		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
 			const {typeAnnotation} = node;
-			// A self-referencing `typeof` assertion uses the callee's type before any assertions.
+			// A self-referencing `typeof` assertion uses the callee's type before any call-site assertions.
 			if (
 				typeAnnotation.type === 'TSTypeQuery'
 				&& callee?.type === 'Identifier'
