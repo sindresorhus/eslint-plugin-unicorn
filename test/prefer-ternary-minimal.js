@@ -412,7 +412,7 @@ test({
 		}),
 		typeAware({
 			code: outdent`
-				declare class Base { constructor(...values: string[]); }
+				declare class Base<Values extends unknown[] = [string]> { constructor(...values: Values); }
 				class Derived extends Base {
 					constructor(test: boolean) {
 						if (test) { super("a"); } else { super("b"); }
@@ -420,7 +420,7 @@ test({
 				}
 			`,
 			output: outdent`
-				declare class Base { constructor(...values: string[]); }
+				declare class Base<Values extends unknown[] = [string]> { constructor(...values: Values); }
 				class Derived extends Base {
 					constructor(test: boolean) {
 						super(test ? "a" : "b");
@@ -431,8 +431,8 @@ test({
 		}),
 		typeAware({
 			code: outdent`
-				declare class Base { constructor(...values: [string] | [number]); }
-				class Derived extends Base {
+				declare class Base<Values extends unknown[]> { constructor(...values: Values); }
+				class Derived extends Base<[string] | [number]> {
 					constructor(test: boolean) {
 						if (test) { super("a"); } else { super(1); }
 					}

@@ -408,15 +408,16 @@ function canMinimizeRestCall(consequent, alternate, resolvedSignature, {checker,
 	const restDeclaration = resolvedSignature.declaration.parameters.at(-1);
 	for (const call of [consequent, alternate]) {
 		const calleeType = parserServices.getTypeAtLocation(call.callee);
-		const isConstructorCall = call.type === 'NewExpression' || call.callee.type === 'Super';
+		const isSuperCall = call.callee.type === 'Super';
+		const isConstructorCall = call.type === 'NewExpression' || isSuperCall;
 		const visibleSignatures = isConstructorCall ? calleeType.getConstructSignatures() : calleeType.getCallSignatures();
 		// A combined argument may select another overload even if the original calls selected the same one.
 		if (visibleSignatures.length !== 1) {
 			return false;
 		}
 
-		// The visible signature includes enclosing type substitutions. Explicit type arguments also bypass call inference.
-		const signature = hasTypeArguments(call) ? resolvedSignature : visibleSignatures[0];
+		// Use the visible signature before call-site inference. TypeScript specializes the base constructor before checking a super call.
+		const signature = isSuperCall || hasTypeArguments(call) ? resolvedSignature : visibleSignatures[0];
 		const restParameter = signature.parameters.at(-1);
 		if (restParameter?.valueDeclaration !== restDeclaration || !isIndependentlyCheckedRestType(checker.getTypeOfSymbol(restParameter), checker)) {
 			return false;

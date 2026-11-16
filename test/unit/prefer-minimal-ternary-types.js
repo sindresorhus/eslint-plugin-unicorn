@@ -825,12 +825,12 @@ test('ignores an evolving array push in an unreachable branch', t => {
 	t.assert.deepStrictEqual(getMessages(code, program), []);
 });
 
-test('fixes super calls with a destructured rest tuple', t => {
+test('fixes super calls with a destructured rest tuple specialized by extends', t => {
 	const code = outdent`
-		declare class Base {
-			constructor(...[label, ...counts]: [string, ...number[]]);
+		declare class Base<Counts extends number[]> {
+			constructor(...[label, ...counts]: [string, ...Counts]);
 		}
-		class Derived extends Base {
+		class Derived extends Base<number[]> {
 			constructor(test: boolean) {
 				test ? super("label", 1) : super("label", 2);
 			}

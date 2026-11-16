@@ -79,7 +79,7 @@ Comments, unsafe evaluation reordering, Vue directive attributes, and statement 
 
 With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, reachability, overload resolution, generic inference, or correlated types. This includes calls with assertion signatures or a `never` return type.
 
-With type information, shared-callee calls with rest parameters, including `new` and `super()`, require a single visible signature of the relevant kind in each branch and the same resolved instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. For inferred calls, the rule checks the visible signature's rest type before call-site inference. When the call supplies explicit type arguments, it uses the resolved rest type. A `super()` call can still be skipped when its rest type depends on the `extends` type arguments.
+With type information, shared-callee calls with rest parameters, including `new` and `super()`, require a single visible signature of the relevant kind in each branch and the same resolved instantiation. Supported rest types include arrays, `any`, and tuples with required or optional positional elements and at most one trailing array rest element. For inferred calls, the rule checks the visible signature's rest type before call-site inference. It uses the resolved rest type for explicit type arguments and for `super()`, where TypeScript specializes the base constructor before checking the call.
 
 These conservative checks can also skip safe transformations. They are best-effort; review type-sensitive fixes.
 
