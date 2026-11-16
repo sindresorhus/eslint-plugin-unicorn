@@ -24,8 +24,13 @@ export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replace
 
 	const textBefore = sourceCode.text.slice(0, start);
 	const [trailingSpaces] = textBefore.match(/\s*$/);
-	const [lineBreak] = trailingSpaces.match(/(?:\r?\n|\r)?/);
+	const linebreak = trailingSpaces.match(/\r\n|[\n\r\u2028\u2029]/u);
 	start -= trailingSpaces.length;
 
-	yield fixer.replaceTextRange([start, end], `${lineBreak}${replacement}`);
+	// Keep the first line break and any whitespace before it, including spaces at the end of a line comment.
+	if (linebreak) {
+		start += linebreak.index + linebreak[0].length;
+	}
+
+	yield fixer.replaceTextRange([start, end], replacement);
 }

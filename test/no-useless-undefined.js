@@ -20,6 +20,24 @@ const errorsWithoutSuggestion = [{
 const optionsIgnoreArguments = [{checkArguments: false}];
 const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
 
+test({
+	valid: [],
+	invalid: [
+		[
+			'function foo() {return ( // comment  \n\tundefined);}',
+			'function foo() {return // comment  \n;}',
+		],
+		[
+			'function* foo() {yield ( // comment  \r\n\tundefined);}',
+			'function* foo() {yield // comment  \r\n;}',
+		],
+		...['\u2028', '\u2029'].map(linebreak => [
+			`const foo = () => ( // comment${linebreak}\tundefined);`,
+			`const foo = () => // comment${linebreak} {};`,
+		]),
+	].map(([code, output]) => ({code, output, errors})),
+});
+
 test.typescript({
 	valid: [
 		...[

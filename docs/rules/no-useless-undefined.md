@@ -158,7 +158,7 @@ const foo = () => {};
 const foo = () => undefined;
 ```
 
-## Conflict with ESLint `array-callback-return` and `getter-return` rules
+## Conflicts with other ESLint rules
 
 Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options) to allow bare `return` statements in array callbacks. For getters defined with `Object.defineProperty()`, the same option in [`getter-return`](https://eslint.org/docs/rules/getter-return#options) allows the fix.
 
@@ -180,3 +180,5 @@ Set `allowImplicit: true` in [`array-callback-return`](https://eslint.org/docs/r
 	},
 }
 ```
+
+[`no-useless-return`](https://eslint.org/docs/latest/rules/no-useless-return) can remove a final bare `return` on a later autofix pass. If that leaves an empty function body, [`no-empty-function`](https://eslint.org/docs/latest/rules/no-empty-function) can report it. A comment in the body marks an intentionally empty function.
