@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isFunction,
@@ -39,6 +40,29 @@ const {isTarget: isInferredReplacementFunction} = createTypeCheckers({
 	isTargetJSDocumentType: type => type?.kind === 'function',
 });
 
+const isReplacementFunction = (node, context) => {
+	if (isDirectReplacementFunction(node, context)) {
+		return true;
+	}
+
+	const {sourceCode} = context;
+	const variable = node.type === 'Identifier' ? findVariable(sourceCode.getScope(node), node) : undefined;
+	const typeCallability = withTypeInformation(node, context, ({type, checker}) => {
+		// TypeScript can retain narrowed types across calls that write to a captured binding.
+		if (variable?.references.some(reference => reference.isWrite() && reference.from.variableScope !== variable.scope.variableScope)) {
+			const symbol = sourceCode.parserServices.getSymbolAtLocation(node);
+			type = symbol && checker.getTypeOfSymbol(symbol);
+		}
+
+		return !type || isUnknownType(type) ? undefined : type.getCallSignatures().length > 0;
+	});
+
+	return typeCallability ?? (
+		!variable?.references.some(reference => reference.isWrite() && !reference.init)
+		&& isInferredReplacementFunction(node, context)
+	);
+};
+
 const isStaticTemplateLiteral = node =>
 	node.type === 'TemplateLiteral'
 	&& node.expressions.length === 0;
@@ -73,9 +97,7 @@ const isAllowedReplacement = (node, context) => {
 	return getStaticStringValue(expression) !== undefined
 		|| isStaticStringRawTaggedTemplate(expression, context.sourceCode)
 		|| isSafeStringRepeat(expression)
-		|| isDirectReplacementFunction(node, context)
-		|| (withTypeInformation(node, context, ({type}) => isUnknownType(type) ? undefined : type.getCallSignatures().length > 0)
-			?? isInferredReplacementFunction(node, context));
+		|| isReplacementFunction(node, context);
 };
 
 const objectCoercionPropertyNames = new Set([

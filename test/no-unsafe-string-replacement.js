@@ -162,6 +162,21 @@ test.snapshot({
 				text.replace(/pattern/, replacement);
 			}
 		`),
+		typeAware(outdent`
+			declare const text: string;
+			declare const replacement: string;
+			let callback: string | (() => string) = replacement;
+			callback = () => replacement;
+			text.replace(/pattern/, callback);
+		`),
+		typeAware(outdent`
+			declare const text: string;
+			let callback: () => string = () => 'old';
+			function update(next: () => string) {
+				callback = next;
+			}
+			text.replace(/pattern/, callback);
+		`),
 	],
 	invalid: [
 		'template.replace("{url}", htmlEscape(url))',
@@ -235,5 +250,16 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare const text: string; declare const callback: any; text.replace(/pattern/, callback);'),
+		'/** @param {() => string} callback */ function run(callback) { callback = replacement; text.replace(/pattern/, callback); }',
+		typeAware(outdent`
+			declare const text: string;
+			declare const replacement: string;
+			let callback: string | (() => string) = () => replacement;
+			function update() {
+				callback = replacement;
+			}
+			update();
+			text.replace(/pattern/, callback);
+		`),
 	],
 });
