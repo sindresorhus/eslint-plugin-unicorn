@@ -208,24 +208,30 @@ test({
 		'kept[index] = !((kept)[/* keep */ index]);',
 		'kept[index + 1] = !kept[index + 1];',
 		'if (this.flags[row.id] = !this.flags[row.id]) {}',
+		'class Child extends Parent { toggle(key) { super.flags[key] = !super.flags[key]; } }',
 		{
 			code: 'kept[index] = (!kept[index]!) as boolean;',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
 	invalid: [
-		'kept[first] = !kept[second];',
-		'kept[index] = !removed[index];',
-		'kept[index] ||= !kept[index];',
-		'({})[index + 1] = !({})[index + 1];',
-		'kept[(kept = replacement, 0)] = !kept[0 + 0];',
-		'kept[nextIndex()] = !kept[nextIndex()];',
-		'kept[key`next`] = !kept[key`next`];',
-		'kept[{["__proto__"]: null}] = !kept[index];',
-	].map(code => ({
-		code,
-		errors: 1,
-	})),
+		...[
+			'kept[first] = !kept[second];',
+			'kept[index + 1] = !kept[index + 2];',
+			'kept[index] = !removed[index];',
+			'kept[index] ||= !kept[index];',
+			'({})[index + 1] = !({})[index + 1];',
+			'(/flag/)[index] = !(/flag/)[index];',
+			'kept[(kept = replacement, 0)] = !kept[0 + 0];',
+			'kept[nextIndex()] = !kept[nextIndex()];',
+			'kept[key`next`] = !kept[key`next`];',
+			'kept[{["__proto__"]: null}] = !kept[index];',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'class Child extends Parent { toggle(key) { super[key] = !super[key]; } }',
+			errors: [{messageId: 'no-computed-property-existence-check/error', suggestions: []}],
+		},
+	],
 });
 
 // `map[key]` does not read a `Map` entry, and `string[index]` is a character read

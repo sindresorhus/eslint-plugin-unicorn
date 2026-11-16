@@ -47,7 +47,14 @@ function isStaticPropertyKey(node) {
 }
 
 function isSameProperty(left, right, context) {
-	if (left.type !== 'MemberExpression' || hasPossibleSideEffect(left, context) || hasPossibleSideEffect(right, context)) {
+	const receiver = unwrapChainAndTypeScriptExpression(right.object);
+	if (
+		left.type !== 'MemberExpression'
+		// Direct `super[key]` can write to `this`, and a regular expression literal creates a fresh receiver.
+		|| !['Identifier', 'MemberExpression', 'ThisExpression'].includes(receiver.type)
+		|| hasPossibleSideEffect(left, context)
+		|| hasPossibleSideEffect(right, context)
+	) {
 		return false;
 	}
 
