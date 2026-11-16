@@ -51,6 +51,7 @@ ruleTest({
 		'.forgejo/default_merge_message/SQUASH_TEMPLATE.md',
 		'AGENTS.md',
 		'packages/widget/AGENTS.md',
+		path.resolve('..', 'AGENTS.md'),
 		'packages/widget/AGENTS.override.md',
 		'CLAUDE.md',
 		'CLAUDE.local.md',
@@ -98,6 +99,10 @@ ruleTest({
 		{
 			filename: '.AzureDevOps/BadName.md',
 			errors: [{message: 'Filename is not in kebab case. Rename it to `bad-name.md`.'}],
+		},
+		{
+			filename: 'src/.AzureDevOps/Pull_Request_Template.md',
+			errors: [{message: 'Directory name `.AzureDevOps` is not in kebab case. Rename it to `.azure-dev-ops`.'}],
 		},
 		{
 			filename: 'src/.gitlab/issue_templates/bug.md',
@@ -256,6 +261,13 @@ ruleTest({
 			filename: '.bitbucket/Nested/teams.yaml',
 			options: [{case: 'pascalCase'}],
 			errors: [{message: 'Filename is not in pascal case. Rename it to `Teams.yaml`.'}],
+		},
+		{
+			...languages.yaml,
+			code: '{}',
+			filename: '.github/ISSUE_TEMPLATE/config.YML',
+			options: [{case: 'pascalCase'}],
+			errors: [{message: 'File extension `.YML` is not in lowercase. Rename it to `config.yml`.'}],
 		},
 		{
 			...languages.toml,

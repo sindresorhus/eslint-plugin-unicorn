@@ -282,27 +282,6 @@ function getRenamedNames(words, caseFunctions, {leading, trailing}) {
 	return [...new Set(names)];
 }
 
-function getFilenameParts(basename, {multipleFileExtensions}) {
-	const extension = path.extname(basename);
-	const filename = path.basename(basename, extension);
-
-	const parts = {
-		filename,
-		additionalExtensions: '',
-		extension,
-	};
-
-	if (multipleFileExtensions) {
-		const [firstPart] = filename.split('.', 1);
-		Object.assign(parts, {
-			filename: firstPart,
-			additionalExtensions: filename.slice(firstPart.length),
-		});
-	}
-
-	return parts;
-}
-
 function isInsideCwd(relativePath) {
 	return relativePath !== ''
 		&& relativePath !== '..'
@@ -460,14 +439,13 @@ const create = context => {
 			}
 		}
 
-		const {
-			filename,
-			additionalExtensions,
-			extension,
-		} = getFilenameParts(pathSegments.at(-1), {multipleFileExtensions: isMultipleFileExtensions});
+		const basename = pathSegments.at(-1);
+		const extension = path.extname(basename);
 		const lowercaseExtension = extension.toLowerCase();
-		const filenameWithLowercaseExtension = filename + additionalExtensions + lowercaseExtension;
+		const stem = basename.slice(0, basename.length - extension.length);
+		const filenameWithLowercaseExtension = stem + lowercaseExtension;
 		const directoryPath = isInsideWorkingDirectory ? directorySegments.join('/') : undefined;
+		const filename = isMultipleFileExtensions ? stem.split('.', 1)[0] : stem;
 		const {leading, words} = splitName(filename);
 		const isValid = isReservedFilename(filenameWithLowercaseExtension, directoryPath)
 			|| filename.startsWith('$')
@@ -487,7 +465,7 @@ const create = context => {
 
 		const renamedFilenames = getRenamedNames(words, chosenCaseFunctions, {
 			leading,
-			trailing: additionalExtensions + lowercaseExtension,
+			trailing: stem.slice(filename.length) + lowercaseExtension,
 		});
 
 		return {

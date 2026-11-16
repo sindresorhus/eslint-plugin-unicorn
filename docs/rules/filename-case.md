@@ -25,7 +25,9 @@ The rule allows the following reserved filenames in any directory.
 - Cargo uses `Cargo.toml` and `Cargo.lock`, CMake uses `CMakePresets.json` and `CMakeUserPresets.json`, and Helm uses `Chart.yaml` and `Chart.lock`.
 - Julia uses `Project.toml`, `JuliaProject.toml`, `Manifest.toml`, and `JuliaManifest.toml`, including manifest names with a version such as `Manifest-v1.12.toml`.
 
-Repository hosting exceptions are relative to ESLint's current working directory. A directory exception applies only to that directory's name. When lowercasing an extension yields a reserved filename, the rule suggests changing only the extension.
+Each exception applies only to the matching filename or directory name. When lowercasing an extension yields a reserved filename, the rule suggests changing only the extension.
+
+Repository hosting exceptions are relative to ESLint's current working directory.
 
 - GitHub and Azure Repos use `pull_request_template.md` or `pull_request_template.txt` in the root or `docs/`. GitHub also checks `.github/`, and Azure Repos checks `.azuredevops/` and `.vsts/`. The rule accepts any case for the template stem and requires lowercase extensions. Bitbucket Cloud's reserved path is `.bitbucket/pull_request_template.md`.
 - GitHub uses `PULL_REQUEST_TEMPLATE/` in the root, `docs/`, or `.github/`, as well as `.github/ISSUE_TEMPLATE/` and `.github/DISCUSSION_TEMPLATE/`. Azure Repos uses case-insensitive `pull_request_template/` and `pull_request_template/branches/` directories in the root, `docs/`, `.azuredevops/`, or `.vsts/`.
