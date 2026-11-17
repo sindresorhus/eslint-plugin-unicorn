@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext"
+	},
+	"include": [
+		"index.ts"
+	]
+}
