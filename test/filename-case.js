@@ -605,6 +605,12 @@ ruleTest({
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('Src/Foo/_FooBar.js', 'pascalCase'),
 		testCase('Src/Foo/___FooBar.js', 'pascalCase'),
+		// Trailing underscores, like Jest's `__tests__` and `__mocks__` directories
+		testCase('src/__tests__/foo.js'),
+		testCase('src/__mocks__/fs.js'),
+		testCase('src/__tests__/fooBar.js', 'camelCase'),
+		testCase('src/foo/__foo_bar__.js', 'snakeCase'),
+		testCase('Src/__Mocks__/FooBar.js', 'pascalCase'),
 		testCase('src/foo/$foo.js'),
 		testCase('src/foo/$userId.tsx'),
 		testCase('src/foo/$foo_bar.js'),
@@ -1116,6 +1122,22 @@ ruleTest({
 			'src/_FOO-BAR/file.js',
 			undefined,
 			'Directory name `_FOO-BAR` is not in kebab case. Rename it to `_foo-bar`.',
+		),
+		testCase(
+			'src/__FooBar__/file.js',
+			undefined,
+			'Directory name `__FooBar__` is not in kebab case. Rename it to `__foo-bar__`.',
+		),
+		testCase(
+			'src/foo/__FooBar__.test.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `__foo-bar__.test.js`.',
+		),
+		// Trailing underscores are only kept when the name also has leading ones
+		testCase(
+			'src/tests__/file.js',
+			undefined,
+			'Directory name `tests__` is not in kebab case. Rename it to `tests`.',
 		),
 		testCase(
 			'src/$UserId/fooBar.js',

@@ -19,6 +19,8 @@ Directory names are checked only when the file is inside the current working dir
 
 Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
+Leading underscores are kept as-is, like in `_foo-bar.js`. Trailing underscores are also kept when the name has leading underscores, like in Jest's `__tests__` and `__mocks__` directories.
+
 The case check ignores path segments starting with `$`, as they are commonly used for route parameters.
 
 Set the `checkDirectories` option to `false` to only check filenames.
