@@ -157,7 +157,7 @@ const object = new Foo(...foo, bar);
 Type: `boolean`\
 Default: `false`
 
-Whether to check standalone `push()` and `unshift()` calls on known array variables when the only argument spreads a ternary with `[]` in one branch and a nonempty array literal without holes or spreads in the other branch.
+Whether to check standalone `push()` and `unshift()` calls on known array variables when the only argument spreads a ternary with `[]` in one branch and a nonempty array literal without holes or spreads in the other branch. A standalone statement can use `void` to discard the call result.
 
 The rule checks calls at the top level, in an existing block, or in a `switch` case. It recognizes dot notation and bracket notation with a string literal or a template literal without substitutions. The suggestion preserves TypeScript assertions on the receiver.
 

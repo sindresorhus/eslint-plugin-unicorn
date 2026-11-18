@@ -27,6 +27,9 @@ test({
 			'items.push(...(ready ? [...other] : []));',
 			'items.push(first, ...(ready ? [second] : []));',
 			'const length = items.push(...(ready ? [first] : []));',
+			'const result = void items.push(...(ready ? [first] : []));',
+			'function append() { return void items.push(...(ready ? [first] : [])); }',
+			'const append = () => void items.push(...(ready ? [first] : []));',
 			'items?.push(...(ready ? [first] : []));',
 			'items.push?.(...(ready ? [first] : []));',
 			'items?.["push"](...(ready ? [first] : []));',
@@ -59,6 +62,14 @@ test({
 			{
 				code: 'const items = [];\nitems.push(...(ready ? [(first, second), third] : []),);',
 				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push((first, second), third,);\n}',
+			},
+			{
+				code: 'const items = [];\nvoid items.push(...(ready ? [first] : []));',
+				suggestedCode: 'const items = [];\nif (ready) {\n\tvoid items.push(first);\n}',
+			},
+			{
+				code: 'const items = [];\nvoid ((items).unshift(...(ready ? [] : [first])));',
+				suggestedCode: 'const items = [];\nif (!ready) {\n\tvoid ((items).unshift(first));\n}',
 			},
 			{
 				code: 'function callback() {}\nconst items = [];\nitems.push(...(!callback ? [] : [1]));',

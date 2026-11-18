@@ -291,8 +291,7 @@ const isHeuristicArrayClone = (node, context) => {
 	);
 };
 
-function getConditionalPushSpreadProblem(conditional, context) {
-	const {parent: spread, test, consequent, alternate} = conditional;
+function getConditionalPushSpreadCall(spread) {
 	const call = spread.parent;
 	if (
 		spread.type !== 'SpreadElement'
@@ -306,7 +305,23 @@ function getConditionalPushSpreadProblem(conditional, context) {
 		return;
 	}
 
-	const statement = call.parent;
+	const {callee} = call;
+	const method = callee.computed ? getStaticStringValue(callee.property) : getPropertyName(callee);
+	if (method === 'push' || method === 'unshift') {
+		return call;
+	}
+}
+
+function getConditionalPushSpreadProblem(conditional, context) {
+	const {parent: spread, test, consequent, alternate} = conditional;
+	const call = getConditionalPushSpreadCall(spread);
+	if (!call) {
+		return;
+	}
+
+	const callParent = call.parent;
+	const expression = callParent.type === 'UnaryExpression' && callParent.operator === 'void' ? callParent : call;
+	const statement = expression.parent;
 	if (
 		statement.type !== 'ExpressionStatement'
 		|| !['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase', 'TSModuleBlock'].includes(statement.parent.type)
@@ -314,15 +329,9 @@ function getConditionalPushSpreadProblem(conditional, context) {
 		return;
 	}
 
-	const {callee} = call;
-	const method = callee.computed ? getStaticStringValue(callee.property) : getPropertyName(callee);
-	if (method !== 'push' && method !== 'unshift') {
-		return;
-	}
-
 	const isConsequentEmpty = isEmptyArrayExpression(consequent);
 	const items = isConsequentEmpty ? alternate : consequent;
-	const receiver = callee.object;
+	const receiver = call.callee.object;
 	if (
 		isConsequentEmpty === isEmptyArrayExpression(alternate)
 		|| items.type !== 'ArrayExpression'
@@ -361,13 +370,13 @@ function getConditionalPushSpreadProblem(conditional, context) {
 
 				const [firstItemStart] = getParenthesizedRange(items.elements[0], context);
 				const [, lastItemEnd] = getParenthesizedRange(items.elements.at(-1), context);
-				const [callStart, callEnd] = sourceCode.getRange(call);
+				const [expressionStart, expressionEnd] = sourceCode.getRange(expression);
 				const [spreadStart, spreadEnd] = sourceCode.getRange(spread);
 				const {text} = sourceCode;
-				const callText = `${text.slice(callStart, spreadStart)}${text.slice(firstItemStart, lastItemEnd)}${text.slice(spreadEnd, callEnd)};`;
+				const expressionText = `${text.slice(expressionStart, spreadStart)}${text.slice(firstItemStart, lastItemEnd)}${text.slice(spreadEnd, expressionEnd)};`;
 				const linebreak = getLinebreak(context);
 				const bodyIndent = indent + getIndentUnit(context);
-				const body = hasMultilineToken(call, context) ? callText : reindentText(callText, indent, bodyIndent);
+				const body = hasMultilineToken(expression, context) ? expressionText : reindentText(expressionText, indent, bodyIndent);
 				return fixer.replaceText(statement, `if (${condition}) {${linebreak}${bodyIndent}${body}${linebreak}${indent}}`);
 			},
 		}],
