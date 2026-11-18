@@ -189,7 +189,7 @@ const config = [
 		},
 	},
 	{
-		files: ['rules/prefer-https.js'],
+		files: ['rules/no-magic-escape-sequences.js', 'rules/prefer-https.js'],
 		rules: {
 			'regexp/no-super-linear-backtracking': 'error',
 			'regexp/no-super-linear-move': 'error',

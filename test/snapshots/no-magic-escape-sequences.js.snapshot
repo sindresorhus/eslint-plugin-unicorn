@@ -1,0 +1,340 @@
+exports[`no-magic-escape-sequences > invalid(1): const message = 'Click \\u{2B24} to continue'; 1`] = `
+
+  1 | const message = 'Click \\u{2B24} to continue';
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(1): const message = 'Click \\u{2B24} to continue'; 2`] = `
+
+Message:
+> 1 | const message = 'Click \\u{2B24} to continue';
+    |                        ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(10): render('\\u00A0' as const); 1`] = `
+
+  1 | render('\\u00A0' as const);
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(10): render('\\u00A0' as const); 2`] = `
+
+Message:
+> 1 | render('\\u00A0' as const);
+    |         ^^^^^^ Extract \`\\u00A0\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(11): <template><span :title=\"'\\u{2B24}'\">{{ \`Click\r\n\\u{2B24}\` }}</span></template> 1`] = `
+
+  1 | <template><span :title="'\\u{2B24}'">{{ \`Click
+  2 | \\u{2B24}\` }}</span></template>
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(11): <template><span :title=\"'\\u{2B24}'\">{{ \`Click\r\n\\u{2B24}\` }}</span></template> 2`] = `
+
+Message:
+> 1 | <template><span :title="'\\u{2B24}'">{{ \`Click
+    |                          ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+  2 | \\u{2B24}\` }}</span></template>
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(11): <template><span :title=\"'\\u{2B24}'\">{{ \`Click\r\n\\u{2B24}\` }}</span></template> 3`] = `
+
+Message:
+  1 | <template><span :title="'\\u{2B24}'">{{ \`Click
+> 2 | \\u{2B24}\` }}</span></template>
+    | ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(12): const label: string = \`Click\r\n\\u{2B24}\`; 1`] = `
+
+  1 | const label: string = \`Click
+  2 | \\u{2B24}\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(12): const label: string = \`Click\r\n\\u{2B24}\`; 2`] = `
+
+Message:
+  1 | const label: string = \`Click
+> 2 | \\u{2B24}\`;
+    | ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(13): <template>{{ 'Click \\\r\n\\u{2B24}' }}</template> 1`] = `
+
+  1 | <template>{{ 'Click \\
+  2 | \\u{2B24}' }}</template>
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(13): <template>{{ 'Click \\\r\n\\u{2B24}' }}</template> 2`] = `
+
+Message:
+  1 | <template>{{ 'Click \\
+> 2 | \\u{2B24}' }}</template>
+    | ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(14): log('\\u{1B}\\n'); 1`] = `
+
+  1 | log('\\u{1B}\\n');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(14): log('\\u{1B}\\n'); 2`] = `
+
+Message:
+> 1 | log('\\u{1B}\\n');
+    |      ^^^^^^ Extract \`\\u{1B}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(15): tag\`\\u{2B24}\${\"\\u{2B24}\"}\`; 1`] = `
+
+  1 | tag\`\\u{2B24}\${"\\u{2B24}"}\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(15): tag\`\\u{2B24}\${\"\\u{2B24}\"}\`; 2`] = `
+
+Message:
+> 1 | tag\`\\u{2B24}\${"\\u{2B24}"}\`;
+    |                ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(16): const labels = {'\\u{2B24}': true, ['\\u{2B24}']: false}; 1`] = `
+
+  1 | const labels = {'\\u{2B24}': true, ['\\u{2B24}']: false};
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(16): const labels = {'\\u{2B24}': true, ['\\u{2B24}']: false}; 2`] = `
+
+Message:
+> 1 | const labels = {'\\u{2B24}': true, ['\\u{2B24}']: false};
+    |                                     ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(17): import('pkg', {with: {type: '\\u006Ason'}}); 1`] = `
+
+  1 | import('pkg', {with: {type: '\\u006Ason'}});
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(17): import('pkg', {with: {type: '\\u006Ason'}}); 2`] = `
+
+Message:
+> 1 | import('pkg', {with: {type: '\\u006Ason'}});
+    |                              ^^^^^^ Extract \`\\u006A\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 1`] = `
+
+  1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 2`] = `
+
+Message:
+> 1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+    |             ^^^^^^ Extract \`\\u2028\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 3`] = `
+
+Message:
+> 1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+    |                                         ^^^^^^ Extract \`\\u03C0\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 1`] = `
+
+  1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 2`] = `
+
+Message:
+> 1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+    |      ^^^^^^^^^^^^ Extract \`\\uD83D\\uDE00\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 3`] = `
+
+Message:
+> 1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+    |                        ^^^^^^ Extract \`\\u{A0}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(2): <span>{'\\u{2B24}'}</span>; 1`] = `
+
+  1 | <span>{'\\u{2B24}'}</span>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(2): <span>{'\\u{2B24}'}</span>; 2`] = `
+
+Message:
+> 1 | <span>{'\\u{2B24}'}</span>;
+    |         ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(20): class Glyphs {readonly separator = '\\u2026';} 1`] = `
+
+Filename: assets.d.css/runtime.ts
+
+  1 | class Glyphs {readonly separator = '\\u2026';}
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(20): class Glyphs {readonly separator = '\\u2026';} 2`] = `
+
+Message:
+> 1 | class Glyphs {readonly separator = '\\u2026';}
+    |                                     ^^^^^^ Extract \`\\u2026\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(21): new URL('./\\u03C0.svg', base); 1`] = `
+
+  1 | new URL('./\\u03C0.svg', base);
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(21): new URL('./\\u03C0.svg', base); 2`] = `
+
+Message:
+> 1 | new URL('./\\u03C0.svg', base);
+    |            ^^^^^^ Extract \`\\u03C0\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 1`] = `
+
+  1 | log('\\xA0\\u2060\\u{200B}');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 2`] = `
+
+Message:
+> 1 | log('\\xA0\\u2060\\u{200B}');
+    |      ^^^^^^^^^^^^^^^^^^ Extract \`\\xA0\\u2060\\u{200B}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(4): let largeCircle = '\\u{2B24}'; 1`] = `
+
+  1 | let largeCircle = '\\u{2B24}';
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(4): let largeCircle = '\\u{2B24}'; 2`] = `
+
+Message:
+> 1 | let largeCircle = '\\u{2B24}';
+    |                    ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(5): const message = \`Click \\u{2B24} to continue\`; 1`] = `
+
+  1 | const message = \`Click \\u{2B24} to continue\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(5): const message = \`Click \\u{2B24} to continue\`; 2`] = `
+
+Message:
+> 1 | const message = \`Click \\u{2B24} to continue\`;
+    |                        ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(6): const message = \`\${value}\\u{2B24}\\u{00000A0}\`; 1`] = `
+
+  1 | const message = \`\${value}\\u{2B24}\\u{00000A0}\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(6): const message = \`\${value}\\u{2B24}\\u{00000A0}\`; 2`] = `
+
+Message:
+> 1 | const message = \`\${value}\\u{2B24}\\u{00000A0}\`;
+    |                          ^^^^^^^^^^^^^^^^^^^ Extract \`\\u{2B24}\\u{00000A0}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(7): log('\\\\\\u00A0'); 1`] = `
+
+  1 | log('\\\\\\u00A0');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(7): log('\\\\\\u00A0'); 2`] = `
+
+Message:
+> 1 | log('\\\\\\u00A0');
+    |        ^^^^^^ Extract \`\\u00A0\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(8): const message = \`Before\r\n\\u00A0 \${value}\r\n\\u{2B24}\`; 1`] = `
+
+  1 | const message = \`Before
+  2 | \\u00A0 \${value}
+  3 | \\u{2B24}\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(8): const message = \`Before\r\n\\u00A0 \${value}\r\n\\u{2B24}\`; 2`] = `
+
+Message:
+  1 | const message = \`Before
+> 2 | \\u00A0 \${value}
+    | ^^^^^^ Extract \`\\u00A0\` into a named constant.
+  3 | \\u{2B24}\`;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(8): const message = \`Before\r\n\\u00A0 \${value}\r\n\\u{2B24}\`; 3`] = `
+
+Message:
+  1 | const message = \`Before
+  2 | \\u00A0 \${value}
+> 3 | \\u{2B24}\`;
+    | ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(9): const message: string = 'Click \\u{2B24}'; 1`] = `
+
+  1 | const message: string = 'Click \\u{2B24}';
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(9): const message: string = 'Click \\u{2B24}'; 2`] = `
+
+Message:
+> 1 | const message: string = 'Click \\u{2B24}';
+    |                                ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
+
+`;

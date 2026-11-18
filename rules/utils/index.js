@@ -88,11 +88,12 @@ export {
 	isLengthOrSizeMemberExpression,
 } from './length-or-size.js';
 export {default as getReferences, getReferencesInside} from './get-references.js';
-export {default as isTypeScriptFile} from './is-typescript-file.js';
+export {default as isTypeScriptFile, isTypeScriptDeclarationFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
+export {default as getModuleRelativeUrlArgument} from './get-module-relative-url-argument.js';
 export {default as isInVueTemplateStatement} from './is-in-vue-template-statement.js';
 export {default as getTemplateElementRaw} from './get-template-element-raw.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';

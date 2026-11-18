@@ -1,5 +1,5 @@
 import {isClosingBraceToken} from '@eslint-community/eslint-utils';
-import {isRuntimeImportSpecifier, needsSemicolon} from './utils/index.js';
+import {isRuntimeImportSpecifier, isTypeScriptDeclarationFile, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION = 'suggestion/remove-declaration';
@@ -166,7 +166,7 @@ const create = context => {
 
 		const {source, exportKind} = exportDeclaration;
 		// In a declaration file, a bare `export {}` is never useless: TypeScript exports every declaration in it without `export`, unless the file has an `export {}`.
-		const isDeclarationFile = /\.d\.[cm]?ts$/v.test(context.filename);
+		const isDeclarationFile = isTypeScriptDeclarationFile(context.filename);
 		if (!source && exportKind !== 'type' && (isDeclarationFile || !hasConflictingModuleMarker(exportDeclaration))) {
 			return;
 		}

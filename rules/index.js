@@ -120,6 +120,7 @@ export {default as 'no-lonely-if'} from './no-lonely-if.js';
 export {default as 'no-loop-iterable-mutation'} from './no-loop-iterable-mutation.js';
 export {default as 'no-loss-of-precision'} from './no-loss-of-precision.js';
 export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-depth.js';
+export {default as 'no-magic-escape-sequences'} from './no-magic-escape-sequences.js';
 export {default as 'no-manually-wrapped-comments'} from './no-manually-wrapped-comments.js';
 export {default as 'no-mismatched-map-key'} from './no-mismatched-map-key.js';
 export {default as 'no-misrefactored-assignment'} from './no-misrefactored-assignment.js';
