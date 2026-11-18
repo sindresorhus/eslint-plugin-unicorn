@@ -226,6 +226,11 @@ test({
 			output: 'if (condition) {\r\n  /**\r\n  Example:\r\n    const value = true;\r\n  */\r\n}',
 			errors: [error],
 		},
+		{
+			code: '/** *Important* summary\n * More detail. */\nfunction demo() {}',
+			output: '/** *Important* summary\nMore detail.\n*/\nfunction demo() {}',
+			errors: [error],
+		},
 		...['\n', '\r\n'].flatMap(linebreak => [
 			{
 				code: `.example {${linebreak}\t/*${linebreak}\t Description.${linebreak}\t   Indented example.${linebreak}\t */${linebreak}}`,

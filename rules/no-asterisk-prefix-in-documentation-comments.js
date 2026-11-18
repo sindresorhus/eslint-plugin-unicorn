@@ -46,7 +46,8 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 		const [linebreak] = text.match(LINE_ENDING_PATTERN);
 		fixedText = text
 			.replace(asteriskPrefixPattern, () => linePrefix)
-			.replace(/^(\/\*\*?!?)[\t ]+(?=\S)/v, (_, openingDelimiter) => `${openingDelimiter}${linebreak}${linePrefix}`)
+			// Documentation parsers can consume a leading asterisk as decoration on a continuation line.
+			.replace(/^(\/\*\*?!?)[\t ]+(?=[^\s*])/v, (_, openingDelimiter) => `${openingDelimiter}${linebreak}${linePrefix}`)
 			.replace(/(?<=\S)[\t ]+\*\/$/v, () => `${linebreak}${linePrefix}*/`);
 	}
 

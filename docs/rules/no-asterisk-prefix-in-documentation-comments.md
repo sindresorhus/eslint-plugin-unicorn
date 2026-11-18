@@ -13,7 +13,7 @@ This rule disallows conventional indented asterisk prefixes and shared extra ind
 
 The autofix removes prefixes and shared extra indentation after the opening line, preserving relative indentation. Put all content after the opening line when Markdown indentation matters. An asterisk at the same indentation as the opening delimiter may be intentional content. The rule skips comments that mix prefixed and unprefixed nonblank continuation lines or use different indentation for their prefixes.
 
-When the autofix removes asterisk prefixes, it aligns a standalone closing delimiter with the opening delimiter. It also separates text from the delimiters if there are spaces or tabs between them. A delimiter that touches the text stays on the same line. In JavaScript and TypeScript, the rule skips comments that mention `@ts-ignore` or `@ts-expect-error` on the last line to preserve TypeScript's handling of these directives.
+When the autofix removes asterisk prefixes, it aligns a standalone closing delimiter with the opening delimiter. It also separates text from the delimiters if there are spaces or tabs between them. A delimiter that touches the text stays on the same line. Text that starts with an asterisk stays on the opening line because documentation parsers can treat a leading asterisk on a continuation line as decoration. In JavaScript and TypeScript, the rule skips comments that mention `@ts-ignore` or `@ts-expect-error` on the last line to preserve TypeScript's handling of these directives.
 
 ## Examples
 
