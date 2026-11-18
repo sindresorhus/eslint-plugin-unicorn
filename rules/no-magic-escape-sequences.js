@@ -5,6 +5,7 @@ import {
 	getOutermostTypeScriptExpression,
 	getTemplateElementRaw,
 	isStringLiteralRequired,
+	isTypeScriptDeclarationFile,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-escape-sequences';
@@ -39,8 +40,8 @@ function isNamedConstantInitializer(expression) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	// TypeScript also accepts declaration files for arbitrary extensions, such as `styles.d.css.ts`.
-	if (/\.d\.(?:[cm]?ts|[^\/\\]*\.ts)$/v.test(context.filename)) {
+	// TypeScript can require literal initializers in declaration files.
+	if (isTypeScriptDeclarationFile(context.filename)) {
 		return;
 	}
 

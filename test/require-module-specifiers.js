@@ -89,7 +89,7 @@ test.snapshot({
 			export {}
 		`,
 		// In a declaration file, it stops TypeScript from exporting the declarations without `export`.
-		...['index.d.ts', 'index.d.mts', 'index.d.cts'].map(filename => ({
+		...['index.d.ts', 'index.d.mts', 'index.d.cts', 'styles.d.css.ts'].map(filename => ({
 			...typescriptCode(outdent`
 				import type {Foo} from "foo";
 				declare const helper: Foo;

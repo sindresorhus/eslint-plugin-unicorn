@@ -88,7 +88,7 @@ export {
 	isLengthOrSizeMemberExpression,
 } from './length-or-size.js';
 export {default as getReferences, getReferencesInside} from './get-references.js';
-export {default as isTypeScriptFile} from './is-typescript-file.js';
+export {default as isTypeScriptFile, isTypeScriptDeclarationFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
