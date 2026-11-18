@@ -161,6 +161,28 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 1`] = `
+
+  1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 2`] = `
+
+Message:
+> 1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+    |      ^^^^^^^^^^^^ Extract \`\\uD83D\\uDE00\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(19): log('\\uD83D\\uDE00 smile\\u{A0}'); 3`] = `
+
+Message:
+> 1 | log('\\uD83D\\uDE00 smile\\u{A0}');
+    |                        ^^^^^^ Extract \`\\u{A0}\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(2): <span>{'\\u{2B24}'}</span>; 1`] = `
 
   1 | <span>{'\\u{2B24}'}</span>;
@@ -185,23 +207,7 @@ exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 2
 
 Message:
 > 1 | log('\\xA0\\u2060\\u{200B}');
-    |      ^^^^ Extract \`\\xA0\` into a named constant.
-
-`;
-
-exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 3`] = `
-
-Message:
-> 1 | log('\\xA0\\u2060\\u{200B}');
-    |          ^^^^^^ Extract \`\\u2060\` into a named constant.
-
-`;
-
-exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 4`] = `
-
-Message:
-> 1 | log('\\xA0\\u2060\\u{200B}');
-    |                ^^^^^^^^ Extract \`\\u{200B}\` into a named constant.
+    |      ^^^^^^^^^^^^^^^^^^ Extract \`\\xA0\\u2060\\u{200B}\` into a named constant.
 
 `;
 
@@ -243,15 +249,7 @@ exports[`no-magic-escape-sequences > invalid(6): const message = \`\${value}\\u{
 
 Message:
 > 1 | const message = \`\${value}\\u{2B24}\\u{00000A0}\`;
-    |                          ^^^^^^^^ Extract \`\\u{2B24}\` into a named constant.
-
-`;
-
-exports[`no-magic-escape-sequences > invalid(6): const message = \`\${value}\\u{2B24}\\u{00000A0}\`; 3`] = `
-
-Message:
-> 1 | const message = \`\${value}\\u{2B24}\\u{00000A0}\`;
-    |                                  ^^^^^^^^^^^ Extract \`\\u{00000A0}\` into a named constant.
+    |                          ^^^^^^^^^^^^^^^^^^^ Extract \`\\u{2B24}\\u{00000A0}\` into a named constant.
 
 `;
 

@@ -12,20 +12,19 @@ const messages = {
 };
 
 // Consume other escapes too, so escaped backslashes never start a numeric escape.
-const escapePattern = /\\(?:(?<numeric>x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\}))|\r\n|.)/gsv;
+const escapePattern = /(?<numeric>(?:\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\})))+)|\\(?:\r\n|.)/gsv;
 
 const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
 
-function shouldSkipString(node) {
-	const {parent} = node;
+function shouldSkipString(node, expression) {
+	const {parent} = expression;
 	// TypeScript and bundlers can require literal module specifiers for static analysis.
 	return isStringLiteralRequired(node)
-		|| (parent.type === 'ImportExpression' && parent.source === node)
-		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === node);
+		|| (parent.type === 'ImportExpression' && parent.source === expression)
+		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === expression);
 }
 
-function isNamedConstantInitializer(node) {
-	const expression = getOutermostTypeScriptExpression(node);
+function isNamedConstantInitializer(expression) {
 	const {parent} = expression;
 	return parent.type === 'VariableDeclarator'
 		&& parent.init === expression
@@ -53,11 +52,11 @@ const create = context => {
 
 		const rawStart = sourceCode.getRange(node)[0] + 1;
 		for (const match of escapes) {
-			if (!match.groups.numeric) {
+			const escape = match.groups.numeric;
+			if (!escape) {
 				continue;
 			}
 
-			const [escape] = match;
 			const start = rawStart + match.index;
 			yield {
 				node,
@@ -72,17 +71,23 @@ const create = context => {
 	}
 
 	context.on('Literal', node => {
-		if (isStringLiteral(node) && !shouldSkipString(node)) {
-			return getProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(node));
+		if (!isStringLiteral(node)) {
+			return;
+		}
+
+		const expression = getOutermostTypeScriptExpression(node);
+		if (!shouldSkipString(node, expression)) {
+			return getProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(expression));
 		}
 	});
 
 	context.on('TemplateLiteral', function * (node) {
-		if (isTaggedTemplateLiteral(node) || shouldSkipString(node)) {
+		const expression = getOutermostTypeScriptExpression(node);
+		if (isTaggedTemplateLiteral(node) || shouldSkipString(node, expression)) {
 			return;
 		}
 
-		const isConstantInitializer = node.expressions.length === 0 && isNamedConstantInitializer(node);
+		const isConstantInitializer = node.expressions.length === 0 && isNamedConstantInitializer(expression);
 		for (const quasi of node.quasis) {
 			yield * getProblems(quasi, getTemplateElementRaw(quasi, context), quasi.value.raw, isConstantInitializer);
 		}

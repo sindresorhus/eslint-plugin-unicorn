@@ -22,6 +22,10 @@ test.snapshot({
 		String.raw`require('./\u03C0.cjs'); import('./\u03C0.js');`,
 		'require(`./\\u03C0.cjs`); import(`./\\u03C0${suffix}.js`);',
 		{
+			code: 'require(\'./\\u03C0.cjs\' as const); import(`./\\u03C0.js` satisfies string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'type Value = \'\\u00A0\' | `\\u00A0`; type Pattern = `\\u00A0${number}`;',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -72,5 +76,6 @@ test.snapshot({
 		String.raw`const labels = {'\u{2B24}': true, ['\u{2B24}']: false};`,
 		String.raw`import('pkg', {with: {type: '\u006Ason'}});`,
 		String.raw`new RegExp('\u2028'); loader.require('./\u03C0.js');`,
+		String.raw`log('\uD83D\uDE00 smile\u{A0}');`,
 	],
 });
