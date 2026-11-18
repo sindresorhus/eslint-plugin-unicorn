@@ -9,7 +9,7 @@
 
 Reports `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged templates, including JSX and Vue expressions. Adjacent numeric escapes in strings share one report. Short escapes such as `\n`, `\t`, and `\0` are allowed, as are named `const` initializers made entirely of escapes, even with TypeScript assertions.
 
-In JSX text and quoted attributes, the rule reports numeric character references such as `&#160;` and `&#xA0;`. To extract a reference, use a JavaScript escape for the decoded character in the constant. Named references such as `&nbsp;` are allowed. The rule also allows numeric references for `<`, `>`, `{`, and `}` in JSX text and for the quote that delimits an attribute value.
+In JSX text and quoted attributes, the rule reports numeric character references such as `&#160;` and `&#xA0;`. To extract a reference, put the decoded character in a named constant. Named references such as `&nbsp;` are allowed. The rule also allows numeric references for `<`, `>`, `{`, and `}` in JSX text and for the quote that delimits an attribute value.
 
 The rule checks references that end in a semicolon and contain up to eight decimal digits or a lowercase `x` followed by up to seven hexadecimal digits. JSX parsers can interpret longer references differently.
 
