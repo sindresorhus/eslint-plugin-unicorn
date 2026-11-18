@@ -1,5 +1,12 @@
 import {isDirective} from '../ast/index.js';
 
+function isTypeScriptImportAttribute(attribute) {
+	const attributes = attribute.parent;
+	const options = attributes.parent?.parent;
+	const importType = options?.parent;
+	return importType?.type === 'TSImportType' && importType.options === options;
+}
+
 /**
 Check whether the syntax requires the given string literal to stay a string literal, so it cannot be replaced with another expression (for example, a template literal or a call).
 
@@ -48,6 +55,8 @@ export default function isStringLiteralRequired(node) {
 		)
 		// Import attribute key and value
 		|| (type === 'ImportAttribute' && (parent.key === node || parent.value === node))
+		// TypeScript import type attributes are represented as properties of a nested options object.
+		|| (type === 'Property' && parent.value === node && isTypeScriptImportAttribute(parent))
 		// Module specifier
 		|| (type === 'ImportSpecifier' && parent.imported === node)
 		|| (type === 'ExportSpecifier' && (parent.local === node || parent.exported === node))

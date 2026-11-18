@@ -43,6 +43,8 @@ const config = [
 			'unicorn/escape-case': 'off',
 			'unicorn/prefer-unicode-code-point-escapes': 'off',
 			'unicorn/prefer-short-escape-sequences': 'off',
+			// Rules and fixtures intentionally use explicit numeric escapes.
+			'unicorn/no-magic-escape-sequences': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
