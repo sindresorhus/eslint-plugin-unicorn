@@ -17,6 +17,8 @@ HTML and Markdown use the HTML5 name table, where `&#x2060;` can become `&NoBrea
 
 In HTML, the rule skips configured frontmatter, raw text such as script contents, and CDATA. It also skips text when HTML error recovery merges text across intervening markup. It skips a document when custom raw-text tags are configured or when the HTML contains `{{`, `{%`, `<%`, `${`, or a configured template opener.
 
+The rule skips HTML files with bare carriage returns, Unicode line separators, or Unicode paragraph separators. ESLint’s offset lookup can disagree with the HTML parser about line numbers in these files.
+
 In Markdown, it skips code, math, raw HTML nodes, autolinks, link destinations and titles, and image alt text. It also skips prose next to GitHub Flavored Markdown autolinks when the parser drops the source positions after decoding references or escapes.
 
 When a Markdown document may contain reference definitions, the rule skips text in paragraphs, headings, and table cells with opening brackets. A different spelling can change which definition a label matches.

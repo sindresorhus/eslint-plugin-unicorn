@@ -64,6 +64,7 @@ test.snapshot({
 		htmlCase('<!-- &#160; --><script>const message = "&#160;";</script><style>p::before {content: "&#160;"}</style><xmp><b title="&#160;">&#160;</b></xmp><noscript>&#160;</noscript>'),
 		htmlCase('<svg><![CDATA[&#160; <span>&#169;</span>]]></svg><plaintext>&#160;</plaintext><p title="&#160;">&#160;</p>'),
 		htmlCase('<span title="{{ &#160; }}">{% &#169; %}</span>{{ render(\'<b>&#160;</b>\') }}'),
+		...['\r', '\u2028', '\u2029'].map(lineEnding => htmlCase(`${disabledHtmlPrefix.replaceAll('\r\n', lineEnding)}<p>&#169;</p>`)),
 		{
 			...htmlCase('[[render(\'<b>&#169;</b>\')]]'),
 			languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]},
