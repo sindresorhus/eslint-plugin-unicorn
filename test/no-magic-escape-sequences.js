@@ -68,10 +68,6 @@ ruleTest.snapshot({
 			code: '<template><span title="\\u{2B24}">{{ \'&#92;\\u{2B24}\' }}{{ `\\u{2B24} &amp;` }}</span></template>',
 			languageOptions: {parser: parsers.vue},
 		},
-		{
-			code: '<template><div :value=\'<span title="&#xA0;">&#160;</span>\' /></template>',
-			languageOptions: {parser: parsers.vue},
-		},
 	],
 	invalid: [
 		String.raw`const message = 'Click \u{2B24} to continue';`,
@@ -123,6 +119,13 @@ ruleTest.snapshot({
 		},
 		// Espree decodes U+1003C as '<'. The delimiter exemption uses the code point in the source.
 		'<span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;',
+		{
+			code: [
+				'<template><div :value=\'<span title="&#xA0;">&#160;</span>\' /></template>',
+				String.raw`<script>export default <span title="&#xA0;" label={'\u2060'}>&#160;</span>;</script>`,
+			].join('\n'),
+			languageOptions: {parser: parsers.vue},
+		},
 	],
 });
 

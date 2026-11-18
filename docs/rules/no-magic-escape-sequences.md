@@ -37,11 +37,13 @@ const largeCircle = '\u{2B24}';
 <span>{largeCircle}</span>;
 ```
 
+When a reference is part of a text child, put the whole string in one JSX expression so the component receives one string child.
+
 ```jsx
 // ❌
-<span>&#xA0;</span>;
+<Label>Page&#xA0;1</Label>;
 
 // ✅
 const nonBreakingSpace = '\u00A0';
-<span>{nonBreakingSpace}</span>;
+<Label>{`Page${nonBreakingSpace}1`}</Label>;
 ```

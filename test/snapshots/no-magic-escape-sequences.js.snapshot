@@ -328,6 +328,40 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(26): <template><div :value='<span title=\"&#xA0;\">&#160;</span>' /></template>\n<script>export default <span title=\"&#xA0;\" label={'\\u2060'}>&#160;</span>;</script> 1`] = `
+
+  1 | <template><div :value='<span title="&#xA0;">&#160;</span>' /></template>
+  2 | <script>export default <span title="&#xA0;" label={'\\u2060'}>&#160;</span>;</script>
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(26): <template><div :value='<span title=\"&#xA0;\">&#160;</span>' /></template>\n<script>export default <span title=\"&#xA0;\" label={'\\u2060'}>&#160;</span>;</script> 2`] = `
+
+Message:
+  1 | <template><div :value='<span title="&#xA0;">&#160;</span>' /></template>
+> 2 | <script>export default <span title="&#xA0;" label={'\\u2060'}>&#160;</span>;</script>
+    |                                     ^^^^^^ Extract \`&#xA0;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(26): <template><div :value='<span title=\"&#xA0;\">&#160;</span>' /></template>\n<script>export default <span title=\"&#xA0;\" label={'\\u2060'}>&#160;</span>;</script> 3`] = `
+
+Message:
+  1 | <template><div :value='<span title="&#xA0;">&#160;</span>' /></template>
+> 2 | <script>export default <span title="&#xA0;" label={'\\u2060'}>&#160;</span>;</script>
+    |                                                     ^^^^^^ Extract \`\\u2060\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(26): <template><div :value='<span title=\"&#xA0;\">&#160;</span>' /></template>\n<script>export default <span title=\"&#xA0;\" label={'\\u2060'}>&#160;</span>;</script> 4`] = `
+
+Message:
+  1 | <template><div :value='<span title="&#xA0;">&#160;</span>' /></template>
+> 2 | <script>export default <span title="&#xA0;" label={'\\u2060'}>&#160;</span>;</script>
+    |                                                              ^^^^^^ Extract \`&#160;\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 1`] = `
 
   1 | log('\\xA0\\u2060\\u{200B}');
