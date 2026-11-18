@@ -51,7 +51,7 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 	}
 
 	const closingIndentation = prefixIndentation === undefined ? `${linePrefix}[ \t]+` : '[\t ]*';
-	const closingDelimiterPattern = new RegExp(`^${closingIndentation}\\*/$`, 'mv');
+	const closingDelimiterPattern = new RegExp(String.raw`^${closingIndentation}\*/$`, 'mv');
 	fixedText = fixedText.replace(closingDelimiterPattern, () => `${linePrefix}*/`);
 
 	let sharedIndentation;
