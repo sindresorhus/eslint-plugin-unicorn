@@ -7,15 +7,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Numeric escape sequences such as `\u{2B24}` can be hard to identify in a string. A descriptive constant can explain what the character represents.
+Reports `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged templates, including JSX and Vue expressions. Adjacent numeric escapes share one report. Short escapes such as `\n`, `\t`, and `\0` are allowed, as are named `const` initializers made entirely of escapes, even with TypeScript assertions.
 
-The rule checks `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged template literals, including in JSX and Vue template expressions. It reports adjacent numeric escapes together so a sequence such as `\uD83D\uDE00` can have one name. It allows a string made entirely of escapes as the initializer of a named `const`, including with TypeScript assertions such as `as const`. Short escapes such as `\n`, `\t`, and `\0` are allowed anywhere.
+The rule skips tagged template text, regex literals, JSX text and quoted attributes, and Vue segments with decoded HTML references. It also skips TypeScript declaration files and ambient declarations, literal-only syntax, and paths in `import()`, direct `require()`, and `new URL(path, import.meta.url)`. Runtime import options are checked.
 
-The rule skips text in tagged templates, regular expression literals, JSX text and quoted JSX attributes, and syntax positions that require string literals. These positions include static module specifiers, literal-only import attributes, and TypeScript literal types. It also skips paths in `import()`, direct `require()` calls, and `new URL(path, import.meta.url)` because TypeScript and bundlers can rely on literal paths. Strings in runtime import options are still checked.
-
-The rule uses syntax only. It can report numeric escapes in bracket access on a TypeScript `const enum`, where the compiler requires a literal index.
-
-The rule skips TypeScript declaration files and ambient declarations marked with `declare`. It also skips Vue strings and template segments that contain decoded HTML character references.
+The rule uses syntax only. It can report a numeric escape in a TypeScript `const enum` index that must stay literal.
 
 ## Examples
 
