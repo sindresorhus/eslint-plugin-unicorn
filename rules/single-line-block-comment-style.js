@@ -116,25 +116,7 @@ const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
 	? new RegExp(pattern.source, pattern.flags)
 	: new RegExp(pattern, 'u'));
 
-const getContentLines = content => content.split(LINE_ENDING_PATTERN);
-
-const getSingleContentLine = content => {
-	const contentLines = getContentLines(content).filter(line => line.trim() !== '');
-
-	if (contentLines.length !== 1) {
-		return;
-	}
-
-	return contentLines[0].trim();
-};
-
-const hasAsteriskPrefix = (content, opening) =>
-	opening === '/**' && getContentLines(content).some(line => /^\s*\*/v.test(line));
-
-const isCanonicalMultiline = content => {
-	const lines = getContentLines(content);
-	return lines.length === 3 && lines[0].trim() === '' && lines[2].trim() === '';
-};
+const isCanonicalMultiline = trimmedLines => trimmedLines.length === 3 && trimmedLines[0] === '' && trimmedLines[2] === '';
 
 const getProblem = (context, comment, style, ignorePatterns) => {
 	if (!['Block', 'BlockComment', 'Comment'].includes(comment.type)) {
@@ -160,14 +142,19 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 	}
 
 	const content = text.slice(opening.length, -2);
-	if (hasAsteriskPrefix(content, opening)) {
+	const trimmedLines = content.split(LINE_ENDING_PATTERN).map(line => line.trim());
+	const contentLines = trimmedLines.filter(Boolean);
+	if (contentLines.length !== 1) {
 		return;
 	}
 
-	const singleContentLine = getSingleContentLine(content);
+	const [singleContentLine] = contentLines;
+	if (opening === '/**' && singleContentLine.startsWith('*')) {
+		return;
+	}
 
 	if (style === MULTILINE) {
-		if (!singleContentLine || isCanonicalMultiline(content)) {
+		if (isCanonicalMultiline(trimmedLines)) {
 			return;
 		}
 
@@ -183,7 +170,7 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 		};
 	}
 
-	if (!singleContentLine || getContentLines(content).length === 1) {
+	if (trimmedLines.length === 1) {
 		return;
 	}
 

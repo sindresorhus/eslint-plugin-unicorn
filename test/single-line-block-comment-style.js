@@ -242,6 +242,24 @@ test('suggests merging a run of adjacent block comments', t => {
 	t.assert.deepStrictEqual(fixed.messages, []);
 });
 
+ruleTest({
+	valid: [],
+	invalid: [{
+		code: '\uFEFF/* First. */\r/* Second. */\r',
+		output: '\uFEFF/*\rFirst.\r*/\r/*\rSecond.\r*/\r',
+		errors: [
+			{
+				...error,
+				suggestions: [{
+					messageId: 'merge-adjacent-block-comments',
+					output: '\uFEFF/*\rFirst.\rSecond.\r*/\r',
+				}],
+			},
+			{...error, suggestions: 0},
+		],
+	}],
+});
+
 test('does not suggest merging across a boundary', t => {
 	const linter = new Linter();
 	const config = getConfig(['multiline', {ignore: ['^Generated']}]);
