@@ -16,6 +16,36 @@ const linterConfig = {
 
 const conditionalPushSpreadOptions = [{checkConditionalPushSpreads: true}];
 
+nodeTest('conditional push suggestion follows the inner spread autofix', t => {
+	const code = outdent`
+		const items = [];
+		const reads = [];
+		function read(value) {
+			reads.push(value);
+			return value;
+		}
+		void items.push(...(ready ? [...[read(1), read(2)]] : []));
+		JSON.stringify({items, reads});
+	`;
+	const config = {
+		...linterConfig,
+		rules: {'unicorn/no-useless-spread': ['error', ...conditionalPushSpreadOptions]},
+	};
+	const {fixed, output, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, code.replace('...[read(1), read(2)]', 'read(1), read(2)'));
+	t.assert.strictEqual(messages.length, 1);
+	const [message] = messages;
+	t.assert.strictEqual(message.messageId, 'conditional-push-spread');
+	t.assert.strictEqual(message.fix, undefined);
+	t.assert.strictEqual(message.suggestions.length, 1);
+	const [{fix: {range, text}}] = message.suggestions;
+	const suggestedCode = output.slice(0, range[0]) + text + output.slice(range[1]);
+
+	t.assert.strictEqual(runInNewContext(suggestedCode, {ready: true}), '{"items":[1,2],"reads":[1,2]}');
+	t.assert.strictEqual(runInNewContext(suggestedCode, {ready: false}), '{"items":[],"reads":[]}');
+});
+
 test({
 	valid: [
 		'const items = []; items.push(...(ready ? [first] : []));',
