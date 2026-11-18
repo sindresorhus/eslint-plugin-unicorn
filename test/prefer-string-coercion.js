@@ -53,6 +53,14 @@ test.snapshot({
 			code: 'function format(value: any) { return ((value satisfies number) + 42).toString(); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function format(value: any) { return (value satisfies string).indexOf("x").toString(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function format(value: any) { return (value satisfies string).length.toString(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 	],
 	invalid: [
@@ -98,6 +106,13 @@ test.snapshot({
 		'(~mask).toString();',
 		'/** @param {number | bigint} value */ function format(value) { return value.toString(); }',
 		typeAware('function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }'),
+		'Date.now().toString();',
+		'BigInt.asIntN(64, value).toString();',
+		{
+			code: 'function format(value: number, increment: number) { return (value += increment).toString(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function format(value: string) { return value.indexOf("x").toString(); }'),
 	],
 });
 

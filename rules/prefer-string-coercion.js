@@ -21,9 +21,11 @@ const messages = {
 
 const numericTypeNames = new Set(['number', 'bigint']);
 const numericBinaryOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '&', '^', '|']);
+const numericBuiltIns = new Set(['BigInt', 'Date', 'Math', 'Number']);
 
 const {isTarget: isNumeric} = createTypeCheckers({
 	targetTypeNames: numericTypeNames,
+	targetCallNames: ['BigInt', 'Number', 'parseFloat', 'parseInt'],
 	checkClassHeritage: false,
 	isTargetNode(node, context, isNumeric) {
 		if (node.type === 'BinaryExpression' || node.type === 'AssignmentExpression') {
@@ -32,12 +34,15 @@ const {isTarget: isNumeric} = createTypeCheckers({
 				|| (operator === '+' && isNumeric(node.left) && isNumeric(node.right));
 		}
 
-		return node.type === 'UpdateExpression'
-			|| (node.type === 'UnaryExpression' && ['+', '-', '~'].includes(node.operator))
-			|| (
-				['Literal', 'Identifier', 'MemberExpression', 'CallExpression'].includes(node.type)
-				&& (isNumber(node, context) || isBigInt(node, context))
-			);
+		if (node.type === 'UpdateExpression' || (node.type === 'UnaryExpression' && ['+', '-', '~'].includes(node.operator))) {
+			return true;
+		}
+
+		const member = node.type === 'CallExpression' ? node.callee : node;
+		return (
+			node.type === 'Identifier'
+			|| (member.type === 'MemberExpression' && member.object.type === 'Identifier' && numericBuiltIns.has(member.object.name))
+		) && (isNumber(node, context) || isBigInt(node, context));
 	},
 	getStaticType: value => numericTypeNames.has(typeof value) ? target : unknown,
 	isTargetTypeAnnotation: node => node?.type === 'TSNumberKeyword'

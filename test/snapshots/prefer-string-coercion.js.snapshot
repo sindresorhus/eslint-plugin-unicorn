@@ -341,6 +341,40 @@ Suggestion 1/1: Convert to a string with \`String()\`.:
 
 `;
 
+exports[`prefer-string-coercion > invalid(28): Date.now().toString(); 1`] = `
+
+  1 | Date.now().toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(28): Date.now().toString(); 2`] = `
+
+Message:
+> 1 | Date.now().toString();
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(Date.now());
+
+`;
+
+exports[`prefer-string-coercion > invalid(29): BigInt.asIntN(64, value).toString(); 1`] = `
+
+  1 | BigInt.asIntN(64, value).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(29): BigInt.asIntN(64, value).toString(); 2`] = `
+
+Message:
+> 1 | BigInt.asIntN(64, value).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(BigInt.asIntN(64, value));
+
+`;
+
 exports[`prefer-string-coercion > invalid(3): Number(value).toString().padStart(2, \"0\"); 1`] = `
 
   1 | Number(value).toString().padStart(2, "0");
@@ -355,6 +389,42 @@ Message:
 
 Suggestion 1/1: Convert to a string with \`String()\`.:
   1 | String(Number(value)).padStart(2, "0");
+
+`;
+
+exports[`prefer-string-coercion > invalid(30): function format(value: number, increment: number) { return (value += increment).toString(); } 1`] = `
+
+  1 | function format(value: number, increment: number) { return (value += increment).toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(30): function format(value: number, increment: number) { return (value += increment).toString(); } 2`] = `
+
+Message:
+> 1 | function format(value: number, increment: number) { return (value += increment).toString(); }
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function format(value: number, increment: number) { return String(value += increment); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(31): function format(value: string) { return value.indexOf(\"x\").toString(); } 1`] = `
+
+Filename: file.ts
+
+  1 | function format(value: string) { return value.indexOf("x").toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(31): function format(value: string) { return value.indexOf(\"x\").toString(); } 2`] = `
+
+Message:
+> 1 | function format(value: string) { return value.indexOf("x").toString(); }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function format(value: string) { return String(value.indexOf("x")); }
 
 `;
 
