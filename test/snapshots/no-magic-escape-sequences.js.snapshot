@@ -213,6 +213,20 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(21): new URL('./\\u03C0.svg', base); 1`] = `
+
+  1 | new URL('./\\u03C0.svg', base);
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(21): new URL('./\\u03C0.svg', base); 2`] = `
+
+Message:
+> 1 | new URL('./\\u03C0.svg', base);
+    |            ^^^^^^ Extract \`\\u03C0\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 1`] = `
 
   1 | log('\\xA0\\u2060\\u{200B}');

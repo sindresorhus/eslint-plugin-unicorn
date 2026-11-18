@@ -1,6 +1,7 @@
 import {isCallExpression, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 import {
 	checkVueTemplate,
+	getModuleRelativeUrlArgument,
 	getOutermostTypeScriptExpression,
 	getTemplateElementRaw,
 	isStringLiteralRequired,
@@ -18,10 +19,11 @@ const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
 
 function shouldSkipString(node, expression, sourceCode) {
 	const {parent} = expression;
-	// TypeScript and bundlers can require literal module specifiers for static analysis.
+	// TypeScript and bundlers can require literal paths for static analysis.
 	return isStringLiteralRequired(node)
 		|| (parent.type === 'ImportExpression' && parent.source === expression)
 		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === expression)
+		|| getModuleRelativeUrlArgument(parent) === expression
 		|| sourceCode.getAncestors(node).some(ancestor => ancestor.declare);
 }
 

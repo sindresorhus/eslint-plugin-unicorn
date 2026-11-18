@@ -24,8 +24,14 @@ ruleTest.snapshot({
 		String.raw`'use \u{2603}'; import './\u{2603}.js'; const object = {'\u{2603}': true};`,
 		String.raw`require('./\u03C0.cjs'); import('./\u03C0.js');`,
 		'require(`./\\u03C0.cjs`); import(`./\\u03C0${suffix}.js`);',
+		String.raw`new URL('./\u03C0.svg', import.meta.url);`,
+		'new URL(`./\\u03C0.svg`, import.meta.url);',
 		{
 			code: 'require(\'./\\u03C0.cjs\' as const); import(`./\\u03C0.js` satisfies string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: String.raw`new URL('./\u03C0.svg' as const, import.meta.url as string);`,
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -99,6 +105,7 @@ ruleTest.snapshot({
 			filename: 'assets.d.css/runtime.ts',
 			languageOptions: {parser: parsers.typescript},
 		},
+		String.raw`new URL('./\u03C0.svg', base);`,
 	],
 });
 

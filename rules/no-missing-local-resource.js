@@ -3,8 +3,8 @@ import path from 'node:path';
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
 import {minimatch} from 'minimatch';
-import {getStaticStringValue, isNewExpression} from './ast/index.js';
-import {isNodeMatchesNameOrPath, isVirtualFilename, unwrapTypeScriptExpression} from './utils/index.js';
+import {getStaticStringValue} from './ast/index.js';
+import {getModuleRelativeUrlArgument, isVirtualFilename, unwrapTypeScriptExpression} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_MISSING = 'missing';
@@ -378,15 +378,12 @@ const create = context => {
 	};
 
 	context.on('NewExpression', node => {
-		if (!isNewExpression(node, {name: 'URL', argumentsLength: 2})) {
+		const argument = getModuleRelativeUrlArgument(node);
+		if (!argument) {
 			return;
 		}
 
-		const [resourceNode, baseNode] = node.arguments.map(argument => unwrapTypeScriptExpression(argument));
-		if (!isNodeMatchesNameOrPath(baseNode, 'import.meta.url')) {
-			return;
-		}
-
+		const resourceNode = unwrapTypeScriptExpression(argument);
 		const value = getStaticStringValue(resourceNode);
 		if (value === undefined || /[\t\n\r]/v.test(value)) {
 			return;
