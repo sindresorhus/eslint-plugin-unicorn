@@ -390,6 +390,7 @@ export default defineConfig([
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md)                                             | Prefer modern DOM APIs.                                                                                                        | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md)                                           | Prefer modern `Math` APIs over legacy patterns.                                                                                | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-module](docs/rules/prefer-module.md)                                                               | Prefer JavaScript modules (ESM) over CommonJS.                                                                                 | ✅ ☑️                       | 🔧 | 💡 |    |
+| [prefer-named-character-references](docs/rules/prefer-named-character-references.md)                       | Prefer named character references in JSX, HTML, and Markdown.                                                                  |                            | 🔧 |    |    |
 | [prefer-native-coercion-functions](docs/rules/prefer-native-coercion-functions.md)                         | Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.                                                   | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-negative-index](docs/rules/prefer-negative-index.md)                                               | Prefer negative index over `.length - index` when possible.                                                                    | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md)                                                 | Prefer using the `node:` protocol when importing Node.js builtin modules.                                                      | ✅ ☑️                       | 🔧 |    |    |
@@ -561,6 +562,7 @@ These rules also work on specific non-JavaScript languages:
 | [`numeric-separators-style`](docs/rules/numeric-separators-style.md) |  |  |  |  | ✅ | ✅ |  |
 | [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md) |  |  | ✅ |  | ✅ | ✅ |  |
 | [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md) | ✅ |  | ✅ |  | ✅ |  |  |
+| [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md) |  | ✅ |  | ✅ |  |  |  |
 | [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md) |  |  | ✅ |  | ✅ | ✅ |  |
 | [`relative-url-style`](docs/rules/relative-url-style.md) | ✅ | ✅ |  | ✅ |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |  |  |  |
@@ -630,6 +632,7 @@ Opt-in:
 - [`id-match`](docs/rules/id-match.md): Require identifiers to match a specified regular expression.
 - [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md): Disallow invalid `accept` values on file inputs.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references in JSX, HTML, and Markdown.
 
 #### JSON
 
@@ -683,6 +686,7 @@ Opt-in:
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`no-javascript-url`](docs/rules/no-javascript-url.md): Disallow `javascript:` URLs in Markdown.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references in JSX, HTML, and Markdown.
 - [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md): Require configured YAML frontmatter fields.
 
 #### SOML
