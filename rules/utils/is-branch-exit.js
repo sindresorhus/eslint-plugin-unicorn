@@ -1,5 +1,6 @@
 import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	getArithmeticOrBitwiseOperator,
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
 	isFunction,
@@ -144,27 +145,12 @@ const isDefinitelyNotThrowingAssignmentTargetBeforeRight = (node, context) =>
 	)
 	|| isDefinitelyNotThrowingMemberExpression(node, context);
 
-const alwaysEvaluatedCompoundAssignmentOperators = new Set([
-	'+=',
-	'-=',
-	'*=',
-	'/=',
-	'%=',
-	'**=',
-	'<<=',
-	'>>=',
-	'>>>=',
-	'&=',
-	'^=',
-	'|=',
-]);
-
 const isAssignmentRightAlwaysEvaluated = (node, context) => {
 	if (node.operator === '=') {
 		return isDefinitelyNotThrowingAssignmentTargetBeforeRight(node.left, context);
 	}
 
-	if (alwaysEvaluatedCompoundAssignmentOperators.has(node.operator)) {
+	if (getArithmeticOrBitwiseOperator(node) !== undefined) {
 		return isDefinitelyNotThrowingAssignmentTargetRead(node.left, context);
 	}
 

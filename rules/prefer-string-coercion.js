@@ -1,47 +1,56 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {getStaticStringValue, isMethodCall} from './ast/index.js';
+import {
+	getArithmeticOrBitwiseOperator,
+	getStaticStringValue,
+	isMethodCall,
+	isNumericUnaryOperator,
+} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
 	getCommentSafeProblem,
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
+	getStaticValueForControlFlow,
 	hasOptionalChainElement,
 	isBigInt,
 	isNumber,
 	withTypeInformation,
 } from './utils/index.js';
-import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
+import {
+	createTypeCheckers,
+	hasJSDocumentTypeReference,
+	target,
+	unknown,
+} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-string-coercion';
-const SUGGESTION_ID = 'prefer-string-coercion/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String()` over `.toString()` for decimal string conversion.',
-	[SUGGESTION_ID]: 'Convert to a string with `String()`.',
 };
 
 const numericTypeNames = new Set(['number', 'bigint']);
-const numericBinaryOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '&', '^', '|']);
 const numericBuiltIns = new Set(['BigInt', 'Date', 'Math', 'Number']);
 
 const {isTarget: isNumeric} = createTypeCheckers({
 	targetTypeNames: numericTypeNames,
 	targetCallNames: ['BigInt', 'Number', 'parseFloat', 'parseInt'],
 	checkClassHeritage: false,
+	ignoreReassignedJSDocumentBindings: true,
 	isTargetNode(node, context, isNumeric) {
-		if (node.type === 'BinaryExpression' || node.type === 'AssignmentExpression') {
-			const operator = node.type === 'AssignmentExpression' ? node.operator.slice(0, -1) : node.operator;
-			return numericBinaryOperators.has(operator)
-				|| (operator === '+' && isNumeric(node.left) && isNumeric(node.right));
+		const operator = getArithmeticOrBitwiseOperator(node);
+		if (operator !== undefined) {
+			return operator !== '+' || (isNumeric(node.left) && isNumeric(node.right));
 		}
 
-		if (node.type === 'UpdateExpression' || (node.type === 'UnaryExpression' && ['+', '-', '~'].includes(node.operator))) {
+		if (node.type === 'UpdateExpression' || (node.type === 'UnaryExpression' && isNumericUnaryOperator(node.operator))) {
 			return true;
 		}
 
 		if (node.type === 'Identifier') {
-			// The combined checker handles BigInt bindings. Use the Number helper for guarded static evaluation.
-			return isNumber(node, context);
+			// The shared checker handles local bindings. Guard static evaluation of globals such as `NaN` and aliases of them.
+			return numericTypeNames.has(typeof getStaticValueForControlFlow(node, context)?.value)
+				&& !hasJSDocumentTypeReference(node, context);
 		}
 
 		const member = node.type === 'CallExpression' ? node.callee : node;
@@ -88,15 +97,10 @@ const create = context => {
 
 		return getCommentSafeProblem(context, {
 			...problem,
-			suggest: [
-				{
-					messageId: SUGGESTION_ID,
-					* fix(fixer) {
-						yield fixer.replaceText(node, `String(${getCallArgumentText(value, context)})`);
-						yield fixSpaceAroundKeyword(fixer, node, context);
-					},
-				},
-			],
+			* fix(fixer) {
+				yield fixer.replaceText(node, `String(${getCallArgumentText(value, context)})`);
+				yield fixSpaceAroundKeyword(fixer, node, context);
+			},
 		}, node, [getParenthesizedRange(value, context)]);
 	});
 };
@@ -109,10 +113,10 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String()` for decimal string conversion of numbers and BigInts.',
+			description: 'Prefer `String()` for decimal string conversion of numbers.',
 			recommended: false,
 		},
-		hasSuggestions: true,
+		fixable: 'code',
 		schema: [],
 		messages,
 		languages: [

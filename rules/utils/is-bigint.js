@@ -1,4 +1,4 @@
-import {isBigIntLiteral} from '../ast/index.js';
+import {getArithmeticOrBitwiseOperator, isBigIntLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {
@@ -41,8 +41,6 @@ const isBigIntTypeAnnotation = node => {
 const getStaticType = value =>
 	typeof value === 'bigint' ? target : unknown;
 
-const bigIntBinaryOperators = new Set(['+', '-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
-
 const isBigIntNode = (node, context, isTarget) =>
 	isBigIntLiteral(node)
 	|| isBigIntCall(node)
@@ -50,7 +48,8 @@ const isBigIntNode = (node, context, isTarget) =>
 	|| (node.type === 'UnaryExpression' && ['-', '~'].includes(node.operator) && isTarget(node.argument))
 	|| (
 		node.type === 'BinaryExpression'
-		&& bigIntBinaryOperators.has(node.operator)
+		&& node.operator !== '>>>'
+		&& getArithmeticOrBitwiseOperator(node) !== undefined
 		&& isTarget(node.left)
 		&& isTarget(node.right)
 	)

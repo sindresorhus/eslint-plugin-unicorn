@@ -544,6 +544,22 @@ function getTypeScriptType(type, checker, program, options) {
 const getTypeFromTypeInformation = (node, context, options) =>
 	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program, options)) ?? unknown;
 
+const getTypeFromJSDocumentAnnotation = (node, context, options) => {
+	const annotation = getJSDocumentTypeAnnotation(node, context);
+	if (!annotation) {
+		return;
+	}
+
+	const variable = options.ignoreReassignedJSDocumentBindings && node.type === 'Identifier'
+		? findVariable(context.sourceCode.getScope(node), node)
+		: undefined;
+	// A JSDoc annotation alone cannot account for later writes to the binding.
+	const type = variable?.references.some(reference => reference.isWrite() && !reference.init)
+		? unknown
+		: getJSDocumentType(annotation, options);
+	return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
+};
+
 const getTypeFromStaticValue = (node, context, options) => {
 	if (!options.getStaticType) {
 		return unknown;
@@ -900,10 +916,9 @@ function getType(node, context, options, visitedVariables = new Set()) {
 			return typeFromOwnAnnotation;
 		}
 	} else {
-		const annotation = getJSDocumentTypeAnnotation(node, context);
-		if (annotation) {
-			const type = getJSDocumentType(annotation, options);
-			return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
+		const typeFromAnnotation = getTypeFromJSDocumentAnnotation(node, context, options);
+		if (typeFromAnnotation !== undefined) {
+			return typeFromAnnotation;
 		}
 	}
 

@@ -10,7 +10,7 @@ Message:
 > 1 | (42).toString();
     | ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(42);
 
 `;
@@ -27,7 +27,7 @@ Message:
 > 1 | function format(value: number) { return value.toString(); }
     |                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format(value: number) { return String(value); }
 
 `;
@@ -44,7 +44,7 @@ Message:
 > 1 | (value as bigint).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(value as bigint);
 
 `;
@@ -63,7 +63,7 @@ Message:
 > 1 | function nextId() { return 42n; } nextId().toString();
     |                                   ^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function nextId() { return 42n; } String(nextId());
 
 `;
@@ -80,7 +80,7 @@ Message:
 > 1 | (42)["toString"]();
     | ^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(42);
 
 `;
@@ -97,7 +97,7 @@ Message:
 > 1 | (42n)[\`toString\`]();
     | ^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(42n);
 
 `;
@@ -128,7 +128,7 @@ Message:
 > 1 | (isBig ? 42n : 42).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(isBig ? 42n : 42);
 
 `;
@@ -145,7 +145,7 @@ Message:
 > 1 | type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }
     |                                                                          ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | type Numeric = number | bigint; function format(value: Numeric) { return String(value); }
 
 `;
@@ -164,7 +164,7 @@ Message:
 > 1 | function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();
     |                                                            ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function next(isBig: boolean) { return isBig ? 42n : 42; } String(next(flag));
 
 `;
@@ -181,7 +181,7 @@ Message:
 > 1 | function format(value: -1 | -1n) { return value.toString(); }
     |                                           ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format(value: -1 | -1n) { return String(value); }
 
 `;
@@ -198,7 +198,7 @@ Message:
 > 1 | (1n + 2n).toString();
     | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(1n + 2n);
 
 `;
@@ -215,7 +215,7 @@ Message:
 > 1 | declare function readCount(): number; (readCount() satisfies number).toString();
     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | declare function readCount(): number; String(readCount() satisfies number);
 
 `;
@@ -232,7 +232,7 @@ Message:
 > 1 | (42)["to\\u0053tring"]();
     | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(42);
 
 `;
@@ -249,7 +249,7 @@ Message:
 > 1 | (counter++).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(counter++);
 
 `;
@@ -266,7 +266,7 @@ Message:
 > 1 | (end - start).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(end - start);
 
 `;
@@ -283,7 +283,7 @@ Message:
 > 1 | (attempts -= backoff).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(attempts -= backoff);
 
 `;
@@ -300,7 +300,7 @@ Message:
 > 1 | (~mask).toString();
     | ^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(~mask);
 
 `;
@@ -317,7 +317,7 @@ Message:
 > 1 | /** @param {number | bigint} value */ function format(value) { return value.toString(); }
     |                                                                       ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | /** @param {number | bigint} value */ function format(value) { return String(value); }
 
 `;
@@ -336,7 +336,7 @@ Message:
 > 1 | function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }
     |                                                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function encode(value: unknown) { if (typeof value === "bigint") return String(value); }
 
 `;
@@ -353,7 +353,7 @@ Message:
 > 1 | Date.now().toString();
     | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(Date.now());
 
 `;
@@ -370,7 +370,7 @@ Message:
 > 1 | BigInt.asIntN(64, value).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(BigInt.asIntN(64, value));
 
 `;
@@ -387,7 +387,7 @@ Message:
 > 1 | Number(value).toString().padStart(2, "0");
     | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(Number(value)).padStart(2, "0");
 
 `;
@@ -404,7 +404,7 @@ Message:
 > 1 | function format(value: number, increment: number) { return (value += increment).toString(); }
     |                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format(value: number, increment: number) { return String(value += increment); }
 
 `;
@@ -423,7 +423,7 @@ Message:
 > 1 | function format(value: string) { return value.indexOf("x").toString(); }
     |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format(value: string) { return String(value.indexOf("x")); }
 
 `;
@@ -440,7 +440,7 @@ Message:
 > 1 | ["a", "b"].length.toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(["a", "b"].length);
 
 `;
@@ -459,7 +459,7 @@ Message:
 > 1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }
     |                                                                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return String(value); }
 
 `;
@@ -478,7 +478,7 @@ Message:
 > 1 | enum Status {Okay = 200, Missing = 404} Status.Okay.toString();
     |                                         ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | enum Status {Okay = 200, Missing = 404} String(Status.Okay);
 
 `;
@@ -497,7 +497,7 @@ Message:
 > 1 | function format(value: number | undefined) { return (value ?? 0).toString(); }
     |                                                     ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format(value: number | undefined) { return String(value ?? 0); }
 
 `;
@@ -514,7 +514,7 @@ Message:
 > 1 | const value = 1n; const alias = value; { const value = null; alias.toString(); }
     |                                                              ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | const value = 1n; const alias = value; { const value = null; String(alias); }
 
 `;
@@ -531,7 +531,7 @@ Message:
 > 1 | NaN.toString();
     | ^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String(NaN);
 
 `;
@@ -550,7 +550,7 @@ Message:
 > 1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
     |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | enum Status {Current = Date.now(), Okay = 200} String(Status.Current);
 
 `;
@@ -567,7 +567,7 @@ Message:
 > 1 | function format() {return(42).toString();}
     |                          ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | function format() {return String(42);}
 
 `;
@@ -584,7 +584,7 @@ Message:
 > 1 | (prepare(), /* keep */ 42).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String((prepare(), /* keep */ 42));
 
 `;
@@ -601,7 +601,7 @@ Message:
 > 1 | (/* keep */ 42).toString();
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | String((/* keep */ 42));
 
 `;
@@ -646,7 +646,7 @@ Message:
 > 1 | maybe?.format((42).toString());
     |               ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
-Suggestion 1/1: Convert to a string with \`String()\`.:
+Output:
   1 | maybe?.format(String(42));
 
 `;

@@ -20,6 +20,7 @@ test.snapshot({
 		'const value = null; const alias = value; { const value = 1n; alias.toString(); }',
 		'function format() { return value.toString(); var value = 1n; }',
 		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
+		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
 		'(42).toString(16);',
@@ -92,10 +93,14 @@ test.snapshot({
 test.typescript({
 	valid: [],
 	invalid: [
-		'import type {String} from "./string.js"; (42).toString();',
-		'const String = () => "wrong"; { type String = string; (42).toString(); }',
-	].map(code => ({
-		code,
-		errors: [{messageId: 'prefer-string-coercion', suggestions: []}],
-	})),
+		{
+			code: 'function format(count: number, offset: number) {return(++count + offset).toString();}',
+			output: 'function format(count: number, offset: number) {return String(++count + offset);}',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		...[
+			'import type {String} from "./string.js"; (42).toString();',
+			'const String = () => "wrong"; { type String = string; (42).toString(); }',
+		].map(code => ({code, errors: [{messageId: 'prefer-string-coercion'}]})),
+	],
 });

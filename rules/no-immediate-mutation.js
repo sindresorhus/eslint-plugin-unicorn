@@ -10,6 +10,7 @@ import {
 	isMemberExpression,
 	isNewExpression,
 	isNumericLiteral,
+	isNumericUnaryOperator,
 	isBigIntLiteral,
 	isFunction,
 } from './ast/index.js';
@@ -1025,7 +1026,7 @@ function isSimpleInitializationValue(node) {
 			}
 
 			const argument = unwrapTypeScriptExpression(node.argument);
-			return ['+', '-', '~'].includes(node.operator)
+			return isNumericUnaryOperator(node.operator)
 				&& (isNumericLiteral(argument) || isBigIntLiteral(argument));
 		}
 
