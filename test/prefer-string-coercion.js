@@ -67,6 +67,7 @@ test.snapshot({
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 		typeAware('type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }'),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
+		typeAware('function format(value: Number) { return value.toString(); }'),
 		typeAware('function format(value: number | string | undefined) { return (value ?? 0).toString(); }'),
 	],
 	invalid: [
@@ -125,6 +126,7 @@ test.snapshot({
 		typeAware('function format(value: number | undefined) { return (value ?? 0).toString(); }'),
 		'const value = 1n; const alias = value; { const value = null; alias.toString(); }',
 		'NaN.toString();',
+		typeAware('enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();'),
 	],
 });
 

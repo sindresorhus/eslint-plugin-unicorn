@@ -54,7 +54,8 @@ const {isTarget: isNumeric} = createTypeCheckers({
 	isTargetTypeAnnotation: node => node?.type === 'TSNumberKeyword'
 		|| node?.type === 'TSBigIntKeyword'
 		|| (node?.type === 'TSLiteralType' && numericTypeNames.has(typeof getPrimitiveLiteralValue(node.literal))),
-	isTargetType: (type, checker) => type.isNumberLiteral() || numericTypeNames.has(checker.getBaseTypeOfLiteralType(type).intrinsicName),
+	isTargetType: (type, checker) => type.intrinsicName !== 'never'
+		&& (checker.isTypeAssignableTo(type, checker.getNumberType()) || checker.isTypeAssignableTo(type, checker.getBigIntType())),
 });
 
 /**

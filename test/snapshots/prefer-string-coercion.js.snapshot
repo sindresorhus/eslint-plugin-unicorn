@@ -536,6 +536,25 @@ Suggestion 1/1: Convert to a string with \`String()\`.:
 
 `;
 
+exports[`prefer-string-coercion > invalid(38): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(38): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 2`] = `
+
+Message:
+> 1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | enum Status {Current = Date.now(), Okay = 200} String(Status.Current);
+
+`;
+
 exports[`prefer-string-coercion > invalid(4): function format() {return(42).toString();} 1`] = `
 
   1 | function format() {return(42).toString();}
