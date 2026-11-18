@@ -19,7 +19,10 @@ const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const ADJACENT_COMMENT_GAP = /^[\t ]*(?:\r\n|[\n\r])[\t ]*$/v;
 const DIRECTIVE_PATTERNS = [
 	/^\s*[#@]\s*source(?:Mapping)?URL=/v,
-	/^\s*(?:eslint(?:-env)?|jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
+	/^\s*#(?:end)?region\b/v,
+	// A parser can miss an ESLint directive when it reports a shortened comment range.
+	/^\s*eslint(?:-env|-enable|-disable(?:-(?:next-)?line)?)?(?:\s|:|$)/v,
+	/^\s*(?:jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
 	/^\s*(?:\*\s*)?flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
 	/^\s*::?/v,
 	/^\s*flow-include(?:\s|$)/v,
@@ -40,6 +43,7 @@ const MERGE_SENSITIVE_PATTERNS = [
 	/\bautoprefixer(?:\s+grid)?\s*:/iv,
 	/^!?\s*rtl\s*:/v,
 	/purgecss\s+(?:(?:start|end)\s+)?ignore/v,
+	/^(?:©|copyright\b)/iv,
 	/@(?:license|copyright|preserve|cc_on)\b/iv,
 	/\bSPDX-(?:License-Identifier|FileCopyrightText):/v,
 	/[#@]__[A-Z_]+__/v,

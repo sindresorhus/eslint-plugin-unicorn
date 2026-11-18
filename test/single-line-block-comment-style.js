@@ -256,6 +256,8 @@ test('does not suggest merging across a boundary', t => {
 		'/*** Section heading ***/',
 		'/* Section heading ***/',
 		'/*! License. */',
+		'/* Copyright (c) Example. */',
+		'/* © Example. */',
 		'/* @LICENSE MIT */',
 		'/* SPDX-License-Identifier: MIT */',
 		'/* @__PURE__ extra */',
@@ -310,6 +312,17 @@ test('suggests separate merges on each side of a line comment', t => {
 		{range: [0, code.indexOf('\n//')], text: '/*\nFirst.\nSecond.\n*/'},
 		{range: [code.indexOf('/* Third.'), code.length], text: '/*\nThird.\nFourth.\n*/'},
 	]);
+});
+
+test('does not merge a comment whose diagnostic is suppressed', t => {
+	const linter = new Linter();
+	const code = '// eslint-disable-next-line rule/single-line-block-comment-style\n/* First. */\n/* Second. */';
+	const messages = linter.verify(code, getConfig([]));
+
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, error.messageId);
+	t.assert.strictEqual(messages[0].line, 3);
+	t.assert.strictEqual(messages[0].suggestions, undefined);
 });
 
 test('suggests merging in languages with block comments', t => {
@@ -374,6 +387,17 @@ test('preserves CSS comment boundaries', t => {
 	const fixed = linter.verifyAndFix(code, config, 'file.css');
 	t.assert.strictEqual(fixed.output, '/*\nFirst.\n*/\n/* Second.');
 	t.assert.deepStrictEqual(fixed.messages, []);
+});
+
+ruleTest({
+	valid: [],
+	invalid: [{
+		code: '/* Overview. */\n/* #region Layout */\na {}\n/* #endregion */',
+		output: '/*\nOverview.\n*/\n/* #region Layout */\na {}\n/* #endregion */',
+		errors: [{...error, suggestions: 0}],
+		language: languages.css.language,
+		plugins: languages.css.plugins,
+	}],
 });
 
 ruleTest({
@@ -798,12 +822,20 @@ ruleTest.snapshot({
 });
 
 ruleTest({
-	valid: [languages.jsonc, languages.json5].map(({language, plugins}) => ({
-		code: '/*\r\nIgnored.\r\n*/\r\n{}',
-		options: ['single-line', {ignore: [/^\nIgnored\.\n$/u]}],
-		language,
-		plugins,
-	})),
+	valid: [languages.jsonc, languages.json5].flatMap(({language, plugins}) => [
+		{
+			code: '/*\r\nIgnored.\r\n*/\r\n{}',
+			options: ['single-line', {ignore: [/^\nIgnored\.\n$/u]}],
+			language,
+			plugins,
+		},
+		...['eslint-disable', 'eslint-enable', 'eslint-disable-next-line'].map(directive => ({
+			code: `/*\r\n${directive}*/\r\n{}`,
+			language,
+			plugins,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+		})),
+	]),
 	invalid: [languages.jsonc, languages.json5].map(({language, plugins}) => ({
 		code: '{\r\n\t/*\r\n\tComment.\r\n\t*/\r\n\t"value": true\r\n}',
 		output: '{\r\n\t/* Comment. */\r\n\t"value": true\r\n}',
