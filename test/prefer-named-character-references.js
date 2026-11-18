@@ -1,6 +1,6 @@
 import {getTester, languages, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, ruleId} = getTester(import.meta);
 
 test.snapshot({
 	testerOptions: {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
@@ -46,7 +46,7 @@ test({
 		{
 			code: '<p><b title="&#169;">a</p><p>b</p>',
 			filename: 'example.html',
-			errors: [{messageId: 'prefer-named-character-references'}],
+			errors: [{messageId: ruleId}],
 			output: '<p><b title="&copy;">a</p><p>b</p>',
 		},
 		{
@@ -54,6 +54,32 @@ test({
 			filename: 'example.html',
 			errors: 3,
 			output: `\uFEFF${disabledHtmlPrefix}<script aria-label="&copy;">const label = '&#169;';</script>\r\n<p data-tab=&Tab; title=next>&nbsp;</p>`,
+		},
+		{
+			code: '<svg><use href="#&#169;" xlink:href="#&#xA0;"/></svg>',
+			filename: 'example.html',
+			errors: 2,
+			output: '<svg><use href="#&copy;" xlink:href="#&nbsp;"/></svg>',
+		},
+	],
+});
+
+test({
+	testerOptions: {
+		language: 'markdown/gfm',
+		plugins: languages.markdown.plugins,
+		languageOptions: {frontmatter: 'yaml'},
+	},
+	valid: [],
+	invalid: [
+		{
+			code: '---\rtitle: "Copyright &#169;"\r---\r\r> 1. Copyright &#169;\r>    A&#160;B',
+			filename: 'example.md',
+			errors: [
+				{messageId: ruleId, line: 5, column: 16},
+				{messageId: ruleId, line: 6, column: 7},
+			],
+			output: '---\rtitle: "Copyright &#169;"\r---\r\r> 1. Copyright &copy;\r>    A&nbsp;B',
 		},
 	],
 });
@@ -65,10 +91,10 @@ test.snapshot({
 		htmlCase('<svg><![CDATA[&#160; <span>&#169;</span>]]></svg><plaintext>&#160;</plaintext><p title="&#160;">&#160;</p>'),
 		htmlCase('<span title="{{ &#160; }}">{% &#169; %}</span>{{ render(\'<b>&#160;</b>\') }}'),
 		...['\r', '\u2028', '\u2029'].map(lineEnding => htmlCase(`${disabledHtmlPrefix.replaceAll('\r\n', () => lineEnding)}<p>&#169;</p>`)),
-		{
-			...htmlCase('[[render(\'<b>&#169;</b>\')]]'),
-			languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]},
-		},
+		...[{'[[': ']]'}, [{open: '[[', close: ']]'}]].map(templateEngineSyntax => ({
+			...htmlCase('[[render(\'<b>&#169;</b>\')]]<p>&#160;</p>'),
+			languageOptions: {templateEngineSyntax},
+		})),
 		{
 			...htmlCase('<custom>&#160;<p title="&#169;">&#160;</p></custom>'),
 			languageOptions: {rawContentTags: ['custom']},
