@@ -9,9 +9,7 @@
 
 Reports `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged templates, including JSX and Vue expressions. Adjacent numeric escapes in strings share one report. Short escapes such as `\n`, `\t`, and `\0` are allowed, as are named `const` initializers made entirely of escapes, even with TypeScript assertions.
 
-In JSX text and quoted attributes, the rule reports numeric character references such as `&#160;` and `&#xA0;`. To extract a reference, put the decoded character in a named constant. Named references such as `&nbsp;` are allowed. The rule also allows numeric references for `<`, `>`, `{`, and `}` in JSX text and for the quote that delimits an attribute value.
-
-The rule checks references that end in a semicolon and contain up to eight decimal digits or a lowercase `x` followed by up to seven hexadecimal digits. JSX parsers can interpret longer references differently.
+In JSX text and quoted attributes, reports `&#…;` (up to eight decimal digits) and `&#x…;` (up to seven hex digits). Allows named references and numeric escapes for `<`, `>`, `{`, and `}` in text or the enclosing quote in an attribute.
 
 The rule skips tagged template text, regex literals, Vue segments with decoded HTML references, ambient TypeScript code, and literal-only syntax. Paths in `import()`, direct `require()`, and `new URL(path, import.meta.url)` are exempt. The rule checks runtime import options.
 
@@ -37,7 +35,7 @@ const largeCircle = '\u{2B24}';
 <span>{largeCircle}</span>;
 ```
 
-When moving JSX text or a quoted attribute into an expression, match the string your JSX compiler produces, including whitespace. Use one expression for the whole text child so the component receives one string.
+Extract the decoded character to a named constant. Preserve the compiled string, including whitespace, and use one expression for the whole text child.
 
 ```jsx
 // ❌
