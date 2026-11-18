@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use `String(value)` for decimal conversion of a `number` or `bigint`. The rule checks calls with no arguments when it can identify the receiver as numeric, including a `number | bigint` union. It recognizes `value.toString()` and bracket notation with a static string such as `value['toString']()`. Calls with an explicit radix or optional chaining to the receiver or method are allowed.
+Use `String(value)` for decimal conversion of a `number` or `bigint`. The rule checks calls with no arguments when it can identify the receiver as numeric, including a `number | bigint` union. It recognizes dot notation and bracket notation with a string literal or an expression-free template literal. Calls with an explicit radix or optional chaining to the receiver or method are allowed.
 
-The rule recognizes numeric operations and known built-ins such as `Date.now()`. Type information or a statically known value can also establish that an instance method or property produces a number or BigInt.
+The rule recognizes numeric operations and known built-ins such as `Date.now()`. Type information or a statically known value can also establish that an instance method or property produces a number or BigInt. With type information, the rule checks that `.toString()` returns plain `string` before reporting.
 
 The replacement is an editor suggestion because an inferred type can differ from the runtime value. For example, an out-of-bounds array read can return `undefined` even when TypeScript infers `number`. In that case, `.toString()` throws and `String(value)` returns `'undefined'`.
 

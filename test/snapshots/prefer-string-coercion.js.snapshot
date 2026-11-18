@@ -428,6 +428,61 @@ Suggestion 1/1: Convert to a string with \`String()\`.:
 
 `;
 
+exports[`prefer-string-coercion > invalid(32): [\"a\", \"b\"].length.toString(); 1`] = `
+
+  1 | ["a", "b"].length.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(32): [\"a\", \"b\"].length.toString(); 2`] = `
+
+Message:
+> 1 | ["a", "b"].length.toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(["a", "b"].length);
+
+`;
+
+exports[`prefer-string-coercion > invalid(33): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 1`] = `
+
+Filename: file.ts
+
+  1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(33): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 2`] = `
+
+Message:
+> 1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }
+    |                                                                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(34): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | enum Status {Okay = 200, Missing = 404} Status.Okay.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(34): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 2`] = `
+
+Message:
+> 1 | enum Status {Okay = 200, Missing = 404} Status.Okay.toString();
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | enum Status {Okay = 200, Missing = 404} String(Status.Okay);
+
+`;
+
 exports[`prefer-string-coercion > invalid(4): function format() {return(42).toString();} 1`] = `
 
   1 | function format() {return(42).toString();}

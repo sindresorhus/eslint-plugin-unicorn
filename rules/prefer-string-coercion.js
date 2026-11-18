@@ -9,6 +9,7 @@ import {
 	hasOptionalChainElement,
 	isBigInt,
 	isNumber,
+	withTypeInformation,
 } from './utils/index.js';
 import {createTypeCheckers, target, unknown} from './utils/type-helpers.js';
 
@@ -48,7 +49,7 @@ const {isTarget: isNumeric} = createTypeCheckers({
 	isTargetTypeAnnotation: node => node?.type === 'TSNumberKeyword'
 		|| node?.type === 'TSBigIntKeyword'
 		|| (node?.type === 'TSLiteralType' && numericTypeNames.has(typeof getPrimitiveLiteralValue(node.literal))),
-	isTargetType: (type, checker) => numericTypeNames.has(checker.getBaseTypeOfLiteralType(type).intrinsicName),
+	isTargetType: (type, checker) => type.isNumberLiteral() || numericTypeNames.has(checker.getBaseTypeOfLiteralType(type).intrinsicName),
 });
 
 /**
@@ -63,7 +64,12 @@ const create = context => {
 		const {callee} = node;
 		const method = callee.computed ? getStaticStringValue(callee.property) : getPropertyName(callee);
 		const {object: value} = callee;
-		if (method !== 'toString' || hasOptionalChainElement(node) || !isNumeric(value, context)) {
+		if (
+			method !== 'toString'
+			|| hasOptionalChainElement(node)
+			|| !isNumeric(value, context)
+			|| withTypeInformation(node, context, ({type, checker}) => type !== checker.getStringType())
+		) {
 			return;
 		}
 
