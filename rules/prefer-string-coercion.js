@@ -39,11 +39,16 @@ const {isTarget: isNumeric} = createTypeCheckers({
 			return true;
 		}
 
+		if (node.type === 'Identifier') {
+			// The combined checker handles BigInt bindings. Use the Number helper for guarded static evaluation.
+			return isNumber(node, context);
+		}
+
 		const member = node.type === 'CallExpression' ? node.callee : node;
-		return (
-			node.type === 'Identifier'
-			|| (member.type === 'MemberExpression' && member.object.type === 'Identifier' && numericBuiltIns.has(member.object.name))
-		) && (isNumber(node, context) || isBigInt(node, context));
+		return member.type === 'MemberExpression'
+			&& member.object.type === 'Identifier'
+			&& numericBuiltIns.has(member.object.name)
+			&& (isNumber(node, context) || isBigInt(node, context));
 	},
 	getStaticType: value => numericTypeNames.has(typeof value) ? target : unknown,
 	isTargetTypeAnnotation: node => node?.type === 'TSNumberKeyword'

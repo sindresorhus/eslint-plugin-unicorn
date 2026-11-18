@@ -16,6 +16,9 @@ test.snapshot({
 		'String(42);',
 		'value.toString();',
 		'"already a string".toString();',
+		'const value = null; const alias = value; { const value = 1n; alias.toString(); }',
+		'function format() { return value.toString(); var value = 1n; }',
+		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
 		'(42).toString(16);',
@@ -120,6 +123,8 @@ test.snapshot({
 		typeAware('type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }'),
 		typeAware('enum Status {Okay = 200, Missing = 404} Status.Okay.toString();'),
 		typeAware('function format(value: number | undefined) { return (value ?? 0).toString(); }'),
+		'const value = 1n; const alias = value; { const value = null; alias.toString(); }',
+		'NaN.toString();',
 	],
 });
 

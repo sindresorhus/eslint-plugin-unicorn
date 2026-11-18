@@ -502,6 +502,40 @@ Suggestion 1/1: Convert to a string with \`String()\`.:
 
 `;
 
+exports[`prefer-string-coercion > invalid(36): const value = 1n; const alias = value; { const value = null; alias.toString(); } 1`] = `
+
+  1 | const value = 1n; const alias = value; { const value = null; alias.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(36): const value = 1n; const alias = value; { const value = null; alias.toString(); } 2`] = `
+
+Message:
+> 1 | const value = 1n; const alias = value; { const value = null; alias.toString(); }
+    |                                                              ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | const value = 1n; const alias = value; { const value = null; String(alias); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(37): NaN.toString(); 1`] = `
+
+  1 | NaN.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(37): NaN.toString(); 2`] = `
+
+Message:
+> 1 | NaN.toString();
+    | ^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(NaN);
+
+`;
+
 exports[`prefer-string-coercion > invalid(4): function format() {return(42).toString();} 1`] = `
 
   1 | function format() {return(42).toString();}
