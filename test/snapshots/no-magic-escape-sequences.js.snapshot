@@ -227,6 +227,107 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(22): <span title=\"\\u{2B24}\">&#xA0;</span>; 1`] = `
+
+  1 | <span title="\\u{2B24}">&#xA0;</span>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(22): <span title=\"\\u{2B24}\">&#xA0;</span>; 2`] = `
+
+Message:
+> 1 | <span title="\\u{2B24}">&#xA0;</span>;
+    |                        ^^^^^^ Extract \`&#xA0;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(23): <><span title=\"A&#00000160;B\" />&#x2060;&#x00000a0;</>; 1`] = `
+
+  1 | <><span title="A&#00000160;B" />&#x2060;&#x00000a0;</>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(23): <><span title=\"A&#00000160;B\" />&#x2060;&#x00000a0;</>; 2`] = `
+
+Message:
+> 1 | <><span title="A&#00000160;B" />&#x2060;&#x00000a0;</>;
+    |                 ^^^^^^^^^^^ Extract \`&#00000160;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(23): <><span title=\"A&#00000160;B\" />&#x2060;&#x00000a0;</>; 3`] = `
+
+Message:
+> 1 | <><span title="A&#00000160;B" />&#x2060;&#x00000a0;</>;
+    |                                 ^^^^^^^^ Extract \`&#x2060;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(23): <><span title=\"A&#00000160;B\" />&#x2060;&#x00000a0;</>; 4`] = `
+
+Message:
+> 1 | <><span title="A&#00000160;B" />&#x2060;&#x00000a0;</>;
+    |                                         ^^^^^^^^^^^ Extract \`&#x00000a0;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(24): <span title='&#x2B24;'>\r\n&#160;</span>; 1`] = `
+
+Filename: component.tsx
+
+  1 | <span title='&#x2B24;'>
+  2 | &#160;</span>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(24): <span title='&#x2B24;'>\r\n&#160;</span>; 2`] = `
+
+Message:
+> 1 | <span title='&#x2B24;'>
+    |              ^^^^^^^^ Extract \`&#x2B24;\` into a named constant.
+  2 | &#160;</span>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(24): <span title='&#x2B24;'>\r\n&#160;</span>; 3`] = `
+
+Message:
+  1 | <span title='&#x2B24;'>
+> 2 | &#160;</span>;
+    | ^^^^^^ Extract \`&#160;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(25): <span title=\"&#34;&#39;\">&#123;&#x1003C;&#1114111;</span>; 1`] = `
+
+  1 | <span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(25): <span title=\"&#34;&#39;\">&#123;&#x1003C;&#1114111;</span>; 2`] = `
+
+Message:
+> 1 | <span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;
+    |                   ^^^^^ Extract \`&#39;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(25): <span title=\"&#34;&#39;\">&#123;&#x1003C;&#1114111;</span>; 3`] = `
+
+Message:
+> 1 | <span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;
+    |                                ^^^^^^^^^ Extract \`&#x1003C;\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(25): <span title=\"&#34;&#39;\">&#123;&#x1003C;&#1114111;</span>; 4`] = `
+
+Message:
+> 1 | <span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;
+    |                                         ^^^^^^^^^^ Extract \`&#1114111;\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 1`] = `
 
   1 | log('\\xA0\\u2060\\u{200B}');
