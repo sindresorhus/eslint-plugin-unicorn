@@ -9,7 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule disallows conventional indented asterisk prefixes and shared extra indentation inside multiline comments. In JavaScript, it only applies to documentation comments; regular block comments are ignored. In CSS, JSONC, JSON5, and SOML, it applies to all block comments. The autofix removes prefixes and shared extra indentation after the opening line, preserving relative indentation and aligning the closing delimiter. Put all content after the opening line when Markdown indentation matters. No-gap asterisk lines like `* content` are ignored because the asterisk may be intentional comment content. Comments where only some lines have an asterisk prefix are ignored for the same reason.
+This rule checks multiline comments with only spaces or tabs before the opening delimiter on its line. It applies to JSDoc comments in JavaScript and TypeScript and block comments in CSS, JSONC, JSON5, and SOML.
+
+The autofix removes asterisk prefixes and shared indentation while preserving relative indentation. When removing prefixes, it aligns standalone closing delimiters and moves delimiters onto their own lines when separated from text by spaces or tabs. Opening text that starts with `*` stays in place. Start the content on the next line when Markdown indentation matters.
+
+The rule treats an asterisk aligned with the opening delimiter as text. It skips comments that mix prefixed and unprefixed nonblank continuation lines or indent prefixes unevenly. It also skips JSDoc comments whose last line mentions `@ts-ignore` or `@ts-expect-error`.
 
 ## Examples
 
@@ -53,12 +57,12 @@ The rule also supports CSS, JSONC, JSON5, and SOML comments:
 
 ```css
 /* ❌ */
-/*
- * Description.
- */
+/* Description.
+ * More details. */
 
 /* ✅ */
 /*
 Description.
+More details.
 */
 ```
