@@ -11,7 +11,6 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getNegatedExpressionText,
-	getLineIndent,
 	getIndentUnit,
 	getLinebreak,
 	hasMultilineToken,
@@ -340,9 +339,10 @@ function getConditionalPushSpreadProblem(conditional, context) {
 	const {sourceCode} = context;
 	const problem = {node: spread, messageId: CONDITIONAL_PUSH_SPREAD};
 	const {start, end} = sourceCode.getLoc(statement);
+	const indent = sourceCode.lines[start.line - 1].slice(0, start.column);
 	// Splitting the call across lines can change which code comments and directives apply to.
 	if (
-		sourceCode.lines[start.line - 1].slice(0, start.column).trim()
+		indent.trim()
 		|| sourceCode.lines[end.line - 1].slice(end.column).trim()
 		|| sourceCode.getCommentsBefore(statement).length > 0
 		|| sourceCode.getCommentsInside(statement).length > 0
@@ -366,7 +366,6 @@ function getConditionalPushSpreadProblem(conditional, context) {
 				const {text} = sourceCode;
 				const callText = `${text.slice(callStart, spreadStart)}${text.slice(firstItemStart, lastItemEnd)}${text.slice(spreadEnd, callEnd)};`;
 				const linebreak = getLinebreak(context);
-				const indent = getLineIndent(statement, context);
 				const bodyIndent = indent + getIndentUnit(context);
 				const body = hasMultilineToken(call, context) ? callText : reindentText(callText, indent, bodyIndent);
 				return fixer.replaceText(statement, `if (${condition}) {${linebreak}${bodyIndent}${body}${linebreak}${indent}}`);

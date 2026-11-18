@@ -74,6 +74,10 @@ test({
 				suggestedCode: 'function prepend(items: string[]) {\r\n  if (!(ready || override)) {\r\n    items.unshift(first);\r\n  }\r\n}',
 				languageOptions: {parser: parsers.typescript},
 			},
+			{
+				code: 'async function append(clip, ...items) {\r\n  (items).push(...(clip.audio ? [await convert({\r\n    source: clip.audio,\r\n  }),] : []))\r\n}',
+				suggestedCode: 'async function append(clip, ...items) {\r\n  if (clip.audio) {\r\n    (items).push(await convert({\r\n      source: clip.audio,\r\n    }));\r\n  }\r\n}',
+			},
 			...['items["push"]', 'items[`unshift`]'].map(callee => ({
 				code: `const items = [];\n${callee}(...(ready ? [first] : []));`,
 				suggestedCode: `const items = [];\nif (ready) {\n\t${callee}(first);\n}`,

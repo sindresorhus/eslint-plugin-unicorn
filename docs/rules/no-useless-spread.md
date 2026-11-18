@@ -161,9 +161,9 @@ Whether to check standalone `push()` and `unshift()` calls on known array variab
 
 The rule checks calls at the top level, in an existing block, or in a `switch` case. It recognizes dot notation and bracket notation with a string literal or a template literal without substitutions. The suggestion preserves TypeScript assertions on the receiver.
 
-The rule skips conditions with detectable side effects, including JSX that can invoke a factory. The edit is an editor suggestion because an `if` skips the zero-argument call and evaluates the condition before looking up the method.
+The rule skips conditions with detectable side effects, including JSX that can invoke a factory. It offers an editor suggestion because an `if` skips the zero-argument call and evaluates the condition before looking up the method.
 
-The editor suggestion requires the statement to start and end on lines of its own, with no leading or internal comments. A trailing comment on the last line also prevents the suggestion.
+The editor offers a suggestion only when the statement has no leading or internal comments and shares neither its first nor last line with other code or comments.
 
 ```js
 const items = [];
