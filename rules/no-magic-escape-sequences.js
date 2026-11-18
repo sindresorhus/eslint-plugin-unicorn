@@ -62,7 +62,7 @@ const create = context => {
 
 	function * getJsxProblems(node) {
 		const raw = sourceCode.getText(node);
-		// Vue can decode character references before parsing JSX in a template expression.
+		// Vue.js can decode character references before parsing JSX in a template expression.
 		if (node.raw !== undefined && normalizeLineEndings(raw) !== normalizeLineEndings(node.raw)) {
 			return;
 		}
