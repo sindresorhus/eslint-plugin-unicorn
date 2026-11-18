@@ -128,6 +128,7 @@ test({
 		'/**\nOptions:\n * a\n*/',
 		'/**\n  Options:\n    * a\n  */',
 		'/**\n * Description.\n More details.\n */',
+		'/**\n  * First item.\n\t* Second item.\n*/',
 		'if (condition) {\n\t/**\nDescription.\n\t*/\n}',
 		'/*\n Description.\n */',
 		'/****\n Decorative banner.\n */',
@@ -157,6 +158,11 @@ test({
 		{
 			code: '/**\n * Options:\n *  * a\n */',
 			output: '/**\nOptions:\n * a\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n *   * First item.\n * \t* Second item.\n */',
+			output: '/**\n  * First item.\n\t* Second item.\n*/',
 			errors: [error],
 		},
 		// The prefix does not have to be one space deeper than the opening line
@@ -213,6 +219,11 @@ test({
 		{
 			code: 'if (condition) {\n  /**\n    Description.\n      Indented example.\n    */\n}',
 			output: 'if (condition) {\n  /**\n  Description.\n    Indented example.\n  */\n}',
+			errors: [error],
+		},
+		{
+			code: 'if (condition) {\r\n  /** Example:\r\n   *   const value = true; */\r\n}',
+			output: 'if (condition) {\r\n  /**\r\n  Example:\r\n    const value = true;\r\n  */\r\n}',
 			errors: [error],
 		},
 		...['\n', '\r\n'].flatMap(linebreak => [
@@ -324,6 +335,48 @@ test.snapshot({
 			}
 		`,
 	].map(code => asCss(code)),
+});
+
+test({
+	testerOptions: {language: languages.css.language, plugins: languages.css.plugins},
+	valid: [],
+	invalid: [
+		{
+			code: '/* Styles for SVG elements dynamically injected by Graphviz at runtime.\n * These cannot use CSS module class names */',
+			output: '/*\nStyles for SVG elements dynamically injected by Graphviz at runtime.\nThese cannot use CSS module class names\n*/',
+			errors: [error],
+		},
+		{
+			code: '.example {\n  /* Header\n   *   */color: red;\n}',
+			output: '.example {\n  /*\n  Header\n  */color: red;\n}',
+			errors: [error],
+		},
+		{
+			code: '.example {\n  /* Header\n   * Body\n*/\n  color: red;\n}',
+			output: '.example {\n  /*\n  Header\n  Body\n  */\n  color: red;\n}',
+			errors: [error],
+		},
+		{
+			code: '/*! @license MIT\r\n * Copyright Example */',
+			output: '/*!\r\n@license MIT\r\nCopyright Example\r\n*/',
+			errors: [error],
+		},
+	],
+});
+
+test.typescript({
+	valid: [
+		...['@ts-expect-error', '@ts-ignore'].map(directive => `/** Explanation.\n * ${directive} Intentional type error. */\nconst value: number = 'string';`),
+		'/** Example.\n * * @ts-ignore\u00A0*/\nconst value: number = "string";',
+	],
+	invalid: [
+		{
+			code: '/** JSX setup.\n * @jsxRuntime automatic*/\nexport const element = <div />;',
+			output: '/**\nJSX setup.\n@jsxRuntime automatic*/\nexport const element = <div />;',
+			filename: 'example.tsx',
+			errors: [error],
+		},
+	],
 });
 
 test.snapshot({

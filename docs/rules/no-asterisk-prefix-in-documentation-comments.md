@@ -9,7 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule disallows conventional indented asterisk prefixes and shared extra indentation inside multiline comments. In JavaScript, it only applies to documentation comments; regular block comments are ignored. In CSS, JSONC, JSON5, and SOML, it applies to all block comments. The autofix removes prefixes and shared extra indentation after the opening line, preserving relative indentation and aligning the closing delimiter. Put all content after the opening line when Markdown indentation matters. No-gap asterisk lines like `* content` are ignored because the asterisk may be intentional comment content. Comments where only some lines have an asterisk prefix are ignored for the same reason.
+This rule disallows conventional indented asterisk prefixes and shared extra indentation inside multiline comments that start on their own line. In JavaScript and TypeScript, it applies only to documentation comments. In CSS, JSONC, JSON5, and SOML, it applies to block comments. The autofix removes prefixes and shared extra indentation after the opening line, preserving relative indentation and aligning the closing delimiter. Put all content after the opening line when Markdown indentation matters. An asterisk at the same indentation as the opening delimiter may be intentional content. The rule also ignores comments where prefixes are missing from some continuation lines or have different indentation.
+
+When the autofix removes asterisk prefixes, it also separates text from the delimiters if there are spaces or tabs between them. A delimiter that touches the text stays on the same line. In JavaScript and TypeScript, the rule skips comments that mention `@ts-ignore` or `@ts-expect-error` on the last line to preserve TypeScript's handling of these directives.
 
 ## Examples
 
@@ -53,12 +55,12 @@ The rule also supports CSS, JSONC, JSON5, and SOML comments:
 
 ```css
 /* ❌ */
-/*
- * Description.
- */
+/* Description.
+ * More details. */
 
 /* ✅ */
 /*
 Description.
+More details.
 */
 ```

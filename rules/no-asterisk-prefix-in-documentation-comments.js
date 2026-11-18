@@ -6,7 +6,7 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
-const LINE_ENDING_PATTERN = /[\n\r\u{2028}\u{2029}]/v;
+const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const messages = {
 	[MESSAGE_ID]: 'Remove asterisk prefixes and shared indentation from this comment.',
 };
@@ -20,24 +20,40 @@ const getCommentRange = (sourceCode, comment) => {
 // A line with only whitespace or the closing delimiter
 const isBlankLine = line => /^[\t ]*(?:\*\/)?$/v.test(line);
 
-const getFixedCommentText = (text, linePrefix) => {
-	const closingDelimiterPattern = new RegExp(`^${linePrefix}[ \t]+\\*/`, 'gmv');
-	const linePrefixPattern = new RegExp(`^${linePrefix}[ \t]+\\*(?:[ \t])?`, 'gmv');
-	const contentLines = text.split(LINE_ENDING_PATTERN).slice(1).filter(line => !isBlankLine(line));
-	const prefixedLinePattern = new RegExp(`^${linePrefix}[ \t]+\\*`, 'v');
-	const isPrefixedLine = line => prefixedLinePattern.test(line);
+const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
+	const lines = text.split(LINE_ENDING_PATTERN);
 
-	// When only some lines have an asterisk prefix, the asterisks may be content, like the indented Markdown list markers left by a previous fix.
-	if (
-		contentLines.some(line => isPrefixedLine(line))
-		&& contentLines.some(line => !isPrefixedLine(line))
-	) {
+	// Changes to the last line can activate or deactivate a TypeScript suppression directive.
+	if (isJavaScriptComment && /@ts-(?:expect-error|ignore)/v.test(lines.at(-1))) {
 		return text;
 	}
 
-	const fixedText = text
-		.replace(closingDelimiterPattern, () => `${linePrefix}*/`)
-		.replace(linePrefixPattern, () => linePrefix);
+	const prefixIndentationPattern = new RegExp(`^(${linePrefix}[ \t]+)\\*`, 'v');
+	const prefixIndentations = new Set(lines.slice(1)
+		.filter(line => !isBlankLine(line))
+		.map(line => prefixIndentationPattern.exec(line)?.[1]));
+
+	// When asterisk prefixes are inconsistent, the asterisks may be content, like the indented Markdown list markers left by a previous fix.
+	if (prefixIndentations.size > 1) {
+		return text;
+	}
+
+	const [prefixIndentation] = prefixIndentations;
+	let fixedText = text;
+
+	if (prefixIndentation !== undefined) {
+		const asteriskPrefixPattern = new RegExp(`^${prefixIndentation}\\*(?!/)[ \t]?`, 'gmv');
+		const [linebreak] = text.match(LINE_ENDING_PATTERN);
+		fixedText = text
+			.replace(asteriskPrefixPattern, () => linePrefix)
+			.replace(/^(\/\*\*?!?)[\t ]+(?=\S)/v, (_, openingDelimiter) => `${openingDelimiter}${linebreak}${linePrefix}`)
+			.replace(/(?<=\S)[\t ]+\*\/$/v, () => `${linebreak}${linePrefix}*/`);
+	}
+
+	const closingIndentation = prefixIndentation === undefined ? `${linePrefix}[ \t]+` : '[\t ]*';
+	const closingDelimiterPattern = new RegExp(`^${closingIndentation}\\*/$`, 'mv');
+	fixedText = fixedText.replace(closingDelimiterPattern, () => `${linePrefix}*/`);
+
 	let sharedIndentation;
 
 	for (const line of fixedText.split(LINE_ENDING_PATTERN).slice(1)) {
@@ -77,7 +93,7 @@ const getProblem = (context, comment) => {
 		return;
 	}
 
-	const fixedText = getFixedCommentText(text, linePrefix);
+	const fixedText = getFixedCommentText(text, linePrefix, isJavaScriptComment);
 
 	if (text === fixedText) {
 		return;
