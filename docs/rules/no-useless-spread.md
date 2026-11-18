@@ -157,22 +157,17 @@ const object = new Foo(...foo, bar);
 Type: `boolean`\
 Default: `false`
 
-Whether to check standalone `push()` and `unshift()` calls on known array variables when the only argument spreads a ternary with `[]` in one branch and a nonempty array literal without holes or spreads in the other branch.
+Whether to check standalone `push()` and `unshift()` calls on known arrays, including calls prefixed with `void`. The sole argument must spread a ternary between `[]` and a nonempty array literal without holes or spreads. Conditions with detectable side effects or JSX are skipped.
 
-The rule checks calls at the top level, in an existing block, or in a `switch` case. It recognizes dot notation and bracket notation with a string literal or a template literal without substitutions. The suggestion preserves TypeScript assertions on the receiver and the `void` operator in a standalone statement.
-
-The rule skips conditions with detectable side effects, including JSX that can invoke a factory. It offers an editor suggestion because an `if` skips the zero-argument call and evaluates the condition before looking up the method.
-
-The editor offers a suggestion only when the statement has no leading or internal comments and shares neither its first nor last line with other code or comments.
+The editor suggests an `if` for statements on their own lines without leading or internal comments. The `if` skips the zero-argument call and moves method lookup after the condition.
 
 ```js
 const items = [];
 items.push(...(enabled ? [first, second] : []));
 ```
 
-The editor suggests replacing the call with this statement.
-
 ```js
+// 💡
 if (enabled) {
 	items.push(first, second);
 }
