@@ -2,7 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
 import {isEslintDisableOrEnableDirective} from './eslint-directive.js';
 import {parseJSDocumentType} from './parse-jsdoc-type.js';
-import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import {hasTypeScriptTypeAssertion, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import {
 	getJSDocumentDelimitedEnd,
 	getJSDocumentTags,
@@ -274,22 +274,9 @@ function getJSDocumentParameterNameRange(node, context) {
 }
 
 /**
-Keep native assertions authoritative when they wrap an initializer.
-*/
-function hasNativeTypeAssertion(node) {
-	while (isTypeScriptExpressionWrapper(node)) {
-		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-			return true;
-		}
-
-		node = node.expression;
-	}
-
-	return false;
-}
-
-/**
 Get a directly documented binding or property type, resolving simple identifier references to their declaration.
+
+TypeScript assertions take precedence when they wrap an initializer.
 */
 const getJSDocumentTypeAnnotation = memoizeJSDocumentLookup((node, context) => {
 	if (node.typeAnnotation) {
@@ -299,14 +286,14 @@ const getJSDocumentTypeAnnotation = memoizeJSDocumentLookup((node, context) => {
 	const {parent} = node;
 	let owners;
 	if (propertyTypes.has(node.type)) {
-		if (hasNativeTypeAssertion(node.value)) {
+		if (hasTypeScriptTypeAssertion(node.value)) {
 			return;
 		}
 
 		owners = [node];
 	} else if (node.type === 'Identifier') {
 		if (parent?.type === 'VariableDeclarator' && parent.id === node) {
-			if (hasNativeTypeAssertion(parent.init)) {
+			if (hasTypeScriptTypeAssertion(parent.init)) {
 				return;
 			}
 
@@ -355,7 +342,6 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 
 export {
 	hasJSDocumentComments,
-	hasNativeTypeAssertion,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

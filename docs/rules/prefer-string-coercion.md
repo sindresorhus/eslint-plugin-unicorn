@@ -11,7 +11,7 @@
 
 Prefer `String(value)` for zero-argument `.toString()` calls on known `number` or `bigint` values, including `number | bigint` unions. The rule checks dot notation and bracket notation with a string literal or a template literal without substitutions.
 
-Calls with a radix argument or optional chaining to the receiver or method are allowed. With type-checked linting, the rule only reports calls that return plain `string`.
+Calls with a radix argument or optional chaining to the receiver or method are allowed. Intersection type annotations require type-checked linting, which only reports calls that return plain `string`.
 
 The rule skips edits that would remove a comment.
 

@@ -1,7 +1,14 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getFunctionReturnExpression, getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getFunctionReturnExpression,
+	getJSDocumentReturnType,
+	getJSDocumentTypeAnnotation,
+	getOutermostTypeScriptExpression,
+	hasTypeScriptTypeAssertion,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const MESSAGE_ID_SUGGESTION = 'prefer-native-coercion-functions/suggestion';
@@ -21,12 +28,9 @@ const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	&& node.arguments[0]?.type === 'Identifier'
 	&& node.arguments[0].name === firstArgumentName;
 
-// `v => value` or `function (v) {return value;}`, with TypeScript expression wrappers around the value removed
-const getReturnedExpression = node => unwrapTypeScriptExpression(getFunctionReturnExpression(node));
-
-// `v => v`
+// `v => v` or `function (v) {return v;}`, with TypeScript expression wrappers around the value removed
 const isIdentityFunction = node => {
-	const returnedExpression = getReturnedExpression(node);
+	const returnedExpression = unwrapTypeScriptExpression(getFunctionReturnExpression(node));
 	return returnedExpression?.type === 'Identifier'
 		&& returnedExpression.name === node.params[0].name;
 };
@@ -45,14 +49,6 @@ const isArrayIdentityCallback = node =>
 const isTypeScriptTypePredicateFunction = node =>
 	node.returnType?.type === 'TSTypeAnnotation'
 	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
-
-// `v => String(v)`
-function getCallExpression(node) {
-	const returnedExpression = getReturnedExpression(node);
-	if (isNativeCoercionFunctionCall(returnedExpression, node.params[0].name)) {
-		return returnedExpression;
-	}
-}
 
 function getArrayCallbackProblem(node) {
 	if (!isArrayIdentityCallback(node)) {
@@ -81,9 +77,23 @@ const needsSemicolonAfter = (node, sourceCode) => {
 };
 
 function getCoercionFunctionProblem(node, context) {
-	const callExpression = getCallExpression(node);
+	// `v => String(v)`
+	const returnedExpression = getFunctionReturnExpression(node);
+	const callExpression = unwrapTypeScriptExpression(returnedExpression);
+	const [parameter] = node.params;
 
-	if (!callExpression) {
+	// Replacing the wrapper can discard its declared signature.
+	if (
+		!isNativeCoercionFunctionCall(callExpression, parameter.name)
+		|| parameter.typeAnnotation
+		|| parameter.optional
+		|| node.returnType
+		|| node.typeParameters
+		|| getOutermostTypeScriptExpression(node) !== node
+		|| hasTypeScriptTypeAssertion(returnedExpression)
+		|| getJSDocumentTypeAnnotation(parameter, context)
+		|| getJSDocumentReturnType(node, context)
+	) {
 		return;
 	}
 
@@ -164,7 +174,7 @@ const create = context => {
 			},
 		};
 
-		const {parent} = getOutermostTypeScriptExpression(node);
+		const {parent} = node;
 		if (parent.type === 'UnaryExpression' && parent.operator === 'delete') {
 			return problem;
 		}

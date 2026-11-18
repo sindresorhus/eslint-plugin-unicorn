@@ -15,6 +15,21 @@ Check if the node is a TypeScript expression wrapper (`as`, `satisfies`, `!`, `<
 export const isTypeScriptExpressionWrapper = node => typeScriptExpressionWrapperTypes.has(node?.type);
 
 /**
+Check for an `as Type` or `<Type>` assertion among the TypeScript wrappers around an expression.
+*/
+export function hasTypeScriptTypeAssertion(node) {
+	while (isTypeScriptExpressionWrapper(node)) {
+		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+			return true;
+		}
+
+		node = node.expression;
+	}
+
+	return false;
+}
+
+/**
 Unwrap TypeScript expression wrappers (`as`, `satisfies`, `!`, `<Type>`, and `foo<Type>`), which have no runtime effect.
 
 @param {import('estree').Node} node

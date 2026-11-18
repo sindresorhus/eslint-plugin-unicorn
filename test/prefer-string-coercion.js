@@ -1,8 +1,12 @@
+import {test as testInteraction} from 'node:test';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.typescript}});
+const customToStringType = 'type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }';
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -42,8 +46,11 @@ test.snapshot({
 		typescriptSyntax('function format(value: any) { return ((value satisfies number) + 42).toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies string).indexOf("x").toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies string).length.toString(); }'),
+		typescriptSyntax(customToStringType),
+		typescriptSyntax('const result: "42" = (42 as {toString(): "42"} & 42).toString();'),
+		typescriptSyntax('const missing = null; const value = missing ?? (42 as {toString(): "42"} & 42); const result: "42" = value.toString();'),
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
-		typeAware('type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }'),
+		typeAware(customToStringType),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
 		typeAware('function format(value: Number) { return value.toString(); }'),
 		typeAware('function format(value: number | string | undefined) { return (value ?? 0).toString(); }'),
@@ -74,6 +81,8 @@ test.snapshot({
 		'(end - start).toString();',
 		'(attempts -= backoff).toString();',
 		'(~mask).toString();',
+		'(+price).toString();',
+		'/** @type {number} */ const value = getInput(); const alias = value; alias.toString();',
 		'/** @param {number | bigint} value */ function format(value) { return value.toString(); }',
 		typeAware('function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }'),
 		'Date.now().toString();',
@@ -89,6 +98,39 @@ test.snapshot({
 		typeAware('enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();'),
 	],
 });
+
+for (const {name, code, languageOptions, filename = 'file.js'} of [
+	{
+		name: 'a TypeScript annotation',
+		code: 'export const format = (value: number) => value.toString();',
+		languageOptions: {parser: typescriptEslintParser},
+	},
+	{
+		name: 'a JSDoc annotation',
+		code: '/** @param {number} value */\nexport const format = value => value.toString();',
+	},
+	{
+		name: 'an asserted return type',
+		...typeAware('export const format: (value: number) => "42" = value => value.toString() as "42";'),
+	},
+	{
+		name: 'a contextual signature from satisfies',
+		...typeAware('export const format = (value => value.toString()) satisfies (value: number) => string;'),
+	},
+]) {
+	testInteraction(`combined coercion fixes preserve ${name}`, t => {
+		const result = new Linter().verifyAndFix(code, {
+			files: ['**/*.{js,ts}'],
+			plugins: {unicorn},
+			languageOptions: languageOptions ?? {},
+			rules: {
+				'unicorn/prefer-string-coercion': 'error',
+				'unicorn/prefer-native-coercion-functions': 'error',
+			},
+		}, {filename});
+		t.assert.deepStrictEqual(result, {fixed: true, output: code.replace('value.toString()', 'String(value)'), messages: []});
+	});
+}
 
 test.typescript({
 	valid: [],

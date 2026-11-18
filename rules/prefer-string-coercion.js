@@ -31,6 +31,11 @@ const messages = {
 
 const numericTypeNames = new Set(['number', 'bigint']);
 const numericBuiltIns = new Set(['BigInt', 'Date', 'Math', 'Number']);
+// An intersection can declare a narrower return type for `.toString()`.
+const syntaxOnlyTypeOptions = {
+	ignoreIntersectionTypeAnnotations: true,
+	treatMixedUnionAsNonTarget: true,
+};
 
 const {isTarget: isNumeric} = createTypeCheckers({
 	targetTypeNames: numericTypeNames,
@@ -71,6 +76,9 @@ const {isTarget: isNumeric} = createTypeCheckers({
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
+	const typeOptions = sourceCode.parserServices?.program ? undefined : syntaxOnlyTypeOptions;
+
 	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {argumentsLength: 0})) {
 			return;
@@ -82,14 +90,14 @@ const create = context => {
 		if (
 			method !== 'toString'
 			|| hasOptionalChainElement(node)
-			|| !isNumeric(value, context)
+			|| !isNumeric(value, context, typeOptions)
 			|| withTypeInformation(node, context, ({type, checker}) => type !== checker.getStringType())
 		) {
 			return;
 		}
 
 		const problem = {node, messageId: MESSAGE_ID};
-		const stringVariable = findVariable(context.sourceCode.getScope(node), 'String');
+		const stringVariable = findVariable(sourceCode.getScope(node), 'String');
 		// Even a type-only definition can obscure which value the replacement would use.
 		if (stringVariable?.defs.length > 0) {
 			return problem;

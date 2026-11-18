@@ -56,17 +56,17 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(1): const toString = (value: unknown) => String(value) as string; 1`] = `
+exports[`prefer-native-coercion-functions > invalid(1): const toString = value => String(value) satisfies string; 1`] = `
 
-  1 | const toString = (value: unknown) => String(value) as string;
+  1 | const toString = value => String(value) satisfies string;
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(1): const toString = (value: unknown) => String(value) as string; 2`] = `
+exports[`prefer-native-coercion-functions > invalid(1): const toString = value => String(value) satisfies string; 2`] = `
 
 Message:
-> 1 | const toString = (value: unknown) => String(value) as string;
-    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+> 1 | const toString = value => String(value) satisfies string;
+    |                        ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
 
 Output:
   1 | const toString = String;
@@ -608,17 +608,17 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(2): const toString = (value: unknown) => String(value) satisfies string; 1`] = `
+exports[`prefer-native-coercion-functions > invalid(2): const toString = value => String(value)!; 1`] = `
 
-  1 | const toString = (value: unknown) => String(value) satisfies string;
+  1 | const toString = value => String(value)!;
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(2): const toString = (value: unknown) => String(value) satisfies string; 2`] = `
+exports[`prefer-native-coercion-functions > invalid(2): const toString = value => String(value)!; 2`] = `
 
 Message:
-> 1 | const toString = (value: unknown) => String(value) satisfies string;
-    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+> 1 | const toString = value => String(value)!;
+    |                        ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
 
 Output:
   1 | const toString = String;
@@ -653,6 +653,23 @@ Message:
 
 Output:
   1 | array.find(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): array.some(value => value!); 1`] = `
+
+  1 | array.some(value => value!);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): array.some(value => value!); 2`] = `
+
+Message:
+> 1 | array.some(value => value!);
+    |                  ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.some(Boolean);
 
 `;
 
@@ -693,23 +710,6 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(3): const toString = (value: unknown) => String(value)!; 1`] = `
-
-  1 | const toString = (value: unknown) => String(value)!;
-
-`;
-
-exports[`prefer-native-coercion-functions > invalid(3): const toString = (value: unknown) => String(value)!; 2`] = `
-
-Message:
-> 1 | const toString = (value: unknown) => String(value)!;
-    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
-
-Output:
-  1 | const toString = String;
-
-`;
-
 exports[`prefer-native-coercion-functions > invalid(4): array.findLast(v => v) 1`] = `
 
   1 | array.findLast(v => v)
@@ -727,17 +727,17 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(4): array.some(value => value!); 1`] = `
+exports[`prefer-native-coercion-functions > invalid(4): array.some((value: boolean) => value satisfies boolean); 1`] = `
 
-  1 | array.some(value => value!);
+  1 | array.some((value: boolean) => value satisfies boolean);
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(4): array.some(value => value!); 2`] = `
+exports[`prefer-native-coercion-functions > invalid(4): array.some((value: boolean) => value satisfies boolean); 2`] = `
 
 Message:
-> 1 | array.some(value => value!);
-    |                  ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+> 1 | array.some((value: boolean) => value satisfies boolean);
+    |                             ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
 
 Output:
   1 | array.some(Boolean);
@@ -785,17 +785,21 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(5): array.some((value: boolean) => value satisfies boolean); 1`] = `
+exports[`prefer-native-coercion-functions > invalid(5): array.some(function (value) {\n\treturn value!;\n}); 1`] = `
 
-  1 | array.some((value: boolean) => value satisfies boolean);
+  1 | array.some(function (value) {
+  2 | 	return value!;
+  3 | });
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(5): array.some((value: boolean) => value satisfies boolean); 2`] = `
+exports[`prefer-native-coercion-functions > invalid(5): array.some(function (value) {\n\treturn value!;\n}); 2`] = `
 
 Message:
-> 1 | array.some((value: boolean) => value satisfies boolean);
-    |                             ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+> 1 | array.some(function (value) {
+    |            ^^^^^^^^^ function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+  2 | 	return value!;
+  3 | });
 
 Output:
   1 | array.some(Boolean);
@@ -898,27 +902,6 @@ Output:
 
 `;
 
-exports[`prefer-native-coercion-functions > invalid(6): const toString = (value: unknown) => {\n\treturn String(value) as string;\n}; 1`] = `
-
-  1 | const toString = (value: unknown) => {
-  2 | 	return String(value) as string;
-  3 | };
-
-`;
-
-exports[`prefer-native-coercion-functions > invalid(6): const toString = (value: unknown) => {\n\treturn String(value) as string;\n}; 2`] = `
-
-Message:
-> 1 | const toString = (value: unknown) => {
-    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
-  2 | 	return String(value) as string;
-  3 | };
-
-Output:
-  1 | const toString = String;
-
-`;
-
 exports[`prefer-native-coercion-functions > invalid(6): foo = v => {\n\treturn String(v);\n}\n\`bar\`; 1`] = `
 
   1 | foo = v => {
@@ -957,27 +940,6 @@ Message:
 
 Output:
   1 | array.findLastIndex(Boolean)
-
-`;
-
-exports[`prefer-native-coercion-functions > invalid(7): array.some(function (value) {\n\treturn value!;\n}); 1`] = `
-
-  1 | array.some(function (value) {
-  2 | 	return value!;
-  3 | });
-
-`;
-
-exports[`prefer-native-coercion-functions > invalid(7): array.some(function (value) {\n\treturn value!;\n}); 2`] = `
-
-Message:
-> 1 | array.some(function (value) {
-    |            ^^^^^^^^^ function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
-  2 | 	return value!;
-  3 | });
-
-Output:
-  1 | array.some(Boolean);
 
 `;
 

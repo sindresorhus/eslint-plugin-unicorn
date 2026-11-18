@@ -16,10 +16,9 @@ import {
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,
 	hasJSDocumentComments,
-	hasNativeTypeAssertion,
 } from './jsdoc-type.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion} from './unwrap-typescript-expression.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -204,7 +203,9 @@ function getJSDocumentTypeNodeType(node, options) {
 		}
 
 		case 'intersection': {
-			return combineIntersectionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)));
+			return options.ignoreIntersectionTypeAnnotations
+				? nonTarget
+				: combineIntersectionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)));
 		}
 
 		case 'nullish': {
@@ -469,7 +470,9 @@ function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinit
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
+			return options.ignoreIntersectionTypeAnnotations
+				? nonTarget
+				: combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
 		}
 
 		default: {
@@ -648,7 +651,7 @@ const getTypeFromFunctionCall = (node, context, options) => {
 
 	const initializer = getDefinitionInitializer(definition);
 	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(initializer);
-	if (value?.async || value?.generator || (definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))) {
+	if (value?.async || value?.generator || (definition.type === 'Parameter' && (value?.returnType || hasTypeScriptTypeAssertion(initializer)))) {
 		return unknown;
 	}
 

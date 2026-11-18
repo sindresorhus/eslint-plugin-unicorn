@@ -4,19 +4,18 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
-	valid: [],
+	valid: [
+		'delete ((value => String(value)) as unknown);',
+		'delete ((value => String(value)) satisfies unknown);',
+		'delete (<unknown>(value => String(value)));',
+		'delete (value => String(value))!;',
+	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	invalid: [
 		'delete (value => String(value));',
 		'delete (function (value) {return Number(value);});',
 		'delete (((value => Boolean(value))));',
-		...[
-			'delete ((value => String(value)) as unknown);',
-			'delete ((value => String(value)) satisfies unknown);',
-			'delete (<unknown>(value => String(value)));',
-			'delete (value => String(value))!;',
-		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
-	].map(testCase => ({
-		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+	].map(code => ({
+		code,
 		errors: [{messageId: 'prefer-native-coercion-functions', suggestions: 0}],
 	})),
 });
@@ -42,6 +41,7 @@ test({
 test.snapshot({
 	valid: [
 		'const foo = async v => String(v)',
+		'/** @returns {string} */\nconst stringify = value => String(value);',
 		'const foo = v => String',
 		'const foo = v => v',
 		'const foo = v => NotString(v)',
@@ -282,21 +282,31 @@ test.snapshot({
 	],
 });
 
-// A TypeScript expression wrapper around the value must not hide the pattern
+test.typescript({
+	valid: [
+		'const format = (value: number) => String(value);',
+		'const format = (value): string => String(value);',
+		'const format = <Value,>(value) => String(value);',
+	],
+	invalid: [],
+});
+
+// Check TypeScript wrappers while preserving return value assertions.
 test.snapshot({
 	testerOptions: {
 		languageOptions: {
 			parser: parsers.typescript,
 		},
 	},
-	valid: [],
+	valid: [
+		'const toString = value => String(value) as "42";',
+		'const toString = value => {\n\treturn String(value) as string;\n};',
+	],
 	invalid: [
-		'const toString = (value: unknown) => String(value) as string;',
-		'const toString = (value: unknown) => String(value) satisfies string;',
-		'const toString = (value: unknown) => String(value)!;',
+		'const toString = value => String(value) satisfies string;',
+		'const toString = value => String(value)!;',
 		'array.some(value => value!);',
 		'array.some((value: boolean) => value satisfies boolean);',
-		'const toString = (value: unknown) => {\n\treturn String(value) as string;\n};',
 		'array.some(function (value) {\n\treturn value!;\n});',
 	],
 });

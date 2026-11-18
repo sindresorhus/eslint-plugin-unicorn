@@ -305,13 +305,47 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(26): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(26): (+price).toString(); 1`] = `
+
+  1 | (+price).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(26): (+price).toString(); 2`] = `
+
+Message:
+> 1 | (+price).toString();
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Output:
+  1 | String(+price);
+
+`;
+
+exports[`prefer-string-coercion > invalid(27): /** @type {number} */ const value = getInput(); const alias = value; alias.toString(); 1`] = `
+
+  1 | /** @type {number} */ const value = getInput(); const alias = value; alias.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(27): /** @type {number} */ const value = getInput(); const alias = value; alias.toString(); 2`] = `
+
+Message:
+> 1 | /** @type {number} */ const value = getInput(); const alias = value; alias.toString();
+    |                                                                      ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Output:
+  1 | /** @type {number} */ const value = getInput(); const alias = value; String(alias);
+
+`;
+
+exports[`prefer-string-coercion > invalid(28): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 1`] = `
 
   1 | /** @param {number | bigint} value */ function format(value) { return value.toString(); }
 
 `;
 
-exports[`prefer-string-coercion > invalid(26): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(28): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 2`] = `
 
 Message:
 > 1 | /** @param {number | bigint} value */ function format(value) { return value.toString(); }
@@ -322,7 +356,7 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(27): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(29): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 1`] = `
 
 Filename: file.ts
 
@@ -330,7 +364,7 @@ Filename: file.ts
 
 `;
 
-exports[`prefer-string-coercion > invalid(27): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(29): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 2`] = `
 
 Message:
 > 1 | function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }
@@ -338,40 +372,6 @@ Message:
 
 Output:
   1 | function encode(value: unknown) { if (typeof value === "bigint") return String(value); }
-
-`;
-
-exports[`prefer-string-coercion > invalid(28): Date.now().toString(); 1`] = `
-
-  1 | Date.now().toString();
-
-`;
-
-exports[`prefer-string-coercion > invalid(28): Date.now().toString(); 2`] = `
-
-Message:
-> 1 | Date.now().toString();
-    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
-
-Output:
-  1 | String(Date.now());
-
-`;
-
-exports[`prefer-string-coercion > invalid(29): BigInt.asIntN(64, value).toString(); 1`] = `
-
-  1 | BigInt.asIntN(64, value).toString();
-
-`;
-
-exports[`prefer-string-coercion > invalid(29): BigInt.asIntN(64, value).toString(); 2`] = `
-
-Message:
-> 1 | BigInt.asIntN(64, value).toString();
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
-
-Output:
-  1 | String(BigInt.asIntN(64, value));
 
 `;
 
@@ -392,13 +392,47 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(30): function format(value: number, increment: number) { return (value += increment).toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(30): Date.now().toString(); 1`] = `
+
+  1 | Date.now().toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(30): Date.now().toString(); 2`] = `
+
+Message:
+> 1 | Date.now().toString();
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Output:
+  1 | String(Date.now());
+
+`;
+
+exports[`prefer-string-coercion > invalid(31): BigInt.asIntN(64, value).toString(); 1`] = `
+
+  1 | BigInt.asIntN(64, value).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(31): BigInt.asIntN(64, value).toString(); 2`] = `
+
+Message:
+> 1 | BigInt.asIntN(64, value).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Output:
+  1 | String(BigInt.asIntN(64, value));
+
+`;
+
+exports[`prefer-string-coercion > invalid(32): function format(value: number, increment: number) { return (value += increment).toString(); } 1`] = `
 
   1 | function format(value: number, increment: number) { return (value += increment).toString(); }
 
 `;
 
-exports[`prefer-string-coercion > invalid(30): function format(value: number, increment: number) { return (value += increment).toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(32): function format(value: number, increment: number) { return (value += increment).toString(); } 2`] = `
 
 Message:
 > 1 | function format(value: number, increment: number) { return (value += increment).toString(); }
@@ -409,7 +443,7 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(31): function format(value: string) { return value.indexOf(\"x\").toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(33): function format(value: string) { return value.indexOf(\"x\").toString(); } 1`] = `
 
 Filename: file.ts
 
@@ -417,7 +451,7 @@ Filename: file.ts
 
 `;
 
-exports[`prefer-string-coercion > invalid(31): function format(value: string) { return value.indexOf(\"x\").toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(33): function format(value: string) { return value.indexOf(\"x\").toString(); } 2`] = `
 
 Message:
 > 1 | function format(value: string) { return value.indexOf("x").toString(); }
@@ -428,13 +462,13 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(32): [\"a\", \"b\"].length.toString(); 1`] = `
+exports[`prefer-string-coercion > invalid(34): [\"a\", \"b\"].length.toString(); 1`] = `
 
   1 | ["a", "b"].length.toString();
 
 `;
 
-exports[`prefer-string-coercion > invalid(32): [\"a\", \"b\"].length.toString(); 2`] = `
+exports[`prefer-string-coercion > invalid(34): [\"a\", \"b\"].length.toString(); 2`] = `
 
 Message:
 > 1 | ["a", "b"].length.toString();
@@ -445,7 +479,7 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(33): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(35): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 1`] = `
 
 Filename: file.ts
 
@@ -453,7 +487,7 @@ Filename: file.ts
 
 `;
 
-exports[`prefer-string-coercion > invalid(33): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(35): type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); } 2`] = `
 
 Message:
 > 1 | type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }
@@ -464,7 +498,7 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(34): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 1`] = `
+exports[`prefer-string-coercion > invalid(36): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 1`] = `
 
 Filename: file.ts
 
@@ -472,7 +506,7 @@ Filename: file.ts
 
 `;
 
-exports[`prefer-string-coercion > invalid(34): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 2`] = `
+exports[`prefer-string-coercion > invalid(36): enum Status {Okay = 200, Missing = 404} Status.Okay.toString(); 2`] = `
 
 Message:
 > 1 | enum Status {Okay = 200, Missing = 404} Status.Okay.toString();
@@ -483,7 +517,7 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(35): function format(value: number | undefined) { return (value ?? 0).toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(37): function format(value: number | undefined) { return (value ?? 0).toString(); } 1`] = `
 
 Filename: file.ts
 
@@ -491,7 +525,7 @@ Filename: file.ts
 
 `;
 
-exports[`prefer-string-coercion > invalid(35): function format(value: number | undefined) { return (value ?? 0).toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(37): function format(value: number | undefined) { return (value ?? 0).toString(); } 2`] = `
 
 Message:
 > 1 | function format(value: number | undefined) { return (value ?? 0).toString(); }
@@ -502,13 +536,13 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(36): const value = 1n; const alias = value; { const value = null; alias.toString(); } 1`] = `
+exports[`prefer-string-coercion > invalid(38): const value = 1n; const alias = value; { const value = null; alias.toString(); } 1`] = `
 
   1 | const value = 1n; const alias = value; { const value = null; alias.toString(); }
 
 `;
 
-exports[`prefer-string-coercion > invalid(36): const value = 1n; const alias = value; { const value = null; alias.toString(); } 2`] = `
+exports[`prefer-string-coercion > invalid(38): const value = 1n; const alias = value; { const value = null; alias.toString(); } 2`] = `
 
 Message:
 > 1 | const value = 1n; const alias = value; { const value = null; alias.toString(); }
@@ -519,13 +553,13 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(37): NaN.toString(); 1`] = `
+exports[`prefer-string-coercion > invalid(39): NaN.toString(); 1`] = `
 
   1 | NaN.toString();
 
 `;
 
-exports[`prefer-string-coercion > invalid(37): NaN.toString(); 2`] = `
+exports[`prefer-string-coercion > invalid(39): NaN.toString(); 2`] = `
 
 Message:
 > 1 | NaN.toString();
@@ -533,25 +567,6 @@ Message:
 
 Output:
   1 | String(NaN);
-
-`;
-
-exports[`prefer-string-coercion > invalid(38): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 1`] = `
-
-Filename: file.ts
-
-  1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
-
-`;
-
-exports[`prefer-string-coercion > invalid(38): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 2`] = `
-
-Message:
-> 1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
-    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
-
-Output:
-  1 | enum Status {Current = Date.now(), Okay = 200} String(Status.Current);
 
 `;
 
@@ -569,6 +584,25 @@ Message:
 
 Output:
   1 | function format() {return String(42);}
+
+`;
+
+exports[`prefer-string-coercion > invalid(40): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(40): enum Status {Current = Date.now(), Okay = 200} Status.Current.toString(); 2`] = `
+
+Message:
+> 1 | enum Status {Current = Date.now(), Okay = 200} Status.Current.toString();
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Output:
+  1 | enum Status {Current = Date.now(), Okay = 200} String(Status.Current);
 
 `;
 

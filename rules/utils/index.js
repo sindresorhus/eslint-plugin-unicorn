@@ -195,6 +195,7 @@ export {
 	unwrapChainAndTypeScriptExpression,
 	getOutermostTypeScriptExpression,
 	getOutermostChainAndTypeScriptExpression,
+	hasTypeScriptTypeAssertion,
 } from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,
