@@ -11,7 +11,9 @@ Numeric escape sequences such as `\u{2B24}` can be hard to identify in a string.
 
 The rule checks `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged template literals, including in JSX and Vue template expressions. It allows a string made entirely of escapes as the initializer of a named `const`, including with TypeScript assertions such as `as const`. Short escapes such as `\n`, `\t`, and `\0` are allowed anywhere.
 
-The rule skips text in tagged templates, regular expressions, JSX text and quoted JSX attributes, and positions that require string literals, such as static import sources, import attributes, and TypeScript literal types. It skips Vue strings and template segments that contain decoded HTML character references.
+The rule skips text in tagged templates, regular expression literals, JSX text and quoted JSX attributes, and positions that require string literals, such as static import sources, import attributes, and TypeScript literal types. It also skips module specifiers in `import()` and direct `require()` calls because TypeScript and bundlers can rely on a literal path.
+
+The rule skips Vue strings and template segments that contain decoded HTML character references.
 
 ## Examples
 

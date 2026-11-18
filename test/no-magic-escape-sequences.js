@@ -19,6 +19,8 @@ test.snapshot({
 		'String.raw`\\u{2B24}\\8`;',
 		String.raw`<span title="\u{2B24}">&#xA0;</span>;`,
 		String.raw`'use \u{2603}'; import './\u{2603}.js'; const object = {'\u{2603}': true};`,
+		String.raw`require('./\u03C0.cjs'); import('./\u03C0.js');`,
+		'require(`./\\u03C0.cjs`); import(`./\\u03C0${suffix}.js`);',
 		{
 			code: 'type Value = \'\\u00A0\' | `\\u00A0`; type Pattern = `\\u00A0${number}`;',
 			languageOptions: {parser: parsers.typescript},
@@ -69,5 +71,6 @@ test.snapshot({
 		'tag`\\u{2B24}${"\\u{2B24}"}`;',
 		String.raw`const labels = {'\u{2B24}': true, ['\u{2B24}']: false};`,
 		String.raw`import('pkg', {with: {type: '\u006Ason'}});`,
+		String.raw`new RegExp('\u2028'); loader.require('./\u03C0.js');`,
 	],
 });

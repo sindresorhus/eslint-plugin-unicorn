@@ -139,6 +139,28 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 1`] = `
+
+  1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 2`] = `
+
+Message:
+> 1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+    |             ^^^^^^ Extract \`\\u2028\` into a named constant.
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(18): new RegExp('\\u2028'); loader.require('./\\u03C0.js'); 3`] = `
+
+Message:
+> 1 | new RegExp('\\u2028'); loader.require('./\\u03C0.js');
+    |                                         ^^^^^^ Extract \`\\u03C0\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(2): <span>{'\\u{2B24}'}</span>; 1`] = `
 
   1 | <span>{'\\u{2B24}'}</span>;

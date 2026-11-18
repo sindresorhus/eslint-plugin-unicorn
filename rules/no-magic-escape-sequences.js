@@ -1,4 +1,4 @@
-import {isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
+import {isCallExpression, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 import {
 	checkVueTemplate,
 	getOutermostTypeScriptExpression,
@@ -15,6 +15,14 @@ const messages = {
 const escapePattern = /\\(?:(?<numeric>x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\}))|\r\n|.)/gsv;
 
 const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
+
+function shouldSkipString(node) {
+	const {parent} = node;
+	// TypeScript and bundlers can require literal module specifiers for static analysis.
+	return isStringLiteralRequired(node)
+		|| (parent.type === 'ImportExpression' && parent.source === node)
+		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === node);
+}
 
 function isNamedConstantInitializer(node) {
 	const expression = getOutermostTypeScriptExpression(node);
@@ -64,13 +72,13 @@ const create = context => {
 	}
 
 	context.on('Literal', node => {
-		if (isStringLiteral(node) && !isStringLiteralRequired(node)) {
+		if (isStringLiteral(node) && !shouldSkipString(node)) {
 			return getProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(node));
 		}
 	});
 
 	context.on('TemplateLiteral', function * (node) {
-		if (isTaggedTemplateLiteral(node) || isStringLiteralRequired(node)) {
+		if (isTaggedTemplateLiteral(node) || shouldSkipString(node)) {
 			return;
 		}
 
