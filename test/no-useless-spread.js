@@ -48,6 +48,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			options: conditionalPushSpreadOptions,
 		},
+		...['<span />', '<></>'].map(jsx => ({
+			code: `const items = [];\nitems.push(...(ready && ${jsx} ? [first] : []));`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			options: conditionalPushSpreadOptions,
+		})),
 	],
 	invalid: [
 		...[
@@ -56,8 +61,13 @@ test({
 				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push((first, second), third,);\n}',
 			},
 			{
-				code: 'const items = [];\nitems.push(...(!ready ? [] : [first]));',
-				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push(first);\n}',
+				code: 'function callback() {}\nconst items = [];\nitems.push(...(!callback ? [] : [1]));',
+				suggestedCode: 'function callback() {}\nconst items = [];\nif (!!callback) {\n\titems.push(1);\n}',
+			},
+			{
+				code: 'function callback() {}\nconst items: number[] = [];\nitems.push(...(!callback ? [] : [1]));',
+				suggestedCode: 'function callback() {}\nconst items: number[] = [];\nif (!!callback) {\n\titems.push(1);\n}',
+				languageOptions: {parser: parsers.typescript},
 			},
 			{
 				code: 'function prepend(items: string[]) {\r\n  items.unshift(...(ready || override ? [] : [first]));\r\n}',

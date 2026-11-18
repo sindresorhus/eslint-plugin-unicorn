@@ -331,6 +331,8 @@ function getConditionalPushSpreadProblem(conditional, context) {
 		|| unwrapTypeScriptExpression(receiver).type !== 'Identifier'
 		|| !isArray(receiver, context)
 		|| hasPossibleSideEffect(test, context)
+		// Evaluating JSX can call a factory before the method lookup in the suggested `if`.
+		|| containsNode(test, context, node => node.type === 'JSXElement' || node.type === 'JSXFragment')
 	) {
 		return;
 	}
@@ -354,12 +356,8 @@ function getConditionalPushSpreadProblem(conditional, context) {
 		suggest: [{
 			messageId: SUGGESTION_GUARD_PUSH,
 			fix(fixer) {
-				let condition = getParenthesizedText(test, context);
-				if (isConsequentEmpty) {
-					condition = test.type === 'UnaryExpression' && test.operator === '!'
-						? getParenthesizedText(test.argument, context)
-						: getNegatedExpressionText(test, context);
-				}
+				// Preserve explicit boolean coercion for TypeScript, including JavaScript checked with `checkJs`.
+				const condition = isConsequentEmpty ? getNegatedExpressionText(test, context) : getParenthesizedText(test, context);
 
 				const [firstItemStart] = getParenthesizedRange(items.elements[0], context);
 				const [, lastItemEnd] = getParenthesizedRange(items.elements.at(-1), context);
