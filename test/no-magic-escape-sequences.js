@@ -38,6 +38,20 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: String.raw`declare const label = 'Click \u{2B24}'; declare namespace Glyphs {class Text {readonly separator = '\u2026';}}`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: String.raw`export class Glyphs {readonly separator = '\u2026';}`,
+			filename: 'file.d.mts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: String.raw`export const label = 'Click \u{2B24}';`,
+			filename: 'glyphs.d.css.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: '<template><span title="\\u{2B24}">{{ \'&#92;\\u{2B24}\' }}{{ `\\u{2B24} &amp;` }}</span></template>',
 			languageOptions: {parser: parsers.vue},
 		},
@@ -77,5 +91,10 @@ test.snapshot({
 		String.raw`import('pkg', {with: {type: '\u006Ason'}});`,
 		String.raw`new RegExp('\u2028'); loader.require('./\u03C0.js');`,
 		String.raw`log('\uD83D\uDE00 smile\u{A0}');`,
+		{
+			code: String.raw`class Glyphs {readonly separator = '\u2026';}`,
+			filename: 'assets.d.css/runtime.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

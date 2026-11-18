@@ -13,7 +13,7 @@ The rule checks `\xHH`, `\uHHHH`, and `\u{…}` in strings and untagged template
 
 The rule skips text in tagged templates, regular expression literals, JSX text and quoted JSX attributes, and positions that require string literals. These positions include static module specifiers, literal-only import attributes, and TypeScript literal types. It also skips module paths in `import()` and direct `require()` calls because TypeScript and bundlers can rely on a literal path. Strings in runtime import options are still checked.
 
-The rule skips Vue strings and template segments that contain decoded HTML character references.
+The rule skips TypeScript declaration files and ambient declarations marked with `declare`. It also skips Vue strings and template segments that contain decoded HTML character references.
 
 ## Examples
 

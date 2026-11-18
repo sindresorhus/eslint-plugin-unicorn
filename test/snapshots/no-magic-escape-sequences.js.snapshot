@@ -197,6 +197,22 @@ Message:
 
 `;
 
+exports[`no-magic-escape-sequences > invalid(20): class Glyphs {readonly separator = '\\u2026';} 1`] = `
+
+Filename: assets.d.css/runtime.ts
+
+  1 | class Glyphs {readonly separator = '\\u2026';}
+
+`;
+
+exports[`no-magic-escape-sequences > invalid(20): class Glyphs {readonly separator = '\\u2026';} 2`] = `
+
+Message:
+> 1 | class Glyphs {readonly separator = '\\u2026';}
+    |                                     ^^^^^^ Extract \`\\u2026\` into a named constant.
+
+`;
+
 exports[`no-magic-escape-sequences > invalid(3): log('\\xA0\\u2060\\u{200B}'); 1`] = `
 
   1 | log('\\xA0\\u2060\\u{200B}');

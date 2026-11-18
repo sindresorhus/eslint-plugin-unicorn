@@ -16,12 +16,13 @@ const escapePattern = /(?<numeric>(?:\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\d
 
 const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
 
-function shouldSkipString(node, expression) {
+function shouldSkipString(node, expression, sourceCode) {
 	const {parent} = expression;
 	// TypeScript and bundlers can require literal module specifiers for static analysis.
 	return isStringLiteralRequired(node)
 		|| (parent.type === 'ImportExpression' && parent.source === expression)
-		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === expression);
+		|| (isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false}) && parent.arguments[0] === expression)
+		|| sourceCode.getAncestors(node).some(ancestor => ancestor.declare);
 }
 
 function isNamedConstantInitializer(expression) {
@@ -36,6 +37,11 @@ function isNamedConstantInitializer(expression) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	// TypeScript also accepts declaration files for arbitrary extensions, such as `styles.d.css.ts`.
+	if (/\.d\.(?:[cm]?ts|[^\\\/]*\.ts)$/v.test(context.filename)) {
+		return;
+	}
+
 	const {sourceCode} = context;
 
 	function * getProblems(node, raw, parsedRaw, isConstantInitializer) {
@@ -76,14 +82,14 @@ const create = context => {
 		}
 
 		const expression = getOutermostTypeScriptExpression(node);
-		if (!shouldSkipString(node, expression)) {
+		if (!shouldSkipString(node, expression, sourceCode)) {
 			return getProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(expression));
 		}
 	});
 
 	context.on('TemplateLiteral', function * (node) {
 		const expression = getOutermostTypeScriptExpression(node);
-		if (isTaggedTemplateLiteral(node) || shouldSkipString(node, expression)) {
+		if (isTaggedTemplateLiteral(node) || shouldSkipString(node, expression, sourceCode)) {
 			return;
 		}
 
