@@ -107,7 +107,8 @@ test('recommended reports the remaining inline escape after autofix', t => {
 		String.raw`export const controlSequence = '\u{1B}\u000A';`,
 		String.raw`export const message = 'Click \u{2B24}\u002E';`,
 	].join('\n');
-	const {output, messages} = new Linter().verifyAndFix(code, unicorn.configs.recommended);
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(code, unicorn.configs.recommended);
 
 	t.assert.strictEqual(output, code.replace(String.raw`\u000A`, String.raw`\n`).replace(String.raw`\u002E`, '.'));
 	t.assert.deepStrictEqual(
