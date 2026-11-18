@@ -119,7 +119,8 @@ for (const {name, code, languageOptions, filename = 'file.js'} of [
 	},
 ]) {
 	testInteraction(`combined coercion fixes preserve ${name}`, t => {
-		const result = new Linter().verifyAndFix(code, {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
 			files: ['**/*.{js,ts}'],
 			plugins: {unicorn},
 			languageOptions: languageOptions ?? {},
