@@ -2,6 +2,7 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.typescript}});
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -32,38 +33,14 @@ test.snapshot({
 		'(42).toString?.();',
 		'class Example extends Parent { toString() { return super.toString(); } }',
 		'(start + end).toString();',
-		{
-			code: '(record?.count as number).toString();',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: number | string) { return value.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: number | bigint | undefined) { return value.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: any) { return (value satisfies number).toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: any, flag: boolean) { return (flag ? (value satisfies number) : 42).toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: any) { return ((value satisfies number) + 42).toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: any) { return (value satisfies string).indexOf("x").toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function format(value: any) { return (value satisfies string).length.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescriptSyntax('(record?.count as number).toString();'),
+		typescriptSyntax('function format(value: number | string) { return value.toString(); }'),
+		typescriptSyntax('function format(value: number | bigint | undefined) { return value.toString(); }'),
+		typescriptSyntax('function format(value: any) { return (value satisfies number).toString(); }'),
+		typescriptSyntax('function format(value: any, flag: boolean) { return (flag ? (value satisfies number) : 42).toString(); }'),
+		typescriptSyntax('function format(value: any) { return ((value satisfies number) + 42).toString(); }'),
+		typescriptSyntax('function format(value: any) { return (value satisfies string).indexOf("x").toString(); }'),
+		typescriptSyntax('function format(value: any) { return (value satisfies string).length.toString(); }'),
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 		typeAware('type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }'),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
@@ -80,32 +57,17 @@ test.snapshot({
 		'(42).toString(/* keep */);',
 		'function format(String) { return (42).toString(); }',
 		'maybe?.format((42).toString());',
-		{
-			code: 'function format(value: number) { return value.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(value as bigint).toString();',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescriptSyntax('function format(value: number) { return value.toString(); }'),
+		typescriptSyntax('(value as bigint).toString();'),
 		typeAware('function nextId() { return 42n; } nextId().toString();'),
 		'(42)["toString"]();',
 		'(42n)[`toString`]();',
 		'(42)[/* keep */ "toString"]();',
 		'(isBig ? 42n : 42).toString();',
-		{
-			code: 'type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescriptSyntax('type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }'),
 		typeAware('function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();'),
-		{
-			code: 'function format(value: -1 | -1n) { return value.toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'declare function readCount(): number; (readCount() satisfies number).toString();',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescriptSyntax('function format(value: -1 | -1n) { return value.toString(); }'),
+		typescriptSyntax('declare function readCount(): number; (readCount() satisfies number).toString();'),
 		String.raw`(42)["to\u0053tring"]();`,
 		'(counter++).toString();',
 		'(end - start).toString();',
@@ -115,10 +77,7 @@ test.snapshot({
 		typeAware('function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }'),
 		'Date.now().toString();',
 		'BigInt.asIntN(64, value).toString();',
-		{
-			code: 'function format(value: number, increment: number) { return (value += increment).toString(); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescriptSyntax('function format(value: number, increment: number) { return (value += increment).toString(); }'),
 		typeAware('function format(value: string) { return value.indexOf("x").toString(); }'),
 		'["a", "b"].length.toString();',
 		typeAware('type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }'),
@@ -130,14 +89,13 @@ test.snapshot({
 	],
 });
 
-test({
+test.typescript({
 	valid: [],
 	invalid: [
 		'import type {String} from "./string.js"; (42).toString();',
 		'const String = () => "wrong"; { type String = string; (42).toString(); }',
 	].map(code => ({
 		code,
-		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'prefer-string-coercion', suggestions: []}],
 	})),
 });
