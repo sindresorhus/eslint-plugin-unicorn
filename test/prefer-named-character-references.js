@@ -26,6 +26,7 @@ test.snapshot({
 			filename: 'file.tsx',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'<span title="&#38;#169;">&#38;#160;</span>;',
 	],
 });
 
@@ -72,7 +73,7 @@ test.snapshot({
 			languageOptions: {rawContentTags: ['custom']},
 		},
 		markdownCase('`&#160;`\n\n```html\n<p>&#160;</p>\n```\n\n<div>&#160;</div>'),
-		markdownCase(String.raw`\&#160; &#00000160; &#x00000A0; &#160 &nbsp; &#128; &#x2329; <span title="&#160;">`),
+		markdownCase(String.raw`\&#160; &#00000160; &#x00000A0; &#160 &nbsp; &#128; &#x2329;`),
 		markdownCase('[&#160;] [**&#160;**]\n\n[&#160;]: /original\n[**&nbsp;**]: /alternate'),
 		markdownCase('<https://example.com/&#160;> and www.example.com/&#160;z', 'markdown/gfm'),
 		markdownCase('[^&#160;]\n\n[^&nbsp;]: Note', 'markdown/gfm'),
@@ -95,5 +96,6 @@ test.snapshot({
 			languageOptions: {math: true},
 		},
 		markdownCase(String.raw`Render &#9; and &#10;, then \&#160;, &#x110000;.`, 'markdown/gfm'),
+		markdownCase('Copyright &#169; <span title="&#169;">A&#160;B</span>'),
 	],
 });

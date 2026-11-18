@@ -15,7 +15,7 @@ JSX uses the HTML4 name table. It accepts `&#x2060;` and skips numeric reference
 
 HTML and Markdown use the HTML5 name table, where `&#x2060;` can become `&NoBreak;`. [HTML character references](https://html.spec.whatwg.org/multipage/named-characters.html)
 
-In HTML, the rule skips configured frontmatter and raw text such as script contents and CDATA. It skips documents with template markers or when custom raw-text tags are configured.
+In HTML, the rule skips configured frontmatter, raw text such as script contents, and CDATA. It also skips text when HTML error recovery merges text across intervening markup. It skips a document when custom raw-text tags are configured or when the HTML contains `{{`, `{%`, `<%`, `${`, or a configured template opener.
 
 In Markdown, it skips code, math, raw HTML nodes, autolinks, link destinations and titles, and image alt text. It also skips prose next to GitHub Flavored Markdown autolinks when the parser drops the source positions after decoding references or escapes.
 
@@ -37,4 +37,12 @@ When a Markdown document may contain reference definitions, the rule skips text 
 
 <!-- ✅ -->
 <p>A&NoBreak;B</p>
+```
+
+```md
+<!-- ❌ -->
+Copyright &#169; <span title="&#169;">A&#160;B</span>
+
+<!-- ✅ -->
+Copyright &copy; <span title="&#169;">A&nbsp;B</span>
 ```

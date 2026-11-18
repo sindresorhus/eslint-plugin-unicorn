@@ -97,6 +97,36 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(11): Copyright &#169; <span title=\"&#169;\">A&#160;B</span> 1`] = `
+
+Filename: example.md
+
+  1 | Copyright &#169; <span title="&#169;">A&#160;B</span>
+
+`;
+
+exports[`prefer-named-character-references > invalid(11): Copyright &#169; <span title=\"&#169;\">A&#160;B</span> 2`] = `
+
+Message:
+> 1 | Copyright &#169; <span title="&#169;">A&#160;B</span>
+    |           ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Output:
+  1 | Copyright &copy; <span title="&#169;">A&#160;B</span>
+
+`;
+
+exports[`prefer-named-character-references > invalid(11): Copyright &#169; <span title=\"&#169;\">A&#160;B</span> 3`] = `
+
+Message:
+> 1 | Copyright &#169; <span title="&#169;">A&#160;B</span>
+    |                                        ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Output:
+  1 | Copyright &#169; <span title="&#169;">A&nbsp;B</span>
+
+`;
+
 exports[`prefer-named-character-references > invalid(2): <span title=\"Copyright &#169;\">A&#160;B&#x2060;</span>; 1`] = `
 
   1 | <span title="Copyright &#169;">A&#160;B&#x2060;</span>;
@@ -423,6 +453,34 @@ Message:
 
 Output:
   1 | const label: JSX.Element = <span title="&#xA9;">&mdash;{"&#160;"}</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(6): <span title=\"&#38;#169;\">&#38;#160;</span>; 1`] = `
+
+  1 | <span title="&#38;#169;">&#38;#160;</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(6): <span title=\"&#38;#169;\">&#38;#160;</span>; 2`] = `
+
+Message:
+> 1 | <span title="&#38;#169;">&#38;#160;</span>;
+    |              ^^^^^ Prefer \`&amp;\` over \`&#38;\`.
+
+Output:
+  1 | <span title="&amp;#169;">&#38;#160;</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(6): <span title=\"&#38;#169;\">&#38;#160;</span>; 3`] = `
+
+Message:
+> 1 | <span title="&#38;#169;">&#38;#160;</span>;
+    |                          ^^^^^ Prefer \`&amp;\` over \`&#38;\`.
+
+Output:
+  1 | <span title="&#38;#169;">&amp;#160;</span>;
 
 `;
 
