@@ -242,6 +242,25 @@ test('suggests merging a run of adjacent block comments', t => {
 	t.assert.deepStrictEqual(fixed.messages, []);
 });
 
+ruleTest.vue({
+	valid: [],
+	invalid: [{
+		filename: 'component.vue',
+		code: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/* First. */\r\n/* Second. */\r\n</script>',
+		output: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/*\r\nFirst.\r\n*/\r\n/*\r\nSecond.\r\n*/\r\n</script>',
+		errors: [
+			{
+				...error,
+				suggestions: [{
+					messageId: 'merge-adjacent-block-comments',
+					output: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/*\r\nFirst.\r\nSecond.\r\n*/\r\n</script>',
+				}],
+			},
+			{...error, suggestions: 0},
+		],
+	}],
+});
+
 ruleTest({
 	valid: [],
 	invalid: [{
