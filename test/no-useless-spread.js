@@ -81,6 +81,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			options: conditionalPushSpreadOptions,
 		},
+		{
+			code: 'const items = [];\nitems.push(\n\t// eslint-disable-next-line rule-to-test/no-useless-spread\n\t...(ready ? [first] : [])\n);',
+			options: conditionalPushSpreadOptions,
+			linterOptions: {reportUnusedDisableDirectives: 'error'},
+		},
 		...['<span />', '<></>'].map(jsx => ({
 			code: `const items = [];\nitems.push(...(ready && ${jsx} ? [first] : []));`,
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
@@ -119,7 +124,7 @@ test({
 				code: 'async function append(clip, ...items) {\r\n  (items).push(...(clip.audio ? [await convert({\r\n    source: clip.audio,\r\n  }),] : []))\r\n}',
 				suggestedCode: 'async function append(clip, ...items) {\r\n  if (clip.audio) {\r\n    (items).push(await convert({\r\n      source: clip.audio,\r\n    }));\r\n  }\r\n}',
 			},
-			...['items["push"]', 'items[`unshift`]'].map(callee => ({
+			...['items["push"]', 'items[`un\\u0073hift`]'].map(callee => ({
 				code: `const items = [];\n${callee}(...(ready ? [first] : []));`,
 				suggestedCode: `const items = [];\nif (ready) {\n\t${callee}(first);\n}`,
 			})),
