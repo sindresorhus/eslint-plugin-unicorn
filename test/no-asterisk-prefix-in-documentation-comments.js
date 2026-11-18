@@ -357,8 +357,8 @@ test({
 			errors: [error],
 		},
 		{
-			code: '/*! @license MIT\r\n * Copyright Example */',
-			output: '/*!\r\n@license MIT\r\nCopyright Example\r\n*/',
+			code: '.before {}\n/*! @license MIT\r\n * Copyright Example\n * See LICENSE. */\n.after {}',
+			output: '.before {}\n/*!\r\n@license MIT\r\nCopyright Example\nSee LICENSE.\r\n*/\n.after {}',
 			errors: [error],
 		},
 	],
