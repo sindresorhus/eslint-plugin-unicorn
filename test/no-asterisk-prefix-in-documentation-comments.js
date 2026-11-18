@@ -8,6 +8,7 @@ const error = {
 const asCss = code => ({code, language: languages.css});
 const jsonCrLfInput = '{\r\n\t/*\r\n\t * Description.\r\n\t */\r\n\t"value": true\r\n}';
 const jsonCrLfOutput = '{\r\n\t/*\r\n\tDescription.\r\n\t*/\r\n\t"value": true\r\n}';
+const longIndentation = ' '.repeat(65_536);
 
 test({
 	testerOptions: {language: languages.soml.language, plugins: languages.soml.plugins},
@@ -224,6 +225,12 @@ test({
 		{
 			code: 'if (condition) {\r\n  /** Example:\r\n   *   const value = true; */\r\n}',
 			output: 'if (condition) {\r\n  /**\r\n  Example:\r\n    const value = true;\r\n  */\r\n}',
+			errors: [error],
+		},
+		{
+			name: 'Preserve long indentation before a comment',
+			code: `${longIndentation}/** Description.\n${longIndentation} * Details.\n${longIndentation} */`,
+			output: `${longIndentation}/**\n${longIndentation}Description.\n${longIndentation}Details.\n${longIndentation}*/`,
 			errors: [error],
 		},
 		{

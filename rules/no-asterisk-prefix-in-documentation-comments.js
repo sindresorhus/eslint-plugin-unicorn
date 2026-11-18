@@ -28,10 +28,12 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 		return text;
 	}
 
-	const prefixIndentationPattern = new RegExp(`^(${linePrefix}[ \t]+)\\*`, 'v');
 	const prefixIndentations = new Set(lines.slice(1)
 		.filter(line => !isBlankLine(line))
-		.map(line => prefixIndentationPattern.exec(line)?.[1]));
+		.map(line => {
+			const indentation = /^([\t ]+)\*/v.exec(line)?.[1];
+			return indentation?.startsWith(linePrefix) && indentation.length > linePrefix.length ? indentation : undefined;
+		}));
 
 	// When asterisk prefixes are inconsistent, the asterisks may be content, like the indented Markdown list markers left by a previous fix.
 	if (prefixIndentations.size > 1) {
@@ -42,18 +44,19 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 	let fixedText = text;
 
 	if (prefixIndentation !== undefined) {
-		const asteriskPrefixPattern = new RegExp(`^${prefixIndentation}\\*(?!/)[ \t]?`, 'gmv');
 		const [linebreak] = text.match(LINE_ENDING_PATTERN);
 		fixedText = text
-			.replace(asteriskPrefixPattern, () => linePrefix)
+			.replaceAll(/^[\t ]+\*(?!\/)[\t ]?/gmv, () => linePrefix)
 			// Documentation parsers can consume a leading asterisk as decoration on a continuation line.
 			.replace(/^(\/\*\*?!?)[\t ]+(?=[^\s*])/v, (_, openingDelimiter) => `${openingDelimiter}${linebreak}${linePrefix}`)
 			.replace(/(?<=\S)[\t ]+\*\/$/v, () => `${linebreak}${linePrefix}*/`);
 	}
 
-	const closingIndentation = prefixIndentation === undefined ? `${linePrefix}[ \t]+` : '[\t ]*';
-	const closingDelimiterPattern = new RegExp(String.raw`^${closingIndentation}\*/$`, 'mv');
-	fixedText = fixedText.replace(closingDelimiterPattern, () => `${linePrefix}*/`);
+	fixedText = fixedText.replace(/^([\t ]*)\*\/$/mv, (line, indentation) => (
+		prefixIndentation !== undefined || (indentation.length > linePrefix.length && indentation.startsWith(linePrefix))
+			? `${linePrefix}*/`
+			: line
+	));
 
 	let sharedIndentation;
 
@@ -65,9 +68,13 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 		const indentation = /^[\t ]*/v.exec(line)[0];
 		sharedIndentation ??= indentation;
 
-		while (!indentation.startsWith(sharedIndentation)) {
-			sharedIndentation = sharedIndentation.slice(0, -1);
+		const maximumSharedLength = Math.min(indentation.length, sharedIndentation.length);
+		let sharedLength = 0;
+		while (sharedLength < maximumSharedLength && indentation[sharedLength] === sharedIndentation[sharedLength]) {
+			sharedLength++;
 		}
+
+		sharedIndentation = sharedIndentation.slice(0, sharedLength);
 	}
 
 	if (sharedIndentation?.startsWith(linePrefix) && sharedIndentation.length > linePrefix.length) {
