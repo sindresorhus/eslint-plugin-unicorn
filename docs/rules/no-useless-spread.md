@@ -150,6 +150,29 @@ foo(foo, ...bar);
 const object = new Foo(...foo, bar);
 ```
 
+## Options
+
+### `checkConditionalPushSpreads`
+
+Type: `boolean`\
+Default: `false`
+
+Whether to check standalone `push()` and `unshift()` calls on known arrays, including calls prefixed with `void`. The sole argument must spread a ternary between `[]` and a nonempty array literal without holes or spreads. Conditions with detectable side effects or JSX are skipped.
+
+The editor suggests an `if` for statements on their own lines without leading or internal comments. The `if` skips the zero-argument call and moves method lookup after the condition.
+
+```js
+const items = [];
+items.push(...(enabled ? [first, second] : []));
+```
+
+```js
+// 💡
+if (enabled) {
+	items.push(first, second);
+}
+```
+
 ## Sparse arrays
 
 This rule assumes dense arrays. Sparse arrays are unsupported: array spread turns empty slots into `undefined`, while methods like `Array#concat()` preserve them. Disable this rule where sparse arrays are intentional.

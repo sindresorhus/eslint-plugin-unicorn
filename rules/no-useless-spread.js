@@ -8,7 +8,14 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	getUnparenthesizedKeywordArgumentParent,
+	getParenthesizedRange,
 	getParenthesizedText,
+	getNegatedExpressionText,
+	getIndentUnit,
+	getLinebreak,
+	hasMultilineToken,
+	hasPossibleSideEffect,
+	reindentText,
 	isStrongPrecedenceNode,
 	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
@@ -20,6 +27,7 @@ import {
 	isCallOrNewExpression,
 	isEmptyArrayExpression,
 	isEmptyObjectExpression,
+	getStaticStringValue,
 } from './ast/index.js';
 
 const SPREAD_IN_LIST = 'spread-in-list';
@@ -29,8 +37,10 @@ const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
 const SPREAD_IN_COLLECTION_CONSTRUCTOR = 'spread-in-collection-constructor';
 const SPREAD_IN_OBJECT_ASSIGN = 'spread-in-object-assign';
 const CLONE_ARRAY = 'clone-array';
+const CONDITIONAL_PUSH_SPREAD = 'conditional-push-spread';
 const SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD = 'suggestion/remove-object-assign-spread';
 const SUGGESTION_REMOVE_ITERABLE_ARRAY = 'suggestion/remove-iterable-array';
+const SUGGESTION_GUARD_PUSH = 'suggestion/guard-push';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts an iterable as an argument, it\'s unnecessary to convert to an array.',
@@ -39,8 +49,10 @@ const messages = {
 	[SPREAD_IN_COLLECTION_CONSTRUCTOR]: '`{{constructorName}}` accepts a single iterable argument, spreading is misleading.',
 	[SPREAD_IN_OBJECT_ASSIGN]: '`Object.assign(…)` source object with only spread properties is unnecessary.',
 	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
+	[CONDITIONAL_PUSH_SPREAD]: 'Use an `if` statement to pass the array elements directly.',
 	[SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD]: 'Remove the object literal wrapper.',
 	[SUGGESTION_REMOVE_ITERABLE_ARRAY]: 'Remove the array conversion.',
+	[SUGGESTION_GUARD_PUSH]: 'Guard the call with an `if` statement and remove the spread.',
 };
 
 const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
@@ -279,11 +291,106 @@ const isHeuristicArrayClone = (node, context) => {
 	);
 };
 
+function getConditionalPushSpreadCall(spread) {
+	const call = spread.parent;
+	if (
+		spread.type !== 'SpreadElement'
+		|| !isMethodCall(call, {
+			argumentsLength: 1,
+			allowSpreadElement: true,
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return;
+	}
+
+	const {callee} = call;
+	const method = callee.computed ? getStaticStringValue(callee.property) : getPropertyName(callee);
+	if (method === 'push' || method === 'unshift') {
+		return call;
+	}
+}
+
+function getConditionalPushSpreadProblem(conditional, context) {
+	const {parent: spread, test, consequent, alternate} = conditional;
+	const call = getConditionalPushSpreadCall(spread);
+	if (!call) {
+		return;
+	}
+
+	const callParent = call.parent;
+	const expression = callParent.type === 'UnaryExpression' && callParent.operator === 'void' ? callParent : call;
+	const statement = expression.parent;
+	if (
+		statement.type !== 'ExpressionStatement'
+		|| !['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase', 'TSModuleBlock'].includes(statement.parent.type)
+	) {
+		return;
+	}
+
+	const isConsequentEmpty = isEmptyArrayExpression(consequent);
+	const items = isConsequentEmpty ? alternate : consequent;
+	const receiver = call.callee.object;
+	if (
+		isConsequentEmpty === isEmptyArrayExpression(alternate)
+		|| items.type !== 'ArrayExpression'
+		|| items.elements.some(element => !element || element.type === 'SpreadElement')
+		|| unwrapTypeScriptExpression(receiver).type !== 'Identifier'
+		|| !isArray(receiver, context)
+		|| hasPossibleSideEffect(test, context)
+		// Evaluating JSX can call a factory before the method lookup in the suggested `if`.
+		|| containsNode(test, context, node => node.type === 'JSXElement' || node.type === 'JSXFragment')
+	) {
+		return;
+	}
+
+	const {sourceCode} = context;
+	const problem = {node: spread, messageId: CONDITIONAL_PUSH_SPREAD};
+	const {start, end} = sourceCode.getLoc(statement);
+	const indent = sourceCode.lines[start.line - 1].slice(0, start.column);
+	// Splitting the call across lines can change which code comments and directives apply to.
+	if (
+		indent.trim()
+		|| sourceCode.lines[end.line - 1].slice(end.column).trim()
+		|| sourceCode.getCommentsBefore(statement).length > 0
+		|| sourceCode.getCommentsInside(statement).length > 0
+	) {
+		return problem;
+	}
+
+	// Guarding the call changes when the method is looked up and skips the zero-argument call.
+	return {
+		...problem,
+		suggest: [{
+			messageId: SUGGESTION_GUARD_PUSH,
+			fix(fixer) {
+				// Preserve explicit boolean coercion for TypeScript, including JavaScript checked with `checkJs`.
+				const condition = isConsequentEmpty ? getNegatedExpressionText(test, context) : getParenthesizedText(test, context);
+
+				const [firstItemStart] = getParenthesizedRange(items.elements[0], context);
+				const [, lastItemEnd] = getParenthesizedRange(items.elements.at(-1), context);
+				const [expressionStart, expressionEnd] = sourceCode.getRange(expression);
+				const [spreadStart, spreadEnd] = sourceCode.getRange(spread);
+				const {text} = sourceCode;
+				const expressionText = `${text.slice(expressionStart, spreadStart)}${text.slice(firstItemStart, lastItemEnd)}${text.slice(spreadEnd, expressionEnd)};`;
+				const linebreak = getLinebreak(context);
+				const bodyIndent = indent + getIndentUnit(context);
+				const body = hasMultilineToken(expression, context) ? expressionText : reindentText(expressionText, indent, bodyIndent);
+				return fixer.replaceText(statement, `if (${condition}) {${linebreak}${bodyIndent}${body}${linebreak}${indent}}`);
+			},
+		}],
+	};
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
+	if (context.options[0].checkConditionalPushSpreads) {
+		context.on('ConditionalExpression', conditional => getConditionalPushSpreadProblem(conditional, context));
+	}
 
 	// Useless spread in list
 	context.on(['ArrayExpression', 'ObjectExpression'], node => {
@@ -614,6 +721,17 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema: [{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkConditionalPushSpreads: {
+					type: 'boolean',
+					description: 'Whether to check conditional spreads of array literals in standalone `push` and `unshift` calls.',
+				},
+			},
+		}],
+		defaultOptions: [{checkConditionalPushSpreads: false}],
 		messages,
 		languages: [
 			'js/js',
