@@ -372,9 +372,16 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 				extends: ['unicorn/recommended-json'],
 			}),
 		});
-		const [result] = await eslint.lintText('/**\n * Comment.\n */\n{}', {filePath: `file.${name}`});
-		t.assert.deepStrictEqual(result.messages, []);
-		t.assert.strictEqual(result.output, '/**\nComment.\n*/\n{}');
+		const cases = [
+			['/**\n * Comment.\n */\n{}', '/**\nComment.\n*/\n{}'],
+			['/** Comment.\r\n */\r\n{}', '/**\r\nComment.\r\n*/\r\n{}'],
+		];
+
+		await Promise.all(cases.map(async ([code, output]) => {
+			const [result] = await eslint.lintText(code, {filePath: `file.${name}`});
+			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.strictEqual(result.output, output);
+		}));
 	});
 }
 
