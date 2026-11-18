@@ -67,6 +67,36 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(10): Render &#9; and &#10;, then \\&#160;, &#x110000;. 1`] = `
+
+Filename: example.md
+
+  1 | Render &#9; and &#10;, then \\&#160;, &#x110000;.
+
+`;
+
+exports[`prefer-named-character-references > invalid(10): Render &#9; and &#10;, then \\&#160;, &#x110000;. 2`] = `
+
+Message:
+> 1 | Render &#9; and &#10;, then \\&#160;, &#x110000;.
+    |        ^^^^ Prefer \`&Tab;\` over \`&#9;\`.
+
+Output:
+  1 | Render &Tab; and &#10;, then \\&#160;, &#x110000;.
+
+`;
+
+exports[`prefer-named-character-references > invalid(10): Render &#9; and &#10;, then \\&#160;, &#x110000;. 3`] = `
+
+Message:
+> 1 | Render &#9; and &#10;, then \\&#160;, &#x110000;.
+    |                 ^^^^^ Prefer \`&NewLine;\` over \`&#10;\`.
+
+Output:
+  1 | Render &#9; and &NewLine;, then \\&#160;, &#x110000;.
+
+`;
+
 exports[`prefer-named-character-references > invalid(2): <span title=\"Copyright &#169;\">A&#160;B&#x2060;</span>; 1`] = `
 
   1 | <span title="Copyright &#169;">A&#160;B&#x2060;</span>;

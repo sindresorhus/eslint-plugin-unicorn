@@ -36,6 +36,8 @@ const markdownCase = (code, language = 'markdown/commonmark') => ({
 	language: {...languages.markdown, language},
 });
 
+const disabledHtmlPrefix = '<!-- eslint-disable-next-line rule-to-test/prefer-named-character-references -->\r\n<p>&#169;</p>\r\n';
+
 test({
 	testerOptions: {language: languages.html.language, plugins: languages.html.plugins},
 	valid: [],
@@ -45,6 +47,12 @@ test({
 			filename: 'example.html',
 			errors: [{messageId: 'prefer-named-character-references'}],
 			output: '<p><b title="&copy;">a</p><p>b</p>',
+		},
+		{
+			code: `${disabledHtmlPrefix}<script aria-label="&#169;">const label = '&#169;';</script>\r\n<p data-tab=&#9; title=next>&#160;</p>`,
+			filename: 'example.html',
+			errors: 3,
+			output: `${disabledHtmlPrefix}<script aria-label="&copy;">const label = '&#169;';</script>\r\n<p data-tab=&Tab; title=next>&nbsp;</p>`,
 		},
 	],
 });
@@ -68,7 +76,7 @@ test.snapshot({
 		markdownCase('[&#160;] [**&#160;**]\n\n[&#160;]: /original\n[**&nbsp;**]: /alternate'),
 		markdownCase('<https://example.com/&#160;> and www.example.com/&#160;z', 'markdown/gfm'),
 		markdownCase('[^&#160;]\n\n[^&nbsp;]: Note', 'markdown/gfm'),
-		markdownCase('Visit &#104;ttps://example.com.', 'markdown/gfm'),
+		markdownCase('&#169; Visit &#104;ttps://example.com.', 'markdown/gfm'),
 	],
 	invalid: [
 		htmlCase('<p title="Copyright &#169;" data-space=&#X00A0;>A&#x2060;B &#128;</p>'),
@@ -86,5 +94,6 @@ test.snapshot({
 			...markdownCase('$&#160;$ and &#169;'),
 			languageOptions: {math: true},
 		},
+		markdownCase(String.raw`Render &#9; and &#10;, then \&#160;, &#x110000;.`, 'markdown/gfm'),
 	],
 });

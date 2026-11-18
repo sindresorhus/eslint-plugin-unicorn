@@ -144,7 +144,7 @@ const create = context => {
 	});
 
 	context.on('text', node => {
-		// GFM may synthesize nodes without source positions when it detects autolinks in decoded text.
+		// GFM can omit source positions for synthesized autolinks and their surrounding text.
 		if (!node.position) {
 			return;
 		}
@@ -154,13 +154,13 @@ const create = context => {
 				return;
 			}
 
-			// Autolinks keep references literal, and reference links match the raw spelling of their label.
+			// Autolinks keep references literal.
 			if (parent.type === 'link' && !sourceCode.getText(parent).startsWith('[')) {
 				return;
 			}
 
 			if (['paragraph', 'heading', 'tableCell'].includes(parent.type)) {
-				// Rewriting an unresolved label can also make it match a definition.
+				// Reference labels match by raw spelling. Rewriting a label can change which definition it matches.
 				if (hasPotentialReferenceDefinitions && sourceCode.getText(parent).includes('[')) {
 					return;
 				}
