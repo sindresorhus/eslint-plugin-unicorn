@@ -1,0 +1,455 @@
+exports[`prefer-string-coercion > invalid(1): (42).toString(); 1`] = `
+
+  1 | (42).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(1): (42).toString(); 2`] = `
+
+Message:
+> 1 | (42).toString();
+    | ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(42);
+
+`;
+
+exports[`prefer-string-coercion > invalid(10): function format(value: number) { return value.toString(); } 1`] = `
+
+  1 | function format(value: number) { return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(10): function format(value: number) { return value.toString(); } 2`] = `
+
+Message:
+> 1 | function format(value: number) { return value.toString(); }
+    |                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function format(value: number) { return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(11): (value as bigint).toString(); 1`] = `
+
+  1 | (value as bigint).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(11): (value as bigint).toString(); 2`] = `
+
+Message:
+> 1 | (value as bigint).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(value as bigint);
+
+`;
+
+exports[`prefer-string-coercion > invalid(12): function nextId() { return 42n; } nextId().toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | function nextId() { return 42n; } nextId().toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(12): function nextId() { return 42n; } nextId().toString(); 2`] = `
+
+Message:
+> 1 | function nextId() { return 42n; } nextId().toString();
+    |                                   ^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function nextId() { return 42n; } String(nextId());
+
+`;
+
+exports[`prefer-string-coercion > invalid(13): (42)[\"toString\"](); 1`] = `
+
+  1 | (42)["toString"]();
+
+`;
+
+exports[`prefer-string-coercion > invalid(13): (42)[\"toString\"](); 2`] = `
+
+Message:
+> 1 | (42)["toString"]();
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(42);
+
+`;
+
+exports[`prefer-string-coercion > invalid(14): (42n)[\`toString\`](); 1`] = `
+
+  1 | (42n)[\`toString\`]();
+
+`;
+
+exports[`prefer-string-coercion > invalid(14): (42n)[\`toString\`](); 2`] = `
+
+Message:
+> 1 | (42n)[\`toString\`]();
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(42n);
+
+`;
+
+exports[`prefer-string-coercion > invalid(15): (42)[/* keep */ \"toString\"](); 1`] = `
+
+  1 | (42)[/* keep */ "toString"]();
+
+`;
+
+exports[`prefer-string-coercion > invalid(15): (42)[/* keep */ \"toString\"](); 2`] = `
+
+Message:
+> 1 | (42)[/* keep */ "toString"]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+`;
+
+exports[`prefer-string-coercion > invalid(16): (isBig ? 42n : 42).toString(); 1`] = `
+
+  1 | (isBig ? 42n : 42).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(16): (isBig ? 42n : 42).toString(); 2`] = `
+
+Message:
+> 1 | (isBig ? 42n : 42).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(isBig ? 42n : 42);
+
+`;
+
+exports[`prefer-string-coercion > invalid(17): type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); } 1`] = `
+
+  1 | type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(17): type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); } 2`] = `
+
+Message:
+> 1 | type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }
+    |                                                                          ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | type Numeric = number | bigint; function format(value: Numeric) { return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(18): function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString(); 1`] = `
+
+Filename: file.ts
+
+  1 | function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(18): function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString(); 2`] = `
+
+Message:
+> 1 | function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();
+    |                                                            ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function next(isBig: boolean) { return isBig ? 42n : 42; } String(next(flag));
+
+`;
+
+exports[`prefer-string-coercion > invalid(19): function format(value: -1 | -1n) { return value.toString(); } 1`] = `
+
+  1 | function format(value: -1 | -1n) { return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(19): function format(value: -1 | -1n) { return value.toString(); } 2`] = `
+
+Message:
+> 1 | function format(value: -1 | -1n) { return value.toString(); }
+    |                                           ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function format(value: -1 | -1n) { return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(2): (1n + 2n).toString(); 1`] = `
+
+  1 | (1n + 2n).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(2): (1n + 2n).toString(); 2`] = `
+
+Message:
+> 1 | (1n + 2n).toString();
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(1n + 2n);
+
+`;
+
+exports[`prefer-string-coercion > invalid(20): declare function readCount(): number; (readCount() satisfies number).toString(); 1`] = `
+
+  1 | declare function readCount(): number; (readCount() satisfies number).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(20): declare function readCount(): number; (readCount() satisfies number).toString(); 2`] = `
+
+Message:
+> 1 | declare function readCount(): number; (readCount() satisfies number).toString();
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | declare function readCount(): number; String(readCount() satisfies number);
+
+`;
+
+exports[`prefer-string-coercion > invalid(21): (42)[\"to\\u0053tring\"](); 1`] = `
+
+  1 | (42)["to\\u0053tring"]();
+
+`;
+
+exports[`prefer-string-coercion > invalid(21): (42)[\"to\\u0053tring\"](); 2`] = `
+
+Message:
+> 1 | (42)["to\\u0053tring"]();
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(42);
+
+`;
+
+exports[`prefer-string-coercion > invalid(22): (counter++).toString(); 1`] = `
+
+  1 | (counter++).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(22): (counter++).toString(); 2`] = `
+
+Message:
+> 1 | (counter++).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(counter++);
+
+`;
+
+exports[`prefer-string-coercion > invalid(23): (end - start).toString(); 1`] = `
+
+  1 | (end - start).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(23): (end - start).toString(); 2`] = `
+
+Message:
+> 1 | (end - start).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(end - start);
+
+`;
+
+exports[`prefer-string-coercion > invalid(24): (attempts -= backoff).toString(); 1`] = `
+
+  1 | (attempts -= backoff).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(24): (attempts -= backoff).toString(); 2`] = `
+
+Message:
+> 1 | (attempts -= backoff).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(attempts -= backoff);
+
+`;
+
+exports[`prefer-string-coercion > invalid(25): (~mask).toString(); 1`] = `
+
+  1 | (~mask).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(25): (~mask).toString(); 2`] = `
+
+Message:
+> 1 | (~mask).toString();
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(~mask);
+
+`;
+
+exports[`prefer-string-coercion > invalid(26): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 1`] = `
+
+  1 | /** @param {number | bigint} value */ function format(value) { return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(26): /** @param {number | bigint} value */ function format(value) { return value.toString(); } 2`] = `
+
+Message:
+> 1 | /** @param {number | bigint} value */ function format(value) { return value.toString(); }
+    |                                                                       ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | /** @param {number | bigint} value */ function format(value) { return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(27): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 1`] = `
+
+Filename: file.ts
+
+  1 | function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(27): function encode(value: unknown) { if (typeof value === \"bigint\") return value.toString(); } 2`] = `
+
+Message:
+> 1 | function encode(value: unknown) { if (typeof value === "bigint") return value.toString(); }
+    |                                                                         ^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function encode(value: unknown) { if (typeof value === "bigint") return String(value); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(3): Number(value).toString().padStart(2, \"0\"); 1`] = `
+
+  1 | Number(value).toString().padStart(2, "0");
+
+`;
+
+exports[`prefer-string-coercion > invalid(3): Number(value).toString().padStart(2, \"0\"); 2`] = `
+
+Message:
+> 1 | Number(value).toString().padStart(2, "0");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String(Number(value)).padStart(2, "0");
+
+`;
+
+exports[`prefer-string-coercion > invalid(4): function format() {return(42).toString();} 1`] = `
+
+  1 | function format() {return(42).toString();}
+
+`;
+
+exports[`prefer-string-coercion > invalid(4): function format() {return(42).toString();} 2`] = `
+
+Message:
+> 1 | function format() {return(42).toString();}
+    |                          ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | function format() {return String(42);}
+
+`;
+
+exports[`prefer-string-coercion > invalid(5): (prepare(), /* keep */ 42).toString(); 1`] = `
+
+  1 | (prepare(), /* keep */ 42).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(5): (prepare(), /* keep */ 42).toString(); 2`] = `
+
+Message:
+> 1 | (prepare(), /* keep */ 42).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String((prepare(), /* keep */ 42));
+
+`;
+
+exports[`prefer-string-coercion > invalid(6): (/* keep */ 42).toString(); 1`] = `
+
+  1 | (/* keep */ 42).toString();
+
+`;
+
+exports[`prefer-string-coercion > invalid(6): (/* keep */ 42).toString(); 2`] = `
+
+Message:
+> 1 | (/* keep */ 42).toString();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | String((/* keep */ 42));
+
+`;
+
+exports[`prefer-string-coercion > invalid(7): (42).toString(/* keep */); 1`] = `
+
+  1 | (42).toString(/* keep */);
+
+`;
+
+exports[`prefer-string-coercion > invalid(7): (42).toString(/* keep */); 2`] = `
+
+Message:
+> 1 | (42).toString(/* keep */);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+`;
+
+exports[`prefer-string-coercion > invalid(8): function format(String) { return (42).toString(); } 1`] = `
+
+  1 | function format(String) { return (42).toString(); }
+
+`;
+
+exports[`prefer-string-coercion > invalid(8): function format(String) { return (42).toString(); } 2`] = `
+
+Message:
+> 1 | function format(String) { return (42).toString(); }
+    |                                  ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+`;
+
+exports[`prefer-string-coercion > invalid(9): maybe?.format((42).toString()); 1`] = `
+
+  1 | maybe?.format((42).toString());
+
+`;
+
+exports[`prefer-string-coercion > invalid(9): maybe?.format((42).toString()); 2`] = `
+
+Message:
+> 1 | maybe?.format((42).toString());
+    |               ^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+
+Suggestion 1/1: Convert to a string with \`String()\`.:
+  1 | maybe?.format(String(42));
+
+`;
