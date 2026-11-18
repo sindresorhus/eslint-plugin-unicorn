@@ -38,6 +38,7 @@ test.snapshot({
 		'(42).toString?.();',
 		'class Example extends Parent { toString() { return super.toString(); } }',
 		'(start + end).toString();',
+		'(42 + "px").toString();',
 		typescriptSyntax('(record?.count as number).toString();'),
 		typescriptSyntax('function format(value: number | string) { return value.toString(); }'),
 		typescriptSyntax('function format(value: number | bigint | undefined) { return value.toString(); }'),
@@ -99,38 +100,43 @@ test.snapshot({
 	],
 });
 
-for (const {name, code, languageOptions, filename = 'file.js'} of [
+for (const {name, code, languageOptions, filename = 'file.js', output = code.replace('value.toString()', 'String(value)')} of [
 	{
-		name: 'a TypeScript annotation',
+		name: 'preserve a TypeScript annotation',
 		code: 'export const format = (value: number) => value.toString();',
 		languageOptions: {parser: typescriptEslintParser},
 	},
 	{
-		name: 'a JSDoc annotation',
+		name: 'preserve a JSDoc annotation',
 		code: '/** @param {number} value */\nexport const format = value => value.toString();',
 	},
 	{
-		name: 'an asserted return type',
+		name: 'preserve an asserted return type',
 		...typeAware('export const format: (value: number) => "42" = value => value.toString() as "42";'),
 	},
 	{
-		name: 'a contextual signature from satisfies',
+		name: 'preserve a contextual signature from satisfies',
 		...typeAware('export const format = (value => value.toString()) satisfies (value: number) => string;'),
 	},
 	{
-		name: 'a contextual signature from JSDoc satisfies',
+		name: 'preserve a contextual signature from JSDoc satisfies',
 		...typeAware('/** @satisfies {(value: number) => string} */\nexport const format = value => value.toString();', 'file.js'),
 	},
 	{
-		name: 'an inline contextual signature from JSDoc satisfies',
+		name: 'preserve an inline contextual signature from JSDoc satisfies',
 		...typeAware('export const format = /** @satisfies {(value: number) => string} */ (value => value.toString());', 'file.js'),
 	},
 	{
-		name: 'a JSDoc signature on a returned function',
+		name: 'preserve a JSDoc signature on a returned function',
 		...typeAware('export function factory() {\n\t/** @param {number} value */\n\treturn value => value.toString();\n}', 'file.js'),
 	},
+	{
+		name: 'simplify an unannotated numeric callback',
+		...typeAware('export const labels = [1, 2].map(value => value.toString());'),
+		output: 'export const labels = [1, 2].map(String);',
+	},
 ]) {
-	testInteraction(`combined coercion fixes preserve ${name}`, t => {
+	testInteraction(`combined coercion fixes ${name}`, t => {
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, {
 			files: ['**/*.{js,ts}'],
@@ -141,9 +147,20 @@ for (const {name, code, languageOptions, filename = 'file.js'} of [
 				'unicorn/prefer-native-coercion-functions': 'error',
 			},
 		}, {filename});
-		t.assert.deepStrictEqual(result, {fixed: true, output: code.replace('value.toString()', 'String(value)'), messages: []});
+		t.assert.deepStrictEqual(result, {fixed: true, output, messages: []});
 	});
 }
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const digit of(42 // keep the amount\r\n).toString()) {\r\n\tlog(digit);\r\n}',
+			output: 'for (const digit of String((42 // keep the amount\r\n))) {\r\n\tlog(digit);\r\n}',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+	],
+});
 
 test.typescript({
 	valid: [],
