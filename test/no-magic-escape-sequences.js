@@ -1,9 +1,12 @@
 /* eslint-disable no-template-curly-in-string -- Test inputs contain template literals. */
+import test from 'node:test';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
-test.snapshot({
+ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 	},
@@ -97,4 +100,18 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
+});
+
+test('recommended reports the remaining inline escape after autofix', t => {
+	const code = [
+		String.raw`export const controlSequence = '\u{1B}\u000A';`,
+		String.raw`export const message = 'Click \u{2B24}\u002E';`,
+	].join('\n');
+	const {output, messages} = new Linter().verifyAndFix(code, unicorn.configs.recommended);
+
+	t.assert.strictEqual(output, code.replace(String.raw`\u000A`, String.raw`\n`).replace(String.raw`\u002E`, '.'));
+	t.assert.deepStrictEqual(
+		messages.filter(({ruleId}) => ruleId === 'unicorn/no-magic-escape-sequences').map(({line}) => line),
+		[2],
+	);
 });
