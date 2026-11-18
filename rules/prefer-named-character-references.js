@@ -17,7 +17,7 @@ const htmlReferencePattern = /&#(?:\d+|x[\da-f]+);/giv;
 // Consume escaped backslashes and ampersands before looking for Markdown references.
 const markdownReferencePattern = /\\[&\\]|&#(?:\d{1,7}|x[\da-f]{1,6});/giv;
 // HTML node locations and ESLint's offset lookup can count these line breaks differently.
-const unsupportedHtmlLineBreakPattern = /\r(?!\n)|[\u2028\u2029]/v;
+const unsupportedHtmlLineBreakPattern = /\r(?!\n)|[\u{2028}\u{2029}]/v;
 
 function getCodePoint(reference) {
 	const digits = reference.slice(2, -1);
