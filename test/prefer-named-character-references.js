@@ -50,10 +50,10 @@ test({
 			output: '<p><b title="&copy;">a</p><p>b</p>',
 		},
 		{
-			code: `${disabledHtmlPrefix}<script aria-label="&#169;">const label = '&#169;';</script>\r\n<p data-tab=&#9; title=next>&#160;</p>`,
+			code: `\uFEFF${disabledHtmlPrefix}<script aria-label="&#000000169;">const label = '&#169;';</script>\r\n<p data-tab=&#9; title=next>&#x000000A0;</p>`,
 			filename: 'example.html',
 			errors: 3,
-			output: `${disabledHtmlPrefix}<script aria-label="&copy;">const label = '&#169;';</script>\r\n<p data-tab=&Tab; title=next>&nbsp;</p>`,
+			output: `\uFEFF${disabledHtmlPrefix}<script aria-label="&copy;">const label = '&#169;';</script>\r\n<p data-tab=&Tab; title=next>&nbsp;</p>`,
 		},
 	],
 });
@@ -90,7 +90,7 @@ test.snapshot({
 		htmlCase('<p>&#x27E8;</p><script>const literal = "&#x27E8;";</script><svg><![CDATA[&#x27E8;]]></svg>'),
 		markdownCase('# A&#x2060;B\r\n\r\n> Price &#X20AC; and \\&#160;\r\n> Space \\\\&#160;'),
 		markdownCase('[A&#169;B](/&#160;)'),
-		markdownCase('| Cell |\n| - |\n| &#x1D504; |', 'markdown/gfm'),
+		markdownCase('| Cell |\n| - |\n| Left\\|right &#x1D504; and \\&#160; |', 'markdown/gfm'),
 		markdownCase('www.example.com/&#160; and Copyright &#169;', 'markdown/gfm'),
 		{
 			...markdownCase('$&#160;$ and &#169;'),

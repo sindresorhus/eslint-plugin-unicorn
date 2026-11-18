@@ -503,28 +503,28 @@ Output:
 
 `;
 
-exports[`prefer-named-character-references > invalid(7): | Cell |\n| - |\n| &#x1D504; | 1`] = `
+exports[`prefer-named-character-references > invalid(7): | Cell |\n| - |\n| Left\\|right &#x1D504; and \\&#160; | 1`] = `
 
 Filename: example.md
 
   1 | | Cell |
   2 | | - |
-  3 | | &#x1D504; |
+  3 | | Left\\|right &#x1D504; and \\&#160; |
 
 `;
 
-exports[`prefer-named-character-references > invalid(7): | Cell |\n| - |\n| &#x1D504; | 2`] = `
+exports[`prefer-named-character-references > invalid(7): | Cell |\n| - |\n| Left\\|right &#x1D504; and \\&#160; | 2`] = `
 
 Message:
   1 | | Cell |
   2 | | - |
-> 3 | | &#x1D504; |
-    |   ^^^^^^^^^ Prefer \`&Afr;\` over \`&#x1D504;\`.
+> 3 | | Left\\|right &#x1D504; and \\&#160; |
+    |               ^^^^^^^^^ Prefer \`&Afr;\` over \`&#x1D504;\`.
 
 Output:
   1 | | Cell |
   2 | | - |
-  3 | | &Afr; |
+  3 | | Left\\|right &Afr; and \\&#160; |
 
 `;
 
