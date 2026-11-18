@@ -7,12 +7,12 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.typescript}});
 const customToStringType = 'type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }';
-const typeAware = code => ({
+const typeAware = (code, filename = 'file.ts') => ({
 	code,
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parserOptions: {projectService: {allowDefaultProject: ['file.ts', 'file.js']}},
 	},
 });
 
@@ -116,6 +116,18 @@ for (const {name, code, languageOptions, filename = 'file.js'} of [
 	{
 		name: 'a contextual signature from satisfies',
 		...typeAware('export const format = (value => value.toString()) satisfies (value: number) => string;'),
+	},
+	{
+		name: 'a contextual signature from JSDoc satisfies',
+		...typeAware('/** @satisfies {(value: number) => string} */\nexport const format = value => value.toString();', 'file.js'),
+	},
+	{
+		name: 'an inline contextual signature from JSDoc satisfies',
+		...typeAware('export const format = /** @satisfies {(value: number) => string} */ (value => value.toString());', 'file.js'),
+	},
+	{
+		name: 'a JSDoc signature on a returned function',
+		...typeAware('export function factory() {\n\t/** @param {number} value */\n\treturn value => value.toString();\n}', 'file.js'),
 	},
 ]) {
 	testInteraction(`combined coercion fixes preserve ${name}`, t => {

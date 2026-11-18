@@ -41,6 +41,7 @@ test({
 test.snapshot({
 	valid: [
 		'const foo = async v => String(v)',
+		'/** Format the amount for display. */\nexport const format = value => String(value);',
 		'/** @returns {string} */\nconst stringify = value => String(value);',
 		'const foo = v => String',
 		'const foo = v => v',

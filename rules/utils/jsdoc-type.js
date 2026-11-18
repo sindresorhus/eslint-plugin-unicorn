@@ -1,6 +1,7 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
 import {isEslintDisableOrEnableDirective} from './eslint-directive.js';
+import {getParentheses} from './parentheses/parentheses.js';
 import {parseJSDocumentType} from './parse-jsdoc-type.js';
 import {hasTypeScriptTypeAssertion, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import {
@@ -15,13 +16,14 @@ const returnTags = new Set(['return', 'returns']);
 const parameterNamePattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*/v;
 const propertyTypes = new Set(['Property', 'PropertyDefinition', 'AccessorProperty']);
 const exportTypes = new Set(['ExportNamedDeclaration', 'ExportDefaultDeclaration']);
+const isJSDocumentComment = comment => comment.type === 'Block' && comment.value.startsWith('*');
 
 function getSourceCodeCache({sourceCode}) {
 	let cache = sourceCodeCaches.get(sourceCode);
 	if (!cache) {
 		cache = {
 			comments: new WeakMap(),
-			hasComments: sourceCode.getAllComments().some(comment => comment.type === 'Block' && comment.value.startsWith('*')),
+			hasComments: sourceCode.getAllComments().some(comment => isJSDocumentComment(comment)),
 		};
 		sourceCodeCaches.set(sourceCode, cache);
 	}
@@ -177,7 +179,7 @@ function getDocumentationTags(nodes, context) {
 		const comment = context.sourceCode.getCommentsBefore(node)
 			.findLast(comment => !isEslintDisableOrEnableDirective(context, comment));
 		if (comment) {
-			return comment.type === 'Block' && comment.value.startsWith('*')
+			return isJSDocumentComment(comment)
 				? getCommentTags(comment, context)
 				: [];
 		}
@@ -224,6 +226,25 @@ function getFunctionOwners(node) {
 	}
 
 	return exportTypes.has(parent?.type) ? [...owners, parent] : owners;
+}
+
+/**
+Check for JSDoc attached to the function, its declaration, its parameters, its `return` statement, or parentheses around it.
+*/
+function hasFunctionJSDocumentComment(node, context) {
+	if (!hasJSDocumentComments(context)) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const owners = getFunctionOwners(node);
+	if (node.parent.type === 'ReturnStatement') {
+		owners.push(node.parent);
+	}
+
+	const openingParentheses = getParentheses(node, context).filter(isOpeningParenthesisToken);
+	return [...owners, ...node.params, ...openingParentheses]
+		.some(owner => sourceCode.getCommentsBefore(owner).some(comment => isJSDocumentComment(comment)));
 }
 
 /**
@@ -341,6 +362,7 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 });
 
 export {
+	hasFunctionJSDocumentComment,
 	hasJSDocumentComments,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,

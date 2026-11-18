@@ -3,9 +3,8 @@ import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getFunctionReturnExpression,
-	getJSDocumentReturnType,
-	getJSDocumentTypeAnnotation,
 	getOutermostTypeScriptExpression,
+	hasFunctionJSDocumentComment,
 	hasTypeScriptTypeAssertion,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -91,8 +90,7 @@ function getCoercionFunctionProblem(node, context) {
 		|| node.typeParameters
 		|| getOutermostTypeScriptExpression(node) !== node
 		|| hasTypeScriptTypeAssertion(returnedExpression)
-		|| getJSDocumentTypeAnnotation(parameter, context)
-		|| getJSDocumentReturnType(node, context)
+		|| hasFunctionJSDocumentComment(node, context)
 	) {
 		return;
 	}
@@ -189,7 +187,7 @@ const create = context => {
 		}
 
 		// Rewriting a class method into a class field moves it off the prototype, which changes property lookup, enumerability and `super` dispatch, so that can only be a suggestion.
-		if (node.parent.type === 'MethodDefinition') {
+		if (parent.type === 'MethodDefinition') {
 			problem.suggest = [
 				{messageId: MESSAGE_ID_SUGGESTION, data: {replacementFunction}, fix},
 			];
