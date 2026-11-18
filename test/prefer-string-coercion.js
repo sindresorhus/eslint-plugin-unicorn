@@ -64,6 +64,7 @@ test.snapshot({
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 		typeAware('type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }'),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
+		typeAware('function format(value: number | string | undefined) { return (value ?? 0).toString(); }'),
 	],
 	invalid: [
 		'(42).toString();',
@@ -118,6 +119,7 @@ test.snapshot({
 		'["a", "b"].length.toString();',
 		typeAware('type Id = number & {readonly brand: unique symbol}; function format(value: Id) { return value.toString(); }'),
 		typeAware('enum Status {Okay = 200, Missing = 404} Status.Okay.toString();'),
+		typeAware('function format(value: number | undefined) { return (value ?? 0).toString(); }'),
 	],
 });
 

@@ -11,9 +11,9 @@
 
 Use `String(value)` for decimal conversion of a `number` or `bigint`. The rule checks calls with no arguments when it can identify the receiver as numeric, including a `number | bigint` union. It recognizes dot notation and bracket notation with a string literal or an expression-free template literal. Calls with an explicit radix or optional chaining to the receiver or method are allowed.
 
-The rule recognizes numeric operations and known built-ins such as `Date.now()`. Type information or a statically known value can also establish that an instance method or property produces a number or BigInt. With type information, the rule checks that `.toString()` returns plain `string` before reporting.
+The rule recognizes numeric operations and known built-ins such as `Date.now()`. Type information or a statically known value can also establish that an instance method or property produces a number or BigInt. With type-checked linting, the rule checks that `.toString()` returns plain `string` before reporting.
 
-The replacement is an editor suggestion because an inferred type can differ from the runtime value. For example, an out-of-bounds array read can return `undefined` even when TypeScript infers `number`. In that case, `.toString()` throws and `String(value)` returns `'undefined'`.
+The replacement is an editor suggestion because an inferred type can differ from the runtime value. For example, TypeScript can infer `number` for an out-of-bounds array read or for a value that can be `undefined` when `strictNullChecks` is disabled. If the value is `undefined`, `.toString()` throws and `String(value)` returns `'undefined'`.
 
 A local declaration or import named `String` suppresses the suggestion.
 
