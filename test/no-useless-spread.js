@@ -14,6 +14,121 @@ const linterConfig = {
 	rules: {'unicorn/no-useless-spread': 'error'},
 };
 
+const conditionalPushSpreadOptions = [{checkConditionalPushSpreads: true}];
+
+test({
+	valid: [
+		'const items = []; items.push(...(ready ? [first] : []));',
+		...[
+			'items.push(...(ready ? getItems() : []));',
+			'items.push(...(ready ? [] : []));',
+			'items.push(...(ready ? [first] : [second]));',
+			'items.push(...(ready ? [, first] : []));',
+			'items.push(...(ready ? [...other] : []));',
+			'items.push(first, ...(ready ? [second] : []));',
+			'const length = items.push(...(ready ? [first] : []));',
+			'items?.push(...(ready ? [first] : []));',
+			'items.push?.(...(ready ? [first] : []));',
+			'items?.["push"](...(ready ? [first] : []));',
+			'items[method](...(ready ? [first] : []));',
+			'items["p" + "ush"](...(ready ? [first] : []));',
+			'getItems().push(...(ready ? [first] : []));',
+			'const state = {items}; state.items.push(...(ready ? [first] : []));',
+			'if (enabled) items.push(...(ready ? [first] : [])); else reset();',
+			'items.push(...(isReady() ? [first] : []));',
+			'items.push(...((ready = true) ? [first] : []));',
+			'items.push(...(isReady`test` ? [first] : []));',
+		].map(code => ({code: `const items = []; ${code}`, options: conditionalPushSpreadOptions})),
+		{
+			code: 'function append(items) { items.push(...(ready ? [first] : [])); }',
+			options: conditionalPushSpreadOptions,
+		},
+		{
+			code: 'const items: number[] = []; items.push(...(ready ? [first] as const : []));',
+			languageOptions: {parser: parsers.typescript},
+			options: conditionalPushSpreadOptions,
+		},
+	],
+	invalid: [
+		...[
+			{
+				code: 'const items = [];\nitems.push(...(ready ? [(first, second), third] : []),);',
+				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push((first, second), third,);\n}',
+			},
+			{
+				code: 'const items = [];\nitems.push(...(!ready ? [] : [first]));',
+				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push(first);\n}',
+			},
+			{
+				code: 'function prepend(items: string[]) {\r\n  items.unshift(...(ready || override ? [] : [first]));\r\n}',
+				suggestedCode: 'function prepend(items: string[]) {\r\n  if (!(ready || override)) {\r\n    items.unshift(first);\r\n  }\r\n}',
+				languageOptions: {parser: parsers.typescript},
+			},
+			...['items["push"]', 'items[`unshift`]'].map(callee => ({
+				code: `const items = [];\n${callee}(...(ready ? [first] : []));`,
+				suggestedCode: `const items = [];\nif (ready) {\n\t${callee}(first);\n}`,
+			})),
+			{
+				code: 'const items = [];\nswitch (kind) {\n\tcase 1:\n\t\titems.push(...(ready ? [first] : []));\n\t\tbreak;\n}',
+				suggestedCode: 'const items = [];\nswitch (kind) {\n\tcase 1:\n\t\tif (ready) {\n\t\t\titems.push(first);\n\t\t}\n\t\tbreak;\n}',
+			},
+			{
+				code: 'const items = [];\nclass Example {\n\tstatic {\n\t\titems.push(...(ready ? [first] : []));\n\t}\n}',
+				suggestedCode: 'const items = [];\nclass Example {\n\tstatic {\n\t\tif (ready) {\n\t\t\titems.push(first);\n\t\t}\n\t}\n}',
+			},
+			{
+				code: 'namespace Example {\n\tconst items: unknown = [];\n\t(items as number[]).push(...(ready ? [first] : []));\n}',
+				suggestedCode: 'namespace Example {\n\tconst items: unknown = [];\n\tif (ready) {\n\t\t(items as number[]).push(first);\n\t}\n}',
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: 'function append(ready: boolean, items?: number[]) {\n\titems!.push(...(ready ? [1] : []));\n}',
+				suggestedCode: 'function append(ready: boolean, items?: number[]) {\n\tif (ready) {\n\t\titems!.push(1);\n\t}\n}',
+				languageOptions: {parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+				filename: 'file.ts',
+			},
+			{
+				code: 'const items = [];\nitems.push(...(ready ? [`first\nsecond`] : []));',
+				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push(`first\nsecond`);\n}',
+			},
+			{
+				code: 'const items = [];\nitems.push(...(ready ? [<span>\n  text\n</span>] : []));',
+				suggestedCode: 'const items = [];\nif (ready) {\n\titems.push(<span>\n  text\n</span>);\n}',
+				languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			},
+		].map(({suggestedCode, ...testCase}) => ({
+			...testCase,
+			options: conditionalPushSpreadOptions,
+			errors: [{
+				messageId: 'conditional-push-spread',
+				suggestions: [{
+					messageId: 'suggestion/guard-push',
+					output: suggestedCode,
+				}],
+			}],
+		})),
+		...[
+			'items.push(...(ready ? [first, /* keep */ second] : []));',
+			'items.push(...(ready ? [first] : [])); // eslint-disable-line no-undef',
+			'items.push(...(ready ? [first] : [])); consume(); // eslint-disable-line no-undef',
+			'/* eslint-disable-line no-undef */ items.push(...(ready ? [first] : []));',
+			'/** @ts-expect-error */\nitems.push(...(ready ? [first] : []));',
+			'items.push(\n  // eslint-disable-next-line no-undef\n  ...(ready ? [first] : [])\n);',
+		].map(code => ({
+			code: `const items = [];\n${code}`,
+			options: conditionalPushSpreadOptions,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+			errors: [{messageId: 'conditional-push-spread', suggestions: []}],
+		})),
+		{
+			code: '// eslint-disable-next-line no-undef\nconst items = []; items.push(...(ready ? [first] : []));',
+			options: conditionalPushSpreadOptions,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+			errors: [{messageId: 'conditional-push-spread', suggestions: []}],
+		},
+	],
+});
+
 test({
 	valid: [],
 	invalid: [

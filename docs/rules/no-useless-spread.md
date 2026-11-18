@@ -150,6 +150,34 @@ foo(foo, ...bar);
 const object = new Foo(...foo, bar);
 ```
 
+## Options
+
+### `checkConditionalPushSpreads`
+
+Type: `boolean`\
+Default: `false`
+
+Whether to check standalone `push()` and `unshift()` calls on known array variables when the only argument spreads a ternary with `[]` in one branch and a nonempty array literal without holes or spreads in the other branch.
+
+The rule checks calls at the top level, in an existing block, or in a `switch` case. It recognizes dot notation and bracket notation with a string literal or a template literal without substitutions. The suggestion preserves TypeScript assertions on the receiver.
+
+The rule skips conditions with detectable side effects. The edit is an editor suggestion because an `if` skips the zero-argument call and evaluates the condition before looking up the method.
+
+The editor suggestion requires the statement to be on its own lines, with no leading or internal comments. A statement can still be reported without a suggestion.
+
+```js
+const items = [];
+items.push(...(enabled ? [first, second] : []));
+```
+
+The editor suggests replacing the call with this statement.
+
+```js
+if (enabled) {
+	items.push(first, second);
+}
+```
+
 ## Sparse arrays
 
 This rule assumes dense arrays. Sparse arrays are unsupported: array spread turns empty slots into `undefined`, while methods like `Array#concat()` preserve them. Disable this rule where sparse arrays are intentional.
