@@ -1,6 +1,7 @@
 import {isRegExp} from 'node:util/types';
 import {
 	getComments,
+	getCommentRange,
 	getLinePrefix,
 	getLineStart,
 	isEslintDisableOrEnableDirective,
@@ -97,7 +98,7 @@ const getLineEnding = (sourceCode, [start, end], content) =>
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
 
-const getCommentText = (comment, opening, context) => context.sourceCode.getText(comment).slice(2, -2)
+const getNormalizedCommentText = (text, opening) => text.slice(2, -2)
 	.split(LINE_ENDING_PATTERN)
 	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
 	.join('\n');
@@ -106,15 +107,6 @@ const isDirectiveText = commentText =>
 	DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
 	|| LANGUAGE_DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
 	|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
-
-const isIgnoredComment = (context, comment, opening, ignorePatterns) => {
-	if (isEslintDisableOrEnableDirective(context, comment)) {
-		return true;
-	}
-
-	const commentText = getCommentText(comment, opening, context);
-	return matchesAnyRegExp(commentText, ignorePatterns) || isDirectiveText(commentText);
-};
 
 const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
 	? new RegExp(pattern.source, pattern.flags)
@@ -146,15 +138,20 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 	}
 
 	const {sourceCode} = context;
-	const range = sourceCode.getRange(comment);
+	const range = getCommentRange(context, comment);
 
 	if (!isStandalone(context, range)) {
 		return;
 	}
 
 	const text = sourceCode.text.slice(...range);
+	if (!text.startsWith('/*') || !text.endsWith('*/') || text.startsWith('/*!') || isEslintDisableOrEnableDirective(context, comment)) {
+		return;
+	}
+
 	const opening = getOpeningDelimiter(text);
-	if (!text.startsWith('/*') || !text.endsWith('*/') || text.startsWith('/*!') || isIgnoredComment(context, comment, opening, ignorePatterns)) {
+	const commentText = getNormalizedCommentText(text, opening);
+	if (matchesAnyRegExp(commentText, ignorePatterns) || isDirectiveText(commentText)) {
 		return;
 	}
 
@@ -203,9 +200,8 @@ const getMergeCandidate = (context, problem) => {
 		return;
 	}
 
-	const {sourceCode} = context;
-	const {text: sourceText} = sourceCode;
-	const commentRange = sourceCode.getRange(problem.node);
+	const {text: sourceText} = context.sourceCode;
+	const commentRange = getCommentRange(context, problem.node);
 	const [start, end] = commentRange;
 	const commentText = sourceText.slice(start, end);
 	if (commentText.startsWith('/**') || commentText.endsWith('**/') || LINE_ENDING_PATTERN.test(commentText) || commentText.includes('\f')) {
@@ -272,7 +268,7 @@ const create = context => {
 			const candidate = getMergeCandidate(context, problem);
 			const previous = group.at(-1);
 
-			if (!candidate || (previous && !canMergeAdjacentComments(previous, candidate, sourceCode.text))) {
+			if (previous && (!candidate || !canMergeAdjacentComments(previous, candidate, sourceCode.text))) {
 				yield * getMergeGroupProblems(group, sourceCode, ignorePatterns);
 				group = [];
 			}

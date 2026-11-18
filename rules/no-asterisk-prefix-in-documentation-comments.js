@@ -1,5 +1,6 @@
 import {
 	getComments,
+	getCommentRange,
 	getLinePrefix,
 	onRoot,
 	reindentText,
@@ -9,12 +10,6 @@ const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const messages = {
 	[MESSAGE_ID]: 'Remove asterisk prefixes and shared indentation from this comment.',
-};
-
-const getCommentRange = (sourceCode, comment) => {
-	// `@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations.
-	const {start, end} = sourceCode.getLoc(comment);
-	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
 };
 
 // A line with only whitespace or the closing delimiter
@@ -86,7 +81,7 @@ const getFixedCommentText = (text, linePrefix, isJavaScriptComment) => {
 
 const getProblem = (context, comment) => {
 	const {sourceCode} = context;
-	const range = getCommentRange(sourceCode, comment);
+	const range = getCommentRange(context, comment);
 	const text = sourceCode.text.slice(...range);
 	const isJavaScriptComment = comment.type === 'Block' && sourceCode.ast.type === 'Program';
 	const isJavaScriptDocumentationComment = text.startsWith('/**') && text[3] !== '*';

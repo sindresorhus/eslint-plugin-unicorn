@@ -797,6 +797,23 @@ ruleTest.snapshot({
 	].map(testCase => ({...testCase, code: language === languages.css ? testCase.code.replace('{}', 'a {}') : testCase.code, language}))),
 });
 
+ruleTest({
+	valid: [languages.jsonc, languages.json5].map(({language, plugins}) => ({
+		code: '/*\r\nIgnored.\r\n*/\r\n{}',
+		options: ['single-line', {ignore: [/^\nIgnored\.\n$/u]}],
+		language,
+		plugins,
+	})),
+	invalid: [languages.jsonc, languages.json5].map(({language, plugins}) => ({
+		code: '{\r\n\t/*\r\n\tComment.\r\n\t*/\r\n\t"value": true\r\n}',
+		output: '{\r\n\t/* Comment. */\r\n\t"value": true\r\n}',
+		options: ['single-line'],
+		errors: [error],
+		language,
+		plugins,
+	})),
+});
+
 ruleTest.snapshot({
 	valid: [
 		'/*\nnote\n*/\n{}',

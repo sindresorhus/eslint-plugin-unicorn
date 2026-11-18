@@ -55,7 +55,7 @@ export {getTypeArgumentsText, hasSameTypeArguments, hasTypeArguments} from './ty
 export {default as reindentText} from './reindent-text.js';
 export {default as isCallExpressionValueDiscardedWithVoid} from './is-call-expression-value-discarded-with-void.js';
 export {default as isIdentifierName} from './is-identifier-name.js';
-export {default as getComments, getMarkdownHtmlComments} from './get-comments.js';
+export {default as getComments, getCommentRange, getMarkdownHtmlComments} from './get-comments.js';
 export {
 	getLastTrailingCommentOnSameLine,
 	getCommentSafeProblem,

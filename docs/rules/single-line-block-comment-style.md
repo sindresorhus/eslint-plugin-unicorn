@@ -41,7 +41,7 @@ Available options:
 - `'multiline'` - Require the comment delimiters to be on separate lines.
 - `'single-line'` - Require the comment to fit on one line.
 
-In `'multiline'` mode, an editor suggestion can merge consecutive plain one-line block comments at the same indentation. Blank lines, code, line comments, and multiline blocks end the run. Documentation comments, banners, license comments, known tooling directives, and comments matched by `ignore` also end it. Use the suggestion when the comments belong together and changing their boundaries or line numbers is safe for your tools. The automatic fix formats each block separately.
+In `'multiline'` mode, the first diagnostic in a run of consecutive plain one-line block comments at the same indentation can offer a merge suggestion. Blank lines, code, line comments, multiline blocks, documentation comments, banners, license comments, and known tooling directives end the run. The rule checks `ignore` against each comment and the combined text. Use the suggestion when the comments belong together and changing their boundaries or line numbers is safe for your tools. The automatic fix formats each block separately.
 
 With the `'single-line'` option:
 
