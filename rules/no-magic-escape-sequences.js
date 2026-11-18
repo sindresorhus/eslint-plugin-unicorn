@@ -38,7 +38,7 @@ function isNamedConstantInitializer(expression) {
 */
 const create = context => {
 	// TypeScript also accepts declaration files for arbitrary extensions, such as `styles.d.css.ts`.
-	if (/\.d\.(?:[cm]?ts|[^\\\/]*\.ts)$/v.test(context.filename)) {
+	if (/\.d\.(?:[cm]?ts|[^\/\\]*\.ts)$/v.test(context.filename)) {
 		return;
 	}
 
