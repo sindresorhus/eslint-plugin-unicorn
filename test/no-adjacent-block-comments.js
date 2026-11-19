@@ -1,5 +1,5 @@
 import test from 'node:test';
-import {Linter} from 'eslint';
+import {ESLint, Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, languages} from './utils/test.js';
 
@@ -43,6 +43,10 @@ ruleTest({
 		'/* First. */\n/* Second. */ doSomething();',
 		'/*\nFirst.\nSecond.\n*/\n/* Third. */',
 		'/* v8 */\n/* ignore next */',
+		{
+			code: '/* Notes on @jsx*/\n/* h */\nconst view = <div />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
 		'/* Begin: purgecss start ignore */\n/* End: purgecss end ignore */',
 		'import(\n  /* webpackChunkName: "details" */\n  /* webpackMode: "lazy" */\n  "./details.js"\n);',
 		...[
@@ -143,6 +147,22 @@ test('merges with the block comment layout rule enabled', t => {
 		t.assert.strictEqual(result.output, '/*\nFirst.\nSecond.\n*/', style);
 		t.assert.deepStrictEqual(result.messages, [], style);
 	}
+});
+
+test('formats each block separately when fixes are limited to layout', async t => {
+	const eslint = new ESLint({
+		overrideConfigFile: true,
+		overrideConfig: {
+			plugins: {unicorn},
+			rules: {[layoutRule]: 'error', [mergeRule]: 'error'},
+		},
+		fix: true,
+		fixTypes: ['layout'],
+	});
+
+	const [result] = await eslint.lintText('/* First. */\n/* Second. */');
+	t.assert.strictEqual(result.output, '/*\nFirst.\n*/\n/*\nSecond.\n*/');
+	t.assert.deepStrictEqual(result.messages.map(({ruleId}) => ruleId), [mergeRule]);
 });
 
 test('keeps merge boundaries intact after layout fixes', t => {

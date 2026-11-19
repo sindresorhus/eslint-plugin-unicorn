@@ -24,7 +24,9 @@ const DIRECTIVE_PATTERNS = [
 	/^\s*(?:cspell|spell-checker):/v,
 	// TypeScript accepts extra slashes and asterisks before these directives.
 	/^\s*(?:[*\/]+\s*)?@ts-(?:ignore|expect-error)/v,
-	/^\s*@(?:ts-(?:check|nocheck)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment|noformat|noprettier)(?:\s|:|$)/v,
+	// TypeScript can recognize JSX pragmas anywhere in a leading block comment.
+	/@jsx(?:frag|importsource|runtime|factory)?(?:\s|:|$)/iv,
+	/^\s*@(?:ts-(?:check|nocheck)|(?:no)?flow|(?:jest|vitest)-environment|noformat|noprettier)(?:\s|:|$)/v,
 	/^\s*\$Flow(?:FixMe|ExpectedError)\[[^\]]+\](?:\s|:|$)/v,
 	/^\s*[#@]__(?:INLINE|NOINLINE|PURE|KEY|MANGLE_PROP|NO_SIDE_EFFECTS)__\s*$/v,
 ];

@@ -1,6 +1,8 @@
 /*
 Run all unicorn rules on codebase
 */
+
+// Keep the review instruction separate from the file description.
 /*
 ! If you're making a new rule, you can ignore this before review.
 */
@@ -155,13 +157,6 @@ const config = [
 		rules: {
 			// Keep the conventional eslint-doc-generator config filename.
 			'unicorn/name-replacements': 'off',
-		},
-	},
-	{
-		files: ['eslint.dogfooding.config.js'],
-		rules: {
-			// Keep the review instruction separate from the file description.
-			'unicorn/no-adjacent-block-comments': 'off',
 		},
 	},
 	{

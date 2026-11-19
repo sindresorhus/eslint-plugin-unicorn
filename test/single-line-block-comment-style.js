@@ -348,6 +348,10 @@ ruleTest({
 			options: ['single-line'],
 		},
 		{
+			code: '/* Notes on @JSXRuntime automatic*/\nconst view = <div />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
 			code: '/*\n@ts-ignore-foo\n*/',
 			options: ['single-line'],
 		},
