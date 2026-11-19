@@ -18,7 +18,7 @@ const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
 };
 
-const isCanonicalMultiline = trimmedLines => trimmedLines.length === 3 && trimmedLines[0] === '' && trimmedLines[2] === '';
+const isCanonicalMultiline = lines => lines.length === 3 && lines[0] === '' && lines[2] === '';
 
 const getProblem = (context, comment, style, ignorePatterns) => {
 	const block = getSingleContentLineBlockComment(context, comment);
@@ -26,10 +26,10 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 		return;
 	}
 
-	const {opening, contentLine, trimmedLines, indentation, commentRange} = block;
+	const {opening, contentLine, lines, indentation, commentRange} = block;
 
 	if (style === MULTILINE) {
-		if (isCanonicalMultiline(trimmedLines)) {
+		if (isCanonicalMultiline(lines)) {
 			return;
 		}
 
@@ -44,7 +44,7 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 		};
 	}
 
-	if (trimmedLines.length === 1) {
+	if (lines.length === 1) {
 		return;
 	}
 

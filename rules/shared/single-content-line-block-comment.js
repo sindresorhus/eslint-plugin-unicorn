@@ -69,11 +69,6 @@ const getBlockCommentLineEnding = (sourceText, {text, lineStart, lineEnd}) =>
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
 
-const getNormalizedCommentText = (text, opening) => text.slice(2, -2)
-	.split(LINE_ENDING_PATTERN)
-	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
-	.join('\n');
-
 const isDirectiveText = text => DIRECTIVE_PATTERNS.some(pattern => pattern.test(text));
 
 const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
@@ -102,24 +97,24 @@ const getSingleContentLineBlockComment = (context, comment) => {
 	}
 
 	const opening = getOpeningDelimiter(text);
-	const normalizedText = getNormalizedCommentText(text, opening);
-	if (isDirectiveText(normalizedText)) {
-		return;
-	}
-
-	const trimmedLines = text.slice(opening.length, -2).split(LINE_ENDING_PATTERN).map(line => line.trim());
-	const contentLines = trimmedLines.filter(Boolean);
+	const lines = text.slice(opening.length, -2).split(LINE_ENDING_PATTERN).map(line => line.trimStart());
+	const contentLines = lines.filter(Boolean);
 	if (contentLines.length !== 1) {
 		return;
 	}
 
-	const [contentLine] = contentLines;
+	const contentLine = contentLines[0].trimEnd();
 	if (opening === '/**' && contentLine.startsWith('*')) {
 		return;
 	}
 
+	const normalizedText = lines.join('\n');
+	if (isDirectiveText(normalizedText)) {
+		return;
+	}
+
 	return {
-		commentRange, text, opening, contentLine, trimmedLines, normalizedText, indentation, lineStart, lineEnd,
+		commentRange, text, opening, contentLine, lines, normalizedText, indentation, lineStart, lineEnd,
 	};
 };
 

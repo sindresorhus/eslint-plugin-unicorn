@@ -45,6 +45,11 @@ ruleTest({
 		'/* v8 */\n/* ignore next */',
 		'/* Begin: purgecss start ignore */\n/* End: purgecss end ignore */',
 		'import(\n  /* webpackChunkName: "details" */\n  /* webpackMode: "lazy" */\n  "./details.js"\n);',
+		...[
+			'rspackChunkName: "details"',
+			'webpackChunkName : "details"',
+			'"webpackChunkName": "details"',
+		].map(directive => `import(\n  /* ${directive} */\n  /* Load the details page. */\n  "./details.js"\n);`),
 		'// eslint-disable-next-line rule-to-test/no-adjacent-block-comments\n/* First. */\n/* Second. */',
 		{
 			code: '/* First. */\n/*\nGenerated.\n*/\n/* Second. */',

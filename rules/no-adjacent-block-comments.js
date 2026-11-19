@@ -19,7 +19,8 @@ const messages = {
 // Unicode line separators can be tokens in CSS. Use only CR and LF as line boundaries for merging.
 const ADJACENT_COMMENT_GAP = /^[\t ]*(?:\r\n|[\n\r])[\t ]*$/v;
 const MERGE_SENSITIVE_PATTERNS = [
-	/\bwebpack[A-Z][A-Za-z]*:/v,
+	// Rspack accepts quoted keys and spaces before the colon.
+	/\b(?:webpack|rspack)[A-Z][A-Za-z]*["']?\s*:/v,
 	/^@/v,
 	/^stylelint-(?:disable|enable)\b/v,
 	/\bautoprefixer(?:\s+grid)?\s*:/iv,

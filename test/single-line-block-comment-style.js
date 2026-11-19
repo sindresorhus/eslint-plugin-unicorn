@@ -375,6 +375,10 @@ ruleTest({
 			options: ['multiline', {ignore: [/^Generated/u]}],
 		},
 		{
+			code: '/**\r\n  Generated. \t\r\n */',
+			options: ['single-line', {ignore: [/^\nGenerated\. \t\n$/u]}],
+		},
+		{
 			code: '/* Generated first. */\n/* Generated second. */',
 			options: ['multiline', {ignore: [/^Generated/g]}],
 		},
