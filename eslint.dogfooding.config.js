@@ -158,6 +158,13 @@ const config = [
 		},
 	},
 	{
+		files: ['eslint.dogfooding.config.js'],
+		rules: {
+			// Keep the review instruction separate from the file description.
+			'unicorn/no-adjacent-block-comments': 'off',
+		},
+	},
+	{
 		files: [
 			'rules/no-unused-properties.js',
 		],

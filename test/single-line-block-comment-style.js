@@ -63,6 +63,7 @@ ruleTest.snapshot({
 		'/*@ sourceMappingURL=legacy.js.map */',
 		'/*# sourceURL=app.js */',
 		'/* @ts-ignore: explanation */',
+		'/* @ts-ignore-foo */',
 		'/* @ts-expect-error: explanation */',
 		'/* @jsxImportSource preact */',
 		'/* @flow strict */',
@@ -220,44 +221,13 @@ const getConfig = options => ({
 	},
 });
 
-test('suggests merging a run of adjacent block comments', t => {
-	const linter = new Linter();
-	const config = getConfig([]);
-	const code = '  /* First. */\r\n  /* Second. */\r\n  /* Third. */\r\n  doSomething();';
-	const messages = linter.verify(code, config);
-	const [message, ...remainingMessages] = messages;
-
-	t.assert.strictEqual(messages.length, 3);
-	t.assert.deepStrictEqual(message.suggestions?.map(({messageId}) => messageId), ['merge-adjacent-block-comments']);
-	t.assert.ok(remainingMessages.every(({suggestions}) => suggestions === undefined));
-
-	const {range, text} = message.suggestions[0].fix;
-	const [start, end] = range;
-	const merged = code.slice(0, start) + text + code.slice(end);
-	t.assert.strictEqual(merged, '  /*\r\n  First.\r\n  Second.\r\n  Third.\r\n  */\r\n  doSomething();');
-	t.assert.deepStrictEqual(linter.verify(merged, config), []);
-
-	const fixed = linter.verifyAndFix(code, config);
-	t.assert.strictEqual(fixed.output, '  /*\r\n  First.\r\n  */\r\n  /*\r\n  Second.\r\n  */\r\n  /*\r\n  Third.\r\n  */\r\n  doSomething();');
-	t.assert.deepStrictEqual(fixed.messages, []);
-});
-
 ruleTest.vue({
 	valid: [],
 	invalid: [{
 		filename: 'component.vue',
 		code: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/* First. */\r\n/* Second. */\r\n</script>',
 		output: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/*\r\nFirst.\r\n*/\r\n/*\r\nSecond.\r\n*/\r\n</script>',
-		errors: [
-			{
-				...error,
-				suggestions: [{
-					messageId: 'merge-adjacent-block-comments',
-					output: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/*\r\nFirst.\r\nSecond.\r\n*/\r\n</script>',
-				}],
-			},
-			{...error, suggestions: 0},
-		],
+		errors: [error, error],
 	}],
 });
 
@@ -266,130 +236,8 @@ ruleTest({
 	invalid: [{
 		code: '\uFEFF/* First. */\r/* Second. */\r',
 		output: '\uFEFF/*\rFirst.\r*/\r/*\rSecond.\r*/\r',
-		errors: [
-			{
-				...error,
-				suggestions: [{
-					messageId: 'merge-adjacent-block-comments',
-					output: '\uFEFF/*\rFirst.\rSecond.\r*/\r',
-				}],
-			},
-			{...error, suggestions: 0},
-		],
+		errors: [error, error],
 	}],
-});
-
-test('does not suggest merging across a boundary', t => {
-	const linter = new Linter();
-	const config = getConfig(['multiline', {ignore: ['^Generated']}]);
-
-	for (const boundary of [
-		'',
-		' \t',
-		'prepare();',
-		'// An intervening comment.',
-		'/*\nMultiple\ncontent lines.\n*/',
-		'/** Documentation. */',
-		'/*** Section heading ***/',
-		'/* Section heading ***/',
-		'/*! License. */',
-		'/* Copyright (c) Example. */',
-		'/* © Example. */',
-		'/* @LICENSE MIT */',
-		'/* SPDX-License-Identifier: MIT */',
-		'/* @__PURE__ extra */',
-		'/* */',
-		'/* Generated comment. */',
-		'/* prettier-ignore */',
-		'/* @format */',
-		'/* * @prettier */',
-		'/* stylelint-disable-next-line color-no-invalid-hex */',
-		'/* AUTOPREFIXER: IGNORE NEXT */',
-		'/*rtl:ignore*/',
-		'/* !rtl:ignore */',
-		'/* @vite-ignore */',
-		'/* webpackChunkName: "details" */',
-	]) {
-		const code = `/* First. */\n${boundary}\n/* Second. */`;
-		const messages = linter.verify(code, config);
-
-		t.assert.ok(messages.length >= 2, code);
-		t.assert.ok(messages.every(({messageId, suggestions}) => messageId === error.messageId && suggestions === undefined), code);
-	}
-
-	for (const code of [
-		'/* First. */\n  /* Second. */',
-		'/* v8 */\n/* ignore next */',
-		'/* Begin: purgecss start ignore */\n/* End: purgecss end ignore */',
-		'import(\n  /* webpackChunkName: "details" */\n  /* webpackMode: "lazy" */\n  "./details.js"\n);',
-	]) {
-		const messages = linter.verify(code, config);
-
-		t.assert.strictEqual(messages.length, 2, code);
-		t.assert.ok(messages.every(({messageId, suggestions}) => messageId === error.messageId && suggestions === undefined), code);
-	}
-});
-
-test('checks ignore patterns against the combined content', t => {
-	const linter = new Linter();
-	const config = getConfig(['multiline', {ignore: [/^First\.\nSecond\.$/u]}]);
-	const messages = linter.verify('/* First. */\n/* Second. */', config);
-
-	t.assert.strictEqual(messages.length, 2);
-	t.assert.ok(messages.every(({messageId, suggestions}) => messageId === error.messageId && suggestions === undefined));
-});
-
-test('suggests separate merges on each side of a line comment', t => {
-	const linter = new Linter();
-	const code = '/* First. */\n/* Second. */\n// A separate comment.\n/* Third. */\n/* Fourth. */';
-	const messages = linter.verify(code, getConfig([]));
-	const suggestedEdits = messages.flatMap(({suggestions}) => suggestions ?? []).map(({fix}) => fix);
-
-	t.assert.deepStrictEqual(suggestedEdits, [
-		{range: [0, code.indexOf('\n//')], text: '/*\nFirst.\nSecond.\n*/'},
-		{range: [code.indexOf('/* Third.'), code.length], text: '/*\nThird.\nFourth.\n*/'},
-	]);
-});
-
-test('does not merge a comment whose diagnostic is suppressed', t => {
-	const linter = new Linter();
-	const code = '// eslint-disable-next-line rule/single-line-block-comment-style\n/* First. */\n/* Second. */';
-	const messages = linter.verify(code, getConfig([]));
-
-	t.assert.strictEqual(messages.length, 1);
-	t.assert.strictEqual(messages[0].messageId, error.messageId);
-	t.assert.strictEqual(messages[0].line, 3);
-	t.assert.strictEqual(messages[0].suggestions, undefined);
-});
-
-test('suggests merging in languages with block comments', t => {
-	const linter = new Linter();
-	const {plugins, rules} = getConfig([]);
-
-	for (const [{name, language, plugins: languagePlugins}, codeAfterComments] of [
-		[languages.css, 'a {}'],
-		[languages.jsonc, '{}'],
-		[languages.json5, '{}'],
-		[languages.soml, '{}'],
-	]) {
-		const filename = `file.${name}`;
-		const config = {
-			files: [filename],
-			language,
-			plugins: {...plugins, ...languagePlugins},
-			rules,
-		};
-		const lineEnding = name === 'soml' ? '\n' : '\r\n';
-		const code = ['/* First. */', '/* Second. */', codeAfterComments].join(lineEnding);
-		const [first, second] = linter.verify(code, config, filename);
-		const {range, text} = first.suggestions[0].fix;
-
-		const [start, end] = range;
-		const output = code.slice(0, start) + text + code.slice(end);
-		t.assert.strictEqual(output, ['/*', 'First.', 'Second.', '*/', codeAfterComments].join(lineEnding), name);
-		t.assert.deepStrictEqual(linter.verify(output, config, filename), [], name);
-		t.assert.strictEqual(second.suggestions, undefined, name);
-	}
 });
 
 test('preserves CSS comment boundaries', t => {
@@ -411,7 +259,7 @@ test('preserves CSS comment boundaries', t => {
 		const messages = linter.verify(code, config, 'file.css');
 
 		t.assert.strictEqual(messages.length, 2);
-		t.assert.ok(messages.every(({messageId, suggestions}) => messageId === error.messageId && suggestions === undefined));
+		t.assert.ok(messages.every(({messageId}) => messageId === error.messageId));
 	}
 
 	const code = '/* First. */\n/* Second.';
@@ -419,7 +267,6 @@ test('preserves CSS comment boundaries', t => {
 
 	t.assert.strictEqual(messages.length, 1);
 	t.assert.strictEqual(messages[0].messageId, error.messageId);
-	t.assert.strictEqual(messages[0].suggestions, undefined);
 
 	const fixed = linter.verifyAndFix(code, config, 'file.css');
 	t.assert.strictEqual(fixed.output, '/*\nFirst.\n*/\n/* Second.');
@@ -431,7 +278,7 @@ ruleTest({
 	invalid: [{
 		code: '/* Overview. */\n/* #region Layout */\na {}\n/* #endregion */',
 		output: '/*\nOverview.\n*/\n/* #region Layout */\na {}\n/* #endregion */',
-		errors: [{...error, suggestions: 0}],
+		errors: [error],
 		language: languages.css.language,
 		plugins: languages.css.plugins,
 	}],
@@ -498,6 +345,10 @@ ruleTest({
 		},
 		{
 			code: '/* @ts-expect-error: explanation */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*\n@ts-ignore-foo\n*/',
 			options: ['single-line'],
 		},
 		{
@@ -671,11 +522,6 @@ ruleTest({
 		{
 			code: '/* @__PURE__ extra */',
 			output: '/*\n@__PURE__ extra\n*/',
-			errors: [error],
-		},
-		{
-			code: '/* @ts-ignore-foo */',
-			output: '/*\n@ts-ignore-foo\n*/',
 			errors: [error],
 		},
 		{

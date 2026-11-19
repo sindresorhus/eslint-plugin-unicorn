@@ -45,6 +45,7 @@ export {default as 'new-for-builtins'} from './new-for-builtins.js';
 export {default as 'no-abusive-eslint-disable'} from './no-abusive-eslint-disable.js';
 export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
 export {default as 'no-accidental-bitwise-operator'} from './no-accidental-bitwise-operator.js';
+export {default as 'no-adjacent-block-comments'} from './no-adjacent-block-comments.js';
 export {default as 'no-anonymous-default-export'} from './no-anonymous-default-export.js';
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
 export {default as 'no-array-concat-in-loop'} from './no-array-concat-in-loop.js';
