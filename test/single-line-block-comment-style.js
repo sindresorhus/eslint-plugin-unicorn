@@ -240,48 +240,46 @@ ruleTest({
 	}],
 });
 
-test('preserves CSS comment boundaries', t => {
-	const linter = new Linter();
-	const {plugins, rules} = getConfig([]);
-	const config = {
-		files: ['file.css'],
-		language: languages.css.language,
-		plugins: {...plugins, ...languages.css.plugins},
-		rules,
-	};
-
-	for (const code of [
-		'/* First. */\u2028/* Second. */\na {}',
-		'/* First. */\u2029/* Second. */\na {}',
-		'div\u2028/* First. */\n/* Second. */\u2029span {}',
-		'/* First.\fSecond. */\n/* Third. */\na {}',
-	]) {
-		const messages = linter.verify(code, config, 'file.css');
-
-		t.assert.strictEqual(messages.length, 2);
-		t.assert.ok(messages.every(({messageId}) => messageId === error.messageId));
-	}
-
-	const code = '/* First. */\n/* Second.';
-	const messages = linter.verify(code, config, 'file.css');
-
-	t.assert.strictEqual(messages.length, 1);
-	t.assert.strictEqual(messages[0].messageId, error.messageId);
-
-	const fixed = linter.verifyAndFix(code, config, 'file.css');
-	t.assert.strictEqual(fixed.output, '/*\nFirst.\n*/\n/* Second.');
-	t.assert.deepStrictEqual(fixed.messages, []);
-});
+const css = {language: languages.css.language, plugins: languages.css.plugins};
+const formattedCssWithUnterminatedComment = '/*\nFirst.\n*/\n/* Second.';
 
 ruleTest({
-	valid: [],
-	invalid: [{
-		code: '/* Overview. */\n/* #region Layout */\na {}\n/* #endregion */',
-		output: '/*\nOverview.\n*/\n/* #region Layout */\na {}\n/* #endregion */',
-		errors: [error],
-		language: languages.css.language,
-		plugins: languages.css.plugins,
-	}],
+	valid: [{code: formattedCssWithUnterminatedComment, ...css}],
+	invalid: [
+		{
+			code: '/* First. */\u2028/* Second. */\na {}',
+			output: '/*\u2028First.\u2028*/\u2028/*\nSecond.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First. */\u2029/* Second. */\na {}',
+			output: '/*\u2029First.\u2029*/\u2029/*\nSecond.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: 'div\u2028/* First. */\n/* Second. */\u2029span {}',
+			output: 'div\u2028/*\nFirst.\n*/\n/*\u2029Second.\u2029*/\u2029span {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First.\fSecond. */\n/* Third. */\na {}',
+			output: '/*\nFirst.\fSecond.\n*/\n/*\nThird.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First. */\n/* Second.',
+			output: formattedCssWithUnterminatedComment,
+			errors: [error],
+		},
+		{
+			code: '/* Overview. */\n/* #region Layout */\na {}\n/* #endregion */',
+			output: '/*\nOverview.\n*/\n/* #region Layout */\na {}\n/* #endregion */',
+			errors: [error],
+		},
+	].map(testCase => ({
+		...testCase,
+		...css,
+	})),
 });
 
 ruleTest({

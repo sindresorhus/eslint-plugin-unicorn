@@ -60,7 +60,7 @@ Get the value.
 Type: `Array<string | RegExp>`\
 Default: `[]`
 
-Regular expressions to ignore. Strings are interpreted as regular expressions. Patterns are matched anywhere in the comment text after removing its delimiters and any documentation comment asterisk prefixes, unless anchored with `^` or `$`.
+Strings are interpreted as regular expressions. Before matching, the rule removes the comment delimiters and leading whitespace from each line, then joins the lines with `\n`. The text includes trailing whitespace after content.
 
 ```js
 'unicorn/single-line-block-comment-style': [

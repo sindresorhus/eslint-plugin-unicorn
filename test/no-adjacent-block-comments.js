@@ -149,6 +149,27 @@ test('merges with the block comment layout rule enabled', t => {
 	}
 });
 
+test('merges JSONC blocks after asterisk prefixes are removed', t => {
+	const linter = new Linter();
+	const filename = 'config.jsonc';
+	const prefixRule = 'unicorn/no-asterisk-prefix-in-documentation-comments';
+	const {language, plugins} = languages.jsonc;
+	const config = {
+		files: [filename],
+		language,
+		plugins: {...plugins, unicorn},
+		rules: {[prefixRule]: 'error', [layoutRule]: 'error', [mergeRule]: 'error'},
+	};
+	const code = '{\r\n  /*\r\n   * Use the local cache.\r\n   */\r\n  /*\r\n   * Retry requests.\r\n   */\r\n  "enabled": true\r\n}';
+
+	const messages = linter.verify(code, config, {filename});
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), [prefixRule, prefixRule]);
+
+	const result = linter.verifyAndFix(code, config, {filename});
+	t.assert.strictEqual(result.output, '{\r\n  /*\r\n  Use the local cache.\r\n  Retry requests.\r\n  */\r\n  "enabled": true\r\n}');
+	t.assert.deepStrictEqual(result.messages, []);
+});
+
 test('formats each block separately when fixes are limited to layout', async t => {
 	const eslint = new ESLint({
 		overrideConfigFile: true,
