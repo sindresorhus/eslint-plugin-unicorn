@@ -18,7 +18,7 @@ import {
 	hasJSDocumentComments,
 } from './jsdoc-type.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
-import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion} from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion, isTypeScriptConstAssertion} from './unwrap-typescript-expression.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -203,7 +203,7 @@ function getJSDocumentTypeNodeType(node, options) {
 		}
 
 		case 'intersection': {
-			return options.ignoreIntersectionTypeAnnotations
+			return options.requireSupportedTypeAnnotations
 				? nonTarget
 				: combineIntersectionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)));
 		}
@@ -449,6 +449,12 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 }
 
 function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinitions = new Set()) {
+	const type = classifyTypeAnnotation(node, scope, options, visitedTypeReferenceDefinitions);
+	// An unresolved annotation can carry information that static evaluation cannot see.
+	return node && type === unknown && options.requireSupportedTypeAnnotations ? nonTarget : type;
+}
+
+function classifyTypeAnnotation(node, scope, options, visitedTypeReferenceDefinitions) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
@@ -470,7 +476,7 @@ function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinit
 		}
 
 		case 'TSIntersectionType': {
-			return options.ignoreIntersectionTypeAnnotations
+			return options.requireSupportedTypeAnnotations
 				? nonTarget
 				: combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
 		}
@@ -904,12 +910,16 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	}
 };
 
+const shouldInferWrappedExpressionType = (node, options) =>
+	node.type === 'TSSatisfiesExpression'
+	|| (options.requireSupportedTypeAnnotations && isTypeScriptConstAssertion(node));
+
 function getType(node, context, options, visitedVariables = new Set()) {
 	if (!node) {
 		return unknown;
 	}
 
-	if (node.type === 'TSSatisfiesExpression') {
+	if (shouldInferWrappedExpressionType(node, options)) {
 		return getType(node.expression, context, options, visitedVariables);
 	}
 

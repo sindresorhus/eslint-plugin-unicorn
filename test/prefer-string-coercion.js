@@ -23,7 +23,9 @@ test.snapshot({
 		'"already a string".toString();',
 		'const value = null; const alias = value; { const value = 1n; alias.toString(); }',
 		'function format() { return value.toString(); var value = 1n; }',
+		'function format(NaN) { return NaN.toString(); }',
 		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
+		'/** @param {{toString(): "42"} & 42} value */ function format(value) { return value.toString(); }',
 		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
@@ -50,6 +52,10 @@ test.snapshot({
 		typescriptSyntax(customToStringType),
 		typescriptSyntax('const result: "42" = (42 as {toString(): "42"} & 42).toString();'),
 		typescriptSyntax('const missing = null; const value = missing ?? (42 as {toString(): "42"} & 42); const result: "42" = value.toString();'),
+		typescriptSyntax('import type {Formattable} from "./types.js"; const result: "42" = (42 as Formattable).toString();'),
+		typescriptSyntax('import type {Formattable} from "./types.js"; const value: Formattable = 42 as any; const result: "42" = value.toString();'),
+		typescriptSyntax('declare const sample: {toString(): "42"} & 42; const missing = null; const value = missing ?? (42 as typeof sample); const result: "42" = value.toString();'),
+		typescriptSyntax('const result: "42" = ({value: 42 as {toString(): "42"} & 42}).value.toString();'),
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 		typeAware(customToStringType),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
@@ -168,6 +174,16 @@ test.typescript({
 		{
 			code: 'function format(count: number, offset: number) {return(++count + offset).toString();}',
 			output: 'function format(count: number, offset: number) {return String(++count + offset);}',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			code: 'const value = 42 as const; value.toString();',
+			output: 'const value = 42 as const; String(value);',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			code: 'const value = Infinity; value.toString();',
+			output: 'const value = Infinity; String(value);',
 			errors: [{messageId: 'prefer-string-coercion'}],
 		},
 		...[

@@ -197,6 +197,7 @@ export {
 export {
 	default as unwrapTypeScriptExpression,
 	isTypeScriptExpressionWrapper,
+	isTypeScriptConstAssertion,
 	unwrapChainAndTypeScriptExpression,
 	getOutermostTypeScriptExpression,
 	getOutermostChainAndTypeScriptExpression,

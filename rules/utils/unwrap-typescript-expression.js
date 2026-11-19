@@ -15,6 +15,15 @@ Check if the node is a TypeScript expression wrapper (`as`, `satisfies`, `!`, `<
 export const isTypeScriptExpressionWrapper = node => typeScriptExpressionWrapperTypes.has(node?.type);
 
 /**
+Check if the expression has an `as const` or `<const>` assertion.
+*/
+export const isTypeScriptConstAssertion = node =>
+	(node?.type === 'TSAsExpression' || node?.type === 'TSTypeAssertion')
+	&& node.typeAnnotation.type === 'TSTypeReference'
+	&& node.typeAnnotation.typeName.type === 'Identifier'
+	&& node.typeAnnotation.typeName.name === 'const';
+
+/**
 Check for an `as Type` or `<Type>` assertion among the TypeScript wrappers around an expression.
 */
 export function hasTypeScriptTypeAssertion(node) {

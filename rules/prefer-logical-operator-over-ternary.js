@@ -20,6 +20,7 @@ import {
 	shouldAddParenthesesToExpressionStart,
 	shouldAddParenthesesToLogicalExpressionChild,
 	isTypeScriptFile,
+	isTypeScriptConstAssertion,
 	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
@@ -93,10 +94,6 @@ function getBooleanLiteralTypeValue(node) {
 		: undefined;
 }
 
-const isConstAssertion = node => node.type === 'TSTypeReference'
-	&& node.typeName.type === 'Identifier'
-	&& node.typeName.name === 'const';
-
 function getConstantVariableDefinition(node, context) {
 	const scope = context.sourceCode.getScope(node);
 	const variable = findVariable(scope, node);
@@ -148,7 +145,7 @@ function getBooleanConstantValue(node, context) {
 		}
 
 		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-			if (!isConstAssertion(node.typeAnnotation)) {
+			if (!isTypeScriptConstAssertion(node)) {
 				literalTypeAnnotations.push(node.typeAnnotation);
 			}
 

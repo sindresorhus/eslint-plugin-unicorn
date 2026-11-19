@@ -2,7 +2,9 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	getArithmeticOrBitwiseOperator,
 	getStaticStringValue,
+	isBigIntLiteral,
 	isMethodCall,
+	isNumericLiteral,
 	isNumericUnaryOperator,
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -11,15 +13,15 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
-	getStaticValueForControlFlow,
 	hasOptionalChainElement,
 	isBigInt,
+	isGlobalIdentifier,
 	isNumber,
+	isTypeScriptFile,
 	withTypeInformation,
 } from './utils/index.js';
 import {
 	createTypeCheckers,
-	hasJSDocumentTypeReference,
 	target,
 	unknown,
 } from './utils/type-helpers.js';
@@ -31,9 +33,9 @@ const messages = {
 
 const numericTypeNames = new Set(['number', 'bigint']);
 const numericBuiltIns = new Set(['BigInt', 'Date', 'Math', 'Number']);
-// An intersection can declare a narrower return type for `.toString()`.
+// Intersections and unresolved annotations can declare a narrower return type for `.toString()`.
 const syntaxOnlyTypeOptions = {
-	ignoreIntersectionTypeAnnotations: true,
+	requireSupportedTypeAnnotations: true,
 	treatMixedUnionAsNonTarget: true,
 };
 
@@ -43,6 +45,10 @@ const {isTarget: isNumeric} = createTypeCheckers({
 	checkClassHeritage: false,
 	ignoreReassignedJSDocumentBindings: true,
 	isTargetNode(node, context, isNumeric) {
+		if (isNumericLiteral(node) || isBigIntLiteral(node)) {
+			return true;
+		}
+
 		const operator = getArithmeticOrBitwiseOperator(node);
 		if (operator !== undefined) {
 			return operator !== '+' || (isNumeric(node.left) && isNumeric(node.right));
@@ -53,9 +59,8 @@ const {isTarget: isNumeric} = createTypeCheckers({
 		}
 
 		if (node.type === 'Identifier') {
-			// The shared checker handles local bindings. Guard static evaluation of globals such as `NaN` and aliases of them.
-			return numericTypeNames.has(typeof getStaticValueForControlFlow(node, context)?.value)
-				&& !hasJSDocumentTypeReference(node, context);
+			// The shared checker follows local constant bindings, including aliases of these globals.
+			return ['NaN', 'Infinity'].includes(node.name) && isGlobalIdentifier(node, context);
 		}
 
 		const member = node.type === 'CallExpression' ? node.callee : node;
@@ -77,7 +82,15 @@ const {isTarget: isNumeric} = createTypeCheckers({
 */
 const create = context => {
 	const {sourceCode} = context;
-	const typeOptions = sourceCode.parserServices?.program ? undefined : syntaxOnlyTypeOptions;
+	const {parserServices} = sourceCode;
+	const hasTypeScriptSyntax = parserServices?.esTreeNodeToTSNodeMap || isTypeScriptFile(context.physicalFilename);
+	const typeOptions = parserServices?.program
+		? undefined
+		: {
+			...syntaxOnlyTypeOptions,
+			// Static evaluation can erase TypeScript assertions inside the receiver.
+			...(hasTypeScriptSyntax && {getStaticType: undefined}),
+		};
 
 	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {argumentsLength: 0})) {
