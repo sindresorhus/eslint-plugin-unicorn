@@ -6,6 +6,7 @@ import {
 	getTemplateElementRaw,
 	isStringLiteralRequired,
 	isTypeScriptDeclarationFile,
+	toLocation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-escape-sequences';
@@ -14,7 +15,10 @@ const messages = {
 };
 
 // Consume other escapes too, so escaped backslashes never start a numeric escape.
-const escapePattern = /(?<numeric>(?:\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\})))+)|\\(?:\r\n|.)/gsv;
+const stringEscapePattern = /(?<numeric>(?:\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\})))+)|\\(?:\r\n|.)/gsv;
+
+// Espree reads at most ten characters after the ampersand, including the semicolon.
+const jsxReferencePattern = /&#(?:x(?<hexadecimal>[\dA-Fa-f]{1,7})|(?<decimal>\d{1,8}));/gv;
 
 const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
 
@@ -47,13 +51,41 @@ const create = context => {
 
 	const {sourceCode} = context;
 
-	function * getProblems(node, raw, parsedRaw, isConstantInitializer) {
+	function getEscapeProblem(node, escape, start) {
+		return {
+			node,
+			loc: toLocation([start, start + escape.length], context),
+			messageId: MESSAGE_ID,
+			data: {escape},
+		};
+	}
+
+	function * getJsxProblems(node) {
+		const raw = sourceCode.getText(node);
+		// Vue.js can decode character references before parsing JSX in a template expression.
+		if (node.raw !== undefined && normalizeLineEndings(raw) !== normalizeLineEndings(node.raw)) {
+			return;
+		}
+
+		const [rawStart] = sourceCode.getRange(node);
+		// Escaping these delimiters is part of JSX syntax.
+		const delimiters = node.type === 'JSXText' ? '<>{}' : raw[0];
+		for (const match of raw.matchAll(jsxReferencePattern)) {
+			const {hexadecimal, decimal} = match.groups;
+			const codePoint = hexadecimal === undefined ? Number(decimal) : Number.parseInt(hexadecimal, 16);
+			if (codePoint <= 0x10_FF_FF && !delimiters.includes(String.fromCodePoint(codePoint))) {
+				yield getEscapeProblem(node, match[0], rawStart + match.index);
+			}
+		}
+	}
+
+	function * getStringProblems(node, raw, parsedRaw, isConstantInitializer) {
 		// The Vue.js parser can decode HTML character references before parsing the expression, changing source offsets.
 		if (normalizeLineEndings(raw) !== normalizeLineEndings(parsedRaw)) {
 			return;
 		}
 
-		const escapes = raw.matchAll(escapePattern).toArray();
+		const escapes = raw.matchAll(stringEscapePattern).toArray();
 
 		if (isConstantInitializer && escapes.map(match => match[0]).join('') === raw) {
 			return;
@@ -66,27 +98,24 @@ const create = context => {
 				continue;
 			}
 
-			const start = rawStart + match.index;
-			yield {
-				node,
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(start + escape.length),
-				},
-				messageId: MESSAGE_ID,
-				data: {escape},
-			};
+			yield getEscapeProblem(node, escape, rawStart + match.index);
 		}
 	}
+
+	context.on('JSXText', getJsxProblems);
 
 	context.on('Literal', node => {
 		if (!isStringLiteral(node)) {
 			return;
 		}
 
+		if (node.parent.type === 'JSXAttribute') {
+			return getJsxProblems(node);
+		}
+
 		const expression = getOutermostTypeScriptExpression(node);
 		if (!shouldSkipString(node, expression, sourceCode)) {
-			return getProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(expression));
+			return getStringProblems(node, sourceCode.getText(node).slice(1, -1), node.raw.slice(1, -1), isNamedConstantInitializer(expression));
 		}
 	});
 
@@ -98,7 +127,7 @@ const create = context => {
 
 		const isConstantInitializer = node.expressions.length === 0 && isNamedConstantInitializer(expression);
 		for (const quasi of node.quasis) {
-			yield * getProblems(quasi, getTemplateElementRaw(quasi, context), quasi.value.raw, isConstantInitializer);
+			yield * getStringProblems(quasi, getTemplateElementRaw(quasi, context), quasi.value.raw, isConstantInitializer);
 		}
 	});
 };
@@ -111,7 +140,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require names for numeric escape sequences in strings.',
+			description: 'Require names for numeric escape sequences in strings and JSX.',
 			recommended: true,
 		},
 		messages,

@@ -20,7 +20,11 @@ ruleTest.snapshot({
 		'log(`\\\\u00A0`);',
 		String.raw`const pattern = /\u{2B24}/u;`,
 		'String.raw`\\u{2B24}\\8`;',
-		String.raw`<span title="\u{2B24}">&#xA0;</span>;`,
+		String.raw`const nonBreakingSpace = '\u00A0'; <span title="\u{2B24}">{nonBreakingSpace}</span>;`,
+		'<span title="&nbsp;">&nbsp;&amp;#160;</span>;',
+		'<span title=\'&#39;&#x27;\' label="&#34;&#x22;">&#60;&#62;&#123;&#x7D;</span>;',
+		'<span>&#XA0; &#160 &#000000160; &#x000000A0; &#x110000;</span>;',
+		'<span title={"&#160;"}>{"&#xA0;"}</span>;',
 		String.raw`'use \u{2603}'; import './\u{2603}.js'; const object = {'\u{2603}': true};`,
 		String.raw`require('./\u03C0.cjs'); import('./\u03C0.js');`,
 		'require(`./\\u03C0.cjs`); import(`./\\u03C0${suffix}.js`);',
@@ -106,6 +110,22 @@ ruleTest.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		String.raw`new URL('./\u03C0.svg', base);`,
+		String.raw`<span title="\u{2B24}">&#xA0;</span>;`,
+		'<><span title="A&#00000160;B" />&#x2060;&#x00000a0;</>;',
+		{
+			code: '<span title=\'&#x2B24;\'>\r\n&#160;</span>;',
+			filename: 'component.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Espree decodes U+1003C as '<'. The delimiter exemption uses the code point in the source.
+		'<span title="&#34;&#39;">&#123;&#x1003C;&#1114111;</span>;',
+		{
+			code: [
+				'<template><div :value=\'<span title="&#xA0;">&#160;</span>\' /></template>',
+				String.raw`<script>export default <span title="&#xA0;" label={'\u2060'}>&#160;</span>;</script>`,
+			].join('\n'),
+			languageOptions: {parser: parsers.vue},
+		},
 	],
 });
 
@@ -122,4 +142,20 @@ test('recommended reports the remaining inline escape after autofix', t => {
 		messages.filter(({ruleId}) => ruleId === 'unicorn/no-magic-escape-sequences').map(({line}) => line),
 		[2],
 	);
+});
+
+test('accepts a JSX quote escaped by the string-content autofix', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		plugins: {unicorn},
+		rules: {
+			'unicorn/no-magic-escape-sequences': 'error',
+			'unicorn/string-content': ['error', {patterns: {quote: {suggest: '\'"'}}}],
+		},
+	};
+	const {output, messages} = linter.verifyAndFix('<span title=\'quote\' />;', config);
+
+	t.assert.strictEqual(output, '<span title=\'&#39;"\' />;');
+	t.assert.deepStrictEqual(messages, []);
 });
