@@ -51,11 +51,11 @@ test.snapshot({
 	valid: [
 		'<template><p :title="\'&#169;\'">{{ "&#160;" }}</p><style>.example::after {content: "&#169;"}</style></template>',
 		'<template><p title="&copy;">&NoBreak; &#x1F929;</p><!-- &#160; --></template>',
-		'<template><svg><script type="application/json">{"label":"&#169;"}</script></svg></template>',
 	],
 	invalid: [
 		'<template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>',
 		'<template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>',
+		'<template><svg><script type="application/json" data-label="&#160;">{"label":"&#169;"}</script></svg></template>',
 	],
 });
 
@@ -123,6 +123,12 @@ test({
 			filename: 'example.html',
 			errors: 4,
 			output: '<p title="A&NoBreak;Z" data-space=&nbsp;>A&copy;B &#xA0B &euro;</p>',
+		},
+		{
+			code: '<tr title="&#169;"><td>&#160;</td></tr>',
+			filename: 'example.html',
+			errors: [{messageId: ruleId}],
+			output: '<tr title="&#169;"><td>&nbsp;</td></tr>',
 		},
 	],
 });
@@ -217,7 +223,7 @@ test.snapshot({
 		},
 		markdownCase(String.raw`Render &#9; and &#10;, then \&#160;, &#x110000;.`, 'markdown/gfm'),
 		markdownCase('Copyright &#169; <span title="&#169;">A&#160;B</span>'),
-		{code: 'a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }', language: languages.css},
+		{code: String.raw`a { content: "\26#169; &#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }`, language: languages.css},
 		{code: '{"label": "&#x2060;"}', language: languages.json},
 		{code: '{"label": "&#160;" /* &#169; */}', language: languages.jsonc},
 		{code: '{label: \'&#160;\',}', language: languages.json5},

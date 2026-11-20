@@ -19,6 +19,8 @@ The rule also scans string values in JavaScript, TypeScript, CSS, JSON, JSONC, J
 
 In HTML, the rule skips configured frontmatter, raw text such as script contents, and CDATA. It also skips text when HTML error recovery merges text across intervening markup. It skips a document when custom raw-text tags are configured or when the HTML contains `{{`, `{%`, `<%`, `${`, or a configured template opener.
 
+The rule parses HTML files as documents. In a fragment such as a `<tr>` without a surrounding `<table>`, the parser can discard the tag and its attributes.
+
 The rule skips HTML files with bare carriage returns, Unicode line separators, or Unicode paragraph separators. ESLint’s offset lookup can disagree with the HTML parser about line numbers in these files.
 
 In Vue templates parsed by `vue-eslint-parser`, the rule autofixes text. It offers editor suggestions for static attribute values because Vue 2 and Vue 3 decode different sets of references. It skips directive expressions and interpolations, raw text, and templates when a custom tokenizer is configured.
