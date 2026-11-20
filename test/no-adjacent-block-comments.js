@@ -185,7 +185,8 @@ test('recommended formats each block separately when fixes are limited to layout
 
 test('recommended preserves ESLint warning comments', t => {
 	const preset = unicorn.configs.recommended;
-	const result = new Linter().verifyAndFix(
+	const linter = new Linter();
+	const result = linter.verifyAndFix(
 		'/* Description. */\n/* TODO: Add a fallback. */\nexport default true;\n',
 		{...preset, rules: {...preset.rules, 'no-warning-comments': 'error'}},
 	);
