@@ -1,31 +1,8 @@
 import {isRegExp} from 'node:util/types';
-import {getCommentRange} from '../utils/index.js';
+import {getCommentRange, linebreakPattern} from '../utils/index.js';
+import isToolingDirective from './comment-directive.js';
 
 const LINE_ENDINGS = new Set(['\n', '\r', '\u2028', '\u2029']);
-const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
-const DIRECTIVE_PATTERNS = [
-	/^\s*[#@]\s*source(?:Mapping)?URL=/v,
-	/^\s*#(?:end)?region\b/v,
-	/-\*-.*-\*-/v,
-	/^\s*(?:vim?:|Vim:|ex:)/v,
-	// A parser can miss an ESLint directive when it reports a shortened comment range.
-	/^\s*eslint(?:-env|-enable|-disable(?:-(?:next-)?line)?)?(?:\s|:|$)/v,
-	/^\s*(?:jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
-	/^\s*(?:\*\s*)?flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
-	/^\s*:/v,
-	/^\s*flow-include(?:\s|$)/v,
-	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
-	/^\s*node:coverage\s+(?:ignore\s+next|disable|enable)(?:\s|$)/v,
-	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:line|next-line|start|end|file|all))?(?:\s|$)/v,
-	/^\s*(?:cspell|spell-checker):/v,
-	// TypeScript accepts extra slashes and asterisks before these directives.
-	/^\s*(?:[*\/]+\s*)?@ts-(?:ignore|expect-error)/v,
-	// TypeScript can recognize JSX pragmas anywhere in a leading block comment.
-	/@jsx(?:frag|importsource|runtime|factory)?(?:\s|:|$)/iv,
-	/^\s*@(?:ts-(?:check|nocheck)|(?:no)?flow|(?:jest|vitest)-environment|noformat|noprettier)(?:\s|:|$)/v,
-	/^\s*\$Flow(?:FixMe|ExpectedError)\[[^\]]+\](?:\s|:|$)/v,
-	/^\s*[#@]__(?:INLINE|NOINLINE|PURE|KEY|MANGLE_PROP|NO_SIDE_EFFECTS)__\s*$/v,
-];
 
 const isLineBoundary = character => character === undefined || LINE_ENDINGS.has(character);
 const isInlineWhitespace = character => character?.trim() === '' && !LINE_ENDINGS.has(character);
@@ -76,14 +53,12 @@ const getLineEndingBefore = (text, lineStart) => {
 };
 
 const getBlockCommentLineEnding = (sourceText, {text, lineStart, lineEnd}) =>
-	text.match(LINE_ENDING_PATTERN)?.[0]
+	text.match(linebreakPattern)?.[0]
 	?? getLineEndingAt(sourceText, lineEnd)
 	?? getLineEndingBefore(sourceText, lineStart)
 	?? '\n';
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
-
-const isDirectiveText = text => DIRECTIVE_PATTERNS.some(pattern => pattern.test(text));
 
 const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
 	? new RegExp(pattern.source, pattern.flags)
@@ -109,7 +84,7 @@ const getSingleContentLineBlockComment = (context, comment) => {
 	}
 
 	const opening = getOpeningDelimiter(text);
-	const lines = text.slice(opening.length, -2).split(LINE_ENDING_PATTERN).map(line => line.trimStart());
+	const lines = text.slice(opening.length, -2).split(linebreakPattern).map(line => line.trimStart());
 	const contentLines = lines.filter(Boolean);
 	if (contentLines.length !== 1) {
 		return;
@@ -121,7 +96,7 @@ const getSingleContentLineBlockComment = (context, comment) => {
 	}
 
 	const normalizedText = lines.join('\n');
-	if (isDirectiveText(normalizedText)) {
+	if (isToolingDirective(normalizedText)) {
 		return;
 	}
 
@@ -151,5 +126,4 @@ export {
 	getIgnorePatterns,
 	getSingleContentLineBlockComment,
 	ignoreOptionSchema,
-	isDirectiveText,
 };

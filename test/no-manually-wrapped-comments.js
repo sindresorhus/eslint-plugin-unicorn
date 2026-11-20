@@ -258,6 +258,19 @@ test.snapshot({
 			// c8 ignore next
 			const value = 1;
 		`,
+		'/* node:coverage ignore next\n2 */\nrun();',
+		'/* Editor settings: -*- mode: javascript -*-\nThis line explains the settings. */',
+		'/* c8\nignore next */\nrun();',
+		outdent`
+			switch (value) {
+				case 1:
+					break;
+
+				// no
+				// default
+
+			}
+		`,
 		outdent`
 			// Formatting setup
 			// prettier-ignore

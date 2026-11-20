@@ -2,7 +2,7 @@
 @import * as ESLint from 'eslint';
 */
 
-const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
+export const linebreakPattern = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 
 /**
 Get the line ending the file uses, for fixes that insert new lines.

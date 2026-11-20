@@ -3,12 +3,12 @@ import {
 	matchesAnyRegExp,
 	onRoot,
 } from './utils/index.js';
+import isToolingDirective from './shared/comment-directive.js';
 import {
 	getBlockCommentLineEnding,
 	getIgnorePatterns,
 	getSingleContentLineBlockComment,
 	ignoreOptionSchema,
-	isDirectiveText,
 } from './shared/single-content-line-block-comment.js';
 
 const MESSAGE_ID = 'no-adjacent-block-comments';
@@ -73,7 +73,7 @@ const getProblem = (group, sourceText, ignorePatterns) => {
 
 	const lines = group.map(({contentLine}) => contentLine);
 	const joinedContent = lines.join('\n');
-	if (isDirectiveText(joinedContent) || isMergeSensitiveText(joinedContent) || matchesAnyRegExp(joinedContent, ignorePatterns)) {
+	if (isToolingDirective(joinedContent) || isMergeSensitiveText(joinedContent) || matchesAnyRegExp(joinedContent, ignorePatterns)) {
 		return;
 	}
 
