@@ -640,6 +640,18 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [],
+	invalid: [{
+		// A shortened comment range would drop the only character on the second line.
+		code: '/* Select option\r\nA*/\r\n{}',
+		output: '/* Select option A*/\r\n{}',
+		language: languages.jsonc.language,
+		plugins: languages.jsonc.plugins,
+		errors: [{messageId: 'no-manually-wrapped-comments'}],
+	}],
+});
+
 // TOML support
 test.snapshot({
 	valid: [
