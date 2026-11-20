@@ -32,8 +32,8 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: 'const formatters = /** Formatters */ ({format: value => String(value)});',
-			output: 'const formatters = /** Formatters */ ({format: String});',
+			code: 'const formatters = /** Formatters. @type-example string */ ({format: value => String(value)});',
+			output: 'const formatters = /** Formatters. @type-example string */ ({format: String});',
 			errors: [{messageId: 'prefer-native-coercion-functions'}],
 		},
 	],

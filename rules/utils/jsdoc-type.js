@@ -13,8 +13,8 @@ import {
 const sourceCodeCaches = new WeakMap();
 const parameterTags = new Set(['param', 'arg', 'argument']);
 const returnTags = new Set(['return', 'returns']);
-// TypeScript also recognizes type tags after prose on the same line.
-const expressionTypeTagPattern = /(?:^|[\s*])@(?:type|satisfies)(?=$|[\s\{])/v;
+// TypeScript recognizes tags after prose on the same line and permits an unbraced type expression.
+const expressionTypeTagPattern = /(?:^|[\s*])@(?:type|satisfies)(?![\p{ID_Continue}$\u{200C}\u{200D}\-\\])/v;
 const parameterNamePattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*/v;
 const propertyTypes = new Set(['Property', 'PropertyDefinition', 'AccessorProperty']);
 const exportTypes = new Set(['ExportNamedDeclaration', 'ExportDefaultDeclaration']);
