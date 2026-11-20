@@ -1,6 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isCallExpression, isLiteral, isMethodCall} from './ast/index.js';
+import {getArithmeticOrBitwiseOperator, isCallExpression, isLiteral, isMethodCall} from './ast/index.js';
 import {
 	getCallArgumentText,
 	getCallExpressionArgumentsText,
@@ -133,7 +133,7 @@ const create = context => {
 		const isAssignment = type === 'AssignmentExpression';
 		if (
 			!isLiteral(right, 0)
-			|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+			|| !bitwiseOperators.has(getArithmeticOrBitwiseOperator(node))
 		) {
 			return;
 		}
