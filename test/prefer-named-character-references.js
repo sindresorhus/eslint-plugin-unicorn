@@ -221,12 +221,13 @@ test.snapshot({
 		{code: '"&#169;": 1\n"&copy;": 2', language: languages.soml},
 		{code: '"&#169;" = 1\n"&copy;" = 2', language: languages.toml},
 		{code: '"&#169;": 1\n"&copy;": 2\nempty: > # &#160;', language: languages.yaml},
+		{code: '? &key [{label: "&#169;"}]\n: one\n? [{label: "&copy;"}]\n: two', language: languages.yaml},
 	],
 	invalid: [
 		htmlCase('<p title="Copyright &#169;" data-space=&#X00A0;>A&#x2060;B &#128;</p>'),
 		htmlCase('<template><textarea>\n  &#160;<b title="&#169;">text</b></textarea></template>'),
 		{
-			...htmlCase('---\ntitle: A&#160;B\n---\n<p>&#160;</p>'),
+			...htmlCase('---\ntitle: "{{ &#160; }}"\n---\n<p>&#160;</p>'),
 			languageOptions: {frontmatter: true},
 		},
 		htmlCase('<p>&#x27E8;</p><script>const literal = "&#x27E8;";</script><svg><![CDATA[&#x27E8;]]></svg>'),
@@ -250,6 +251,6 @@ test.snapshot({
 		markdownCase(String.raw`[Guide](/a&#x2060;b "Copyright &#169; and \&#160;") and [](/&#160;)`),
 		markdownCase('> [Guide](\n> </guide/&#160;>\n> "Copyright &#169;"\n> )', 'markdown/gfm'),
 		markdownCase('> | Image |\n> | - |\n> | ![Guide](/a&#160;b.png "Copyright &#169;") |', 'markdown/gfm'),
-		{code: '? &key "&#169;"\n: 1\nlabel: &text "&#x2060;"', language: languages.yaml},
+		{code: '? &key "&#169;"\n: 1\nlabels: [&text "&#x2060;"]', language: languages.yaml},
 	],
 });

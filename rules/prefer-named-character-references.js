@@ -184,9 +184,14 @@ const create = context => {
 		}
 	});
 	context.on('YAMLScalar', node => {
-		const scalar = node.parent.type === 'YAMLWithMeta' ? node.parent : node;
-		if (typeof node.value !== 'string' || scalar.parent.key === scalar) {
+		if (typeof node.value !== 'string') {
 			return;
+		}
+
+		for (let ancestor = node; ancestor.parent; ancestor = ancestor.parent) {
+			if (ancestor.parent.key === ancestor) {
+				return;
+			}
 		}
 
 		if (node.style === 'literal' || node.style === 'folded') {

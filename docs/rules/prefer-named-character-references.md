@@ -17,6 +17,8 @@ HTML, Markdown, Vue, and Svelte use the HTML5 name table, where `&#x2060;` can b
 
 The rule also scans string values in JavaScript, TypeScript, CSS, JSON, JSONC, JSON5, SOML, TOML, and YAML for references written directly in the source. This includes runtime template literals and strings inside JSX expressions. It uses the HTML5 name table even when a string contains no surrounding markup. Replacing a reference changes the string value, so these replacements are editor suggestions and require you to apply them.
 
+In YAML, the rule skips mapping keys, including strings inside collections used as keys.
+
 In HTML, the rule skips configured frontmatter, raw text such as script contents, and CDATA. It also skips text when HTML error recovery merges text across intervening markup. It skips a document when custom raw-text tags are configured or when the HTML contains `{{`, `{%`, `<%`, `${`, or a configured template opener.
 
 The rule parses HTML files as documents. In a fragment such as a `<tr>` without a surrounding `<table>`, the parser can discard the tag and its attributes.
