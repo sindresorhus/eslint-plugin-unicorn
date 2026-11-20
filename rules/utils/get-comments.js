@@ -17,7 +17,7 @@ export default function getComments(context) {
 /**
 Get the raw source range of a comment.
 
-`@eslint/json` comment ranges count CRLF as one character, so derive multiline ranges from locations when the language supports index conversion.
+`@eslint/json` block comment ranges count CRLF as one character, so derive multiline `BlockComment` ranges from locations when the language supports index conversion.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {object} comment
@@ -25,7 +25,7 @@ Get the raw source range of a comment.
 */
 export function getCommentRange(context, comment) {
 	const {sourceCode} = context;
-	if (typeof sourceCode.getIndexFromLoc === 'function') {
+	if (comment.type === 'BlockComment' && typeof sourceCode.getIndexFromLoc === 'function') {
 		const {start, end} = sourceCode.getLoc(comment);
 		if (start.line !== end.line) {
 			return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
