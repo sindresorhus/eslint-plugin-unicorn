@@ -13,6 +13,7 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
+	hasJSDocumentExpressionComment,
 	hasOptionalChainElement,
 	isBigInt,
 	isGlobalIdentifier,
@@ -22,6 +23,7 @@ import {
 } from './utils/index.js';
 import {
 	createTypeCheckers,
+	hasJSDocumentTypeReference,
 	target,
 	unknown,
 } from './utils/type-helpers.js';
@@ -104,6 +106,7 @@ const create = context => {
 			method !== 'toString'
 			|| hasOptionalChainElement(node)
 			|| !isNumeric(value, context, typeOptions)
+			|| (!parserServices?.program && hasJSDocumentTypeReference(value, context, hasJSDocumentExpressionComment))
 			|| withTypeInformation(node, context, ({type, checker}) => type !== checker.getStringType())
 		) {
 			return;
@@ -113,6 +116,10 @@ const create = context => {
 		const stringVariable = findVariable(sourceCode.getScope(node), 'String');
 		// Even a type-only definition can obscure which value the replacement would use.
 		if (stringVariable?.defs.length > 0) {
+			return problem;
+		}
+
+		if (hasJSDocumentExpressionComment(value, context)) {
 			return problem;
 		}
 

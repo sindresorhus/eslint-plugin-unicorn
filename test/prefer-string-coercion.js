@@ -26,6 +26,9 @@ test.snapshot({
 		'function format(NaN) { return NaN.toString(); }',
 		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
 		'/** @param {{toString(): "42"} & 42} value */ function format(value) { return value.toString(); }',
+		'/** @type {"42"} */ const label = /** @type {{toString(): "42"} & 42} */ (42).toString();',
+		'const value = /** @type {{toString(): "42"} & 42} */ (42); const alias = value; /** @type {"42"} */ const label = alias.toString();',
+		'/** @type {"42"} */ const label = ({value: /** @type {{toString(): "42"} & 42} */ (42)}).value.toString();',
 		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
@@ -163,6 +166,20 @@ test({
 		{
 			code: 'for (const digit of(42 // keep the amount\r\n).toString()) {\r\n\tlog(digit);\r\n}',
 			output: 'for (const digit of String((42 // keep the amount\r\n))) {\r\n\tlog(digit);\r\n}',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			code: 'const value = /** @type {number} */ (input); (42).toString();',
+			output: 'const value = /** @type {number} */ (input); String(42);',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('const label = /** @type {number} */ (42).toString();', 'file.js'),
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('const value = /** @type {number} */ (42); value.toString();', 'file.js'),
+			output: 'const value = /** @type {number} */ (42); String(value);',
 			errors: [{messageId: 'prefer-string-coercion'}],
 		},
 	],

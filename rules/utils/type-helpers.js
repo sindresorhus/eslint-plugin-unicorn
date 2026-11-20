@@ -150,20 +150,23 @@ const getKnownTypeReferenceType = (typeReferenceName, options) => {
 
 const jsdocPrimitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 'symbol', 'void']);
 
+const hasJSDocumentBindingAnnotation = (node, context) =>
+	node.type === 'Identifier' && Boolean(getJSDocumentTypeAnnotation(node, context));
+
 /**
 Prevent static type inference from bypassing an explicit annotation through an alias or a larger expression.
 */
-function hasJSDocumentTypeReference(node, context, visitedVariables = new Set()) {
+function hasJSDocumentTypeReference(node, context, matches = hasJSDocumentBindingAnnotation, visitedVariables = new Set()) {
 	if (!hasJSDocumentComments(context)) {
 		return false;
 	}
 
 	node = unwrapTypeScriptExpression(node);
-	if (node.type === 'Identifier') {
-		if (getJSDocumentTypeAnnotation(node, context)) {
-			return true;
-		}
+	if (matches(node, context)) {
+		return true;
+	}
 
+	if (node.type === 'Identifier') {
 		const variable = findVariable(context.sourceCode.getScope(node), node);
 		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 		if (
@@ -176,14 +179,14 @@ function hasJSDocumentTypeReference(node, context, visitedVariables = new Set())
 		}
 
 		visitedVariables.add(variable);
-		return hasJSDocumentTypeReference(definition.node.init, context, visitedVariables);
+		return hasJSDocumentTypeReference(definition.node.init, context, matches, visitedVariables);
 	}
 
 	if (isFunction(node) || classNodeTypes.has(node.type)) {
 		return false;
 	}
 
-	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasJSDocumentTypeReference(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasJSDocumentTypeReference(child, context, matches, visitedVariables));
 }
 
 /**

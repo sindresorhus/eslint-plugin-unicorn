@@ -13,7 +13,7 @@ Prefer `String(value)` for zero-argument `.toString()` calls on known `number` o
 
 Calls with a radix argument or optional chaining to the receiver or method are allowed. Use type-checked linting for unresolved annotations, intersections, inferred TypeScript property types, and inline JSDoc casts. With type information, the rule only reports calls that return plain `string`.
 
-The rule skips edits that would remove a comment.
+The rule skips edits that would remove a comment or detach inline JSDoc from its expression.
 
 ## Examples
 
