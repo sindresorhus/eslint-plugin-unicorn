@@ -171,6 +171,17 @@ for (const {name, code, languageOptions, filename = 'file.js', output = code.rep
 	});
 }
 
+const flowNarrowingCode = [
+	formattableType,
+	'declare function isFormattable(value: number): value is Formattable;',
+	'function format(value: number) {',
+	'\tif (isFormattable(value)) {',
+	'\t\treturn value.toString();',
+	'\t}',
+	'\treturn value.toString();',
+	'}',
+].join('\n');
+
 test({
 	valid: [],
 	invalid: [
@@ -216,6 +227,11 @@ test({
 			...typeAware('type Identity<Value> = Value; function format(value: Identity<number>) { return value.toString(); }'),
 			output: 'type Identity<Value> = Value; function format(value: Identity<number>) { return String(value); }',
 			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware(flowNarrowingCode),
+			output: flowNarrowingCode.replace('\n\treturn value.toString();', '\n\treturn String(value);'),
+			errors: [{messageId: 'prefer-string-coercion', line: 7}],
 		},
 	],
 });
