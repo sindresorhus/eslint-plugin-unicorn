@@ -202,27 +202,17 @@ function * getBlockCommentProblems(context, comment) {
 	}
 }
 
-const fixCommentGroup = (context, comments, text) => fixer => {
-	const {sourceCode} = context;
-	const firstComment = comments[0];
-	const lastComment = comments.at(-1);
-	const range = [
-		sourceCode.getRange(firstComment)[0],
-		sourceCode.getRange(lastComment)[1],
-	];
-
-	return fixer.replaceTextRange(range, `${getLineCommentPrefix(sourceCode, firstComment)} ${text}`);
-};
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
+
 	onRoot(context, function * () {
 		const comments = getComments(context).map(comment => normalizeComment(comment, context));
 
 		for (let index = 0; index < comments.length; index++) {
-			if (isStandaloneMultilineBlockComment(context.sourceCode, comments[index])) {
+			if (isStandaloneMultilineBlockComment(sourceCode, comments[index])) {
 				yield * getBlockCommentProblems(context, comments[index]);
 				continue;
 			}
@@ -242,7 +232,7 @@ const create = context => {
 
 			index += group.length - 1;
 
-			if (!isSeparatedCommentGroup(context.sourceCode, group)) {
+			if (!isSeparatedCommentGroup(sourceCode, group)) {
 				continue;
 			}
 
@@ -251,10 +241,14 @@ const create = context => {
 				continue;
 			}
 
+			const [firstComment] = group;
+			const range = [sourceCode.getRange(firstComment)[0], sourceCode.getRange(group.at(-1))[1]];
+			const replacement = `${getLineCommentPrefix(sourceCode, firstComment)} ${text}`;
+
 			yield {
-				node: group[0],
+				node: firstComment,
 				messageId: MESSAGE_ID,
-				fix: fixCommentGroup(context, group, text),
+				fix: fixer => fixer.replaceTextRange(range, replacement),
 			};
 		}
 	});
