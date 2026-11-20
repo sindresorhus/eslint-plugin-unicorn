@@ -529,6 +529,14 @@ const languageCases = [
 		message: 'Prefer `GitHub` over `github`.',
 	},
 	{
+		name: 'JSONC block comments with CRLF',
+		filename: 'fixture.jsonc',
+		language: 'json/jsonc',
+		code: '/*\r\ngithub*/\r\n{}',
+		output: '/*\r\nGitHub*/\r\n{}',
+		message: 'Prefer `GitHub` over `github`.',
+	},
+	{
 		name: 'HTML',
 		filename: 'fixture.html',
 		language: 'html/html',
