@@ -1,4 +1,4 @@
-import {isFunction, isNumericLiteral} from '../ast/index.js';
+import {getArithmeticOrBitwiseOperator, isFunction, isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import isArray, {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
@@ -203,9 +203,6 @@ const isNumericProperty = (node, context) =>
 		|| (node.property.name === 'size' && isSizedCollection(node.object, context))
 	);
 
-// `+` and `>>>` operators are handled separately
-const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
-
 // eslint-disable-next-line complexity
 export default function isNumber(node, context) {
 	if (
@@ -233,24 +230,25 @@ export default function isNumber(node, context) {
 		}
 
 		case 'BinaryExpression': {
-			let {operator} = node;
+			const operator = getArithmeticOrBitwiseOperator(node);
 
-			if (node.type === 'AssignmentExpression') {
-				operator = operator.slice(0, -1);
+			if (operator === undefined) {
+				break;
 			}
 
+			// `+` and `>>>` have different operand requirements from the other operators
 			if (operator === '+' && isNumber(node.left, context) && isNumber(node.right, context)) {
 				return true;
 			}
 
-			// `>>>` (zero-fill right shift) can't use on `BigInt`
+			// `>>>` (unsigned right shift) only produces numbers
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
 			if (operator === '>>>') {
 				return true;
 			}
 
-			// `a * b` can be `BigInt`, we need make sure at least one side is number
-			if (mathOperators.has(operator) && (isNumber(node.left, context) || isNumber(node.right, context))) {
+			// For operators such as `*`, a number operand rules out a BigInt result
+			if (operator !== '+' && (isNumber(node.left, context) || isNumber(node.right, context))) {
 				return true;
 			}
 

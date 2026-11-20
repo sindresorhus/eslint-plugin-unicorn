@@ -1,8 +1,9 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
 import {isEslintDisableOrEnableDirective} from './eslint-directive.js';
+import {getParentheses} from './parentheses/parentheses.js';
 import {parseJSDocumentType} from './parse-jsdoc-type.js';
-import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import {hasTypeScriptTypeAssertion, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import {
 	getJSDocumentDelimitedEnd,
 	getJSDocumentTags,
@@ -12,16 +13,19 @@ import {
 const sourceCodeCaches = new WeakMap();
 const parameterTags = new Set(['param', 'arg', 'argument']);
 const returnTags = new Set(['return', 'returns']);
+// TypeScript recognizes tags after prose on the same line and permits an unbraced type expression.
+const expressionTypeTagPattern = /(?:^|[\s*])@(?:type|satisfies)(?![\p{ID_Continue}\p{Join_Control}$\-\\])/v;
 const parameterNamePattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*/v;
 const propertyTypes = new Set(['Property', 'PropertyDefinition', 'AccessorProperty']);
 const exportTypes = new Set(['ExportNamedDeclaration', 'ExportDefaultDeclaration']);
+const isJSDocumentComment = comment => comment.type === 'Block' && comment.value.startsWith('*');
 
 function getSourceCodeCache({sourceCode}) {
 	let cache = sourceCodeCaches.get(sourceCode);
 	if (!cache) {
 		cache = {
 			comments: new WeakMap(),
-			hasComments: sourceCode.getAllComments().some(comment => comment.type === 'Block' && comment.value.startsWith('*')),
+			hasComments: sourceCode.getAllComments().some(comment => isJSDocumentComment(comment)),
 		};
 		sourceCodeCaches.set(sourceCode, cache);
 	}
@@ -177,7 +181,7 @@ function getDocumentationTags(nodes, context) {
 		const comment = context.sourceCode.getCommentsBefore(node)
 			.findLast(comment => !isEslintDisableOrEnableDirective(context, comment));
 		if (comment) {
-			return comment.type === 'Block' && comment.value.startsWith('*')
+			return isJSDocumentComment(comment)
 				? getCommentTags(comment, context)
 				: [];
 		}
@@ -194,9 +198,9 @@ function withExport(node) {
 }
 
 /**
-Get a function's documentation owners without searching enclosing functions or arbitrary expressions.
+Get an expression's documentation owners without searching enclosing functions or arbitrary expressions.
 */
-function getFunctionOwners(node) {
+function getExpressionOwners(node) {
 	const owners = [node];
 	while (isTypeScriptExpressionWrapper(node.parent) && node.parent.expression === node) {
 		node = node.parent;
@@ -226,6 +230,49 @@ function getFunctionOwners(node) {
 	return exportTypes.has(parent?.type) ? [...owners, parent] : owners;
 }
 
+const hasLeadingJSDocumentComment = (node, context) =>
+	context.sourceCode.getCommentsBefore(node).some(comment => isJSDocumentComment(comment));
+
+const hasLeadingJSDocumentType = (node, context) => context.sourceCode.getCommentsBefore(node).some(comment =>
+	isJSDocumentComment(comment) && expressionTypeTagPattern.test(comment.value));
+
+/**
+Check for JSDoc immediately before a grouping parenthesis, where it can annotate the expression.
+*/
+function hasJSDocumentExpressionComment(node, context) {
+	return hasJSDocumentComments(context)
+		&& getParentheses(node, context).some(token => isOpeningParenthesisToken(token) && hasLeadingJSDocumentComment(token, context));
+}
+
+/**
+Check whether JSDoc supplies a type for the expression through its owners or grouping parentheses.
+*/
+function hasJSDocumentExpressionType(node, context) {
+	if (!hasJSDocumentComments(context)) {
+		return false;
+	}
+
+	return getExpressionOwners(node).some(owner => hasLeadingJSDocumentType(owner, context))
+		|| getParentheses(node, context).some(token => isOpeningParenthesisToken(token) && hasLeadingJSDocumentType(token, context));
+}
+
+/**
+Check for JSDoc attached to the function, its declaration, its parameters, its `return` statement, or parentheses around it.
+*/
+function hasFunctionJSDocumentComment(node, context) {
+	if (!hasJSDocumentComments(context)) {
+		return false;
+	}
+
+	const owners = getExpressionOwners(node);
+	if (node.parent.type === 'ReturnStatement') {
+		owners.push(node.parent);
+	}
+
+	return [...owners, ...node.params].some(owner => hasLeadingJSDocumentComment(owner, context))
+		|| hasJSDocumentExpressionComment(node, context);
+}
+
 /**
 Select one unambiguous applicable tag's type and parameter metadata.
 */
@@ -253,7 +300,7 @@ const getParameterAnnotation = memoizeJSDocumentLookup((node, context) => {
 	}
 
 	const inline = getAnnotation(getDocumentationTags([node, parameter], context), tag => tag.tag === 'type');
-	const named = getAnnotation(getDocumentationTags(getFunctionOwners(functionNode), context), tag => parameterTags.has(tag.tag) && tag.name === node.name);
+	const named = getAnnotation(getDocumentationTags(getExpressionOwners(functionNode), context), tag => parameterTags.has(tag.tag) && tag.name === node.name);
 	const annotation = inline?.type ? {...inline, nameRange: named?.nameRange} : named;
 	if (!annotation) {
 		return;
@@ -274,22 +321,9 @@ function getJSDocumentParameterNameRange(node, context) {
 }
 
 /**
-Keep native assertions authoritative when they wrap an initializer.
-*/
-function hasNativeTypeAssertion(node) {
-	while (isTypeScriptExpressionWrapper(node)) {
-		if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-			return true;
-		}
-
-		node = node.expression;
-	}
-
-	return false;
-}
-
-/**
 Get a directly documented binding or property type, resolving simple identifier references to their declaration.
+
+TypeScript assertions take precedence when they wrap an initializer.
 */
 const getJSDocumentTypeAnnotation = memoizeJSDocumentLookup((node, context) => {
 	if (node.typeAnnotation) {
@@ -299,14 +333,14 @@ const getJSDocumentTypeAnnotation = memoizeJSDocumentLookup((node, context) => {
 	const {parent} = node;
 	let owners;
 	if (propertyTypes.has(node.type)) {
-		if (hasNativeTypeAssertion(node.value)) {
+		if (hasTypeScriptTypeAssertion(node.value)) {
 			return;
 		}
 
 		owners = [node];
 	} else if (node.type === 'Identifier') {
 		if (parent?.type === 'VariableDeclarator' && parent.id === node) {
-			if (hasNativeTypeAssertion(parent.init)) {
+			if (hasTypeScriptTypeAssertion(parent.init)) {
 				return;
 			}
 
@@ -341,7 +375,7 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 		return;
 	}
 
-	const owners = getFunctionOwners(node);
+	const owners = getExpressionOwners(node);
 	if (owners.some(owner => owner.type === 'VariableDeclarator'
 		? owner.id.typeAnnotation
 		: propertyTypes.has(owner.type) && owner.typeAnnotation)) {
@@ -354,8 +388,12 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 });
 
 export {
+	hasFunctionJSDocumentComment,
 	hasJSDocumentComments,
-	hasNativeTypeAssertion,
+	hasJSDocumentExpressionComment,
+	hasJSDocumentExpressionType,
+	hasLeadingJSDocumentComment,
+	hasLeadingJSDocumentType,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

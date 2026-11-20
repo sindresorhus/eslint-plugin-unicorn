@@ -16,10 +16,9 @@ import {
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,
 	hasJSDocumentComments,
-	hasNativeTypeAssertion,
 } from './jsdoc-type.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion, isTypeScriptConstAssertion} from './unwrap-typescript-expression.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -151,20 +150,23 @@ const getKnownTypeReferenceType = (typeReferenceName, options) => {
 
 const jsdocPrimitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 'symbol', 'void']);
 
+const hasJSDocumentBindingAnnotation = (node, context) =>
+	node.type === 'Identifier' && Boolean(getJSDocumentTypeAnnotation(node, context));
+
 /**
 Prevent static type inference from bypassing an explicit annotation through an alias or a larger expression.
 */
-function hasJSDocumentTypeReference(node, context, visitedVariables = new Set()) {
+function hasJSDocumentTypeReference(node, context, matches = hasJSDocumentBindingAnnotation, visitedVariables = new Set()) {
 	if (!hasJSDocumentComments(context)) {
 		return false;
 	}
 
 	node = unwrapTypeScriptExpression(node);
-	if (node.type === 'Identifier') {
-		if (getJSDocumentTypeAnnotation(node, context)) {
-			return true;
-		}
+	if (matches(node, context)) {
+		return true;
+	}
 
+	if (node.type === 'Identifier') {
 		const variable = findVariable(context.sourceCode.getScope(node), node);
 		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 		if (
@@ -177,14 +179,14 @@ function hasJSDocumentTypeReference(node, context, visitedVariables = new Set())
 		}
 
 		visitedVariables.add(variable);
-		return hasJSDocumentTypeReference(definition.node.init, context, visitedVariables);
+		return hasJSDocumentTypeReference(definition.node.init, context, matches, visitedVariables);
 	}
 
 	if (isFunction(node) || classNodeTypes.has(node.type)) {
 		return false;
 	}
 
-	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasJSDocumentTypeReference(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasJSDocumentTypeReference(child, context, matches, visitedVariables));
 }
 
 /**
@@ -204,7 +206,9 @@ function getJSDocumentTypeNodeType(node, options) {
 		}
 
 		case 'intersection': {
-			return combineIntersectionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)));
+			return options.requireSupportedTypeAnnotations
+				? nonTarget
+				: combineIntersectionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)));
 		}
 
 		case 'nullish': {
@@ -426,6 +430,8 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
+		// Generic aliases need the compiler to substitute their type arguments.
+		&& (!options.requireSupportedTypeAnnotations || !definition.node.typeParameters)
 	) {
 		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (
@@ -448,6 +454,12 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 }
 
 function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinitions = new Set()) {
+	const type = classifyTypeAnnotation(node, scope, options, visitedTypeReferenceDefinitions);
+	// An unresolved annotation can carry information that static evaluation cannot see.
+	return node && type === unknown && options.requireSupportedTypeAnnotations ? nonTarget : type;
+}
+
+function classifyTypeAnnotation(node, scope, options, visitedTypeReferenceDefinitions) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
@@ -469,7 +481,9 @@ function getTypeAnnotationType(node, scope, options, visitedTypeReferenceDefinit
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
+			return options.requireSupportedTypeAnnotations
+				? nonTarget
+				: combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceDefinitions)));
 		}
 
 		default: {
@@ -543,6 +557,29 @@ function getTypeScriptType(type, checker, program, options) {
 
 const getTypeFromTypeInformation = (node, context, options) =>
 	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program, options)) ?? unknown;
+
+const isStableJSDocumentBinding = (node, context) => {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const [definition] = variable?.defs ?? [];
+	// A `var` initializer can be skipped even when its binding is accessible.
+	const initialized = definition?.type === 'Parameter'
+		|| (definition?.type === 'Variable' && definition.parent.kind !== 'var' && variable.references.some(reference => reference.init));
+
+	return initialized && variable.references.every(reference => !reference.isWrite() || reference.init);
+};
+
+const getTypeFromJSDocumentAnnotation = (node, context, options) => {
+	const annotation = getJSDocumentTypeAnnotation(node, context);
+	if (!annotation) {
+		return;
+	}
+
+	// A JSDoc annotation alone cannot account for skipped initializers or later writes to the binding.
+	const type = options.requireStableJSDocumentBindings && node.type === 'Identifier' && !isStableJSDocumentBinding(node, context)
+		? unknown
+		: getJSDocumentType(annotation, options);
+	return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
+};
 
 const getTypeFromStaticValue = (node, context, options) => {
 	if (!options.getStaticType) {
@@ -632,7 +669,7 @@ const getTypeFromFunctionCall = (node, context, options) => {
 
 	const initializer = getDefinitionInitializer(definition);
 	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(initializer);
-	if (value?.async || value?.generator || (definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))) {
+	if (value?.async || value?.generator || (definition.type === 'Parameter' && (value?.returnType || hasTypeScriptTypeAssertion(initializer)))) {
 		return unknown;
 	}
 
@@ -885,12 +922,20 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	}
 };
 
+const shouldInferWrappedExpressionType = (node, options) =>
+	node.type === 'TSSatisfiesExpression'
+	|| (options.requireSupportedTypeAnnotations && isTypeScriptConstAssertion(node));
+
 function getType(node, context, options, visitedVariables = new Set()) {
 	if (!node) {
 		return unknown;
 	}
 
-	if (node.type === 'TSSatisfiesExpression') {
+	if (options.useTypeInformationOnly) {
+		return getTypeFromTypeInformation(node, context, options);
+	}
+
+	if (shouldInferWrappedExpressionType(node, options)) {
 		return getType(node.expression, context, options, visitedVariables);
 	}
 
@@ -900,10 +945,9 @@ function getType(node, context, options, visitedVariables = new Set()) {
 			return typeFromOwnAnnotation;
 		}
 	} else {
-		const annotation = getJSDocumentTypeAnnotation(node, context);
-		if (annotation) {
-			const type = getJSDocumentType(annotation, options);
-			return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
+		const typeFromAnnotation = getTypeFromJSDocumentAnnotation(node, context, options);
+		if (typeFromAnnotation !== undefined) {
+			return typeFromAnnotation;
 		}
 	}
 

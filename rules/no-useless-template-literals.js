@@ -10,6 +10,7 @@ import {
 	hasCommentInRange,
 	isEscapedCharacter,
 	isInUnparenthesizedNewExpressionCallee,
+	isTypeScriptConstAssertion,
 	isTypeScriptFile,
 } from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
@@ -136,16 +137,7 @@ function isExpressionOnlyTemplate(node) {
 function isWrappedInConstAssertion(node) {
 	const {parent} = node;
 
-	return (
-		(
-			parent.type === 'TSAsExpression'
-			|| parent.type === 'TSTypeAssertion'
-		)
-		&& parent.expression === node
-		&& parent.typeAnnotation.type === 'TSTypeReference'
-		&& parent.typeAnnotation.typeName.type === 'Identifier'
-		&& parent.typeAnnotation.typeName.name === 'const'
-	);
+	return isTypeScriptConstAssertion(parent) && parent.expression === node;
 }
 
 function getStaticInterpolationProblem(node, context, index) {

@@ -182,7 +182,16 @@ export {default as isReferenceContext} from './is-reference-context.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
-export {getJSDocumentTypeAnnotation, getJSDocumentReturnType, getJSDocumentParameterNameRange} from './jsdoc-type.js';
+export {
+	getJSDocumentTypeAnnotation,
+	getJSDocumentReturnType,
+	getJSDocumentParameterNameRange,
+	hasFunctionJSDocumentComment,
+	hasJSDocumentExpressionComment,
+	hasJSDocumentExpressionType,
+	hasLeadingJSDocumentComment,
+	hasLeadingJSDocumentType,
+} from './jsdoc-type.js';
 export {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 export {
 	getLineEndIndex,
@@ -192,9 +201,11 @@ export {
 export {
 	default as unwrapTypeScriptExpression,
 	isTypeScriptExpressionWrapper,
+	isTypeScriptConstAssertion,
 	unwrapChainAndTypeScriptExpression,
 	getOutermostTypeScriptExpression,
 	getOutermostChainAndTypeScriptExpression,
+	hasTypeScriptTypeAssertion,
 } from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,

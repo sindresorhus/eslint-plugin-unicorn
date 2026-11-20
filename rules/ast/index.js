@@ -15,6 +15,8 @@ export {
 	isCallOrNewExpression,
 } from './call-or-new-expression.js';
 
+export {getArithmeticOrBitwiseOperator, isNumericUnaryOperator} from './operators.js';
+
 export {default as isArrowFunctionBody} from './is-arrow-function-body.js';
 export {default as isDirective} from './is-directive.js';
 export {default as isDirectEvalCall} from './is-direct-eval-call.js';

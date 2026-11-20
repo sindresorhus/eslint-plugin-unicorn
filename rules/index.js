@@ -334,6 +334,7 @@ export {default as 'prefer-single-replace'} from './prefer-single-replace.js';
 export {default as 'prefer-smaller-scope'} from './prefer-smaller-scope.js';
 export {default as 'prefer-split-limit'} from './prefer-split-limit.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
+export {default as 'prefer-string-coercion'} from './prefer-string-coercion.js';
 export {default as 'prefer-string-match-all'} from './prefer-string-match-all.js';
 export {default as 'prefer-string-pad-start-end'} from './prefer-string-pad-start-end.js';
 export {default as 'prefer-string-raw'} from './prefer-string-raw.js';

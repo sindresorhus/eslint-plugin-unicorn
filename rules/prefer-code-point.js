@@ -1,4 +1,9 @@
-import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {
+	getArithmeticOrBitwiseOperator,
+	isMemberExpression,
+	isMethodCall,
+	isNumericUnaryOperator,
+} from './ast/index.js';
 import {isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const messages = {
@@ -20,9 +25,6 @@ const getProblem = (node, replacement, hasSuggestion = true) => ({
 		],
 	}),
 });
-
-const numericBinaryOperators = new Set(['+', '-', '*', '/', '%', '**', '&', '|', '^', '<<', '>>', '>>>']);
-const numericUnaryOperators = new Set(['+', '-', '~']);
 
 const getNumericContextNode = node => {
 	let current = node;
@@ -51,16 +53,16 @@ const isResultUsedNumerically = node => {
 	const {parent} = current;
 	switch (parent.type) {
 		case 'BinaryExpression': {
-			return numericBinaryOperators.has(parent.operator);
+			return getArithmeticOrBitwiseOperator(parent) !== undefined;
 		}
 
 		case 'UnaryExpression': {
-			return numericUnaryOperators.has(parent.operator);
+			return isNumericUnaryOperator(parent.operator);
 		}
 
-		// Compound assignment (`hash += …`). The plain `=` and logical assignments (`&&=`, `||=`, `??=`) drop their `=` to a non-numeric operator, so they're excluded.
+		// Compound assignment such as `hash += …`. Plain and logical assignments are excluded.
 		case 'AssignmentExpression': {
-			return parent.right === current && numericBinaryOperators.has(parent.operator.slice(0, -1));
+			return parent.right === current && getArithmeticOrBitwiseOperator(parent) !== undefined;
 		}
 
 		default: {

@@ -1,6 +1,11 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isCallExpression, isLiteral, isMethodCall} from './ast/index.js';
+import {
+	getArithmeticOrBitwiseOperator,
+	isCallExpression,
+	isLiteral,
+	isMethodCall,
+} from './ast/index.js';
 import {
 	getCallArgumentText,
 	getCallExpressionArgumentsText,
@@ -129,15 +134,15 @@ const create = context => {
 	});
 
 	context.on(['BinaryExpression', 'AssignmentExpression'], node => {
-		const {type, operator, right, left} = node;
-		const isAssignment = type === 'AssignmentExpression';
 		if (
-			!isLiteral(right, 0)
-			|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+			!isLiteral(node.right, 0)
+			|| !bitwiseOperators.has(getArithmeticOrBitwiseOperator(node))
 		) {
 			return;
 		}
 
+		const {type, operator, right, left} = node;
+		const isAssignment = type === 'AssignmentExpression';
 		const problem = {
 			node,
 			messageId: ERROR_BITWISE,

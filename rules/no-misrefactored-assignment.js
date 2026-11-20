@@ -1,3 +1,4 @@
+import {getArithmeticOrBitwiseOperator} from './ast/index.js';
 import {
 	getParenthesizedRange,
 	getPrecedence,
@@ -17,26 +18,8 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Remove the duplicated `{{target}}`.',
 };
 
-// Compound assignment operators whose binary operator is commutative, so the
-// target can be either operand: `a += a + b` and `a += b + a`.
-const commutativeOperators = new Set(['+=', '*=', '&=', '|=', '^=']);
-
-// All arithmetic and bitwise compound assignment operators. The logical ones
-// (`&&=`, `||=`, `??=`) are intentionally excluded.
-const compoundOperators = new Set([
-	'+=',
-	'-=',
-	'*=',
-	'/=',
-	'%=',
-	'**=',
-	'&=',
-	'|=',
-	'^=',
-	'<<=',
-	'>>=',
-	'>>>=',
-]);
+// In a compound assignment with one of these operators, the target can be either operand: `a += a + b` and `a += b + a`.
+const commutativeOperators = new Set(['+', '*', '&', '|', '^']);
 
 /*
 The kept operand replaces the whole `a + b` right-hand side, so its copied range must include surrounding parentheses when they are needed to keep its grouping.
@@ -53,14 +36,11 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('AssignmentExpression', node => {
-		const {operator, left, right} = node;
+		const {left, right} = node;
+		// Compare arithmetic and bitwise assignments with their binary operators: `+=` becomes `+` and `>>>=` becomes `>>>`. Logical assignments are excluded.
+		const operator = getArithmeticOrBitwiseOperator(node);
 
-		if (!compoundOperators.has(operator)) {
-			return;
-		}
-
-		// `+=` -> `+`, `>>>=` -> `>>>`, etc.
-		if (right.type !== 'BinaryExpression' || right.operator !== operator.slice(0, -1)) {
+		if (operator === undefined || right.type !== 'BinaryExpression' || right.operator !== operator) {
 			return;
 		}
 

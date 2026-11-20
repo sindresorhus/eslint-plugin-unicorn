@@ -1,7 +1,14 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getFunctionReturnExpression, getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getFunctionReturnExpression,
+	getOutermostTypeScriptExpression,
+	hasFunctionJSDocumentComment,
+	hasJSDocumentExpressionType,
+	hasTypeScriptTypeAssertion,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const MESSAGE_ID_SUGGESTION = 'prefer-native-coercion-functions/suggestion';
@@ -21,12 +28,9 @@ const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	&& node.arguments[0]?.type === 'Identifier'
 	&& node.arguments[0].name === firstArgumentName;
 
-// `v => value` or `function (v) {return value;}`, with TypeScript expression wrappers around the value removed
-const getReturnedExpression = node => unwrapTypeScriptExpression(getFunctionReturnExpression(node));
-
-// `v => v`
+// `v => v` or `function (v) {return v;}`, with TypeScript expression wrappers around the value removed
 const isIdentityFunction = node => {
-	const returnedExpression = getReturnedExpression(node);
+	const returnedExpression = unwrapTypeScriptExpression(getFunctionReturnExpression(node));
 	return returnedExpression?.type === 'Identifier'
 		&& returnedExpression.name === node.params[0].name;
 };
@@ -45,14 +49,6 @@ const isArrayIdentityCallback = node =>
 const isTypeScriptTypePredicateFunction = node =>
 	node.returnType?.type === 'TSTypeAnnotation'
 	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
-
-// `v => String(v)`
-function getCallExpression(node) {
-	const returnedExpression = getReturnedExpression(node);
-	if (isNativeCoercionFunctionCall(returnedExpression, node.params[0].name)) {
-		return returnedExpression;
-	}
-}
 
 function getArrayCallbackProblem(node) {
 	if (!isArrayIdentityCallback(node)) {
@@ -80,10 +76,46 @@ const needsSemicolonAfter = (node, sourceCode) => {
 		);
 };
 
-function getCoercionFunctionProblem(node, context) {
-	const callExpression = getCallExpression(node);
+function hasExplicitTypeContext(node, context) {
+	if (hasFunctionJSDocumentComment(node, context)) {
+		return true;
+	}
 
-	if (!callExpression) {
+	// An explicit type on a literal can supply the signatures of functions inside it.
+	while (getOutermostTypeScriptExpression(node) === node) {
+		const {parent} = node;
+		if (parent.type === 'ArrayExpression') {
+			node = parent;
+		} else if (parent.type === 'Property' && parent.value === node && parent.parent.type === 'ObjectExpression') {
+			node = parent.parent;
+		} else {
+			return false;
+		}
+
+		if (hasJSDocumentExpressionType(node, context)) {
+			return true;
+		}
+	}
+
+	return true;
+}
+
+function getCoercionFunctionProblem(node, context) {
+	// `v => String(v)`
+	const returnedExpression = getFunctionReturnExpression(node);
+	const callExpression = unwrapTypeScriptExpression(returnedExpression);
+	const [parameter] = node.params;
+
+	// Replacing the wrapper can discard its declared signature.
+	if (
+		!isNativeCoercionFunctionCall(callExpression, parameter.name)
+		|| parameter.typeAnnotation
+		|| parameter.optional
+		|| node.returnType
+		|| node.typeParameters
+		|| hasTypeScriptTypeAssertion(returnedExpression)
+		|| hasExplicitTypeContext(node, context)
+	) {
 		return;
 	}
 
@@ -164,7 +196,7 @@ const create = context => {
 			},
 		};
 
-		const {parent} = getOutermostTypeScriptExpression(node);
+		const {parent} = node;
 		if (parent.type === 'UnaryExpression' && parent.operator === 'delete') {
 			return problem;
 		}
@@ -179,7 +211,7 @@ const create = context => {
 		}
 
 		// Rewriting a class method into a class field moves it off the prototype, which changes property lookup, enumerability and `super` dispatch, so that can only be a suggestion.
-		if (node.parent.type === 'MethodDefinition') {
+		if (parent.type === 'MethodDefinition') {
 			problem.suggest = [
 				{messageId: MESSAGE_ID_SUGGESTION, data: {replacementFunction}, fix},
 			];

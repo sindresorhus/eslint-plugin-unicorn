@@ -5,7 +5,7 @@ import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
 import {isUnassignedParameter} from './scope.js';
-import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
+import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
 	createTypeCheckers,
@@ -13,7 +13,7 @@ import {
 	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 } from './type-helpers.js';
-import unwrapTypeScriptExpression, {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion, unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
 
@@ -531,7 +531,7 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			if (
 				!value?.async
 				&& !value?.generator
-				&& !(definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))
+				&& !(definition.type === 'Parameter' && (value?.returnType || hasTypeScriptTypeAssertion(initializer)))
 				&& variable.references.every(reference => !reference.isWrite() || reference.init)
 			) {
 				isBoolean = value?.returnType

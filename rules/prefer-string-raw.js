@@ -10,6 +10,7 @@ import {
 	getUnparenthesizedKeywordArgumentParent,
 	isOnSameLine,
 	isStringLiteralRequired,
+	isTypeScriptConstAssertion,
 	isTypeScriptFile,
 	withTypeInformation,
 } from './utils/index.js';
@@ -36,11 +37,7 @@ Build a problem that preserves TypeScript literal types during automatic fixing.
 function getStringRawProblem(node, context, fix) {
 	const problem = {node, messageId: MESSAGE_ID};
 	const {parent} = node;
-	if (
-		(parent.type === 'TSAsExpression' || parent.type === 'TSTypeAssertion')
-		&& parent.typeAnnotation.type === 'TSTypeReference'
-		&& parent.typeAnnotation.typeName.name === 'const'
-	) {
+	if (isTypeScriptConstAssertion(parent)) {
 		return;
 	}
 
