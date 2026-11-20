@@ -209,6 +209,13 @@ const narrowedNumberCode = [
 	'}',
 ].join('\n');
 
+const indexedAccessCode = [
+	'type Counts = {count: number | bigint; label: number | string};',
+	'function format<Values extends Counts>(count: Values["count"], label: Values["label"]) {',
+	'\treturn [count.toString(), label.toString()];',
+	'}',
+].join('\n');
+
 test({
 	valid: [],
 	invalid: [
@@ -269,6 +276,11 @@ test({
 			...typeAware(narrowedNumberCode),
 			output: narrowedNumberCode.replace('\n\treturn value.toString();', '\n\treturn String(value);'),
 			errors: [{messageId: 'prefer-string-coercion', line: 5}],
+		},
+		{
+			...typeAware(indexedAccessCode),
+			output: indexedAccessCode.replace('count.toString()', 'String(count)'),
+			errors: [{messageId: 'prefer-string-coercion', line: 3}],
 		},
 	],
 });
