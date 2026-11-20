@@ -54,8 +54,6 @@ const {isTarget: isNumeric} = createTypeCheckers({
 	targetCallNames: ['BigInt', 'Number', 'parseFloat', 'parseInt'],
 	checkClassHeritage: false,
 	requireStableJSDocumentBindings: true,
-	// Generic aliases need the compiler to substitute their type arguments.
-	resolveGenericTypeAliases: false,
 	isTargetNode(node, context, isNumeric) {
 		if (isNumericLiteral(node) || isBigIntLiteral(node)) {
 			return true;
@@ -97,7 +95,7 @@ const create = context => {
 	const {parserServices} = sourceCode;
 	const hasTypeScriptSyntax = parserServices?.esTreeNodeToTSNodeMap || isTypeScriptFile(context.physicalFilename);
 	const typeOptions = parserServices?.program
-		? undefined
+		? {useTypeInformationOnly: true}
 		: {
 			...syntaxOnlyTypeOptions,
 			// Static evaluation can erase TypeScript assertions inside the receiver.

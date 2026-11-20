@@ -200,6 +200,15 @@ const flowNarrowingCode = [
 	'}',
 ].join('\n');
 
+const narrowedNumberCode = [
+	'function format(value: {toString(): string}) {',
+	'\tif (typeof value !== "number") {',
+	'\t\treturn value.toString();',
+	'\t}',
+	'\treturn value.toString();',
+	'}',
+].join('\n');
+
 test({
 	valid: [],
 	invalid: [
@@ -255,6 +264,11 @@ test({
 			...typeAware(flowNarrowingCode),
 			output: flowNarrowingCode.replace('\n\treturn value.toString();', '\n\treturn String(value);'),
 			errors: [{messageId: 'prefer-string-coercion', line: 7}],
+		},
+		{
+			...typeAware(narrowedNumberCode),
+			output: narrowedNumberCode.replace('\n\treturn value.toString();', '\n\treturn String(value);'),
+			errors: [{messageId: 'prefer-string-coercion', line: 5}],
 		},
 	],
 });

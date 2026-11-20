@@ -430,7 +430,8 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
-		&& (options.resolveGenericTypeAliases !== false || !definition.node.typeParameters)
+		// Generic aliases need the compiler to substitute their type arguments.
+		&& (!options.requireSupportedTypeAnnotations || !definition.node.typeParameters)
 	) {
 		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (
@@ -928,6 +929,10 @@ const shouldInferWrappedExpressionType = (node, options) =>
 function getType(node, context, options, visitedVariables = new Set()) {
 	if (!node) {
 		return unknown;
+	}
+
+	if (options.useTypeInformationOnly) {
+		return getTypeFromTypeInformation(node, context, options);
 	}
 
 	if (shouldInferWrappedExpressionType(node, options)) {
