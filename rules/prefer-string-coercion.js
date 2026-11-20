@@ -1,8 +1,9 @@
-import {findVariable, getPropertyName, isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
+import {findVariable, isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
 import {
 	getArithmeticOrBitwiseOperator,
 	getStaticStringValue,
 	isBigIntLiteral,
+	isIdentifierNamed,
 	isMethodCall,
 	isNumericLiteral,
 	isNumericUnaryOperator,
@@ -16,6 +17,7 @@ import {
 	hasJSDocumentExpressionComment,
 	hasLeadingJSDocumentComment,
 	hasOptionalChainElement,
+	hasTypeArguments,
 	isBigInt,
 	isGlobalIdentifier,
 	isNumber,
@@ -96,15 +98,17 @@ const create = context => {
 		};
 
 	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {argumentsLength: 0})) {
+		if (hasTypeArguments(node) || !isMethodCall(node, {argumentsLength: 0})) {
 			return;
 		}
 
 		const {callee} = node;
-		const method = callee.computed ? getStaticStringValue(callee.property) : getPropertyName(callee);
+		const isToString = callee.computed
+			? getStaticStringValue(callee.property) === 'toString'
+			: isIdentifierNamed(callee.property, 'toString');
 		const {object: value} = callee;
 		if (
-			method !== 'toString'
+			!isToString
 			|| hasOptionalChainElement(node)
 			|| !isNumeric(value, context, typeOptions)
 			|| (!parserServices?.program && hasJSDocumentTypeReference(callee, context, hasJSDocumentExpressionComment))

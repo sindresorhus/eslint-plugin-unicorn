@@ -43,9 +43,11 @@ test.snapshot({
 		'(42)?.toString();',
 		'(42).toString?.();',
 		'class Example extends Parent { toString() { return super.toString(); } }',
+		'class Example { #toString() {} format() { return (42).#toString(); } }',
 		'(start + end).toString();',
 		'(42 + "px").toString();',
 		typescriptSyntax('(record?.count as number).toString();'),
+		typescriptSyntax('declare global { interface Number { toString<Result extends string>(): Result; } } export const label: "42" = (42).toString<"42">();'),
 		typescriptSyntax('function format(value: number | string) { return value.toString(); }'),
 		typescriptSyntax('function format(value: number | bigint | undefined) { return value.toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies number).toString(); }'),
@@ -164,6 +166,11 @@ for (const {name, code, languageOptions, filename = 'file.js', output = code.rep
 test({
 	valid: [],
 	invalid: [
+		{
+			code: String.raw`(42).to\u0053tring();`,
+			output: 'String(42);',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
 		{
 			code: 'for (const digit of(42 // keep the amount\r\n).toString()) {\r\n\tlog(digit);\r\n}',
 			output: 'for (const digit of String((42 // keep the amount\r\n))) {\r\n\tlog(digit);\r\n}',
