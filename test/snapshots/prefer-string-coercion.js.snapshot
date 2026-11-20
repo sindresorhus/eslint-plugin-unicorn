@@ -150,22 +150,22 @@ Output:
 
 `;
 
-exports[`prefer-string-coercion > invalid(18): function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString(); 1`] = `
+exports[`prefer-string-coercion > invalid(18): function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return next(flag).toString(); } 1`] = `
 
 Filename: file.ts
 
-  1 | function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();
+  1 | function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return next(flag).toString(); }
 
 `;
 
-exports[`prefer-string-coercion > invalid(18): function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString(); 2`] = `
+exports[`prefer-string-coercion > invalid(18): function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return next(flag).toString(); } 2`] = `
 
 Message:
-> 1 | function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();
-    |                                                            ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
+> 1 | function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return next(flag).toString(); }
+    |                                                                                                  ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String()\` over \`.toString()\` for decimal string conversion.
 
 Output:
-  1 | function next(isBig: boolean) { return isBig ? 42n : 42; } String(next(flag));
+  1 | function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return String(next(flag)); }
 
 `;
 

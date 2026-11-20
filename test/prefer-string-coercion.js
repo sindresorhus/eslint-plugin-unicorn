@@ -71,7 +71,7 @@ test.snapshot({
 		typescriptSyntax('import type {Formattable} from "./types.js"; const value: Formattable = 42 as any; const result: "42" = value.toString();'),
 		typescriptSyntax('declare const sample: {toString(): "42"} & 42; const missing = null; const value = missing ?? (42 as typeof sample); const result: "42" = value.toString();'),
 		typescriptSyntax('const result: "42" = ({value: 42 as {toString(): "42"} & 42}).value.toString();'),
-		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
+		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } function format(flag: boolean) { return next(flag).toString(); }'),
 		typeAware(customToStringType),
 		typeAware([
 			'type Value = number; type Identity<Value> = Value;',
@@ -80,6 +80,11 @@ test.snapshot({
 		].join('\n')),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
 		typeAware('function format(value: Number) { return value.toString(); }'),
+		typeAware([
+			'function number() {}',
+			'Object.assign(number, {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }});',
+			'number.toString();',
+		].join('\n')),
 		typeAware('function format(value: number | string | undefined) { return (value ?? 0).toString(); }'),
 	],
 	invalid: [
@@ -100,7 +105,7 @@ test.snapshot({
 		'(42)[/* keep */ "toString"]();',
 		'(isBig ? 42n : 42).toString();',
 		typescriptSyntax('type Numeric = number | bigint; function format(value: Numeric) { return value.toString(); }'),
-		typeAware('function next(isBig: boolean) { return isBig ? 42n : 42; } next(flag).toString();'),
+		typeAware('function next(flag: boolean) { return flag ? 42n : 42; } function format(flag: boolean) { return next(flag).toString(); }'),
 		typescriptSyntax('function format(value: -1 | -1n) { return value.toString(); }'),
 		typescriptSyntax('declare function readCount(): number; (readCount() satisfies number).toString();'),
 		String.raw`(42)["to\u0053tring"]();`,

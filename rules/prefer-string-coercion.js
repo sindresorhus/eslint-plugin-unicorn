@@ -39,6 +39,12 @@ const messages = {
 
 const numericTypeNames = new Set(['number', 'bigint']);
 const numericBuiltIns = new Set(['BigInt', 'Date', 'Math', 'Number']);
+const typeCheckedOptions = {
+	useTypeInformationOnly: true,
+	// A user-defined symbol can share a primitive type's name.
+	targetTypeNames: new Set(),
+};
+
 // Intersections and unresolved annotations can declare a narrower return type for `.toString()`.
 const syntaxOnlyTypeOptions = {
 	requireSupportedTypeAnnotations: true,
@@ -95,7 +101,7 @@ const create = context => {
 	const {parserServices} = sourceCode;
 	const hasTypeScriptSyntax = parserServices?.esTreeNodeToTSNodeMap || isTypeScriptFile(context.physicalFilename);
 	const typeOptions = parserServices?.program
-		? {useTypeInformationOnly: true}
+		? typeCheckedOptions
 		: {
 			...syntaxOnlyTypeOptions,
 			// Static evaluation can erase TypeScript assertions inside the receiver.
