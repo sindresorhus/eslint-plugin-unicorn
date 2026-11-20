@@ -8,6 +8,7 @@ import {
 	isTypeScriptDeclarationFile,
 	toLocation,
 } from './utils/index.js';
+import {getNumericCharacterReferenceCodePoint, jsxNumericCharacterReferencePattern} from './shared/numeric-character-references.js';
 
 const MESSAGE_ID = 'no-magic-escape-sequences';
 const messages = {
@@ -16,9 +17,6 @@ const messages = {
 
 // Consume other escapes too, so escaped backslashes never start a numeric escape.
 const stringEscapePattern = /(?<numeric>(?:\\(?:x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|\{[\dA-Fa-f]+\})))+)|\\(?:\r\n|.)/gsv;
-
-// Espree reads at most ten characters after the ampersand, including the semicolon.
-const jsxReferencePattern = /&#(?:x(?<hexadecimal>[\dA-Fa-f]{1,7})|(?<decimal>\d{1,8}));/gv;
 
 const normalizeLineEndings = text => text.replaceAll(/\r\n?/g, '\n');
 
@@ -70,11 +68,11 @@ const create = context => {
 		const [rawStart] = sourceCode.getRange(node);
 		// Escaping these delimiters is part of JSX syntax.
 		const delimiters = node.type === 'JSXText' ? '<>{}' : raw[0];
-		for (const match of raw.matchAll(jsxReferencePattern)) {
-			const {hexadecimal, decimal} = match.groups;
-			const codePoint = hexadecimal === undefined ? Number(decimal) : Number.parseInt(hexadecimal, 16);
+		for (const match of raw.matchAll(jsxNumericCharacterReferencePattern)) {
+			const [reference] = match;
+			const codePoint = getNumericCharacterReferenceCodePoint(reference);
 			if (codePoint <= 0x10_FF_FF && !delimiters.includes(String.fromCodePoint(codePoint))) {
-				yield getEscapeProblem(node, match[0], rawStart + match.index);
+				yield getEscapeProblem(node, reference, rawStart + match.index);
 			}
 		}
 	}

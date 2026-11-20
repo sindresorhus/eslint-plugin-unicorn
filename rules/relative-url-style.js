@@ -2,7 +2,12 @@ import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
 import {parseFragment} from 'parse5';
 import {isMethodCall, isNewExpression, isStringLiteral} from './ast/index.js';
-import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper, toLocation} from './utils/index.js';
+import {
+	getMarkdownImageResourceOffset,
+	getStaticValueIfNoSideEffects,
+	isTypeScriptExpressionWrapper,
+	toLocation,
+} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_NEVER = 'never';
@@ -41,14 +46,11 @@ Get the destination's offset relative to one complete Markdown image's source.
 @returns {number | undefined}
 */
 function getMarkdownImageDestinationOffset(text) {
-	// The Markdown parser already identified a complete inline image, so a unique `](` must be its destination boundary.
-	const delimiter = text.indexOf('](');
-	// Repeated delimiters in labels, titles, or destinations are intentionally unsupported instead of reparsing Markdown.
-	if (delimiter === -1 || delimiter !== text.lastIndexOf('](')) {
+	const afterDelimiter = getMarkdownImageResourceOffset(text);
+	if (afterDelimiter === undefined) {
 		return;
 	}
 
-	const afterDelimiter = delimiter + 2;
 	const prefix = /^[\t\n\r ]*<?/u.exec(text.slice(afterDelimiter))[0];
 	const offset = afterDelimiter + prefix.length;
 	// Blockquote markers in multiline destinations are not part of the URL.

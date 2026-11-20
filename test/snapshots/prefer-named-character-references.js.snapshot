@@ -67,6 +67,45 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(1): <template><p title=\"Copyright &#169;\" data-space=&#160>A&#x2060;B</p></template> 1`] = `
+
+  1 | <template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>
+
+`;
+
+exports[`prefer-named-character-references > invalid(1): <template><p title=\"Copyright &#169;\" data-space=&#160>A&#x2060;B</p></template> 2`] = `
+
+Message:
+> 1 | <template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>
+    |                               ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Suggestion 1/1: Replace \`&#169;\` with \`&copy;\`.:
+  1 | <template><p title="Copyright &copy;" data-space=&#160>A&#x2060;B</p></template>
+
+`;
+
+exports[`prefer-named-character-references > invalid(1): <template><p title=\"Copyright &#169;\" data-space=&#160>A&#x2060;B</p></template> 3`] = `
+
+Message:
+> 1 | <template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>
+    |                                                  ^^^^^ Prefer \`&nbsp;\` over \`&#160\`.
+
+Suggestion 1/1: Replace \`&#160\` with \`&nbsp;\`.:
+  1 | <template><p title="Copyright &#169;" data-space=&nbsp;>A&#x2060;B</p></template>
+
+`;
+
+exports[`prefer-named-character-references > invalid(1): <template><p title=\"Copyright &#169;\" data-space=&#160>A&#x2060;B</p></template> 4`] = `
+
+Message:
+> 1 | <template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>
+    |                                                         ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Output:
+  1 | <template><p title="Copyright &#169;" data-space=&#160>A&NoBreak;B</p></template>
+
+`;
+
 exports[`prefer-named-character-references > invalid(10): Render &#9; and &#10;, then \\&#160;, &#x110000;. 1`] = `
 
 Filename: example.md
@@ -127,6 +166,225 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(12): a { content: \"&#x2060;\"; background: url(\"/image&#169;\"); --label: \"&#160;\"; } 1`] = `
+
+  1 | a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }
+
+`;
+
+exports[`prefer-named-character-references > invalid(12): a { content: \"&#x2060;\"; background: url(\"/image&#169;\"); --label: \"&#160;\"; } 2`] = `
+
+Message:
+> 1 | a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }
+    |               ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | a { content: "&NoBreak;"; background: url("/image&#169;"); --label: "&#160;"; }
+
+`;
+
+exports[`prefer-named-character-references > invalid(12): a { content: \"&#x2060;\"; background: url(\"/image&#169;\"); --label: \"&#160;\"; } 3`] = `
+
+Message:
+> 1 | a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }
+    |                                                 ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Suggestion 1/1: Replace \`&#169;\` with \`&copy;\`.:
+  1 | a { content: "&#x2060;"; background: url("/image&copy;"); --label: "&#160;"; }
+
+`;
+
+exports[`prefer-named-character-references > invalid(12): a { content: \"&#x2060;\"; background: url(\"/image&#169;\"); --label: \"&#160;\"; } 4`] = `
+
+Message:
+> 1 | a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }
+    |                                                                     ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | a { content: "&#x2060;"; background: url("/image&#169;"); --label: "&nbsp;"; }
+
+`;
+
+exports[`prefer-named-character-references > invalid(13): {\"label\": \"&#x2060;\"} 1`] = `
+
+  1 | {"label": "&#x2060;"}
+
+`;
+
+exports[`prefer-named-character-references > invalid(13): {\"label\": \"&#x2060;\"} 2`] = `
+
+Message:
+> 1 | {"label": "&#x2060;"}
+    |            ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | {"label": "&NoBreak;"}
+
+`;
+
+exports[`prefer-named-character-references > invalid(14): {\"label\": \"&#160;\" /* &#169; */} 1`] = `
+
+  1 | {"label": "&#160;" /* &#169; */}
+
+`;
+
+exports[`prefer-named-character-references > invalid(14): {\"label\": \"&#160;\" /* &#169; */} 2`] = `
+
+Message:
+> 1 | {"label": "&#160;" /* &#169; */}
+    |            ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | {"label": "&nbsp;" /* &#169; */}
+
+`;
+
+exports[`prefer-named-character-references > invalid(15): {label: '&#160;',} 1`] = `
+
+  1 | {label: '&#160;',}
+
+`;
+
+exports[`prefer-named-character-references > invalid(15): {label: '&#160;',} 2`] = `
+
+Message:
+> 1 | {label: '&#160;',}
+    |          ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | {label: '&nbsp;',}
+
+`;
+
+exports[`prefer-named-character-references > invalid(16): label: \"&#x2060;\" 1`] = `
+
+  1 | label: "&#x2060;"
+
+`;
+
+exports[`prefer-named-character-references > invalid(16): label: \"&#x2060;\" 2`] = `
+
+Message:
+> 1 | label: "&#x2060;"
+    |         ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | label: "&NoBreak;"
+
+`;
+
+exports[`prefer-named-character-references > invalid(17): literal = '&#x2060;'\nmultiline = \"\"\"&#160;\"\"\" 1`] = `
+
+  1 | literal = '&#x2060;'
+  2 | multiline = """&#160;"""
+
+`;
+
+exports[`prefer-named-character-references > invalid(17): literal = '&#x2060;'\nmultiline = \"\"\"&#160;\"\"\" 2`] = `
+
+Message:
+> 1 | literal = '&#x2060;'
+    |            ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+  2 | multiline = """&#160;"""
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | literal = '&NoBreak;'
+  2 | multiline = """&#160;"""
+
+`;
+
+exports[`prefer-named-character-references > invalid(17): literal = '&#x2060;'\nmultiline = \"\"\"&#160;\"\"\" 3`] = `
+
+Message:
+  1 | literal = '&#x2060;'
+> 2 | multiline = """&#160;"""
+    |                ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | literal = '&#x2060;'
+  2 | multiline = """&nbsp;"""
+
+`;
+
+exports[`prefer-named-character-references > invalid(18): label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169; 1`] = `
+
+  1 | label: | # &#169;
+  2 |   &#x2060;
+  3 | other: text &#160; # &#169;
+
+`;
+
+exports[`prefer-named-character-references > invalid(18): label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169; 2`] = `
+
+Message:
+  1 | label: | # &#169;
+> 2 |   &#x2060;
+    |   ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+  3 | other: text &#160; # &#169;
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | label: | # &#169;
+  2 |   &NoBreak;
+  3 | other: text &#160; # &#169;
+
+`;
+
+exports[`prefer-named-character-references > invalid(18): label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169; 3`] = `
+
+Message:
+  1 | label: | # &#169;
+  2 |   &#x2060;
+> 3 | other: text &#160; # &#169;
+    |             ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | label: | # &#169;
+  2 |   &#x2060;
+  3 | other: text &nbsp; # &#169;
+
+`;
+
+exports[`prefer-named-character-references > invalid(19): [Guide](/a&#x2060;b \"Copyright &#169; and \\&#160;\") and [](/&#160;) 1`] = `
+
+Filename: example.md
+
+  1 | [Guide](/a&#x2060;b "Copyright &#169; and \\&#160;") and [](/&#160;)
+
+`;
+
+exports[`prefer-named-character-references > invalid(19): [Guide](/a&#x2060;b \"Copyright &#169; and \\&#160;\") and [](/&#160;) 2`] = `
+
+Message:
+> 1 | [Guide](/a&#x2060;b "Copyright &#169; and \\&#160;") and [](/&#160;)
+    |           ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Output:
+  1 | [Guide](/a&NoBreak;b "Copyright &#169; and \\&#160;") and [](/&#160;)
+
+`;
+
+exports[`prefer-named-character-references > invalid(19): [Guide](/a&#x2060;b \"Copyright &#169; and \\&#160;\") and [](/&#160;) 3`] = `
+
+Message:
+> 1 | [Guide](/a&#x2060;b "Copyright &#169; and \\&#160;") and [](/&#160;)
+    |                                ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Output:
+  1 | [Guide](/a&#x2060;b "Copyright &copy; and \\&#160;") and [](/&#160;)
+
+`;
+
+exports[`prefer-named-character-references > invalid(19): [Guide](/a&#x2060;b \"Copyright &#169; and \\&#160;\") and [](/&#160;) 4`] = `
+
+Message:
+> 1 | [Guide](/a&#x2060;b "Copyright &#169; and \\&#160;") and [](/&#160;)
+    |                                                             ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Output:
+  1 | [Guide](/a&#x2060;b "Copyright &#169; and \\&#160;") and [](/&nbsp;)
+
+`;
+
 exports[`prefer-named-character-references > invalid(2): <span title=\"Copyright &#169;\">A&#160;B&#x2060;</span>; 1`] = `
 
   1 | <span title="Copyright &#169;">A&#160;B&#x2060;</span>;
@@ -152,6 +410,56 @@ Message:
 
 Output:
   1 | <span title="Copyright &#169;">A&nbsp;B&#x2060;</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 1`] = `
+
+  1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+
+`;
+
+exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 2`] = `
+
+Message:
+> 1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+    |                     ^^^^^ Prefer \`&nbsp;\` over \`&#160\`.
+
+Output:
+  1 | <template><textarea>&nbsp;</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+
+`;
+
+exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 3`] = `
+
+Message:
+> 1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+    |                                                      ^^^^^ Prefer \`&euro;\` over \`&#128\`.
+
+Suggestion 1/1: Replace \`&#128\` with \`&euro;\`.:
+  1 | <template><textarea>&#160</textarea><p title="&copyx &euro;">&#169</p></template><script>const label = "&#160;";</script>
+
+`;
+
+exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 4`] = `
+
+Message:
+> 1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+    |                                                             ^^^^^ Prefer \`&copy;\` over \`&#169\`.
+
+Output:
+  1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&copy;</p></template><script>const label = "&#160;";</script>
+
+`;
+
+exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 5`] = `
+
+Message:
+> 1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
+    |                                                                                                        ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&nbsp;";</script>
 
 `;
 
@@ -187,6 +495,114 @@ Message:
 Output:
   1 | <template><textarea>
   2 |   &#160;<b title="&copy;">text</b></textarea></template>
+
+`;
+
+exports[`prefer-named-character-references > invalid(20): > [Guide](\n> </guide/&#160;>\n> \"Copyright &#169;\"\n> ) 1`] = `
+
+Filename: example.md
+
+  1 | > [Guide](
+  2 | > </guide/&#160;>
+  3 | > "Copyright &#169;"
+  4 | > )
+
+`;
+
+exports[`prefer-named-character-references > invalid(20): > [Guide](\n> </guide/&#160;>\n> \"Copyright &#169;\"\n> ) 2`] = `
+
+Message:
+  1 | > [Guide](
+> 2 | > </guide/&#160;>
+    |           ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+  3 | > "Copyright &#169;"
+  4 | > )
+
+Output:
+  1 | > [Guide](
+  2 | > </guide/&nbsp;>
+  3 | > "Copyright &#169;"
+  4 | > )
+
+`;
+
+exports[`prefer-named-character-references > invalid(20): > [Guide](\n> </guide/&#160;>\n> \"Copyright &#169;\"\n> ) 3`] = `
+
+Message:
+  1 | > [Guide](
+  2 | > </guide/&#160;>
+> 3 | > "Copyright &#169;"
+    |              ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+  4 | > )
+
+Output:
+  1 | > [Guide](
+  2 | > </guide/&#160;>
+  3 | > "Copyright &copy;"
+  4 | > )
+
+`;
+
+exports[`prefer-named-character-references > invalid(21): > | Image |\n> | - |\n> | ![Guide](/a&#160;b.png \"Copyright &#169;\") | 1`] = `
+
+Filename: example.md
+
+  1 | > | Image |
+  2 | > | - |
+  3 | > | ![Guide](/a&#160;b.png "Copyright &#169;") |
+
+`;
+
+exports[`prefer-named-character-references > invalid(21): > | Image |\n> | - |\n> | ![Guide](/a&#160;b.png \"Copyright &#169;\") | 2`] = `
+
+Message:
+  1 | > | Image |
+  2 | > | - |
+> 3 | > | ![Guide](/a&#160;b.png "Copyright &#169;") |
+    |                ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Output:
+  1 | > | Image |
+  2 | > | - |
+  3 | > | ![Guide](/a&nbsp;b.png "Copyright &#169;") |
+
+`;
+
+exports[`prefer-named-character-references > invalid(21): > | Image |\n> | - |\n> | ![Guide](/a&#160;b.png \"Copyright &#169;\") | 3`] = `
+
+Message:
+  1 | > | Image |
+  2 | > | - |
+> 3 | > | ![Guide](/a&#160;b.png "Copyright &#169;") |
+    |                                       ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Output:
+  1 | > | Image |
+  2 | > | - |
+  3 | > | ![Guide](/a&#160;b.png "Copyright &copy;") |
+
+`;
+
+exports[`prefer-named-character-references > invalid(22): ? &key \"&#169;\"\n: 1\nlabel: &text \"&#x2060;\" 1`] = `
+
+  1 | ? &key "&#169;"
+  2 | : 1
+  3 | label: &text "&#x2060;"
+
+`;
+
+exports[`prefer-named-character-references > invalid(22): ? &key \"&#169;\"\n: 1\nlabel: &text \"&#x2060;\" 2`] = `
+
+Message:
+  1 | ? &key "&#169;"
+  2 | : 1
+> 3 | label: &text "&#x2060;"
+    |               ^^^^^^^^ Prefer \`&NoBreak;\` over \`&#x2060;\`.
+
+Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
+  1 | ? &key "&#169;"
+  2 | : 1
+  3 | label: &text "&NoBreak;"
 
 `;
 
@@ -456,6 +872,17 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(5): const label: JSX.Element = <span title=\"&#xA9;\">&#8212;{\"&#160;\"}</span>; 4`] = `
+
+Message:
+> 1 | const label: JSX.Element = <span title="&#xA9;">&#8212;{"&#160;"}</span>;
+    |                                                          ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | const label: JSX.Element = <span title="&#xA9;">&#8212;{"&nbsp;"}</span>;
+
+`;
+
 exports[`prefer-named-character-references > invalid(6): <span title=\"&#38;#169;\">&#38;#160;</span>; 1`] = `
 
   1 | <span title="&#38;#169;">&#38;#160;</span>;
@@ -503,6 +930,45 @@ Output:
 
 `;
 
+exports[`prefer-named-character-references > invalid(6): [A&#169;B](/&#160;) 3`] = `
+
+Message:
+> 1 | [A&#169;B](/&#160;)
+    |             ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Output:
+  1 | [A&#169;B](/&nbsp;)
+
+`;
+
+exports[`prefer-named-character-references > invalid(7): <span title={\"&#160;\"} hidden>{\"&#xA0;\"}{/* &#169; */}</span>; 1`] = `
+
+  1 | <span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(7): <span title={\"&#160;\"} hidden>{\"&#xA0;\"}{/* &#169; */}</span>; 2`] = `
+
+Message:
+> 1 | <span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;
+    |               ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | <span title={"&nbsp;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;
+
+`;
+
+exports[`prefer-named-character-references > invalid(7): <span title={\"&#160;\"} hidden>{\"&#xA0;\"}{/* &#169; */}</span>; 3`] = `
+
+Message:
+> 1 | <span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;
+    |                                 ^^^^^^ Prefer \`&nbsp;\` over \`&#xA0;\`.
+
+Suggestion 1/1: Replace \`&#xA0;\` with \`&nbsp;\`.:
+  1 | <span title={"&#160;"} hidden>{"&nbsp;"}{/* &#169; */}</span>;
+
+`;
+
 exports[`prefer-named-character-references > invalid(7): | Cell |\n| - |\n| Left\\|right &#x1D504; and \\&#160; | 1`] = `
 
 Filename: example.md
@@ -525,6 +991,23 @@ Output:
   1 | | Cell |
   2 | | - |
   3 | | Left\\|right &Afr; and \\&#160; |
+
+`;
+
+exports[`prefer-named-character-references > invalid(8): const html = \"<span>&#160;</span>\"; 1`] = `
+
+  1 | const html = "<span>&#160;</span>";
+
+`;
+
+exports[`prefer-named-character-references > invalid(8): const html = \"<span>&#160;</span>\"; 2`] = `
+
+Message:
+> 1 | const html = "<span>&#160;</span>";
+    |                     ^^^^^^ Prefer \`&nbsp;\` over \`&#160;\`.
+
+Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
+  1 | const html = "<span>&nbsp;</span>";
 
 `;
 
@@ -563,5 +1046,33 @@ Message:
 
 Output:
   1 | $&#160;$ and &copy;
+
+`;
+
+exports[`prefer-named-character-references > invalid(9): const html = tag\`&#169;\${name}&#xA0; &#\${number};\`; 1`] = `
+
+  1 | const html = tag\`&#169;\${name}&#xA0; &#\${number};\`;
+
+`;
+
+exports[`prefer-named-character-references > invalid(9): const html = tag\`&#169;\${name}&#xA0; &#\${number};\`; 2`] = `
+
+Message:
+> 1 | const html = tag\`&#169;\${name}&#xA0; &#\${number};\`;
+    |                  ^^^^^^ Prefer \`&copy;\` over \`&#169;\`.
+
+Suggestion 1/1: Replace \`&#169;\` with \`&copy;\`.:
+  1 | const html = tag\`&copy;\${name}&#xA0; &#\${number};\`;
+
+`;
+
+exports[`prefer-named-character-references > invalid(9): const html = tag\`&#169;\${name}&#xA0; &#\${number};\`; 3`] = `
+
+Message:
+> 1 | const html = tag\`&#169;\${name}&#xA0; &#\${number};\`;
+    |                               ^^^^^^ Prefer \`&nbsp;\` over \`&#xA0;\`.
+
+Suggestion 1/1: Replace \`&#xA0;\` with \`&nbsp;\`.:
+  1 | const html = tag\`&#169;\${name}&nbsp; &#\${number};\`;
 
 `;

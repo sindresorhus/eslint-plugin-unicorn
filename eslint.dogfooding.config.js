@@ -236,6 +236,16 @@ const config = [
 	},
 	{
 		files: [
+			'rules/string-content.js',
+			'test/**/*.js',
+		],
+		rules: {
+			// JSX apostrophe encoding and source-code fixtures require numeric references.
+			'unicorn/prefer-named-character-references': 'off',
+		},
+	},
+	{
+		files: [
 			'scripts/rename-rule.js',
 		],
 		rules: {
