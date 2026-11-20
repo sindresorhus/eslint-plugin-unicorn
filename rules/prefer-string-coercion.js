@@ -159,7 +159,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String()` for decimal string conversion of numbers.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [],
