@@ -15,7 +15,9 @@ export default function normalizeComment(comment, context) {
 	}
 
 	const {sourceCode} = context;
-	const range = getCommentRange(context, comment);
+	const range = comment.type === 'BlockComment'
+		? getCommentRange(context, comment)
+		: sourceCode.getRange(comment);
 	const text = sourceCode.text.slice(...range);
 
 	if (text.startsWith('//')) {

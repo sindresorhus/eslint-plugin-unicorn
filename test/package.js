@@ -361,7 +361,7 @@ for (const {language, plugins} of [languages.json, languages.jsonc, languages.js
 }
 
 for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
-	test(`recommended-json fixes comments in ${language}`, async t => {
+	test(`recommended-json handles block comments in ${language}`, async t => {
 		const eslint = new ESLint({
 			overrideConfigFile: true,
 			fix: true,
@@ -377,8 +377,8 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 			['/** Comment.\r\n */\r\n{}', '/**\r\nComment.\r\n*/\r\n{}'],
 			['/* First. */\r\n/* Second. */\r\n{}', '/*\r\nFirst.\r\nSecond.\r\n*/\r\n{}'],
 			[
-				'/*\r\nDescription.\r\n*/\r\n/*\r\nTODO [2000-01-01, 2000-01-02] \r\n*/\r\n{}',
 				'/*\r\nDescription.\r\nTODO [2000-01-01, 2000-01-02]\r\n*/\r\n{}',
+				undefined,
 				['unicorn/avoidMultipleDates'],
 			],
 		];

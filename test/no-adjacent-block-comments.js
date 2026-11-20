@@ -183,6 +183,17 @@ test('recommended formats each block separately when fixes are limited to layout
 	t.assert.deepStrictEqual(result.messages.map(({ruleId}) => ruleId), [mergeRule]);
 });
 
+test('recommended preserves ESLint warning comments', t => {
+	const preset = unicorn.configs.recommended;
+	const result = new Linter().verifyAndFix(
+		'/* Description. */\n/* TODO: Add a fallback. */\nexport default true;\n',
+		{...preset, rules: {...preset.rules, 'no-warning-comments': 'error'}},
+	);
+
+	t.assert.strictEqual(result.output, '/*\nDescription.\n*/\n/*\nTODO: Add a fallback.\n*/\nexport default true;\n');
+	t.assert.deepStrictEqual(result.messages.map(({ruleId}) => ruleId), ['no-warning-comments']);
+});
+
 test('keeps merge boundaries intact after layout fixes', t => {
 	const linter = new Linter();
 	const config = {

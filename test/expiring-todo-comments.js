@@ -700,7 +700,7 @@ test('supports JSONC block comments with @eslint/json', t => {
 test('supports HTML comments with @html-eslint', t => {
 	const linter = new Linter({configType: 'flat'});
 	const messages = linter.verify(
-		'<!-- TODO [2000-01-01]: Drop -->\n<!-- TODO: Update markup -->\n<div></div>',
+		'<!-- TODO [2000-01-01]:\rDrop -->\n\n<!-- TODO: Update markup -->\n<div></div>',
 		{
 			files: ['**/*.html'],
 			language: 'html/html',

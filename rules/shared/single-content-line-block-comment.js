@@ -1,8 +1,5 @@
 import {isRegExp} from 'node:util/types';
-import {
-	getCommentRange,
-	isEslintDisableOrEnableDirective,
-} from '../utils/index.js';
+import {getCommentRange} from '../utils/index.js';
 
 const LINE_ENDINGS = new Set(['\n', '\r', '\u2028', '\u2029']);
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
@@ -107,7 +104,7 @@ const getSingleContentLineBlockComment = (context, comment) => {
 	const [lineStart, lineEnd] = lineBounds;
 	const indentation = sourceText.slice(lineStart, commentRange[0]);
 	const text = sourceText.slice(...commentRange);
-	if (!text.startsWith('/*') || !text.endsWith('*/') || text.startsWith('/*!') || isEslintDisableOrEnableDirective(context, comment)) {
+	if (!text.startsWith('/*') || !text.endsWith('*/') || text.startsWith('/*!')) {
 		return;
 	}
 

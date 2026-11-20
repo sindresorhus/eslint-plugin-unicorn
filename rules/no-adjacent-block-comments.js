@@ -22,6 +22,7 @@ const MERGE_SENSITIVE_PATTERNS = [
 	// Rspack accepts quoted keys and spaces before the colon.
 	/\b(?:webpack|rspack)[A-Z][A-Za-z]*["']?\s*:/v,
 	/^@/v,
+	/^(?:todo|fixme|xxx)\b/iv,
 	/^stylelint-(?:disable|enable)\b/v,
 	/\bautoprefixer(?:\s+grid)?\s*:/iv,
 	/^!?\s*rtl\s*:/v,
