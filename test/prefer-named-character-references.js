@@ -46,6 +46,22 @@ test({
 	],
 });
 
+test.typescript({
+	valid: [
+		'type Label = \'&#169;\' | `&#169;`;',
+		'type Label<Value extends string> = `${Value}&#x2060;`;', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		{
+			code: 'const label: string = `&#169;`;',
+			errors: [{
+				messageId: ruleId,
+				suggestions: [{messageId: 'replace', output: 'const label: string = `&copy;`;'}],
+			}],
+		},
+	],
+});
+
 test.snapshot({
 	testerOptions: {languageOptions: {parser: parsers.vue}},
 	valid: [

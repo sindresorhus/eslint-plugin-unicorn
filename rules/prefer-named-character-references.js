@@ -163,7 +163,15 @@ const create = context => {
 			return getStringProblems(node);
 		}
 	});
-	context.on('TemplateElement', node => getStringProblems(node));
+	context.on('TemplateLiteral', function * (node) {
+		if (isStringLiteralRequired(node)) {
+			return;
+		}
+
+		for (const quasi of node.quasis) {
+			yield * getStringProblems(quasi);
+		}
+	});
 
 	context.on('String', node => {
 		if (sourceCode.ast.type !== 'StyleSheet' && sourceCode.getParent(node)?.name !== node) {
