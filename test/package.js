@@ -175,6 +175,23 @@ test('recommended config works with defineConfig', async t => {
 	t.assert.strictEqual(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'), true);
 });
 
+test('recommended-css merges adjacent block comments', t => {
+	const filename = 'file.css';
+	const {language, plugins} = languages.css;
+	const config = {
+		...eslintPluginUnicorn.configs['recommended-css'],
+		files: [filename],
+		language,
+		plugins: {...plugins, unicorn: eslintPluginUnicorn},
+	};
+	const linter = new Linter();
+	const code = 'a {\r\n\t/* First. */\r\n\t/* Second. */\r\n\tcolor: red;\r\n}\r\n';
+	const result = linter.verifyAndFix(code, config, {filename});
+
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'a {\r\n\t/*\r\n\tFirst.\r\n\tSecond.\r\n\t*/\r\n\tcolor: red;\r\n}\r\n');
+});
+
 test('rules moved to eslint-cssicorn are deprecated no-ops in CSS configs', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
@@ -643,7 +660,7 @@ for (const extension of ['soml', 'txt']) {
 }
 
 test('recommended-soml converges with the SOML recommended preset', t => {
-	const code = '/*\n * Description.\n */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
+	const code = '/*\n * Description.\n */\n/* More. */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
 	const config = defineConfig([
 		languages.soml.plugins.soml.configs.recommended,
 		{
@@ -656,7 +673,7 @@ test('recommended-soml converges with the SOML recommended preset', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config, {filename: 'file.soml'});
 	t.assert.deepStrictEqual(result.messages, []);
-	t.assert.strictEqual(result.output, '/*\nDescription.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
+	t.assert.strictEqual(result.output, '/*\nDescription.\nMore.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
 	t.assert.strictEqual(result.fixed, true);
 	const secondResult = linter.verifyAndFix(result.output, config, {filename: 'file.soml'});
 	t.assert.deepStrictEqual(secondResult.messages, []);
