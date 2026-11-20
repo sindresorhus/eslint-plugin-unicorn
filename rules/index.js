@@ -292,6 +292,7 @@ export {default as 'prefer-minimal-ternary'} from './prefer-minimal-ternary.js';
 export {default as 'prefer-modern-dom-apis'} from './prefer-modern-dom-apis.js';
 export {default as 'prefer-modern-math-apis'} from './prefer-modern-math-apis.js';
 export {default as 'prefer-module'} from './prefer-module.js';
+export {default as 'prefer-named-character-references'} from './prefer-named-character-references.js';
 export {default as 'prefer-native-coercion-functions'} from './prefer-native-coercion-functions.js';
 export {default as 'prefer-negative-index'} from './prefer-negative-index.js';
 export {default as 'prefer-node-protocol'} from './prefer-node-protocol.js';

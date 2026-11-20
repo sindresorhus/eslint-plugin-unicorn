@@ -61,6 +61,7 @@
 		"@eslint/css-tree": "^4.1.1",
 		"browserslist": "^4.29.1",
 		"change-case": "^5.4.4",
+		"character-entities-html4": "^2.1.0",
 		"ci-info": "^4.4.0",
 		"core-js-compat": "^3.50.0",
 		"detect-indent": "^7.0.2",

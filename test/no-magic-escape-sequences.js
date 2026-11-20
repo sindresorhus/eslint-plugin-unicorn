@@ -144,6 +144,24 @@ test('recommended reports the remaining inline escape after autofix', t => {
 	);
 });
 
+test('recommended autofixes JSX references with equivalent names', t => {
+	const code = '<span>&#xA0; &#x2060;{"&#169;"}</span>;';
+	const config = [
+		unicorn.configs.recommended,
+		{languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+	];
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(code, config);
+
+	t.assert.strictEqual(output, '<span>&nbsp; &#x2060;{"&#169;"}</span>;');
+	t.assert.deepStrictEqual(
+		messages
+			.filter(({ruleId}) => ruleId === 'unicorn/no-magic-escape-sequences' || ruleId === 'unicorn/prefer-named-character-references')
+			.map(({ruleId, column}) => ({ruleId, column})),
+		[{ruleId: 'unicorn/no-magic-escape-sequences', column: 14}],
+	);
+});
+
 test('accepts a JSX quote escaped by the string-content autofix', t => {
 	const linter = new Linter();
 	const config = {

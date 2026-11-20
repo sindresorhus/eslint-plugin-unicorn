@@ -48,3 +48,7 @@ Extract the decoded character to a named constant. Preserve the compiled string,
 const nonBreakingSpace = '\u00A0';
 <Label>{`Page${nonBreakingSpace}1 of 3`}</Label>;
 ```
+
+## Related rules
+
+- Use [`prefer-named-character-references`](prefer-named-character-references.md) to replace numeric character references with named equivalents.
