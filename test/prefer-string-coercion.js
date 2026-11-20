@@ -9,6 +9,14 @@ const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.types
 const skippedInitializerCode = 'function format(ready) { if (ready) { /** @type {number} */ var value = 42; } return value.toString(); }';
 const formattableType = 'type Formattable = {toString(): "42"} & 42;';
 const customToStringType = `${formattableType} function format(value: Formattable): "42" { return value.toString(); }`;
+const inferredFieldsCode = [
+	'class Counter {',
+	'\t#count = 0;',
+	'\tlabel = "pending";',
+	'\tformat() { return [this.#count.toString(), this.label.toString()]; }',
+	'}',
+].join('\n');
+
 const typeAware = (code, filename = 'file.ts') => ({
 	code,
 	filename,
@@ -62,6 +70,7 @@ test.snapshot({
 		typescriptSyntax('function format(value: any) { return ((value satisfies number) + 42).toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies string).indexOf("x").toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies string).length.toString(); }'),
+		typescriptSyntax(inferredFieldsCode),
 		typescriptSyntax(customToStringType),
 		typescriptSyntax(`${formattableType} type Value = number; type Numeric<Value> = Value; function format(value: Numeric<Formattable>): "42" { return value.toString(); }`),
 		typescriptSyntax(`${formattableType} type Value = number; type Numeric<Value = Formattable> = Value; function format(value: Numeric): "42" { return value.toString(); }`),
@@ -286,6 +295,11 @@ test({
 			...typeAware(indexedAccessCode),
 			output: indexedAccessCode.replace('count.toString()', 'String(count)'),
 			errors: [{messageId: 'prefer-string-coercion', line: 3}],
+		},
+		{
+			...typeAware(inferredFieldsCode),
+			output: inferredFieldsCode.replace('this.#count.toString()', 'String(this.#count)'),
+			errors: [{messageId: 'prefer-string-coercion', line: 4}],
 		},
 	],
 });
