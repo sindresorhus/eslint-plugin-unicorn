@@ -258,6 +258,19 @@ test.snapshot({
 			// c8 ignore next
 			const value = 1;
 		`,
+		'/* node:coverage ignore next\n2 */\nrun();',
+		'/* Editor settings: -*- mode: javascript -*-\nThis line explains the settings. */',
+		'/* c8\nignore next */\nrun();',
+		outdent`
+			switch (value) {
+				case 1:
+					break;
+
+				// no
+				// default
+
+			}
+		`,
 		outdent`
 			// Formatting setup
 			// prettier-ignore
@@ -625,6 +638,18 @@ test.snapshot({
 			language: languages.json5,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		// A shortened comment range would drop the only character on the second line.
+		code: '/* Select option\r\nA*/\r\n{}',
+		output: '/* Select option A*/\r\n{}',
+		language: languages.jsonc.language,
+		plugins: languages.jsonc.plugins,
+		errors: [{messageId: 'no-manually-wrapped-comments'}],
+	}],
 });
 
 // TOML support

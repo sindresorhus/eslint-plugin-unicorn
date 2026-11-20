@@ -4,6 +4,7 @@ import {
 	normalizeComment,
 	onRoot,
 } from './utils/index.js';
+import isToolingDirective from './shared/comment-directive.js';
 
 const MESSAGE_ID = 'no-manually-wrapped-comments';
 const messages = {
@@ -12,12 +13,11 @@ const messages = {
 
 // Trailing `:` marks a complete line (heading, label, list intro), not a wrapped sentence.
 const sentenceEndPattern = /(?:[\p{Extended_Pictographic}!.:?]\p{Variation_Selector}?|\p{RGI_Emoji})$/v;
-const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|noinspection\b|yamllint(?:$|\s)|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
+// Also treat partial directive prefixes and Emacs modelines without a closing `-*-` as non-prose.
+const directivePrefixPattern = /^(?:[#\/@]|-\*-|eslint(?:$|\s|-)|globals?\b|exported\b|noinspection\b|yamllint(?:$|\s)|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-)/v;
 const annotationCommentPattern = /^[A-Z]{2,}(?:\([^\)]+\))?:/v;
 const spdxCommentPattern = /^SPDX-/v;
 const copyrightCommentPattern = /^(?:©|copyright\b)/iv;
-// Editor modelines: vim (`vim:`, `vi:`) and Emacs (`-*- … -*-`).
-const modelineCommentPattern = /^(?:vim?:|-\*-)/v;
 const structuredCommentPattern = /^(?:language=\S+|(?:end)?region(?:$|\s)|<\/?editor-fold\b)/v;
 const listCommentPattern = /^(?:[*+\-]\s|\d+(?:\.|\))\s)/v;
 const separatorCommentPattern = /^[#*\-=_~]{3,}$/v;
@@ -29,11 +29,11 @@ const getCommentText = comment => comment.value.trim();
 const endsWithSentencePunctuation = comment => sentenceEndPattern.test(getCommentText(comment));
 
 const isIgnoredCommentText = text =>
-	directiveCommentPattern.test(text)
+	directivePrefixPattern.test(text)
+	|| isToolingDirective(text)
 	|| annotationCommentPattern.test(text)
 	|| spdxCommentPattern.test(text)
 	|| copyrightCommentPattern.test(text)
-	|| modelineCommentPattern.test(text)
 	|| structuredCommentPattern.test(text)
 	|| listCommentPattern.test(text)
 	|| separatorCommentPattern.test(text)
@@ -184,6 +184,11 @@ function * getBlockCommentProblems(context, comment) {
 			continue;
 		}
 
+		const text = group.map(line => line.text).join(' ');
+		if (isToolingDirective(text)) {
+			continue;
+		}
+
 		const range = [group[0].start, group.at(-1).end];
 
 		yield {
@@ -192,33 +197,22 @@ function * getBlockCommentProblems(context, comment) {
 				end: sourceCode.getLocFromIndex(range[1]),
 			},
 			messageId: MESSAGE_ID,
-			fix: fixer => fixer.replaceTextRange(range, group.map(line => line.text).join(' ')),
+			fix: fixer => fixer.replaceTextRange(range, text),
 		};
 	}
 }
-
-const fixCommentGroup = (context, comments) => fixer => {
-	const {sourceCode} = context;
-	const firstComment = comments[0];
-	const lastComment = comments.at(-1);
-	const text = comments.map(comment => getCommentText(comment)).join(' ');
-	const range = [
-		sourceCode.getRange(firstComment)[0],
-		sourceCode.getRange(lastComment)[1],
-	];
-
-	return fixer.replaceTextRange(range, `${getLineCommentPrefix(sourceCode, firstComment)} ${text}`);
-};
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {sourceCode} = context;
+
 	onRoot(context, function * () {
 		const comments = getComments(context).map(comment => normalizeComment(comment, context));
 
 		for (let index = 0; index < comments.length; index++) {
-			if (isStandaloneMultilineBlockComment(context.sourceCode, comments[index])) {
+			if (isStandaloneMultilineBlockComment(sourceCode, comments[index])) {
 				yield * getBlockCommentProblems(context, comments[index]);
 				continue;
 			}
@@ -238,14 +232,23 @@ const create = context => {
 
 			index += group.length - 1;
 
-			if (!isSeparatedCommentGroup(context.sourceCode, group)) {
+			if (!isSeparatedCommentGroup(sourceCode, group)) {
 				continue;
 			}
 
+			const text = group.map(comment => getCommentText(comment)).join(' ');
+			if (isToolingDirective(text)) {
+				continue;
+			}
+
+			const [firstComment] = group;
+			const range = [sourceCode.getRange(firstComment)[0], sourceCode.getRange(group.at(-1))[1]];
+			const replacement = `${getLineCommentPrefix(sourceCode, firstComment)} ${text}`;
+
 			yield {
-				node: group[0],
+				node: firstComment,
 				messageId: MESSAGE_ID,
-				fix: fixCommentGroup(context, group),
+				fix: fixer => fixer.replaceTextRange(range, replacement),
 			};
 		}
 	});

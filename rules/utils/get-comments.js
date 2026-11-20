@@ -15,6 +15,27 @@ export default function getComments(context) {
 }
 
 /**
+Get the raw source range of a comment.
+
+`@eslint/json` block comment ranges count CRLF as one character, so derive multiline `BlockComment` ranges from locations when the language supports index conversion.
+
+@param {import('eslint').Rule.RuleContext} context
+@param {object} comment
+@returns {[number, number]}
+*/
+export function getCommentRange(context, comment) {
+	const {sourceCode} = context;
+	if (comment.type === 'BlockComment' && typeof sourceCode.getIndexFromLoc === 'function') {
+		const {start, end} = sourceCode.getLoc(comment);
+		if (start.line !== end.line) {
+			return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
+		}
+	}
+
+	return sourceCode.getRange(comment);
+}
+
+/**
 Get the HTML comments (`<!-- … -->`) in a Markdown file (`@eslint/markdown`), which does not expose comments. Only the HTML nodes of the Markdown AST are searched, so text that looks like a comment inside inline code or a code block is ignored.
 
 Each comment is a `Block` comment with the `value` between `<!--` and `-->`, plus `range` and `loc`. An unclosed comment runs to the end of its HTML node. For other languages, it returns an empty array.

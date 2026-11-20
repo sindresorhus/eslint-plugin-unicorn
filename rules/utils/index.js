@@ -41,7 +41,7 @@ export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new
 export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getIndentUnit} from './get-indent-unit.js';
-export {default as getLinebreak} from './get-linebreak.js';
+export {default as getLinebreak, linebreakPattern} from './get-linebreak.js';
 export {default as getLineIndent} from './get-line-indent.js';
 export {default as getLineStart, getLinePrefix} from './get-line-start.js';
 export {default as getUnwrappedBranchText} from './get-unwrapped-branch-text.js';
@@ -55,7 +55,7 @@ export {getTypeArgumentsText, hasSameTypeArguments, hasTypeArguments} from './ty
 export {default as reindentText} from './reindent-text.js';
 export {default as isCallExpressionValueDiscardedWithVoid} from './is-call-expression-value-discarded-with-void.js';
 export {default as isIdentifierName} from './is-identifier-name.js';
-export {default as getComments, getMarkdownHtmlComments} from './get-comments.js';
+export {default as getComments, getCommentRange, getMarkdownHtmlComments} from './get-comments.js';
 export {
 	getLastTrailingCommentOnSameLine,
 	getCommentSafeProblem,

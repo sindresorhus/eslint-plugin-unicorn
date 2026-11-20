@@ -63,6 +63,7 @@ ruleTest.snapshot({
 		'/*@ sourceMappingURL=legacy.js.map */',
 		'/*# sourceURL=app.js */',
 		'/* @ts-ignore: explanation */',
+		'/* @ts-ignore-foo */',
 		'/* @ts-expect-error: explanation */',
 		'/* @jsxImportSource preact */',
 		'/* @flow strict */',
@@ -220,6 +221,74 @@ const getConfig = options => ({
 	},
 });
 
+ruleTest.vue({
+	valid: [],
+	invalid: [{
+		filename: 'component.vue',
+		code: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/* First. */\r\n/* Second. */\r\n</script>',
+		output: '<template><!-- 🦄 /* Keep. */ --></template>\r\n<script setup>\r\n/*\r\nFirst.\r\n*/\r\n/*\r\nSecond.\r\n*/\r\n</script>',
+		errors: [error, error],
+	}],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: '\uFEFF/* First. */\r/* Second. */\r',
+			output: '\uFEFF/*\rFirst.\r*/\r/*\rSecond.\r*/\r',
+			errors: [error, error],
+		},
+		{
+			code: '\u00A0/* First. */\u00A0\n',
+			output: '\u00A0/*\n\u00A0First.\n\u00A0*/\u00A0\n',
+			errors: [error],
+		},
+	],
+});
+
+const css = {language: languages.css.language, plugins: languages.css.plugins};
+const formattedCssWithUnterminatedComment = '/*\nFirst.\n*/\n/* Second.';
+
+ruleTest({
+	valid: [{code: formattedCssWithUnterminatedComment, ...css}],
+	invalid: [
+		{
+			code: '/* First. */\u2028/* Second. */\na {}',
+			output: '/*\u2028First.\u2028*/\u2028/*\nSecond.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First. */\u2029/* Second. */\na {}',
+			output: '/*\u2029First.\u2029*/\u2029/*\nSecond.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: 'div\u2028/* First. */\n/* Second. */\u2029span {}',
+			output: 'div\u2028/*\nFirst.\n*/\n/*\u2029Second.\u2029*/\u2029span {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First.\fSecond. */\n/* Third. */\na {}',
+			output: '/*\nFirst.\fSecond.\n*/\n/*\nThird.\n*/\na {}',
+			errors: [error, error],
+		},
+		{
+			code: '/* First. */\n/* Second.',
+			output: formattedCssWithUnterminatedComment,
+			errors: [error],
+		},
+		{
+			code: '/* Overview. */\n/* #region Layout */\na {}\n/* #endregion */',
+			output: '/*\nOverview.\n*/\n/* #region Layout */\na {}\n/* #endregion */',
+			errors: [error],
+		},
+	].map(testCase => ({
+		...testCase,
+		...css,
+	})),
+});
+
 ruleTest({
 	valid: [
 		{
@@ -284,6 +353,14 @@ ruleTest({
 			options: ['single-line'],
 		},
 		{
+			code: '/* Notes on @JSXRuntime automatic*/\nconst view = <div />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: '/*\n@ts-ignore-foo\n*/',
+			options: ['single-line'],
+		},
+		{
 			code: '/*@__PURE__*/\nfoo();',
 			options: ['single-line'],
 		},
@@ -305,6 +382,10 @@ ruleTest({
 		{
 			code: '/** Generated documentation comment. */',
 			options: ['multiline', {ignore: [/^Generated/u]}],
+		},
+		{
+			code: '/**\r\n  Generated. \t\r\n */',
+			options: ['single-line', {ignore: [/^\nGenerated\. \t\n$/u]}],
 		},
 		{
 			code: '/* Generated first. */\n/* Generated second. */',
@@ -454,11 +535,6 @@ ruleTest({
 		{
 			code: '/* @__PURE__ extra */',
 			output: '/*\n@__PURE__ extra\n*/',
-			errors: [error],
-		},
-		{
-			code: '/* @ts-ignore-foo */',
-			output: '/*\n@ts-ignore-foo\n*/',
 			errors: [error],
 		},
 		{
@@ -639,6 +715,31 @@ ruleTest.snapshot({
 		{code: '  /* Comment. */\r\n{}'},
 		{code: '/*\nComment.\n*/\n{}', options: ['single-line']},
 	].map(testCase => ({...testCase, code: language === languages.css ? testCase.code.replace('{}', 'a {}') : testCase.code, language}))),
+});
+
+ruleTest({
+	valid: [languages.jsonc, languages.json5].flatMap(({language, plugins}) => [
+		{
+			code: '/*\r\nIgnored.\r\n*/\r\n{}',
+			options: ['single-line', {ignore: [/^\nIgnored\.\n$/u]}],
+			language,
+			plugins,
+		},
+		...['eslint-disable', 'eslint-enable', 'eslint-disable-next-line'].map(directive => ({
+			code: `/*\r\n${directive}*/\r\n{}`,
+			language,
+			plugins,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+		})),
+	]),
+	invalid: [languages.jsonc, languages.json5].map(({language, plugins}) => ({
+		code: '{\r\n\t/*\r\n\tComment.\r\n\t*/\r\n\t"value": true\r\n}',
+		output: '{\r\n\t/* Comment. */\r\n\t"value": true\r\n}',
+		options: ['single-line'],
+		errors: [error],
+		language,
+		plugins,
+	})),
 });
 
 ruleTest.snapshot({

@@ -175,6 +175,23 @@ test('recommended config works with defineConfig', async t => {
 	t.assert.strictEqual(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'), true);
 });
 
+test('recommended-css merges adjacent block comments', t => {
+	const filename = 'file.css';
+	const {language, plugins} = languages.css;
+	const config = {
+		...eslintPluginUnicorn.configs['recommended-css'],
+		files: [filename],
+		language,
+		plugins: {...plugins, unicorn: eslintPluginUnicorn},
+	};
+	const linter = new Linter();
+	const code = 'a {\r\n\t/* First. */\r\n\t/* Second. */\r\n\tcolor: red;\r\n}\r\n';
+	const result = linter.verifyAndFix(code, config, {filename});
+
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'a {\r\n\t/*\r\n\tFirst.\r\n\tSecond.\r\n\t*/\r\n\tcolor: red;\r\n}\r\n');
+});
+
 test('rules moved to eslint-cssicorn are deprecated no-ops in CSS configs', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
@@ -322,9 +339,9 @@ test('non-JavaScript presets honor wildcards, require every dialect, and exclude
 	}
 });
 
-for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
+for (const ruleName of ['expiring-todo-comments', 'no-adjacent-block-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
 	test(`${ruleName} safely ignores comment-like strings in strict JSON`, t => {
-		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* Comment. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
+		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* First. */\n/* Second. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, {
 			files: ['**/*.json'],
@@ -361,7 +378,7 @@ for (const {language, plugins} of [languages.json, languages.jsonc, languages.js
 }
 
 for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
-	test(`recommended-json fixes comments in ${language}`, async t => {
+	test(`recommended-json handles block comments in ${language}`, async t => {
 		const eslint = new ESLint({
 			overrideConfigFile: true,
 			fix: true,
@@ -372,9 +389,25 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 				extends: ['unicorn/recommended-json'],
 			}),
 		});
-		const [result] = await eslint.lintText('/**\n * Comment.\n */\n{}', {filePath: `file.${name}`});
-		t.assert.deepStrictEqual(result.messages, []);
-		t.assert.strictEqual(result.output, '/**\nComment.\n*/\n{}');
+		const cases = [
+			['/**\n * Comment.\n */\n{}', '/**\nComment.\n*/\n{}'],
+			['/** Comment.\r\n */\r\n{}', '/**\r\nComment.\r\n*/\r\n{}'],
+			[
+				'{\r\n\t"name": "🦄",\r\n\t/* First. */\r\n\t/* Second. */\r\n\t"enabled": true\r\n}',
+				'{\r\n\t"name": "🦄",\r\n\t/*\r\n\tFirst.\r\n\tSecond.\r\n\t*/\r\n\t"enabled": true\r\n}',
+			],
+			[
+				'/*\r\nDescription.\r\nTODO [2000-01-01, 2000-01-02]\r\n*/\r\n{}',
+				undefined,
+				['unicorn/avoidMultipleDates'],
+			],
+		];
+
+		await Promise.all(cases.map(async ([code, output, messageIds = []]) => {
+			const [result] = await eslint.lintText(code, {filePath: `file.${name}`});
+			t.assert.deepStrictEqual(result.messages.map(({messageId}) => messageId), messageIds);
+			t.assert.strictEqual(result.output, output);
+		}));
 	});
 }
 
@@ -627,7 +660,7 @@ for (const extension of ['soml', 'txt']) {
 }
 
 test('recommended-soml converges with the SOML recommended preset', t => {
-	const code = '/*\n * Description.\n */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
+	const code = '/*\n * Description.\n */\n/* More. */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
 	const config = defineConfig([
 		languages.soml.plugins.soml.configs.recommended,
 		{
@@ -640,7 +673,7 @@ test('recommended-soml converges with the SOML recommended preset', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config, {filename: 'file.soml'});
 	t.assert.deepStrictEqual(result.messages, []);
-	t.assert.strictEqual(result.output, '/*\nDescription.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
+	t.assert.strictEqual(result.output, '/*\nDescription.\nMore.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
 	t.assert.strictEqual(result.fixed, true);
 	const secondResult = linter.verifyAndFix(result.output, config, {filename: 'file.soml'});
 	t.assert.deepStrictEqual(secondResult.messages, []);

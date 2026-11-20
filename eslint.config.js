@@ -189,7 +189,17 @@ const config = [
 		},
 	},
 	{
-		files: ['rules/no-magic-escape-sequences.js', 'rules/prefer-https.js'],
+		files: [
+			'rules/no-adjacent-block-comments.js',
+			'rules/no-asterisk-prefix-in-documentation-comments.js',
+			'rules/no-magic-escape-sequences.js',
+			'rules/no-manually-wrapped-comments.js',
+			'rules/prefer-https.js',
+			'rules/shared/comment-directive.js',
+			'rules/shared/single-content-line-block-comment.js',
+			'rules/single-line-block-comment-style.js',
+			'rules/utils/get-linebreak.js',
+		],
 		rules: {
 			'regexp/no-super-linear-backtracking': 'error',
 			'regexp/no-super-linear-move': 'error',
