@@ -375,7 +375,10 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 		const cases = [
 			['/**\n * Comment.\n */\n{}', '/**\nComment.\n*/\n{}'],
 			['/** Comment.\r\n */\r\n{}', '/**\r\nComment.\r\n*/\r\n{}'],
-			['/* First. */\r\n/* Second. */\r\n{}', '/*\r\nFirst.\r\nSecond.\r\n*/\r\n{}'],
+			[
+				'{\r\n\t"name": "🦄",\r\n\t/* First. */\r\n\t/* Second. */\r\n\t"enabled": true\r\n}',
+				'{\r\n\t"name": "🦄",\r\n\t/*\r\n\tFirst.\r\n\tSecond.\r\n\t*/\r\n\t"enabled": true\r\n}',
+			],
 			[
 				'/*\r\nDescription.\r\nTODO [2000-01-01, 2000-01-02]\r\n*/\r\n{}',
 				undefined,

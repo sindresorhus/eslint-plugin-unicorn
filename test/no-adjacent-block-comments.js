@@ -24,6 +24,8 @@ ruleTest({
 			'/* © Example. */',
 			'/* @LICENSE MIT */',
 			'/* SPDX-License-Identifier: MIT */',
+			'/* Fixme: Add a fallback. */',
+			'/* xxx: Verify the limit. */',
 			'/* @__PURE__ extra */',
 			'/* */',
 			'/* prettier-ignore */',
