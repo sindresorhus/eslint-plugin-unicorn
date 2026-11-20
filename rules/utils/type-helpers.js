@@ -430,6 +430,7 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
+		&& (options.resolveGenericTypeAliases !== false || !definition.node.typeParameters)
 	) {
 		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, options, visitedTypeReferenceDefinitions);
 	} else if (

@@ -241,13 +241,13 @@ export default function isNumber(node, context) {
 				return true;
 			}
 
-			// `>>>` (zero-fill right shift) can't use on `BigInt`
+			// `>>>` (unsigned right shift) only produces numbers
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
 			if (operator === '>>>') {
 				return true;
 			}
 
-			// `a * b` can be `BigInt`, we need make sure at least one side is number
+			// For operators such as `*`, a number operand rules out a BigInt result
 			if (operator !== '+' && (isNumber(node.left, context) || isNumber(node.right, context))) {
 				return true;
 			}

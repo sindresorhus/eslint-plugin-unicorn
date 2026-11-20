@@ -6,7 +6,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.typescript}});
-const customToStringType = 'type Formattable = {toString(): "42"} & 42; function format(value: Formattable): "42" { return value.toString(); }';
+const formattableType = 'type Formattable = {toString(): "42"} & 42;';
+const customToStringType = `${formattableType} function format(value: Formattable): "42" { return value.toString(); }`;
 const typeAware = (code, filename = 'file.ts') => ({
 	code,
 	filename,
@@ -56,6 +57,8 @@ test.snapshot({
 		typescriptSyntax('function format(value: any) { return (value satisfies string).indexOf("x").toString(); }'),
 		typescriptSyntax('function format(value: any) { return (value satisfies string).length.toString(); }'),
 		typescriptSyntax(customToStringType),
+		typescriptSyntax(`${formattableType} type Value = number; type Numeric<Value> = Value; function format(value: Numeric<Formattable>): "42" { return value.toString(); }`),
+		typescriptSyntax(`${formattableType} type Value = number; type Numeric<Value = Formattable> = Value; function format(value: Numeric): "42" { return value.toString(); }`),
 		typescriptSyntax('const result: "42" = (42 as {toString(): "42"} & 42).toString();'),
 		typescriptSyntax('const missing = null; const value = missing ?? (42 as {toString(): "42"} & 42); const result: "42" = value.toString();'),
 		typescriptSyntax('import type {Formattable} from "./types.js"; const result: "42" = (42 as Formattable).toString();'),
@@ -64,6 +67,11 @@ test.snapshot({
 		typescriptSyntax('const result: "42" = ({value: 42 as {toString(): "42"} & 42}).value.toString();'),
 		typeAware('function next(flag: boolean) { return flag ? 42n : "unknown"; } next(flag).toString();'),
 		typeAware(customToStringType),
+		typeAware([
+			'type Value = number; type Identity<Value> = Value;',
+			'const value: Identity<{toString(): string; [Symbol.toPrimitive](): string}> = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }};',
+			'value.toString();',
+		].join('\n')),
 		typeAware('enum Status {Okay = "okay", Missing = "missing"} Status.Okay.toString();'),
 		typeAware('function format(value: Number) { return value.toString(); }'),
 		typeAware('function format(value: number | string | undefined) { return (value ?? 0).toString(); }'),
@@ -202,6 +210,11 @@ test({
 		{
 			...typeAware('const value = /** @type {number} */ (42); value.toString();', 'file.js'),
 			output: 'const value = /** @type {number} */ (42); String(value);',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('type Identity<Value> = Value; function format(value: Identity<number>) { return value.toString(); }'),
+			output: 'type Identity<Value> = Value; function format(value: Identity<number>) { return String(value); }',
 			errors: [{messageId: 'prefer-string-coercion'}],
 		},
 	],
