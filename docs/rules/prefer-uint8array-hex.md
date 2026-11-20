@@ -61,7 +61,9 @@ const hex = Buffer.from(bytes).toString('hex');
 
 // ✅
 const hex = bytes.toHex();
+```
 
+```js
 const buffer = Buffer.alloc(16);
 
 // ❌

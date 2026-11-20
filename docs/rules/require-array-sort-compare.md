@@ -13,6 +13,8 @@ Without an explicit compare function, [`Array#sort()`](https://developer.mozilla
 
 A typed array is never reported, because [`TypedArray#sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/sort) already sorts numerically. Most array rules do report a typed array receiver, since it shares `Array`'s method surface.
 
+The rule offers numeric and string comparators as editor suggestions. Choose the comparator that matches the array's elements.
+
 ## Examples
 
 ```js

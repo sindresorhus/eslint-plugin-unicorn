@@ -142,6 +142,8 @@ export default foo;
 ```
 
 ```js
+const foo = 1;
+
 // ❌
 exports.foo = foo;
 

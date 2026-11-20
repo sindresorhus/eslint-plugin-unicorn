@@ -43,12 +43,14 @@ Whether to check assignments to `.innerHTML`.
 ## Examples
 
 ```js
-// ❌ - No sanitization, vulnerable to XSS
+// ❌
 const html = element.innerHTML;
 
-// ✅ - No sanitization needed on read, but clearer API
+// ✅
 const html = element.getHTML();
 ```
+
+The following assignment examples use [`checkSetHTML: true`](#checksethtml).
 
 ```js
 // ❌ - Dangerous! XSS vulnerability if html contains untrusted content
@@ -59,12 +61,11 @@ element.setHTML(userProvidedHTML);
 ```
 
 ```js
-// ✅ - Before setHTML(), you had to manually sanitize
-// This was error-prone:
-element.innerHTML = sanitizeHTML(userInput); // Easy to forget sanitization
+// ❌ - Manual sanitization
+element.innerHTML = sanitizeHTML(userInput);
 
-// Now it's built in:
-element.setHTML(userInput); // Automatic sanitization
+// ✅ - Keeps existing filtering and applies built-in sanitization
+element.setHTML(sanitizeHTML(userInput));
 ```
 
 ```js

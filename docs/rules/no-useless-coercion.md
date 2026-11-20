@@ -46,17 +46,19 @@ const d = 1n;
 ```
 
 ```js
+const array = [10, 20];
+
 // ❌ Double coercion
 const a = String(String(value));
 // ❌ Already a boolean
-const b = Boolean(a === b);
+const b = Boolean(left === right);
 // ❌ Already a number
 const c = Number(array.length);
 
 // ✅
 const a = String(value);
 // ✅
-const b = a === b;
+const b = left === right;
 // ✅
 const c = array.length;
 ```
@@ -78,6 +80,9 @@ const isEqual = left === right;
 ```
 
 ```js
+const someNumber = 42;
+const someString = 'hello';
+
 // ❌ Operator idioms on a value that is already the target type
 const a = +someNumber;
 const b = someString + '';

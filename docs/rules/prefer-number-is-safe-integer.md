@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Number.isSafeInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger) checks that a value is an integer _and_ that it can be exactly represented, that is, it is within the safe integer range `[-(2 ** 53 - 1), 2 ** 53 - 1]`. [`Number.isInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger) returns `true` for larger integers that can no longer be represented precisely, which is rarely what you want.
+[`Number.isSafeInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger) checks whether a value is an integer in the safe range `[-(2 ** 53 - 1), 2 ** 53 - 1]`. [`Number.isInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger) can return `true` outside that range, where different integers can round to the same number.
 
 This rule also reports common integer checks like `value % 1 === 0`, `Math.trunc(value) === value`, `Math.floor(value) === value`, and Lodash/Underscore `isInteger()`/`isSafeInteger()` calls.
 
@@ -32,9 +32,10 @@ if (!Number.isSafeInteger(index)) {
 ```
 
 ```js
-// ❌
-// This is problematic because Numbers larger than 2^53 - 1 lose precision
 const largeNumber = 9007199254740992; // 2^53
+
+// ❌
+// Different integer literals can round to the same number.
 Number.isInteger(largeNumber); // true (misleading!)
 largeNumber === 9007199254740993; // true (precision lost!)
 

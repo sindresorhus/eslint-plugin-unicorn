@@ -34,7 +34,7 @@ const date = Temporal.Instant.fromEpochMilliseconds(1_724_198_400_000);
 ```
 
 ```js
-// ❌ — string parsing is inconsistent across platforms
+// ❌ Date-only input
 const date = new Date('2024-08-16');
 
 // ✅
@@ -42,11 +42,11 @@ const date = Temporal.PlainDate.from('2024-08-16');
 ```
 
 ```js
-// ❌ — `Date.parse` is inconsistent across platforms
-const date = Date.parse('2024-08-16');
+// ❌ Epoch milliseconds at midnight UTC
+const milliseconds = Date.parse('2024-08-16');
 
 // ✅
-const date = Temporal.PlainDate.from('2024-08-16');
+const milliseconds = Temporal.PlainDate.from('2024-08-16').toZonedDateTime('UTC').epochMilliseconds;
 ```
 
 ```js
@@ -59,10 +59,10 @@ const date = Temporal.PlainDate.from({year: 2000, month: 12, day: 25});
 
 ```js
 // ❌ — the month is zero-indexed
-const date = Date.UTC(2000, 11, 25);
+const milliseconds = Date.UTC(2000, 11, 25);
 
 // ✅
-const date = Temporal.PlainDate.from({year: 2000, month: 12, day: 25});
+const milliseconds = Temporal.PlainDate.from({year: 2000, month: 12, day: 25}).toZonedDateTime('UTC').epochMilliseconds;
 ```
 
 ## Options
@@ -111,7 +111,7 @@ This requires [type information](https://typescript-eslint.io/getting-started/ty
 
 Only values typed as `Date` (including unions and intersections) are detected. Subclasses of `Date` and generic type parameters constrained to `Date` are not.
 
-```js
+```ts
 /* eslint unicorn/prefer-temporal: ["error", {"checkMethods": true}] */
 
 // ❌

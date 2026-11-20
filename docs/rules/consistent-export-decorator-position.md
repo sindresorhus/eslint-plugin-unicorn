@@ -16,13 +16,13 @@ This rule requires a parser that supports decorators, such as `@typescript-eslin
 ## Examples
 
 ```js
-// eslint unicorn/consistent-export-decorator-position: error
+/* eslint unicorn/consistent-export-decorator-position: error */
 
 // ❌
 export default @decorator class Foo {}
 
 // ❌
-@decorator export default class Foo {}
+@decorator export class Bar {}
 
 // ✅
 @decorator
@@ -32,7 +32,7 @@ export default class Foo {}
 ### `before`
 
 ```js
-// eslint unicorn/consistent-export-decorator-position: ["error", "before"]
+/* eslint unicorn/consistent-export-decorator-position: ["error", "before"] */
 
 // ❌
 @decorator
@@ -45,7 +45,7 @@ export default class Foo {}
 ### `after`
 
 ```js
-// eslint unicorn/consistent-export-decorator-position: ["error", "after"]
+/* eslint unicorn/consistent-export-decorator-position: ["error", "after"] */
 
 // ❌
 @decorator

@@ -20,7 +20,7 @@ Use [`no-anonymous-default-export`](./no-anonymous-default-export.md) to require
 ## Examples
 
 ```js
-// eslint unicorn/default-export-style: ["error", {functions: "inline"}]
+/* eslint unicorn/default-export-style: ["error", {functions: "inline"}] */
 
 // ❌
 const foo = () => {};
@@ -31,7 +31,7 @@ export default function foo() {}
 ```
 
 ```js
-// eslint unicorn/default-export-style: ["error", {functions: "separate"}]
+/* eslint unicorn/default-export-style: ["error", {functions: "separate"}] */
 
 // ❌
 export default function foo() {}
@@ -42,7 +42,7 @@ export default foo;
 ```
 
 ```js
-// eslint unicorn/default-export-style: ["error", {functions: "ignore"}]
+/* eslint unicorn/default-export-style: ["error", {functions: "ignore"}] */
 
 // ✅
 export default function foo() {}
@@ -53,7 +53,7 @@ export default foo;
 ```
 
 ```js
-// eslint unicorn/default-export-style: ["error", {classes: "inline"}]
+/* eslint unicorn/default-export-style: ["error", {classes: "inline"}] */
 
 // ❌
 class Foo {}
@@ -64,7 +64,7 @@ export default class Foo {}
 ```
 
 ```js
-// eslint unicorn/default-export-style: ["error", {classes: "separate"}]
+/* eslint unicorn/default-export-style: ["error", {classes: "separate"}] */
 
 // ❌
 export default class Foo {}
@@ -75,7 +75,7 @@ export default Foo;
 ```
 
 ```js
-// eslint unicorn/default-export-style: ["error", {classes: "ignore"}]
+/* eslint unicorn/default-export-style: ["error", {classes: "ignore"}] */
 
 // ✅
 export default class Foo {}

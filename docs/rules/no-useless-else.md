@@ -19,18 +19,22 @@ The autofix is conservative and skips cases where removing the `else` could affe
 
 ```js
 // ❌
-if (foo) {
-	return;
-} else {
-	bar();
+function run() {
+	if (foo) {
+		return;
+	} else {
+		bar();
+	}
 }
 
 // ✅
-if (foo) {
-	return;
-}
+function run() {
+	if (foo) {
+		return;
+	}
 
-bar();
+	bar();
+}
 ```
 
 ```js

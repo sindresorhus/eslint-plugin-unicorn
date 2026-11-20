@@ -26,8 +26,9 @@ This rule is suggestion-only because assigning the `Array#toSpliced()` result ch
 ## Examples
 
 ```js
-// ❌
 let array = [1, 2, 3];
+
+// ❌
 array.splice(1, 1);
 
 // ✅
@@ -49,20 +50,20 @@ array = array.toSpliced(1, 1);
 const removed = array.splice(1, 1);
 ```
 
-`toSpliced()` returns a dense array, while `splice()` keeps holes. A hole is normally invisible, so the suggestion is still offered for an array with holes, but the two are not identical then:
+On a sparse array, `splice()` preserves holes. `toSpliced()` fills holes with `undefined`. The rule still offers the suggestion:
 
 ```js
 let array = [1, 2, 3];
 array.length = 5;
 array.splice(1, 1);
-Object.hasOwn(array, 3); // false
+array.filter(() => true).length; // 2
 ```
 
 ```js
 let array = [1, 2, 3];
 array.length = 5;
 array = array.toSpliced(1, 1);
-Object.hasOwn(array, 3); // true
+array.filter(() => true).length; // 4
 ```
 
 ```js

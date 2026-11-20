@@ -18,9 +18,9 @@ This rule is conservative. It reports `Map`, `ReadonlyMap`, and `WeakMap` only w
 ## Examples
 
 ```ts
-// ❌
 declare const map: Map<string, object>;
 
+// ❌
 if (map.get(key)) {
 	// …
 }
@@ -32,9 +32,9 @@ if (map.has(key)) {
 ```
 
 ```ts
-// ❌
 declare const map: Map<string, object>;
 
+// ❌
 map.get(key) !== undefined;
 
 // ✅

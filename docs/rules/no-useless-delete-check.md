@@ -20,9 +20,9 @@ Collection cases are automatically fixed when doing so preserves comments. Objec
 ## Examples
 
 ```js
-// ❌
 const object = {};
 
+// ❌
 if (key in object) {
 	delete object[key];
 }
@@ -32,9 +32,9 @@ delete object[key];
 ```
 
 ```js
-// ❌
 const map = new Map();
 
+// ❌
 if (map.has(key)) {
 	map.delete(key);
 }
@@ -44,9 +44,9 @@ map.delete(key);
 ```
 
 ```js
-// ❌
 const set = new Set();
 
+// ❌
 if (set.has(value)) {
 	set.delete(value);
 }

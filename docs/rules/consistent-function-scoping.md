@@ -96,7 +96,10 @@ export function doFoo(foo) {
 
 	return doBar;
 }
+```
 
+```js
+// ✅
 const doBar = bar => bar === 'bar';
 
 export function doFoo() {

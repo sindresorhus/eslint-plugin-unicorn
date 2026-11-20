@@ -65,7 +65,7 @@ export {
 
 ```js
 // ✅
-// There is no substitution
+// Namespace imports used as the default export are allowed.
 import * as namespace from './foo.js';
 export default namespace;
 ```

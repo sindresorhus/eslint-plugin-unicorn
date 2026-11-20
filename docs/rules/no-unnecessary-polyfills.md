@@ -10,16 +10,17 @@ Unneeded polyfills add dependencies and code paths while providing no benefit on
 
 ## Examples
 
-package.json
+With this `package.json`:
 
-```js
-// package.json
+```json
 {
 	"engines": {
 		"node": ">=8"
 	}
 }
+```
 
+```js
 // ❌
 import assign from 'object-assign';
 const object = assign(target, source);
@@ -30,16 +31,19 @@ const object = assign(target, source);
 const object = Object.assign(target, source);
 ```
 
-```js
-// package.json
+For a target that may lack a compatible `Object.assign()`, the import is allowed:
+
+```json
 {
 	"engines": {
 		"node": "4"
 	}
 }
+```
 
+```js
 // ✅
-import assign from 'object-assign'; // Passes as Object.assign is not supported
+import assign from 'object-assign';
 ```
 
 ## Options

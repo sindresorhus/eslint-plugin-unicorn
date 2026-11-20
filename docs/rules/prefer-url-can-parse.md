@@ -18,15 +18,19 @@ This rule intentionally only reports simple boolean validation patterns. It assu
 
 ```js
 // ❌
-try {
-	new URL(value);
-	return true;
-} catch {
-	return false;
+function canParseUrl(value) {
+	try {
+		new URL(value);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 // ✅
-return URL.canParse(value);
+function canParseUrl(value) {
+	return URL.canParse(value);
+}
 ```
 
 ```js

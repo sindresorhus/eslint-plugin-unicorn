@@ -52,11 +52,13 @@ const foo = await import('./foo.js');
 ## Examples
 
 ```js
+function resolve() {}
+
 // ❌
-export {then};
+export {resolve as then};
 
 // ✅
-export {then as success};
+export {resolve};
 ```
 
 ```js

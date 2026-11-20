@@ -17,6 +17,7 @@ This rule only reports simple patterns where the controller is otherwise only us
 
 ```js
 // ❌
+const signals = [firstSignal, secondSignal];
 const abortController = new AbortController();
 
 for (const signal of signals) {
@@ -28,6 +29,7 @@ await fetch(url, {signal: abortController.signal});
 
 ```js
 // ✅
+const signals = [firstSignal, secondSignal];
 const abortSignal = AbortSignal.any(signals);
 
 await fetch(url, {signal: abortSignal});

@@ -46,7 +46,7 @@ Default: `'string'`
 Prefer reading JSON files as buffers.
 
 ```js
-// eslint unicorn/consistent-json-file-read: ["error", "buffer"]
+/* eslint unicorn/consistent-json-file-read: ["error", "buffer"] */
 
 // ❌
 const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));

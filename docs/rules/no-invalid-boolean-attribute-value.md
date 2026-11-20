@@ -34,8 +34,9 @@ button.setAttribute('disabled', 'DISABLED');
 ```
 
 ```js
-// ❌
 const input = document.querySelector('input.required');
+
+// ❌
 input?.setAttribute('required', 'false');
 
 // ✅

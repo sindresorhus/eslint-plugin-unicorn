@@ -38,8 +38,12 @@ price *= 1;
 
 ```js
 // ❌
-return count -= 0;
+function update(count) {
+	return count -= 0;
+}
 
 // ✅
-return count;
+function update(count) {
+	return count;
+}
 ```

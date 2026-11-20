@@ -24,6 +24,8 @@ import {foo as foo} from 'foo';
 ```
 
 ```js
+const foo = 1;
+
 // ❌
 export {foo as 'bar'};
 

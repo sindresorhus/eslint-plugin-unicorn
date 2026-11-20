@@ -25,7 +25,7 @@ element.append(child);
 
 ```js
 // ❌
-// Multiple nodes require chaining
+// Each appendChild() call takes one node
 parent.appendChild(child1);
 parent.appendChild(child2);
 parent.appendChild(child3);
