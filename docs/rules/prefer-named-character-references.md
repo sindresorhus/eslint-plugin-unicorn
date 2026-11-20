@@ -74,3 +74,7 @@ const html = '&#x2060;';
 // ✅
 const html = '&NoBreak;';
 ```
+
+## Related rules
+
+- [`no-magic-escape-sequences`](no-magic-escape-sequences.md) asks you to extract numeric escapes into named constants. It can report JSX references such as `&#x2060;` even when JSX has no equivalent named reference.
