@@ -63,13 +63,14 @@ test.svelte({
 	valid: [
 		{code: '<style>.example::after {content: "&#169;"}</style><p title="{label}" style:color="&#169;">&NoBreak;</p><!-- &#160; -->', filename: 'example.svelte'},
 		{code: '<div><iFrame><span>&#169;</span></iFrame><script>&#160;</script></div>', filename: 'example.svelte'},
+		{code: '<p>&#169<!-- omitted -->0</p>', filename: 'example.svelte'},
 	],
 	invalid: [
 		{
-			code: '<p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p><textarea>&#169;</textarea>',
+			code: '<p title="Copyright &#169;" data-space=&#160>A&#x2060;<!-- omitted -->B</p><textarea>&#169;</textarea>',
 			filename: 'example.svelte',
 			errors: 4,
-			output: '<p title="Copyright &copy;" data-space=&nbsp;>A&NoBreak;B</p><textarea>&copy;</textarea>',
+			output: '<p title="Copyright &copy;" data-space=&nbsp;>A&NoBreak;<!-- omitted -->B</p><textarea>&copy;</textarea>',
 		},
 		{
 			code: '<p title="A&#160{label ?? \'&#169;\'}&#x2060;B"></p>',
@@ -98,7 +99,7 @@ const disabledHtmlPrefix = '<!-- eslint-disable-next-line rule-to-test/prefer-na
 
 test({
 	testerOptions: {language: languages.html.language, plugins: languages.html.plugins},
-	valid: [],
+	valid: [{code: '<tr>A&#160;</tr><tr>B&#169;</tr>', filename: 'example.html'}],
 	invalid: [
 		{
 			code: '<p><b title="&#169;">a</p><p>b</p>',

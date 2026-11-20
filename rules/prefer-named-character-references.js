@@ -16,7 +16,7 @@ const messages = {
 const namesByCodePoint = new Map(Object.entries(characterEntitiesHtml4).map(([name, character]) => [character.codePointAt(0), name]));
 
 const htmlReferencePattern = /&#(?:\d+|x[\da-f]+);?/giv;
-const stringReferencePattern = /&#(?:\d+|x[\da-f]+);/giv;
+const completeReferencePattern = /&#(?:\d+|x[\da-f]+);/giv;
 // Consume escaped backslashes and ampersands before looking for Markdown references.
 const markdownReferencePattern = /\\[&\\]|&#(?:\d{1,7}|x[\da-f]{1,6});/giv;
 // HTML node locations and ESLint's offset lookup can count these line breaks differently.
@@ -125,9 +125,13 @@ function * getHtmlRanges(text) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	if (!sourceCode.text.includes('&#')) {
+		return;
+	}
+
 	const hasPotentialReferenceDefinitions = sourceCode.text.includes(']:');
 
-	function * getProblems(node, inputRange, {pattern = stringReferencePattern, getReplacement = getHtmlReplacement, shouldSuggest = false} = {}) {
+	function * getProblems(node, inputRange, {pattern = completeReferencePattern, getReplacement = getHtmlReplacement, shouldSuggest = false} = {}) {
 		const [inputStart, inputEnd] = inputRange;
 		for (const match of sourceCode.text.slice(inputStart, inputEnd).matchAll(pattern)) {
 			const [reference] = match;
@@ -214,7 +218,8 @@ const create = context => {
 			return;
 		}
 
-		return getHtmlProblems(node);
+		// Require a semicolon because the compiler can join raw text chunks after removing a comment.
+		return getProblems(node, sourceCode.getRange(node));
 	});
 	context.on('SvelteLiteral', node => {
 		const attribute = node.parent;
@@ -275,7 +280,7 @@ const create = context => {
 		const configuredDelimiters = Array.isArray(templateEngineSyntax) ? templateEngineSyntax.map(({open}) => open) : Object.keys(templateEngineSyntax ?? {});
 		const templateDelimiters = ['{{', '{%', '<%', '${', ...configuredDelimiters];
 		// A template expression can contain markup that the secondary HTML parser sees as real elements.
-		if (!markup.includes('&#') || templateDelimiters.some(delimiter => markup.includes(delimiter))) {
+		if (templateDelimiters.some(delimiter => markup.includes(delimiter))) {
 			return;
 		}
 

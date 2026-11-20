@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer named references for decimal and hexadecimal character references. The rule checks text and attribute values in JSX, HTML, Vue, and Svelte. It checks prose and the destinations and titles of links and images in CommonMark and GitHub Flavored Markdown. In HTML, Vue, and Svelte markup, it also checks numeric references without a trailing semicolon. In JSX, Markdown, and ordinary strings, the rule requires a trailing semicolon.
+Prefer named references for decimal and hexadecimal character references. The rule checks text and attribute values in JSX, HTML, Vue, and Svelte. It checks prose and the destinations and titles of links and images in CommonMark and GitHub Flavored Markdown. In HTML, Vue templates, and Svelte attribute values, it also checks numeric references without a trailing semicolon. In JSX, Markdown, Svelte template text, and ordinary strings, the rule requires a trailing semicolon.
 
 JSX uses the HTML4 name table. `&#x2060;` passes in JSX because that table has no name for it. For parser compatibility, the rule skips numeric references with more than eight decimal digits or seven hexadecimal digits. [JSX specification](https://react.github.io/jsx/#sec-HTMLCharacterReference)
 
@@ -25,7 +25,7 @@ The rule skips HTML files with bare carriage returns, Unicode line separators, o
 
 In Vue templates parsed by `vue-eslint-parser`, the rule autofixes text. It offers editor suggestions for static attribute values because Vue 2 and Vue 3 decode different sets of references. It skips directive expressions and interpolations, raw text, and templates when a custom tokenizer is configured.
 
-In Svelte templates parsed by `svelte-eslint-parser`, the rule autofixes template text and literal parts of attribute values when the parser decodes them using HTML semantics. The template autofix skips raw-text content and directives.
+In Svelte templates parsed by `svelte-eslint-parser`, the rule autofixes template text and literal parts of attribute values when the parser decodes them using HTML semantics. A trailing semicolon keeps adjacent digits outside a text reference when Svelte removes a comment. The template autofix skips raw-text content and directives.
 
 In Markdown, the rule autofixes destinations and titles in inline links, inline images, and reference definitions when it can locate them in the source. It skips code, math, raw HTML nodes, autolinks, image descriptions, and images with ambiguous destination boundaries. It also skips prose next to GitHub Flavored Markdown autolinks when the parser drops the source positions after decoding references or escapes.
 
