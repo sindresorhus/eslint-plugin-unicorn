@@ -374,6 +374,7 @@ export {
 	hasFunctionJSDocumentComment,
 	hasJSDocumentComments,
 	hasJSDocumentExpressionComment,
+	hasLeadingJSDocumentComment,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

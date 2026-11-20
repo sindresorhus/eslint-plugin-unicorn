@@ -27,6 +27,7 @@ test.snapshot({
 		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
 		'/** @param {{toString(): "42"} & 42} value */ function format(value) { return value.toString(); }',
 		'/** @type {"42"} */ const label = /** @type {{toString(): "42"} & 42} */ (42).toString();',
+		'/** @type {"42"} */ const label = /** @type {() => "42"} */ ((42).toString)();',
 		'const value = /** @type {{toString(): "42"} & 42} */ (42); const alias = value; /** @type {"42"} */ const label = alias.toString();',
 		'/** @type {"42"} */ const label = ({value: /** @type {{toString(): "42"} & 42} */ (42)}).value.toString();',
 		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
@@ -175,6 +176,20 @@ test({
 		},
 		{
 			...typeAware('const label = /** @type {number} */ (42).toString();', 'file.js'),
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('const value = 42; const label = /** @type {() => string} */ (value.toString)();', 'file.js'),
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('const label = (/** @type {number} */ (42)).toString();', 'file.js'),
+			output: 'const label = String((/** @type {number} */ (42)));',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
+		{
+			...typeAware('const label = /** @type {string} */ ((42).toString());', 'file.js'),
+			output: 'const label = /** @type {string} */ (String(42));',
 			errors: [{messageId: 'prefer-string-coercion'}],
 		},
 		{

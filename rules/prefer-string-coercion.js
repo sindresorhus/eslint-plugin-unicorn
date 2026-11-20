@@ -1,4 +1,4 @@
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName, isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
 import {
 	getArithmeticOrBitwiseOperator,
 	getStaticStringValue,
@@ -14,6 +14,7 @@ import {
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
 	hasJSDocumentExpressionComment,
+	hasLeadingJSDocumentComment,
 	hasOptionalChainElement,
 	isBigInt,
 	isGlobalIdentifier,
@@ -106,7 +107,7 @@ const create = context => {
 			method !== 'toString'
 			|| hasOptionalChainElement(node)
 			|| !isNumeric(value, context, typeOptions)
-			|| (!parserServices?.program && hasJSDocumentTypeReference(value, context, hasJSDocumentExpressionComment))
+			|| (!parserServices?.program && hasJSDocumentTypeReference(callee, context, hasJSDocumentExpressionComment))
 			|| withTypeInformation(node, context, ({type, checker}) => type !== checker.getStringType())
 		) {
 			return;
@@ -119,7 +120,8 @@ const create = context => {
 			return problem;
 		}
 
-		if (hasJSDocumentExpressionComment(value, context)) {
+		// Keep the grouping parentheses that carry a leading JSDoc cast.
+		if (hasLeadingJSDocumentComment(node, context) && isOpeningParenthesisToken(sourceCode.getFirstToken(node))) {
 			return problem;
 		}
 
