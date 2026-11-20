@@ -67,7 +67,8 @@ function getMarkdownImageDestinationOffset(text) {
 const create = context => {
 	const style = context.options[0];
 	const {sourceCode} = context;
-	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
+	const templateEngineSyntax = context.languageOptions?.templateEngineSyntax;
+	const templateDelimiters = Array.isArray(templateEngineSyntax) ? templateEngineSyntax.map(({open}) => open) : Object.keys(templateEngineSyntax ?? {});
 	const isCssResourceUrl = node => {
 		const prelude = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'AtrulePrelude');
 		return !prelude || (ident.decode(sourceCode.getParent(prelude).name).toLowerCase() === 'import' && prelude.children.at(0) === node);

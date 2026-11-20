@@ -382,6 +382,23 @@ test.snapshot({
 	invalid: [],
 });
 
+test({
+	valid: [{
+		code: 'a { background: url("./[[assetPath]]") }',
+		language: languages.css.language,
+		plugins: languages.css.plugins,
+		languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]},
+	}],
+	invalid: [{
+		code: '<img src="./photo0.png">',
+		output: '<img src="photo0.png">',
+		language: languages.html.language,
+		plugins: languages.html.plugins,
+		languageOptions: {templateEngineSyntax: [{open: '[[', close: ']]'}]},
+		errors: [{messageId: 'never'}],
+	}],
+});
+
 test.snapshot({
 	valid: nonRelativeUrls.flatMap(url => ['never', 'always'].map(style => ({code: `a { background: url("${url}") }`, options: [style], language: languages.css}))),
 	invalid: [
