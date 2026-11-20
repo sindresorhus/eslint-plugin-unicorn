@@ -47,6 +47,7 @@ test.snapshot({
 		'class Example { #toString() {} format() { return (42).#toString(); } }',
 		'(start + end).toString();',
 		'(42 + "px").toString();',
+		'(value ||= 42).toString();',
 		typescriptSyntax('(record?.count as number).toString();'),
 		typescriptSyntax('declare global { interface Number { toString<Result extends string>(): Result; } } export const label: "42" = (42).toString<"42">();'),
 		typescriptSyntax('function format(value: number | string) { return value.toString(); }'),
