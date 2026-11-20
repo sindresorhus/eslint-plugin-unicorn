@@ -9,29 +9,16 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer named references for decimal and hexadecimal character references. The rule checks text and attribute values in JSX, HTML, Vue, and Svelte. It checks prose and the destinations and titles of links and images in CommonMark and GitHub Flavored Markdown. In HTML, Vue templates, and Svelte attribute values, it also checks numeric references without a trailing semicolon. In JSX, Markdown, Svelte template text, and ordinary strings, the rule requires a trailing semicolon.
+The rule checks decimal and hexadecimal references. In JSX, it uses [HTML4 names](https://react.github.io/jsx/#sec-HTMLCharacterReference) and checks up to eight decimal digits or seven hexadecimal digits. Elsewhere, it uses [HTML5 names](https://html.spec.whatwg.org/multipage/named-characters.html). It requires a trailing semicolon except in HTML, Vue templates, and Svelte attribute values.
 
-JSX uses the HTML4 name table. `&#x2060;` passes in JSX because that table has no name for it. For parser compatibility, the rule skips numeric references with more than eight decimal digits or seven hexadecimal digits. [JSX specification](https://react.github.io/jsx/#sec-HTMLCharacterReference)
+## Supported contexts
 
-HTML, Markdown, Vue, and Svelte use the HTML5 name table, where `&#x2060;` can become `&NoBreak;`. [HTML character references](https://html.spec.whatwg.org/multipage/named-characters.html)
-
-The rule also scans string values in JavaScript, TypeScript, CSS, JSON, JSONC, JSON5, SOML, TOML, and YAML for references written directly in the source. This includes runtime template literals and strings inside JSX expressions. It uses the HTML5 name table even when a string contains no surrounding markup. Replacing a reference changes the string value, so these replacements are editor suggestions and require you to apply them.
-
-In YAML, the rule skips mapping keys, including strings inside collections used as keys.
-
-In HTML, the rule skips configured frontmatter, raw text such as script contents, and CDATA. It also skips text when HTML error recovery merges text across intervening markup. It skips a document when custom raw-text tags are configured or when the HTML contains `{{`, `{%`, `<%`, `${`, or a configured template opener.
-
-The rule parses HTML files as documents. In a fragment such as a `<tr>` without a surrounding `<table>`, the parser can discard the tag and its attributes.
-
-The rule skips HTML files with bare carriage returns, Unicode line separators, or Unicode paragraph separators. ESLint’s offset lookup can disagree with the HTML parser about line numbers in these files.
-
-In Vue templates parsed by `vue-eslint-parser`, the rule autofixes text. It offers editor suggestions for static attribute values because Vue 2 and Vue 3 decode different sets of references. It skips directive expressions and interpolations, raw text, and templates when a custom tokenizer is configured.
-
-In Svelte templates parsed by `svelte-eslint-parser`, the rule autofixes template text and literal parts of attribute values when the parser decodes them using HTML semantics. A trailing semicolon keeps adjacent digits outside a text reference when Svelte removes a comment. The template autofix skips raw-text content and directives.
-
-In Markdown, the rule autofixes destinations and titles in inline links, inline images, and reference definitions when it can locate them in the source. It skips code, math, raw HTML nodes, autolinks, image descriptions, and images with ambiguous destination boundaries. It also skips prose next to GitHub Flavored Markdown autolinks when the parser drops the source positions after decoding references or escapes.
-
-When a Markdown document may contain reference definitions, the rule skips text in paragraphs, headings, and table cells with opening brackets. A different spelling can change which definition a label matches.
+- In **JSX**, the rule autofixes text and quoted attributes.
+- In **HTML**, the rule autofixes text and attributes. It skips configured frontmatter, raw text, CDATA, and text merged across tags during error recovery. It skips files with custom raw-text tags, bare carriage returns, or Unicode line or paragraph separators. Template openers (`{{`, `{%`, `<%`, `${`, or configured delimiters) in the markup also cause it to skip the file. Document parsing can discard fragment tags such as a `<tr>` outside a table.
+- With `vue-eslint-parser`, the rule autofixes **Vue** template text. Static attributes get suggestions because Vue 2 and Vue 3 decode different sets of references. The rule skips directives, interpolations, raw text, and templates with custom tokenizers.
+- In **Svelte**, the rule autofixes template text and literal attribute parts when `svelte-eslint-parser` decodes them as HTML. These autofixes skip raw text and directives.
+- In **CommonMark and GitHub Flavored Markdown**, the rule autofixes prose and the destinations and titles of links, images, and reference definitions. It skips code, math, raw HTML, autolinks, image descriptions, and ranges it cannot locate reliably. When reference definitions may be present, it skips prose in paragraphs, headings, and table cells with opening brackets to preserve label matching.
+- In **JavaScript, TypeScript, CSS, JSON, JSONC, JSON5, SOML, TOML, and YAML string values**, the rule suggests changes to references written directly in source. This includes runtime templates and strings inside JSX expressions. It skips YAML mapping keys, including collections used as keys.
 
 ## Examples
 
@@ -53,18 +40,10 @@ When a Markdown document may contain reference definitions, the rule skips text 
 
 ```md
 <!-- ❌ -->
-Copyright &#169; <span title="&#169;">A&#160;B</span>
+Copyright &#169;. [Guide](/a&#x2060;b "Read more")
 
 <!-- ✅ -->
-Copyright &copy; <span title="&#169;">A&nbsp;B</span>
-```
-
-```md
-<!-- ❌ -->
-[Guide](/a&#x2060;b "Copyright &#169;")
-
-<!-- ✅ -->
-[Guide](/a&NoBreak;b "Copyright &copy;")
+Copyright &copy;. [Guide](/a&NoBreak;b "Read more")
 ```
 
 ```js
@@ -77,4 +56,4 @@ const html = '&NoBreak;';
 
 ## Related rules
 
-- [`no-magic-escape-sequences`](no-magic-escape-sequences.md) asks you to extract numeric escapes into named constants. It can report JSX references such as `&#x2060;` even when JSX has no equivalent named reference.
+- Use [`no-magic-escape-sequences`](no-magic-escape-sequences.md) to extract numeric escapes into named constants.

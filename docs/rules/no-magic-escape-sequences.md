@@ -51,4 +51,4 @@ const nonBreakingSpace = '\u00A0';
 
 ## Related rules
 
-- [`prefer-named-character-references`](prefer-named-character-references.md) replaces a numeric JSX reference with an equivalent named reference when JSX defines one. For example, it replaces `&#xA0;` with `&nbsp;`.
+- Use [`prefer-named-character-references`](prefer-named-character-references.md) to replace numeric character references with named equivalents.
