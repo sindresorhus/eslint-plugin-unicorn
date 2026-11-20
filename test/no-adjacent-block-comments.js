@@ -170,19 +170,16 @@ test('merges JSONC blocks after asterisk prefixes are removed', t => {
 	t.assert.deepStrictEqual(result.messages, []);
 });
 
-test('formats each block separately when fixes are limited to layout', async t => {
+test('recommended formats each block separately when fixes are limited to layout', async t => {
 	const eslint = new ESLint({
 		overrideConfigFile: true,
-		overrideConfig: {
-			plugins: {unicorn},
-			rules: {[layoutRule]: 'error', [mergeRule]: 'error'},
-		},
+		overrideConfig: unicorn.configs.recommended,
 		fix: true,
 		fixTypes: ['layout'],
 	});
 
-	const [result] = await eslint.lintText('/* First. */\n/* Second. */');
-	t.assert.strictEqual(result.output, '/*\nFirst.\n*/\n/*\nSecond.\n*/');
+	const [result] = await eslint.lintText('/* First. */\n/* Second. */\nexport default true;\n');
+	t.assert.strictEqual(result.output, '/*\nFirst.\n*/\n/*\nSecond.\n*/\nexport default true;\n');
 	t.assert.deepStrictEqual(result.messages.map(({ruleId}) => ruleId), [mergeRule]);
 });
 

@@ -1,3 +1,5 @@
+import {getCommentRange} from './get-comments.js';
+
 /**
 Normalize a comment node to the JavaScript shape, with a `type` of `Line` or `Block` and a string `value`.
 
@@ -13,7 +15,7 @@ export default function normalizeComment(comment, context) {
 	}
 
 	const {sourceCode} = context;
-	const range = sourceCode.getRange(comment);
+	const range = getCommentRange(context, comment);
 	const text = sourceCode.text.slice(...range);
 
 	if (text.startsWith('//')) {

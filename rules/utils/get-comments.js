@@ -17,7 +17,7 @@ export default function getComments(context) {
 /**
 Get the raw source range of a comment.
 
-`@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations.
+`@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations when the language supports index conversion.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {object} comment
@@ -25,6 +25,10 @@ Get the raw source range of a comment.
 */
 export function getCommentRange(context, comment) {
 	const {sourceCode} = context;
+	if (typeof sourceCode.getIndexFromLoc !== 'function') {
+		return sourceCode.getRange(comment);
+	}
+
 	const {start, end} = sourceCode.getLoc(comment);
 	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
 }

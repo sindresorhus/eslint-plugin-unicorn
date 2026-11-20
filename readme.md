@@ -143,7 +143,7 @@ export default defineConfig([
 | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md)                                       | Enforce specifying rules to disable in `eslint-disable` comments.                                                              | ✅ 🎨 🌐 🧩 📚 💎 🛠️ 📋 ☑️ |    |    |    |
 | [no-accessor-recursion](docs/rules/no-accessor-recursion.md)                                               | Disallow recursive access to `this` within getters and setters.                                                                | ✅ ☑️                       |    |    |    |
 | [no-accidental-bitwise-operator](docs/rules/no-accidental-bitwise-operator.md)                             | Disallow bitwise operators where a logical operator was likely intended.                                                       | ✅ ☑️                       |    | 💡 |    |
-| [no-adjacent-block-comments](docs/rules/no-adjacent-block-comments.md)                                     | Disallow adjacent plain block comments that can be merged.                                                                     |                            | 🔧 |    |    |
+| [no-adjacent-block-comments](docs/rules/no-adjacent-block-comments.md)                                     | Disallow adjacent plain block comments that can be merged.                                                                     | ✅ 🎨 🧩 💎                 | 🔧 |    |    |
 | [no-anonymous-default-export](docs/rules/no-anonymous-default-export.md)                                   | Disallow anonymous functions and classes as the default export.                                                                | ✅ ☑️                       |    | 💡 |    |
 | [no-array-callback-reference](docs/rules/no-array-callback-reference.md)                                   | Prevent passing a function reference directly to iterator methods.                                                             | ✅                          |    | 💡 |    |
 | [no-array-concat-in-loop](docs/rules/no-array-concat-in-loop.md)                                           | Disallow array accumulation with `Array#concat()` in loops.                                                                    | ✅                          |    |    |    |
@@ -580,6 +580,7 @@ Enabled by the [`recommended-css`](#non-javascript-recommended-configs) preset:
 - [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
 - [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes and shared indentation in multiline comments.
 - [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md): Disallow conflicting CSS query and HTML form constraints.
 - [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
@@ -599,7 +600,6 @@ Opt-in:
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`id-match`](docs/rules/id-match.md): Require identifiers to match a specified regular expression.
 - [`indent`](docs/rules/indent.md): Enforce consistent indentation in JSON and CSS.
-- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
@@ -641,6 +641,7 @@ Enabled by the [`recommended-json`](#non-javascript-recommended-configs) preset:
 - [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
 - [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes and shared indentation in multiline comments.
 - [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
@@ -658,7 +659,6 @@ Opt-in:
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`indent`](docs/rules/indent.md): Enforce consistent indentation in JSON and CSS.
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
-- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
@@ -695,6 +695,7 @@ Enabled by the [`recommended-soml`](#non-javascript-recommended-configs) preset:
 - [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
 - [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
+- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes and shared indentation in multiline comments.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
 - [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
@@ -711,7 +712,6 @@ Opt-in:
 - [`comma-spacing`](docs/rules/comma-spacing.md): Enforce consistent spacing before and after commas in JSON and SOML.
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
-- [`no-adjacent-block-comments`](docs/rules/no-adjacent-block-comments.md): Disallow adjacent plain block comments that can be merged.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.

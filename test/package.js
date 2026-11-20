@@ -375,11 +375,17 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 		const cases = [
 			['/**\n * Comment.\n */\n{}', '/**\nComment.\n*/\n{}'],
 			['/** Comment.\r\n */\r\n{}', '/**\r\nComment.\r\n*/\r\n{}'],
+			['/* First. */\r\n/* Second. */\r\n{}', '/*\r\nFirst.\r\nSecond.\r\n*/\r\n{}'],
+			[
+				'/*\r\nDescription.\r\n*/\r\n/*\r\nTODO [2000-01-01, 2000-01-02] \r\n*/\r\n{}',
+				'/*\r\nDescription.\r\nTODO [2000-01-01, 2000-01-02]\r\n*/\r\n{}',
+				['unicorn/avoidMultipleDates'],
+			],
 		];
 
-		await Promise.all(cases.map(async ([code, output]) => {
+		await Promise.all(cases.map(async ([code, output, messageIds = []]) => {
 			const [result] = await eslint.lintText(code, {filePath: `file.${name}`});
-			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.deepStrictEqual(result.messages.map(({messageId}) => messageId), messageIds);
 			t.assert.strictEqual(result.output, output);
 		}));
 	});

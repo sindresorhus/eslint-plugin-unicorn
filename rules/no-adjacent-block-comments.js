@@ -126,7 +126,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow adjacent plain block comments that can be merged.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [ignoreOptionSchema],

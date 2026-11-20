@@ -60,7 +60,7 @@ Get the value.
 Type: `Array<string | RegExp>`\
 Default: `[]`
 
-Strings are interpreted as regular expressions. Before matching, the rule removes the comment delimiters and leading whitespace from each line, then joins the lines with `\n`. The text includes trailing whitespace after content.
+Matches comment text after removing delimiters, trimming the start of each line, and normalizing line breaks to `\n`. Strings are interpreted as regular expressions.
 
 ```js
 'unicorn/single-line-block-comment-style': [
