@@ -659,12 +659,9 @@ test('ignores JSONC eslint directive comments with @eslint/json', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
-test('supports JSONC block comments with @eslint/json', t => {
+test('preserves the full TODO message in a JSONC block comment with CRLF', t => {
 	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(`
-		/* TODO [2000-01-01]: Drop */
-		{"key": "value"}
-	`, {
+	const messages = linter.verify('/*\r\nTODO [2000-01-01]: Drop*/\r\n{"key": "value"}', {
 		files: ['**/*.jsonc'],
 		language: 'json/jsonc',
 		plugins: {
