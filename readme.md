@@ -390,7 +390,7 @@ export default defineConfig([
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md)                                             | Prefer modern DOM APIs.                                                                                                        | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md)                                           | Prefer modern `Math` APIs over legacy patterns.                                                                                | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-module](docs/rules/prefer-module.md)                                                               | Prefer JavaScript modules (ESM) over CommonJS.                                                                                 | ✅ ☑️                       | 🔧 | 💡 |    |
-| [prefer-named-character-references](docs/rules/prefer-named-character-references.md)                       | Prefer named character references over numeric references.                                                                     |                            | 🔧 | 💡 |    |
+| [prefer-named-character-references](docs/rules/prefer-named-character-references.md)                       | Prefer named character references over numeric references.                                                                     | ✅ 🎨 🌐 🧩 📚 💎 🛠️ 📋    | 🔧 | 💡 |    |
 | [prefer-native-coercion-functions](docs/rules/prefer-native-coercion-functions.md)                         | Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.                                                   | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-negative-index](docs/rules/prefer-negative-index.md)                                               | Prefer negative index over `.length - index` when possible.                                                                    | ✅ ☑️                       | 🔧 | 💡 |    |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md)                                                 | Prefer using the `node:` protocol when importing Node.js builtin modules.                                                      | ✅ ☑️                       | 🔧 |    |    |
@@ -594,6 +594,7 @@ Enabled by the [`recommended-css`](#non-javascript-recommended-configs) preset:
 - [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
 - [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md): Prefer literal printable ASCII characters over escape sequences.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
 - [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md): Enforce a consistent style for single-line block comments.
 - [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md): Enforce consistent case for text encoding identifiers.
@@ -606,7 +607,6 @@ Opt-in:
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 #### HTML
@@ -624,6 +624,7 @@ Enabled by the [`recommended-html`](#non-javascript-recommended-configs) preset:
 - [`no-invalid-integrity`](docs/rules/no-invalid-integrity.md): Disallow invalid subresource integrity metadata.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
 - [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md): Enforce consistent case for text encoding identifiers.
 
@@ -633,7 +634,6 @@ Opt-in:
 - [`id-match`](docs/rules/id-match.md): Require identifiers to match a specified regular expression.
 - [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md): Disallow invalid `accept` values on file inputs.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 
 #### JSON
 
@@ -655,6 +655,7 @@ Enabled by the [`recommended-json`](#non-javascript-recommended-configs) preset:
 - [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md): Prefer escape sequences for irregular whitespace characters.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
 - [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md): Prefer literal printable ASCII characters over escape sequences.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md): Prefer shorter alternatives to Unicode escape sequences.
 - [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md): Enforce a consistent style for single-line block comments.
 
@@ -666,7 +667,6 @@ Opt-in:
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 #### Markdown
@@ -681,6 +681,7 @@ Enabled by the [`recommended-markdown`](#non-javascript-recommended-configs) pre
 - [`no-empty-link-text`](docs/rules/no-empty-link-text.md): Disallow empty link text in Markdown.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`relative-url-style`](docs/rules/relative-url-style.md): Enforce consistent relative URL style.
 
 Opt-in:
@@ -688,7 +689,6 @@ Opt-in:
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`no-javascript-url`](docs/rules/no-javascript-url.md): Disallow `javascript:` URLs in Markdown.
 - [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md): Disallow references to missing local resources.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md): Require configured YAML frontmatter fields.
 
 #### SOML
@@ -711,6 +711,7 @@ Enabled by the [`recommended-soml`](#non-javascript-recommended-configs) preset:
 - [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md): Prefer escape sequences for irregular whitespace characters.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
 - [`prefer-literal-ascii`](docs/rules/prefer-literal-ascii.md): Prefer literal printable ASCII characters over escape sequences.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md): Prefer shorter alternatives to Unicode escape sequences.
 - [`single-line-block-comment-style`](docs/rules/single-line-block-comment-style.md): Enforce a consistent style for single-line block comments.
 
@@ -721,7 +722,6 @@ Opt-in:
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 #### TOML
@@ -742,6 +742,7 @@ Enabled by the [`recommended-toml`](#non-javascript-recommended-configs) preset:
 - [`numeric-separators-style`](docs/rules/numeric-separators-style.md): Enforce the style of numeric separators by correctly grouping digits.
 - [`prefer-escaped-irregular-whitespace`](docs/rules/prefer-escaped-irregular-whitespace.md): Prefer escape sequences for irregular whitespace characters.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`prefer-short-escape-sequences`](docs/rules/prefer-short-escape-sequences.md): Prefer shorter alternatives to Unicode escape sequences.
 
 Opt-in:
@@ -750,7 +751,6 @@ Opt-in:
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
 - [`no-loss-of-precision`](docs/rules/no-loss-of-precision.md): Disallow numeric literals that lose precision when represented as IEEE 754 binary64 values.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 #### YAML
@@ -769,13 +769,13 @@ Enabled by the [`recommended-yaml`](#non-javascript-recommended-configs) preset:
 - [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
 - [`number-literal-case`](docs/rules/number-literal-case.md): Enforce proper case for numeric literals.
 - [`prefer-https`](docs/rules/prefer-https.md): Prefer HTTPS over HTTP.
+- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 
 Opt-in:
 
 - [`comment-content`](docs/rules/comment-content.md): Enforce better comment content.
 - [`key-name-casing`](docs/rules/key-name-casing.md): Enforce a case style for data keys.
 - [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md): Disallow manually wrapped comments.
-- [`prefer-named-character-references`](docs/rules/prefer-named-character-references.md): Prefer named character references over numeric references.
 - [`string-content`](docs/rules/string-content.md): Enforce better string content.
 
 <!-- end auto-generated non-js languages list -->

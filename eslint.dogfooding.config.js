@@ -39,6 +39,7 @@ const config = [
 	},
 	{
 		rules: {
+			'unicorn/prefer-named-character-references': ['error', {checkStrings: true}],
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
@@ -241,7 +242,7 @@ const config = [
 		],
 		rules: {
 			// JSX apostrophe encoding and source-code fixtures require numeric references.
-			'unicorn/prefer-named-character-references': 'off',
+			'unicorn/prefer-named-character-references': ['error', {checkStrings: false}],
 		},
 	},
 	{

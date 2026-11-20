@@ -1,15 +1,17 @@
 import {getTester, languages, parsers} from './utils/test.js';
 
 const {test, ruleId} = getTester(import.meta);
+const stringOptions = [{checkStrings: true}];
 
 test.snapshot({
 	testerOptions: {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 	valid: [
 		'<span title="&copy;">&nbsp;&#x2060;&#39;&#x27E8;</span>;',
 		'<span>&#160 &#xA0 &#X00A0; &#xG0; &amp;#160;</span>;',
-		String.raw`const reference = "&#160 &#xG0; &#x1F929; \u0026#x2060;"; // &#169;`,
+		{code: String.raw`const reference = "&#160 &#xG0; &#x1F929; \u0026#x2060;"; // &#169;`, options: stringOptions},
 		'<span title="&#x000000A0;">&#000000160;&#x100A0;</span>;',
-		'import data from "./data.json" with {"&#169;": "first", "&copy;": "second"};',
+		{code: 'import data from "./data.json" with {"&#169;": "first", "&copy;": "second"};', options: stringOptions},
+		'assert.equal(encode("©"), "&#169;"); const expected = `&#x2060;`;',
 		{
 			code: 'const label: JSX.Element = <span title="&#000000160;">&#x2060;</span>;',
 			filename: 'file.tsx',
@@ -25,35 +27,45 @@ test.snapshot({
 			code: 'const label: JSX.Element = <span title="&#xA9;">&#8212;{"&#160;"}</span>;',
 			filename: 'file.tsx',
 			languageOptions: {parser: parsers.typescript},
+			options: stringOptions,
 		},
 		'<span title="&#38;#169;">&#38;#160;</span>;',
-		'<span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;',
-		'const html = "<span>&#160;</span>";',
-		'const html = tag`&#169;${name}&#xA0; &#${number};`;', // eslint-disable-line no-template-curly-in-string
+		{code: '<span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;', options: stringOptions},
+		{code: 'const html = "<span>&#160;</span>";', options: stringOptions},
+		{code: 'const html = tag`&#169;${name}&#xA0; &#${number};`;', options: stringOptions}, // eslint-disable-line no-template-curly-in-string
 	],
 });
 
 test({
+	testerOptions: {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 	valid: [],
 	invalid: [
 		{
 			code: 'const reference = "&#x2060;";',
+			options: stringOptions,
 			errors: [{
 				messageId: ruleId,
 				suggestions: [{messageId: 'replace', output: 'const reference = "&NoBreak;";'}],
 			}],
+		},
+		{
+			code: '<span title="&#169;">&#160;{"&#169;"}{`&#160;`}</span>;',
+			options: [{checkStrings: false}],
+			errors: 2,
+			output: '<span title="&copy;">&nbsp;{"&#169;"}{`&#160;`}</span>;',
 		},
 	],
 });
 
 test.typescript({
 	valid: [
-		'type Label = \'&#169;\' | `&#169;`;',
-		'type Label<Value extends string> = `${Value}&#x2060;`;', // eslint-disable-line no-template-curly-in-string
+		{code: 'type Label = \'&#169;\' | `&#169;`;', options: stringOptions},
+		{code: 'type Label<Value extends string> = `${Value}&#x2060;`;', options: stringOptions}, // eslint-disable-line no-template-curly-in-string
 	],
 	invalid: [
 		{
 			code: 'const label: string = `&#169;`;',
+			options: stringOptions,
 			errors: [{
 				messageId: ruleId,
 				suggestions: [{messageId: 'replace', output: 'const label: string = `&copy;`;'}],
@@ -70,7 +82,7 @@ test.snapshot({
 	],
 	invalid: [
 		'<template><p title="Copyright &#169;" data-space=&#160>A&#x2060;B</p></template>',
-		'<template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>',
+		{code: '<template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>', options: stringOptions},
 		'<template><svg><script type="application/json" data-label="&#160;">{"label":"&#169;"}</script></svg></template>',
 	],
 });
@@ -91,6 +103,7 @@ test.svelte({
 		{
 			code: '<p title="A&#160{label ?? \'&#169;\'}&#x2060;B"></p>',
 			filename: 'example.svelte',
+			options: stringOptions,
 			errors: [
 				{messageId: ruleId},
 				{
@@ -195,6 +208,16 @@ test({
 	],
 });
 
+const dataStringCases = [
+	{code: String.raw`a { content: "\26#169; &#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }`, language: languages.css},
+	{code: '{"label": "&#x2060;"}', language: languages.json},
+	{code: '{"label": "&#160;" /* &#169; */}', language: languages.jsonc},
+	{code: '{label: \'&#160;\',}', language: languages.json5},
+	{code: 'label: "&#x2060;"', language: languages.soml},
+	{code: 'literal = \'&#x2060;\'\nmultiline = """&#160;"""', language: languages.toml},
+	{code: 'label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169;', language: languages.yaml},
+];
+
 test.snapshot({
 	valid: [
 		htmlCase('<p title="&copy;">&NoBreak; &#x2329; &#x1F929; &#xG0 &# &#x;</p>'),
@@ -216,12 +239,13 @@ test.snapshot({
 		markdownCase('<https://example.com/&#160;> and www.example.com/&#160;z', 'markdown/gfm'),
 		markdownCase('[^&#160;]\n\n[^&nbsp;]: Note', 'markdown/gfm'),
 		markdownCase('&#169; Visit &#104;ttps://example.com.', 'markdown/gfm'),
-		{code: '/* &#160; */ a { background: url(/image&#169;); }', language: languages.css},
-		{code: '{"&#169;": 160, "alreadyNamed": "&nbsp;"}', language: languages.json},
-		{code: '"&#169;": 1\n"&copy;": 2', language: languages.soml},
-		{code: '"&#169;" = 1\n"&copy;" = 2', language: languages.toml},
-		{code: '"&#169;": 1\n"&copy;": 2\nempty: > # &#160;', language: languages.yaml},
-		{code: '? &key [{label: "&#169;"}]\n: one\n? [{label: "&copy;"}]\n: two', language: languages.yaml},
+		{code: '/* &#160; */ a { background: url(/image&#169;); }', language: languages.css, options: stringOptions},
+		{code: '{"&#169;": 160, "alreadyNamed": "&nbsp;"}', language: languages.json, options: stringOptions},
+		{code: '"&#169;": 1\n"&copy;": 2', language: languages.soml, options: stringOptions},
+		{code: '"&#169;" = 1\n"&copy;" = 2', language: languages.toml, options: stringOptions},
+		{code: '"&#169;": 1\n"&copy;": 2\nempty: > # &#160;', language: languages.yaml, options: stringOptions},
+		{code: '? &key [{label: "&#169;"}]\n: one\n? [{label: "&copy;"}]\n: two', language: languages.yaml, options: stringOptions},
+		...dataStringCases,
 	],
 	invalid: [
 		htmlCase('<p title="Copyright &#169;" data-space=&#X00A0;>A&#x2060;B &#128;</p>'),
@@ -241,16 +265,10 @@ test.snapshot({
 		},
 		markdownCase(String.raw`Render &#9; and &#10;, then \&#160;, &#x110000;.`, 'markdown/gfm'),
 		markdownCase('Copyright &#169; <span title="&#169;">A&#160;B</span>'),
-		{code: String.raw`a { content: "\26#169; &#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }`, language: languages.css},
-		{code: '{"label": "&#x2060;"}', language: languages.json},
-		{code: '{"label": "&#160;" /* &#169; */}', language: languages.jsonc},
-		{code: '{label: \'&#160;\',}', language: languages.json5},
-		{code: 'label: "&#x2060;"', language: languages.soml},
-		{code: 'literal = \'&#x2060;\'\nmultiline = """&#160;"""', language: languages.toml},
-		{code: 'label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169;', language: languages.yaml},
+		...dataStringCases.map(testCase => ({...testCase, options: stringOptions})),
 		markdownCase(String.raw`[Guide](/a&#x2060;b "Copyright &#169; and \&#160;") and [](/&#160;)`),
 		markdownCase('> [Guide](\n> </guide/&#160;>\n> "Copyright &#169;"\n> )', 'markdown/gfm'),
 		markdownCase('> | Image |\n> | - |\n> | ![Guide](/a&#160;b.png "Copyright &#169;") |', 'markdown/gfm'),
-		{code: '? &key "&#169;"\n: 1\nlabels: [&text "&#x2060;"]', language: languages.yaml},
+		{code: '? &key "&#169;"\n: 1\nlabels: [&text "&#x2060;"]', language: languages.yaml, options: stringOptions},
 	],
 });

@@ -168,6 +168,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(12): a { content: \"\\26#169; &#x2060;\"; background: url(\"/image&#169;\"); --label: \"&#160;\"; } 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | a { content: "\\26#169; &#x2060;"; background: url("/image&#169;"); --label: "&#160;"; }
 
 `;
@@ -207,6 +211,10 @@ Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
 
 exports[`prefer-named-character-references > invalid(13): {\"label\": \"&#x2060;\"} 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | {"label": "&#x2060;"}
 
 `;
@@ -224,6 +232,10 @@ Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
 
 exports[`prefer-named-character-references > invalid(14): {\"label\": \"&#160;\" /* &#169; */} 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | {"label": "&#160;" /* &#169; */}
 
 `;
@@ -241,6 +253,10 @@ Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
 
 exports[`prefer-named-character-references > invalid(15): {label: '&#160;',} 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | {label: '&#160;',}
 
 `;
@@ -258,6 +274,10 @@ Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
 
 exports[`prefer-named-character-references > invalid(16): label: \"&#x2060;\" 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | label: "&#x2060;"
 
 `;
@@ -275,6 +295,10 @@ Suggestion 1/1: Replace \`&#x2060;\` with \`&NoBreak;\`.:
 
 exports[`prefer-named-character-references > invalid(17): literal = '&#x2060;'\nmultiline = \"\"\"&#160;\"\"\" 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | literal = '&#x2060;'
   2 | multiline = """&#160;"""
 
@@ -308,6 +332,10 @@ Suggestion 1/1: Replace \`&#160;\` with \`&nbsp;\`.:
 
 exports[`prefer-named-character-references > invalid(18): label: | # &#169;\r\n  &#x2060;\r\nother: text &#160; # &#169; 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | label: | # &#169;
   2 |   &#x2060;
   3 | other: text &#160; # &#169;
@@ -415,6 +443,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(2): <template><textarea>&#160</textarea><p title=\"&copyx &#128\">&#169</p></template><script>const label = \"&#160;\";</script> 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | <template><textarea>&#160</textarea><p title="&copyx &#128">&#169</p></template><script>const label = "&#160;";</script>
 
 `;
@@ -585,6 +617,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(22): ? &key \"&#169;\"\n: 1\nlabels: [&text \"&#x2060;\"] 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | ? &key "&#169;"
   2 | : 1
   3 | labels: [&text "&#x2060;"]
@@ -863,6 +899,10 @@ exports[`prefer-named-character-references > invalid(5): const label: JSX.Elemen
 
 Filename: file.tsx
 
+Options:
+- checkStrings: true
+
+Code:
   1 | const label: JSX.Element = <span title="&#xA9;">&#8212;{"&#160;"}</span>;
 
 `;
@@ -960,6 +1000,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(7): <span title={\"&#160;\"} hidden>{\"&#xA0;\"}{/* &#169; */}</span>; 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | <span title={"&#160;"} hidden>{"&#xA0;"}{/* &#169; */}</span>;
 
 `;
@@ -1013,6 +1057,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(8): const html = \"<span>&#160;</span>\"; 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | const html = "<span>&#160;</span>";
 
 `;
@@ -1068,6 +1116,10 @@ Output:
 
 exports[`prefer-named-character-references > invalid(9): const html = tag\`&#169;\${name}&#xA0; &#\${number};\`; 1`] = `
 
+Options:
+- checkStrings: true
+
+Code:
   1 | const html = tag\`&#169;\${name}&#xA0; &#\${number};\`;
 
 `;

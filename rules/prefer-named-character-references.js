@@ -89,22 +89,25 @@ function * getHtmlRanges(text) {
 		if (node.nodeName === '#text' && location) {
 			const {startOffset, endOffset} = location;
 			const raw = text.slice(startOffset, endOffset);
-			// Raw text, CDATA, and merged text with intervening markup can differ from decoded source.
-			// The parser can also discard one initial newline in elements such as `textarea`.
-			const decoded = decodeHtmlText(raw);
-			if (decoded === node.value || decoded === `\n${node.value}`) {
-				yield [startOffset, endOffset];
+			if (raw.includes('&#')) {
+				// Raw text, CDATA, and merged text with intervening markup can differ from decoded source.
+				// The parser can also discard one initial newline in elements such as `textarea`.
+				const decoded = decodeHtmlText(raw);
+				if (decoded === node.value || decoded === `\n${node.value}`) {
+					yield [startOffset, endOffset];
+				}
 			}
 		}
 
 		for (const {startOffset, endOffset} of Object.values(location?.attrs ?? {})) {
+			const raw = text.slice(startOffset, endOffset);
 			// HTML error recovery can recreate formatting elements from the same source tag.
-			if (seenAttributeOffsets.has(startOffset)) {
+			if (!raw.includes('&#') || seenAttributeOffsets.has(startOffset)) {
 				continue;
 			}
 
 			seenAttributeOffsets.add(startOffset);
-			const prefix = /^[^=]+=/v.exec(text.slice(startOffset, endOffset))?.[0];
+			const prefix = /^[^=]+=/v.exec(raw)?.[0];
 			if (prefix) {
 				yield [startOffset + prefix.length, endOffset];
 			}
@@ -133,7 +136,12 @@ const create = context => {
 
 	function * getProblems(node, inputRange, {pattern = completeReferencePattern, getReplacement = getHtmlReplacement, shouldSuggest = false} = {}) {
 		const [inputStart, inputEnd] = inputRange;
-		for (const match of sourceCode.text.slice(inputStart, inputEnd).matchAll(pattern)) {
+		const text = sourceCode.text.slice(inputStart, inputEnd);
+		if (!text.includes('&#')) {
+			return;
+		}
+
+		for (const match of text.matchAll(pattern)) {
 			const [reference] = match;
 			const replacement = reference.startsWith('&') ? getReplacement(reference) : undefined;
 			if (replacement === undefined) {
@@ -154,65 +162,68 @@ const create = context => {
 		}
 	}
 
-	const getStringProblems = (node, range = sourceCode.getRange(node)) => getProblems(node, range, {shouldSuggest: true});
 	const getHtmlProblems = (node, range = sourceCode.getRange(node)) => getProblems(node, range, {pattern: htmlReferencePattern});
 	const getMarkdownProblems = (node, range) => getProblems(node, range, {pattern: markdownReferencePattern, getReplacement: getMarkdownReplacement});
 
-	context.on('Literal', node => {
-		if (isStringLiteral(node) && !isStringLiteralRequired(node)) {
-			return getStringProblems(node);
-		}
-	});
-	context.on('TemplateLiteral', function * (node) {
-		if (isStringLiteralRequired(node)) {
-			return;
-		}
+	if (context.options[0].checkStrings) {
+		const getStringProblems = (node, range = sourceCode.getRange(node)) => getProblems(node, range, {shouldSuggest: true});
 
-		for (const quasi of node.quasis) {
-			yield * getStringProblems(quasi);
-		}
-	});
-
-	context.on('String', node => {
-		if (sourceCode.ast.type !== 'StyleSheet' && sourceCode.getParent(node)?.name !== node) {
-			return getStringProblems(node);
-		}
-	});
-	context.on('TOMLValue', node => {
-		if (node.kind === 'string') {
-			return getStringProblems(node);
-		}
-	});
-	context.on('YAMLScalar', node => {
-		if (typeof node.value !== 'string') {
-			return;
-		}
-
-		for (let ancestor = node; ancestor.parent; ancestor = ancestor.parent) {
-			if (ancestor.parent.key === ancestor) {
-				return;
-			}
-		}
-
-		if (node.style === 'literal' || node.style === 'folded') {
-			// Use the body token to skip comments on the block scalar header.
-			return getStringProblems(node, sourceCode.getRange(sourceCode.getLastToken(node)));
-		}
-
-		return getStringProblems(node);
-	});
-	context.on('StyleSheet', node => {
-		const problems = [];
-		// Quoted strings in URLs and custom properties do not always have a String node.
-		tokenize(sourceCode.text, (type, start, end) => {
-			if (type === tokenTypes.String) {
-				for (const problem of getStringProblems(node, [start, end])) {
-					problems.push(problem);
-				}
+		context.on('Literal', node => {
+			if (isStringLiteral(node) && !isStringLiteralRequired(node)) {
+				return getStringProblems(node);
 			}
 		});
-		return problems;
-	});
+		context.on('TemplateLiteral', function * (node) {
+			if (isStringLiteralRequired(node)) {
+				return;
+			}
+
+			for (const quasi of node.quasis) {
+				yield * getStringProblems(quasi);
+			}
+		});
+
+		context.on('String', node => {
+			if (sourceCode.ast.type !== 'StyleSheet' && sourceCode.getParent(node)?.name !== node) {
+				return getStringProblems(node);
+			}
+		});
+		context.on('TOMLValue', node => {
+			if (node.kind === 'string') {
+				return getStringProblems(node);
+			}
+		});
+		context.on('YAMLScalar', node => {
+			if (typeof node.value !== 'string') {
+				return;
+			}
+
+			for (let ancestor = node; ancestor.parent; ancestor = ancestor.parent) {
+				if (ancestor.parent.key === ancestor) {
+					return;
+				}
+			}
+
+			if (node.style === 'literal' || node.style === 'folded') {
+				// Use the body token to skip comments on the block scalar header.
+				return getStringProblems(node, sourceCode.getRange(sourceCode.getLastToken(node)));
+			}
+
+			return getStringProblems(node);
+		});
+		context.on('StyleSheet', node => {
+			const problems = [];
+			// Quoted strings in URLs and custom properties do not always have a String node.
+			tokenize(sourceCode.text, (type, start, end) => {
+				if (type === tokenTypes.String) {
+					for (const problem of getStringProblems(node, [start, end])) {
+						problems.push(problem);
+					}
+				}
+			});
+			return problems;
+		});
+	}
 
 	const getJsxProblems = node => getProblems(node, sourceCode.getRange(node), {pattern: jsxNumericCharacterReferencePattern, getReplacement: getJsxReplacement});
 	context.on('JSXText', getJsxProblems);
@@ -315,7 +326,7 @@ const create = context => {
 
 	context.on('text', node => {
 		// GFM can omit source positions for synthesized autolinks and their surrounding text.
-		if (!node.position) {
+		if (!node.position || !sourceCode.getText(node).includes('&#')) {
 			return;
 		}
 
@@ -352,10 +363,21 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer named character references over numeric references.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema: [{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkStrings: {
+					type: 'boolean',
+					description: 'Whether to check references in ordinary strings.',
+				},
+			},
+		}],
+		defaultOptions: [{checkStrings: false}],
 		messages,
 		languages: [
 			'js/js',
