@@ -135,10 +135,7 @@ const foo = array.some(element => callback(element));
 const foo = array.reduce(callback, 0);
 
 // ✅
-const foo = array.reduce(
-	(accumulator, element) => accumulator + callback(element),
-	0
-);
+const foo = array.reduce((accumulator, element) => callback(accumulator, element), 0);
 ```
 
 ```js
@@ -146,13 +143,7 @@ const foo = array.reduce(
 const foo = array.reduceRight(callback, []);
 
 // ✅
-const foo = array.reduceRight(
-	(accumulator, element) => [
-		...accumulator,
-		callback(element)
-	],
-	[]
-);
+const foo = array.reduceRight((accumulator, element) => callback(accumulator, element), []);
 ```
 
 ```js
@@ -163,7 +154,7 @@ const foo = array.flatMap(callback);
 const foo = array.flatMap(element => callback(element));
 ```
 
-A call expression is left alone. Hoisting it into a binding would change how many times it runs, so the rewrite is a manual edit rather than something the rule can offer:
+The rule leaves callback factories such as `someFunction(…)` alone. When wrapping the returned callback, store the factory result before iteration so the factory still runs once:
 
 ```js
 // ✅ Not reported
@@ -179,13 +170,15 @@ array.forEach(element => {
 });
 ```
 
+When a callback uses `this`, write the wrapper by hand and forward the receiver explicitly:
+
 ```js
 // ❌
 array.forEach(callback, thisArgument);
 
 // ✅
 array.forEach(function (element) {
-	callback(element, this);
+	callback.call(this, element);
 }, thisArgument);
 ```
 

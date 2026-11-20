@@ -20,6 +20,8 @@ Destinations and titles do not count as label content. [`markdown/no-empty-links
 ## Examples
 
 ```md
+[destination]: https://example.com
+
 <!-- ❌ -->
 [](https://example.com)
 [   ](https://example.com)
@@ -34,6 +36,4 @@ Destinations and titles do not count as label content. [`markdown/no-empty-links
 [![Build status](badge.svg)](https://example.com)
 [![](icon.svg) Website](https://example.com)
 [Website][destination]
-
-[destination]: https://example.com
 ```

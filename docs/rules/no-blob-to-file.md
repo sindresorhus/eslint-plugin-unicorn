@@ -16,8 +16,9 @@ This rule currently checks a narrow pattern: a standalone `const`, initialized w
 ## Examples
 
 ```js
-// ❌
 const blob = new Blob();
+
+// ❌
 const file = new File([blob], 'image.jpg');
 URL.createObjectURL(file);
 
@@ -26,9 +27,10 @@ URL.createObjectURL(blob);
 ```
 
 ```js
-// ❌
 const blob = new Blob();
 const formData = new FormData();
+
+// ❌
 const file = new File([blob], 'image.jpg');
 formData.append('file', file);
 
@@ -37,9 +39,10 @@ formData.append('file', blob, 'image.jpg');
 ```
 
 ```js
-// ❌
 const blob = new Blob();
 const formData = new FormData();
+
+// ❌
 const file = new File([blob], 'image.jpg');
 formData.set('file', file);
 

@@ -28,6 +28,8 @@ const getName = () => 'Sindre';
 ```
 
 ```js
+class Pizza {}
+
 // ❌
 const createPizza = new Pizza();
 
@@ -100,5 +102,5 @@ const addOns = ['cheese', 'pineapple'];
 And this would still fail:
 
 ```js
-const addPizza = new Pizza();
+const addPizza = 'margherita';
 ```

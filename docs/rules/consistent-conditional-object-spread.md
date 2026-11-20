@@ -58,7 +58,7 @@ const object = {...(first && second && {property})};
 With the `'ternary'` option:
 
 ```js
-// eslint unicorn/consistent-conditional-object-spread: ["error", "ternary"]
+/* eslint unicorn/consistent-conditional-object-spread: ["error", "ternary"] */
 
 // ❌
 const object = {...(condition && {property})};

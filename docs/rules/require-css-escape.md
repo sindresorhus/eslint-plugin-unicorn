@@ -46,7 +46,7 @@ Default: `false`
 When set to `true`, checks all selector interpolations instead of only interpolations inside attribute selectors.
 
 ```js
-// eslint unicorn/require-css-escape: ["error", {"checkAllSelectors": true}]
+/* eslint unicorn/require-css-escape: ["error", {"checkAllSelectors": true}] */
 
 // ❌
 document.querySelector(`#${id}`);

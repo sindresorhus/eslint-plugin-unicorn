@@ -16,6 +16,9 @@ The built-in methods express set operations directly and avoid spelling out temp
 ## Examples
 
 ```js
+const set = new Set([1, 2]);
+const otherSet = new Set([2, 3]);
+
 // ❌
 const union = new Set([...set, ...otherSet]);
 
@@ -24,6 +27,9 @@ const union = set.union(otherSet);
 ```
 
 ```js
+const set = new Set([1, 2]);
+const otherSet = new Set([2, 3]);
+
 // ❌
 const intersection = [...set].filter(value => otherSet.has(value));
 
@@ -32,6 +38,9 @@ const intersection = set.intersection(otherSet);
 ```
 
 ```js
+const set = new Set([1, 2]);
+const otherSet = new Set([2, 3]);
+
 // ❌
 const difference = [...set].filter(value => !otherSet.has(value));
 
@@ -39,7 +48,7 @@ const difference = [...set].filter(value => !otherSet.has(value));
 const difference = set.difference(otherSet);
 ```
 
-The `new Set([...set, ...otherSet])` case is autofixed only when every spread operand is known to be a `Set` or `ReadonlySet`, and the operands are safe to reuse in the replacement.
+The rule reports `new Set([...set, ...otherSet])` only when every spread operand is known to be a `Set` or `ReadonlySet` and is safe to reuse in the replacement.
 
 ```js
 // ✅
@@ -53,6 +62,9 @@ Intersection and difference filter patterns are reported as suggestions instead 
 The rule autofixes membership checks and empty intersection or difference checks when both operands are known to be a `Set` or `ReadonlySet`:
 
 ```js
+const set = new Set([1, 2]);
+const otherSet = new Set([2, 3]);
+
 // ❌
 const subset = [...set].every(value => otherSet.has(value));
 const overlaps = [...set].some(value => otherSet.has(value));

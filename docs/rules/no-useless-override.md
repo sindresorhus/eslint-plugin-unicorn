@@ -26,6 +26,12 @@ class Foo extends Bar {} // Inherits `doThing` from `Bar`.
 ```
 
 ```js
+class Bar {
+	render(...args) {
+		console.log(...args);
+	}
+}
+
 // ❌ Reported only with type information, when `render` is known to return nothing.
 class Foo extends Bar {
 	render(...args) {

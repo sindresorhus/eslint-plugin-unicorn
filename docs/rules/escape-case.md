@@ -47,10 +47,10 @@ const foo = '\u{1D306}';
 
 ```js
 // ❌
-const foo = '\ca';
+const foo = /\ca/;
 
 // ✅
-const foo = '\cA';
+const foo = /\cA/;
 ```
 
 ## Options
@@ -97,8 +97,8 @@ const foo = '\u{1d306}';
 
 ```js
 // ❌
-const foo = '\cA';
+const foo = /\cA/;
 
 // ✅
-const foo = '\ca';
+const foo = /\ca/;
 ```

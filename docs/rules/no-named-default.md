@@ -32,6 +32,8 @@ import foo, {bar} from 'foo';
 ```
 
 ```js
+const foo = 1;
+
 // ❌
 export {foo as default};
 
@@ -40,6 +42,9 @@ export default foo;
 ```
 
 ```js
+const foo = 1;
+const bar = 2;
+
 // ❌
 export {foo as default, bar};
 

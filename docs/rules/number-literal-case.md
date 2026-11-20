@@ -147,12 +147,8 @@ Example:
 
 ```js
 // ❌
-const foo = 0XFF;
-const foo = 0xFF;
-const foo = 0XFFn;
-const foo = 0xFFn;
+const values = [0XFF, 0xFF, 0XFFn, 0xFFn];
 
 // ✅
-const foo = 0xff;
-const foo = 0xffn;
+const values = [0xff, 0xff, 0xffn, 0xffn];
 ```

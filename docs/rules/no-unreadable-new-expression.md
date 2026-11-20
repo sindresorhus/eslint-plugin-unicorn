@@ -54,10 +54,12 @@ const bar = new Bar();
 ```
 
 ```js
+const key = 'Bar';
+
 // ❌
-const bar = new foo[Bar]();
+const bar = new foo[key]();
 
 // ✅
-const Bar = foo[Bar];
+const Bar = foo[key];
 const bar = new Bar();
 ```

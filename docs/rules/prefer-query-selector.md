@@ -73,7 +73,7 @@ Default: `false`
 When set to `true`, allows using `.getElementById()` and `.getElementsByClassName()` when called with a variable or expression. This avoids the need to manually compose a CSS selector string, which can be less readable.
 
 ```js
-// eslint unicorn/prefer-query-selector: ["error", {"allowWithVariables": true}]
+/* eslint unicorn/prefer-query-selector: ["error", {"allowWithVariables": true}] */
 
 // ✅ Allowed - variable argument
 document.getElementById(someId);

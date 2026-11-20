@@ -25,14 +25,20 @@ This rule intentionally has no options. Use an inline disable for library-specif
 
 ```js
 // ❌
-promise.then(value => {
-	return transform(value);
-});
+async function run(promise) {
+	return promise.then(value => {
+		return transform(value);
+	});
+}
 
 // ✅
-const value = await promise;
-return transform(value);
+async function run(promise) {
+	const value = await promise;
+	return transform(value);
+}
+```
 
+```js
 // ✅ Wrap in an async block if you don't want to await it
 (async () => {
 	const value = await promise;
@@ -42,27 +48,28 @@ return transform(value);
 
 ```js
 // ❌
-promise.catch(error => {
-	handleError(error);
-});
+promise.catch(handleError);
 
 // ✅
 // Use an async IIFE when the surrounding scope cannot use `await` and the work should remain fire-and-forget.
 void (async () => {
-	const value = await promise;
-	alert(value);
+	try {
+		await promise;
+	} catch (error) {
+		await handleError(error);
+	}
 })();
 
 // ✅
 try {
 	await promise;
 } catch (error) {
-	handleError(error);
+	await handleError(error);
 }
 
 // ✅
 // Intentional fire-and-forget, opted out with `void`.
-void promise.catch(() => {});
+void promise.catch(handleError);
 ```
 
 ```js
@@ -86,7 +93,7 @@ promise.finally(cleanup);
 try {
 	await promise;
 } finally {
-	cleanup();
+	await cleanup();
 }
 ```
 

@@ -80,8 +80,9 @@ Templated values are ignored; templated attribute names skip the whole element. 
 Checks native `input` and `textarea` elements, using `minLength`/`maxLength` for lengths. Supports literal strings/numbers and safe static expressions, including preceding constants. TypeScript type information is not required.
 
 ```jsx
-// ❌
 const minimum = 10;
+
+// ❌
 <input type="number" min={minimum} max={5} />;
 
 // ✅

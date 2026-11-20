@@ -17,7 +17,7 @@ TODO comments are useful when a piece of code needs some work. Unfortunately the
 
 With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
-This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
+By default, this rule ignores TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
 
 This rule also supports CSS comments when linting with [`@eslint/css`](https://github.com/eslint/css), HTML comments when linting with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), JSONC/JSON5 comments when linting with [`@eslint/json`](https://github.com/eslint/json), HTML comments in Markdown when linting with [`@eslint/markdown`](https://github.com/eslint/markdown), SOML `#` and block comments when linting with [`eslint-soml`](https://github.com/soml-lang/eslint-soml), TOML `#` comments when linting with [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml), and YAML `#` comments when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
 
@@ -167,7 +167,11 @@ You can also use block comments to specify TODOs with conditions. Each line can 
  */
 ```
 
-### CSS
+### Other languages
+
+The following date-based examples require [`checkDates: true`](#checkdates).
+
+#### CSS
 
 When used with [`@eslint/css`](https://github.com/eslint/css), this rule can check CSS block comments too.
 
@@ -178,7 +182,7 @@ When used with [`@eslint/css`](https://github.com/eslint/css), this rule can che
 }
 ```
 
-### HTML
+#### HTML
 
 When used with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), this rule can check HTML comments too.
 
@@ -187,7 +191,7 @@ When used with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-e
 <div class="outdated"></div>
 ```
 
-### JSONC / JSON5
+#### JSONC / JSON5
 
 When used with [`@eslint/json`](https://github.com/eslint/json), this rule can check line comments in `.jsonc` and `.json5` files too.
 
@@ -198,7 +202,7 @@ When used with [`@eslint/json`](https://github.com/eslint/json), this rule can c
 }
 ```
 
-### Markdown
+#### Markdown
 
 When used with [`@eslint/markdown`](https://github.com/eslint/markdown), this rule can check HTML comments in Markdown files too.
 
@@ -208,7 +212,7 @@ When used with [`@eslint/markdown`](https://github.com/eslint/markdown), this ru
 # Heading
 ```
 
-### YAML
+#### YAML
 
 When used with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), this rule can check comments in YAML files too.
 
@@ -257,14 +261,31 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
   like `TODO (lubien) [2019-05-30]` or `TODO @lubien [2019-05-30]`.
 - TODOs may or may not have a colon before the message such as
   `TODO [...]: message` or `TODO [...] message`.
-- If no proper argument is found, you'll be notified that the TODO is useless (See [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments)).
+- To report TODOs without a condition, set [`allowWarningComments`](#allowwarningcomments) to `false`.
 - CSS, HTML, JSONC, JSON5, Markdown, SOML, TOML, and YAML comments are supported with their respective ESLint plugins.
 
 ## Examples
 
+These examples use [`checkDates: true`](#checkdates), [`checkDatesOnPullRequests: true`](#checkdatesonpullrequests), and [`allowWarningComments: false`](#allowwarningcomments) with this `package.json`:
+
+```json
+{
+	"version": "2.0.0",
+	"dependencies": {
+		"lodash": "^4",
+		"read-pkg": "^5.1.1"
+	},
+	"peerDependencies": {
+		"eslint": ">=8"
+	},
+	"engines": {
+		"node": ">=8"
+	}
+}
+```
+
 ```js
 // ❌
-// With `checkDates: true`
 // TODO [2000-01-01]: I'll fix this next week.
 // TODO [2000-01-01, 2001-01-01]: Multiple dates won't work.
 
@@ -272,7 +293,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 // TODO [>=1]: If your package.json version is >= 1.
 // TODO [>1, >2]: Multiple package versions won't work.
 
-// TODO [+already-have-pkg]: Since we already have it, this reports.
+// TODO [+read-pkg]: Since we already have it, this reports.
 // TODO [-we-dont-have-this-package]: Since we don't have, trigger a report.
 
 // TODO [read-pkg@>1]: When `read-pkg` version is > 1 don't forget to do this.

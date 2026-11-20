@@ -20,6 +20,8 @@ Without [TypeScript type information](https://typescript-eslint.io/getting-start
 ## Examples
 
 ```js
+const array = [10, 20];
+
 // ❌
 for (const [, value] of array.entries()) {
 	foo(value);
@@ -32,6 +34,8 @@ for (const value of array) {
 ```
 
 ```js
+const array = [10, 20];
+
 // ❌
 for (const [index] of array.entries()) {
 	foo(index);
@@ -44,6 +48,8 @@ for (const index of array.keys()) {
 ```
 
 ```js
+const array = [10, 20];
+
 // ✅
 for (const [index, value] of array.entries()) {
 	foo(index, value);

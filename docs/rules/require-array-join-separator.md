@@ -31,7 +31,7 @@ const string = array.join('|');
 const string = Array.prototype.join.call(arrayLike);
 
 // ✅
-const string = Array.prototype.join.call(arrayLike, '');
+const string = Array.prototype.join.call(arrayLike, ',');
 ```
 
 ```js
@@ -39,5 +39,5 @@ const string = Array.prototype.join.call(arrayLike, '');
 const string = [].join.call(arrayLike);
 
 // ✅
-const string = [].join.call(arrayLike, '\n');
+const string = [].join.call(arrayLike, ',');
 ```

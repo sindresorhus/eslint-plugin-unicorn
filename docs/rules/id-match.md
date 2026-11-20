@@ -76,7 +76,7 @@ Only named import specifiers and external named export specifiers are ignored. D
 import foo$ from 'module';
 
 // ❌
-import * as foo$ from 'module';
+import * as namespace$ from 'module';
 
 // ❌
 export * as foo$ from 'module';
@@ -84,9 +84,12 @@ export * as foo$ from 'module';
 // ❌
 const foo = 1;
 export {foo as bar$};
+```
 
-// ✅
-import {bar$} from 'module';
+```js
+/* eslint unicorn/id-match: ["error", "^[a-z]+$", {"checkNamedSpecifiers": false}] */
+
+import {bar$} from 'module'; // ✅
 
 // ❌
 const foo = bar$;

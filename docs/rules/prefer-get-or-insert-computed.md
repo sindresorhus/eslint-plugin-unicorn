@@ -40,5 +40,5 @@ const id = idMap.getOrInsert(key, generateId());
 
 // ✅ - generateId() only called when needed
 const idMap = new Map();
-const id = idMap.getOrInsertComputed(key, generateId);
+const id = idMap.getOrInsertComputed(key, () => generateId());
 ```

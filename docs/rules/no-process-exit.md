@@ -18,9 +18,12 @@ This rule replaces ESLint's built-in `no-process-exit` rule, which Unicorn prese
 ```js
 // ❌
 process.exit(0);
+```
+
+```js
+#!/usr/bin/env node
 
 // ✅
-#!/usr/bin/env node
 process.exit(0);
 ```
 

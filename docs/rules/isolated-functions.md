@@ -28,10 +28,17 @@ import makeSynchronous from 'make-synchronous';
 
 const url = 'https://example.com';
 
+// ❌
 const getText = makeSynchronous(async () => {
 	const response = await fetch(url); // ❌ 'url' is not defined in isolated function scope
 	return response.text();
 });
+
+```
+
+```js
+/* global fetch */
+import makeSynchronous from 'make-synchronous';
 
 // ✅ Define all variables within isolated function's scope
 const getText = makeSynchronous(async () => {
@@ -39,6 +46,12 @@ const getText = makeSynchronous(async () => {
 	const response = await fetch(url);
 	return response.text();
 });
+
+```
+
+```js
+/* global fetch, console */
+import makeSynchronous from 'make-synchronous';
 
 // ✅ Alternative: Pass as parameter
 const getText = makeSynchronous(async (url) => { // Variable passed as parameter
@@ -52,6 +65,7 @@ console.log(getText('https://example.com'));
 ```js
 const foo = 'hi';
 
+// ❌
 /** @isolated */
 function abc() {
 	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
@@ -64,6 +78,9 @@ const object = {
 	},
 };
 
+```
+
+```js
 // ✅
 /** @isolated */
 function abc() {

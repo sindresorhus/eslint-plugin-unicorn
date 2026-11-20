@@ -18,12 +18,12 @@ This rule reports clear `Map`, `ReadonlyMap`, `Set`, and `ReadonlySet` values. I
 ## Examples
 
 ```js
-// ❌
 const map = new Map([
 	['a', 1],
 	['b', 2],
 ]);
 
+// ❌
 Object.keys(map);
 
 // ✅
@@ -31,12 +31,12 @@ Array.from(map.keys());
 ```
 
 ```js
-// ❌
 const map = new Map([
 	['a', 1],
 	['b', 2],
 ]);
 
+// ❌
 Object.values(map);
 
 // ✅
@@ -44,9 +44,9 @@ Array.from(map.values());
 ```
 
 ```js
-// ❌
 const set = new Set(['a', 'b']);
 
+// ❌
 Object.entries(set);
 
 // ✅

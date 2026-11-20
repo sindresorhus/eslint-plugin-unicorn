@@ -16,8 +16,9 @@ The rule uses static values, TypeScript annotations, and TypeScript type informa
 ## Examples
 
 ```js
-// ❌
 const key = {};
+
+// ❌
 object[key] = value;
 
 // ✅
@@ -25,8 +26,9 @@ object[String(key)] = value;
 ```
 
 ```js
-// ❌
 const key = [];
+
+// ❌
 const object = {
 	[key]: value,
 };

@@ -16,8 +16,9 @@ This rule is opt-in because explicit arguments can preserve behavior when an API
 ## Examples
 
 ```js
-// ❌
 function run(always = true) {}
+
+// ❌
 run(true);
 
 // ✅
@@ -25,8 +26,9 @@ run();
 ```
 
 ```js
-// ❌
 const format = (value, {unit = 'px', digits = 0} = {}) => {};
+
+// ❌
 format(width, {unit: 'px', digits: 2});
 
 // ✅
@@ -36,8 +38,9 @@ format(width, {digits: 2});
 Middle arguments are retained to avoid shifting later arguments. Object arguments stay present as `{}` when their final property is removed, preserving outer defaults:
 
 ```js
-// ❌
 function run({enabled = true} = {enabled: false}) {}
+
+// ❌
 run({enabled: true});
 
 // ✅

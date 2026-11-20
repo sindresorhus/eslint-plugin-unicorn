@@ -38,7 +38,7 @@ You don't have to specify any rules (like `no-console` in the examples above), b
 console.log(message); // `message` is not defined, but it won't be reported
 ```
 
-This rule enforces specifying the rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) for ESLint or through the [`ignores` property](https://github.com/xojs/xo#ignores) in `package.json` for `XO`.
+This rule enforces specifying the rules to disable. To exclude a file from ESLint, use [`globalIgnores()`](https://eslint.org/docs/latest/use/configure/ignore#ignore-files) in `eslint.config.js`. For XO, add a config item with only an [`ignores` property](https://github.com/xojs/xo#ignores).
 
 ## Examples
 

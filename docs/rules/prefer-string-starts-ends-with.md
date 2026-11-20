@@ -38,6 +38,8 @@ const foo = baz.endsWith('bar');
 ```
 
 ```js
+const someString = 'barbaz';
+
 // ❌
 const foo = someString.indexOf('bar') === 0;
 
