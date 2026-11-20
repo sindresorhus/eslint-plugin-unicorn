@@ -28,6 +28,17 @@ test({
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const formatters = /** Formatters */ ({format: value => String(value)});',
+			output: 'const formatters = /** Formatters */ ({format: String});',
+			errors: [{messageId: 'prefer-native-coercion-functions'}],
+		},
+	],
+});
+
 // Keyword spacing
 test({
 	valid: [],
@@ -288,6 +299,7 @@ test.typescript({
 		'const format = (value: number) => String(value);',
 		'const format = (value): string => String(value);',
 		'const format = <Value,>(value) => String(value);',
+		'const formatters = {format: value => String(value)} satisfies {format: (value: number) => string};',
 	],
 	invalid: [],
 });

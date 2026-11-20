@@ -35,6 +35,7 @@ test.snapshot({
 		'/** @type {"42"} */ const label = /** @type {() => "42"} */ ((42).toString)();',
 		'const value = /** @type {{toString(): "42"} & 42} */ (42); const alias = value; /** @type {"42"} */ const label = alias.toString();',
 		'/** @type {"42"} */ const label = ({value: /** @type {{toString(): "42"} & 42} */ (42)}).value.toString();',
+		'/** @type {"42"} */ const label = ({\n\t/** @type {any} */\n\t// A note\n\tvalue: 42,\n}).value.toString();',
 		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
@@ -144,8 +145,20 @@ for (const {name, code, languageOptions, filename = 'file.js', output = code.rep
 		...typeAware('export const format = (value => value.toString()) satisfies (value: number) => string;'),
 	},
 	{
+		name: 'preserve a contextual signature on an object method',
+		...typeAware('export const formatters = {format(value) { return value.toString(); }} satisfies {format(value: number): string};'),
+	},
+	{
+		name: 'preserve a contextual signature on a nested tuple member',
+		...typeAware('export const formatters = {group: [value => value.toString()]} satisfies {group: [(value: number) => string]};'),
+	},
+	{
 		name: 'preserve a contextual signature from JSDoc satisfies',
 		...typeAware('/** @satisfies {(value: number) => string} */\nexport const format = value => value.toString();', 'file.js'),
+	},
+	{
+		name: 'preserve a contextual signature from JSDoc on an object literal',
+		...typeAware('/** @satisfies {{format(value: number): string}} */\nexport const formatters = /* A note */ {format(value) { return value.toString(); }};', 'file.js'),
 	},
 	{
 		name: 'preserve an inline contextual signature from JSDoc satisfies',
@@ -157,8 +170,8 @@ for (const {name, code, languageOptions, filename = 'file.js', output = code.rep
 	},
 	{
 		name: 'simplify an unannotated numeric callback',
-		...typeAware('export const labels = [1, 2].map(value => value.toString());'),
-		output: 'export const labels = [1, 2].map(String);',
+		...typeAware('export const result = {labels: [1, 2].map(value => value.toString())} satisfies {labels: string[]};'),
+		output: 'export const result = {labels: [1, 2].map(String)} satisfies {labels: string[]};',
 	},
 ]) {
 	testInteraction(`combined coercion fixes ${name}`, t => {

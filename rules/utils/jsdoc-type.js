@@ -13,6 +13,7 @@ import {
 const sourceCodeCaches = new WeakMap();
 const parameterTags = new Set(['param', 'arg', 'argument']);
 const returnTags = new Set(['return', 'returns']);
+const expressionTypeTags = new Set(['type', 'satisfies']);
 const parameterNamePattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*/v;
 const propertyTypes = new Set(['Property', 'PropertyDefinition', 'AccessorProperty']);
 const exportTypes = new Set(['ExportNamedDeclaration', 'ExportDefaultDeclaration']);
@@ -196,9 +197,9 @@ function withExport(node) {
 }
 
 /**
-Get a function's documentation owners without searching enclosing functions or arbitrary expressions.
+Get an expression's documentation owners without searching enclosing functions or arbitrary expressions.
 */
-function getFunctionOwners(node) {
+function getExpressionOwners(node) {
 	const owners = [node];
 	while (isTypeScriptExpressionWrapper(node.parent) && node.parent.expression === node) {
 		node = node.parent;
@@ -231,12 +232,27 @@ function getFunctionOwners(node) {
 const hasLeadingJSDocumentComment = (node, context) =>
 	context.sourceCode.getCommentsBefore(node).some(comment => isJSDocumentComment(comment));
 
+const hasLeadingJSDocumentType = (node, context) => context.sourceCode.getCommentsBefore(node).some(comment =>
+	isJSDocumentComment(comment) && getJSDocumentTags(comment.value).some(({tag}) => expressionTypeTags.has(tag.name)));
+
 /**
 Check for JSDoc immediately before a grouping parenthesis, where it can annotate the expression.
 */
 function hasJSDocumentExpressionComment(node, context) {
 	return hasJSDocumentComments(context)
 		&& getParentheses(node, context).some(token => isOpeningParenthesisToken(token) && hasLeadingJSDocumentComment(token, context));
+}
+
+/**
+Check whether JSDoc supplies a type for the expression through its owners or grouping parentheses.
+*/
+function hasJSDocumentExpressionType(node, context) {
+	if (!hasJSDocumentComments(context)) {
+		return false;
+	}
+
+	return getExpressionOwners(node).some(owner => hasLeadingJSDocumentType(owner, context))
+		|| getParentheses(node, context).some(token => isOpeningParenthesisToken(token) && hasLeadingJSDocumentType(token, context));
 }
 
 /**
@@ -247,7 +263,7 @@ function hasFunctionJSDocumentComment(node, context) {
 		return false;
 	}
 
-	const owners = getFunctionOwners(node);
+	const owners = getExpressionOwners(node);
 	if (node.parent.type === 'ReturnStatement') {
 		owners.push(node.parent);
 	}
@@ -283,7 +299,7 @@ const getParameterAnnotation = memoizeJSDocumentLookup((node, context) => {
 	}
 
 	const inline = getAnnotation(getDocumentationTags([node, parameter], context), tag => tag.tag === 'type');
-	const named = getAnnotation(getDocumentationTags(getFunctionOwners(functionNode), context), tag => parameterTags.has(tag.tag) && tag.name === node.name);
+	const named = getAnnotation(getDocumentationTags(getExpressionOwners(functionNode), context), tag => parameterTags.has(tag.tag) && tag.name === node.name);
 	const annotation = inline?.type ? {...inline, nameRange: named?.nameRange} : named;
 	if (!annotation) {
 		return;
@@ -358,7 +374,7 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 		return;
 	}
 
-	const owners = getFunctionOwners(node);
+	const owners = getExpressionOwners(node);
 	if (owners.some(owner => owner.type === 'VariableDeclarator'
 		? owner.id.typeAnnotation
 		: propertyTypes.has(owner.type) && owner.typeAnnotation)) {
@@ -374,7 +390,9 @@ export {
 	hasFunctionJSDocumentComment,
 	hasJSDocumentComments,
 	hasJSDocumentExpressionComment,
+	hasJSDocumentExpressionType,
 	hasLeadingJSDocumentComment,
+	hasLeadingJSDocumentType,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

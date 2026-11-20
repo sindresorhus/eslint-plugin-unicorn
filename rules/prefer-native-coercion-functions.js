@@ -5,6 +5,7 @@ import {
 	getFunctionReturnExpression,
 	getOutermostTypeScriptExpression,
 	hasFunctionJSDocumentComment,
+	hasJSDocumentExpressionType,
 	hasTypeScriptTypeAssertion,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -75,6 +76,30 @@ const needsSemicolonAfter = (node, sourceCode) => {
 		);
 };
 
+function hasExplicitTypeContext(node, context) {
+	if (hasFunctionJSDocumentComment(node, context)) {
+		return true;
+	}
+
+	// An explicit type on a literal can supply the signatures of functions inside it.
+	while (getOutermostTypeScriptExpression(node) === node) {
+		const {parent} = node;
+		if (parent.type === 'ArrayExpression') {
+			node = parent;
+		} else if (parent.type === 'Property' && parent.value === node && parent.parent.type === 'ObjectExpression') {
+			node = parent.parent;
+		} else {
+			return false;
+		}
+
+		if (hasJSDocumentExpressionType(node, context)) {
+			return true;
+		}
+	}
+
+	return true;
+}
+
 function getCoercionFunctionProblem(node, context) {
 	// `v => String(v)`
 	const returnedExpression = getFunctionReturnExpression(node);
@@ -88,9 +113,8 @@ function getCoercionFunctionProblem(node, context) {
 		|| parameter.optional
 		|| node.returnType
 		|| node.typeParameters
-		|| getOutermostTypeScriptExpression(node) !== node
 		|| hasTypeScriptTypeAssertion(returnedExpression)
-		|| hasFunctionJSDocumentComment(node, context)
+		|| hasExplicitTypeContext(node, context)
 	) {
 		return;
 	}

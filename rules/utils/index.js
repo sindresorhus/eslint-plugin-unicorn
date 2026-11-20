@@ -188,7 +188,9 @@ export {
 	getJSDocumentParameterNameRange,
 	hasFunctionJSDocumentComment,
 	hasJSDocumentExpressionComment,
+	hasJSDocumentExpressionType,
 	hasLeadingJSDocumentComment,
+	hasLeadingJSDocumentType,
 } from './jsdoc-type.js';
 export {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 export {

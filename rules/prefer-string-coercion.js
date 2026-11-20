@@ -16,6 +16,7 @@ import {
 	getPrimitiveLiteralValue,
 	hasJSDocumentExpressionComment,
 	hasLeadingJSDocumentComment,
+	hasLeadingJSDocumentType,
 	hasOptionalChainElement,
 	hasTypeArguments,
 	isBigInt,
@@ -43,6 +44,10 @@ const syntaxOnlyTypeOptions = {
 	requireSupportedTypeAnnotations: true,
 	treatMixedUnionAsNonTarget: true,
 };
+
+const hasEmbeddedJSDocumentType = (node, context) =>
+	hasJSDocumentExpressionComment(node, context)
+	|| (node.type === 'Property' && hasLeadingJSDocumentType(node, context));
 
 const {isTarget: isNumeric} = createTypeCheckers({
 	targetTypeNames: numericTypeNames,
@@ -113,7 +118,7 @@ const create = context => {
 			!isToString
 			|| hasOptionalChainElement(node)
 			|| !isNumeric(value, context, typeOptions)
-			|| (!parserServices?.program && hasJSDocumentTypeReference(callee, context, hasJSDocumentExpressionComment))
+			|| (!parserServices?.program && hasJSDocumentTypeReference(callee, context, hasEmbeddedJSDocumentType))
 			|| withTypeInformation(node, context, ({type, checker}) => type !== checker.getStringType())
 		) {
 			return;
