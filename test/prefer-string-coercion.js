@@ -35,7 +35,7 @@ test.snapshot({
 		'/** @type {"42"} */ const label = /** @type {() => "42"} */ ((42).toString)();',
 		'const value = /** @type {{toString(): "42"} & 42} */ (42); const alias = value; /** @type {"42"} */ const label = alias.toString();',
 		'/** @type {"42"} */ const label = ({value: /** @type {{toString(): "42"} & 42} */ (42)}).value.toString();',
-		'/** @type {"42"} */ const label = ({\n\t/** @type {any} */\n\t// A note\n\tvalue: 42,\n}).value.toString();',
+		'/** @type {"42"} */ const label = ({\n\t/** Public value. @type {any} */\n\t// A note\n\tvalue: 42,\n}).value.toString();',
 		'/** @param {number} value */ function format(value) { value = {toString() { return "display"; }, [Symbol.toPrimitive]() { return "wire"; }}; const alias = value; return alias.toString(); }',
 		'new Number(42).toString();',
 		'new URL("https://example.com").toString();',
