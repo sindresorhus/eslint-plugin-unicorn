@@ -233,11 +233,18 @@ ruleTest.vue({
 
 ruleTest({
 	valid: [],
-	invalid: [{
-		code: '\uFEFF/* First. */\r/* Second. */\r',
-		output: '\uFEFF/*\rFirst.\r*/\r/*\rSecond.\r*/\r',
-		errors: [error, error],
-	}],
+	invalid: [
+		{
+			code: '\uFEFF/* First. */\r/* Second. */\r',
+			output: '\uFEFF/*\rFirst.\r*/\r/*\rSecond.\r*/\r',
+			errors: [error, error],
+		},
+		{
+			code: '\u00A0/* First. */\u00A0\n',
+			output: '\u00A0/*\n\u00A0First.\n\u00A0*/\u00A0\n',
+			errors: [error],
+		},
+	],
 });
 
 const css = {language: languages.css.language, plugins: languages.css.plugins};

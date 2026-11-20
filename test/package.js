@@ -322,9 +322,9 @@ test('non-JavaScript presets honor wildcards, require every dialect, and exclude
 	}
 });
 
-for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
+for (const ruleName of ['expiring-todo-comments', 'no-adjacent-block-comments', 'no-asterisk-prefix-in-documentation-comments', 'no-manually-wrapped-comments', 'single-line-block-comment-style']) {
 	test(`${ruleName} safely ignores comment-like strings in strict JSON`, t => {
-		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* Comment. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
+		const code = String.raw`{"line": "// TODO [2000-01-01]: Update", "block": "/* First. */\n/* Second. */", "multiline": "/**\n * Wrapped\n * comment.\n */"}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, {
 			files: ['**/*.json'],

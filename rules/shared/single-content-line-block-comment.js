@@ -1,7 +1,6 @@
 import {isRegExp} from 'node:util/types';
 import {
 	getCommentRange,
-	getLineStart,
 	isEslintDisableOrEnableDirective,
 } from '../utils/index.js';
 
@@ -31,14 +30,30 @@ const DIRECTIVE_PATTERNS = [
 	/^\s*[#@]__(?:INLINE|NOINLINE|PURE|KEY|MANGLE_PROP|NO_SIDE_EFFECTS)__\s*$/v,
 ];
 
-// Scan to the next line ending instead of searching for each kind, since a search for a rare one like `\u2028` scans to the end of the text on every call.
-const getLineEnd = (text, index) => {
-	let lineEnd = index;
-	while (lineEnd < text.length && !LINE_ENDINGS.has(text[lineEnd])) {
+const isLineBoundary = character => character === undefined || LINE_ENDINGS.has(character);
+const isInlineWhitespace = character => character?.trim() === '' && !LINE_ENDINGS.has(character);
+
+// Stop at code so checking inline comments does not repeatedly scan across a long line.
+const getStandaloneLineBounds = (text, [start, end]) => {
+	let lineStart = start;
+	while (isInlineWhitespace(text[lineStart - 1])) {
+		lineStart--;
+	}
+
+	if (!isLineBoundary(text[lineStart - 1])) {
+		return;
+	}
+
+	let lineEnd = end;
+	while (isInlineWhitespace(text[lineEnd])) {
 		lineEnd++;
 	}
 
-	return lineEnd;
+	if (!isLineBoundary(text[lineEnd])) {
+		return;
+	}
+
+	return [lineStart, lineEnd];
 };
 
 const getLineEndingAt = (text, index) => {
@@ -84,16 +99,14 @@ const getSingleContentLineBlockComment = (context, comment) => {
 
 	const sourceText = context.sourceCode.text;
 	const commentRange = getCommentRange(context, comment);
-	const [start, end] = commentRange;
-	const lineStart = getLineStart(sourceText, start);
-	const lineEnd = getLineEnd(sourceText, end);
-	const indentation = sourceText.slice(lineStart, start);
-
-	if (indentation.trim() !== '' || sourceText.slice(end, lineEnd).trim() !== '') {
+	const lineBounds = getStandaloneLineBounds(sourceText, commentRange);
+	if (!lineBounds) {
 		return;
 	}
 
-	const text = sourceText.slice(start, end);
+	const [lineStart, lineEnd] = lineBounds;
+	const indentation = sourceText.slice(lineStart, commentRange[0]);
+	const text = sourceText.slice(...commentRange);
 	if (!text.startsWith('/*') || !text.endsWith('*/') || text.startsWith('/*!') || isEslintDisableOrEnableDirective(context, comment)) {
 		return;
 	}

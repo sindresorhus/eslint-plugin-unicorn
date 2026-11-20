@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Merge adjacent standalone block comments with one content line each and matching indentation. Blank lines, code, and other comments (including documentation comments, asterisk banners, license notices, and known tool directives) break the group.
+Merge adjacent standalone block comments with one content line each and matching indentation. Blank lines, code, and other comments (including documentation comments, asterisk banners, and recognized license notices and tool directives) break the group.
 
 Merging can affect tools that rely on comment boundaries or line counts.
 
