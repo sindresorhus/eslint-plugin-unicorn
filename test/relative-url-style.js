@@ -825,7 +825,9 @@ for (const language of markdownLanguages) {
 }
 
 test.snapshot({
-	valid: [],
+	valid: [
+		{code: '&#169; Visit &#104;ttps://example.com.', language: {...languages.markdown, language: 'markdown/gfm'}},
+	],
 	invalid: [
 		'| Image |\n| --- |\n| ![`API`](./diagram.png) <img src="./other.png"> |',
 		'Footnote[^note]\n\n[^note]: ![`API`](./diagram.png) <img src="./other.png">',

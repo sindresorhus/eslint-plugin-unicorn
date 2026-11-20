@@ -233,6 +233,11 @@ const create = context => {
 	};
 
 	context.on(['link', 'definition'], node => {
+		// GFM can synthesize autolinks without source positions.
+		if (!node.position) {
+			return;
+		}
+
 		// Complex definition labels are left unchanged when their destination cannot be located unambiguously.
 		const [start, end] = sourceCode.getRange(node);
 		const lastChild = node.children?.at(-1);
