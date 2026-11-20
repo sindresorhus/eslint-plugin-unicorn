@@ -6,6 +6,7 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const typescriptSyntax = code => ({code, languageOptions: {parser: parsers.typescript}});
+const skippedInitializerCode = 'function format(ready) { if (ready) { /** @type {number} */ var value = 42; } return value.toString(); }';
 const formattableType = 'type Formattable = {toString(): "42"} & 42;';
 const customToStringType = `${formattableType} function format(value: Formattable): "42" { return value.toString(); }`;
 const typeAware = (code, filename = 'file.ts') => ({
@@ -24,6 +25,9 @@ test.snapshot({
 		'"already a string".toString();',
 		'const value = null; const alias = value; { const value = 1n; alias.toString(); }',
 		'function format() { return value.toString(); var value = 1n; }',
+		skippedInitializerCode,
+		{...typescriptSyntax(skippedInitializerCode), filename: 'file.js'},
+		'/** @type {number} */ let value; value.toString();',
 		'function format(NaN) { return NaN.toString(); }',
 		'/** @type {number | string} */ const value = 42; const alias = value; alias.toString();',
 		'/** @param {{toString(): "42"} & 42} value */ function format(value) { return value.toString(); }',
@@ -186,6 +190,11 @@ const flowNarrowingCode = [
 test({
 	valid: [],
 	invalid: [
+		{
+			code: '/** @type {number} */ let value = getInput(); value.toString();',
+			output: '/** @type {number} */ let value = getInput(); String(value);',
+			errors: [{messageId: 'prefer-string-coercion'}],
+		},
 		{
 			code: String.raw`(42).to\u0053tring();`,
 			output: 'String(42);',

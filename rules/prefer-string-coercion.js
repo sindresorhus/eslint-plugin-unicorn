@@ -48,7 +48,7 @@ const {isTarget: isNumeric} = createTypeCheckers({
 	targetTypeNames: numericTypeNames,
 	targetCallNames: ['BigInt', 'Number', 'parseFloat', 'parseInt'],
 	checkClassHeritage: false,
-	ignoreReassignedJSDocumentBindings: true,
+	requireStableJSDocumentBindings: true,
 	// Generic aliases need the compiler to substitute their type arguments.
 	resolveGenericTypeAliases: false,
 	isTargetNode(node, context, isNumeric) {

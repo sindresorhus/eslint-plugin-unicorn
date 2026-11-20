@@ -557,17 +557,24 @@ function getTypeScriptType(type, checker, program, options) {
 const getTypeFromTypeInformation = (node, context, options) =>
 	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program, options)) ?? unknown;
 
+const isStableJSDocumentBinding = (node, context) => {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const [definition] = variable?.defs ?? [];
+	// A `var` initializer can be skipped even when its binding is accessible.
+	const initialized = definition?.type === 'Parameter'
+		|| (definition?.type === 'Variable' && definition.parent.kind !== 'var' && variable.references.some(reference => reference.init));
+
+	return initialized && variable.references.every(reference => !reference.isWrite() || reference.init);
+};
+
 const getTypeFromJSDocumentAnnotation = (node, context, options) => {
 	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (!annotation) {
 		return;
 	}
 
-	const variable = options.ignoreReassignedJSDocumentBindings && node.type === 'Identifier'
-		? findVariable(context.sourceCode.getScope(node), node)
-		: undefined;
-	// A JSDoc annotation alone cannot account for later writes to the binding.
-	const type = variable?.references.some(reference => reference.isWrite() && !reference.init)
+	// A JSDoc annotation alone cannot account for skipped initializers or later writes to the binding.
+	const type = options.requireStableJSDocumentBindings && node.type === 'Identifier' && !isStableJSDocumentBinding(node, context)
 		? unknown
 		: getJSDocumentType(annotation, options);
 	return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
