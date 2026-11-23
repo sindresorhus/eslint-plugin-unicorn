@@ -244,6 +244,31 @@ function isBooleanTypeInformation(node, context) {
 		return false;
 	}
 
+	if (node.type === 'CallExpression') {
+		return withTypeInformation(node, context, ({checker}) => {
+			const {esTreeNodeToTSNodeMap, tsNodeToESTreeNodeMap} = sourceCode.parserServices;
+			const declaration = checker.getResolvedSignature(esTreeNodeToTSNodeMap.get(node))?.getDeclaration();
+			if (!declaration?.body || declaration.type) {
+				return true;
+			}
+
+			// An inferred return type can hide an unchecked read in a local function.
+			const declarationNode = tsNodeToESTreeNodeMap.get(declaration);
+			if (!declarationNode) {
+				return true;
+			}
+
+			const functionNode = declarationNode.value ?? declarationNode;
+			const annotation = getJSDocumentReturnType(functionNode, context);
+			if (annotation && getJSDocumentBooleanState(annotation) === 'boolean') {
+				return true;
+			}
+
+			const expression = getFunctionReturnExpression(functionNode);
+			return Boolean(expression && (isBooleanOperatorExpression(expression) || isBooleanStaticValue(expression, context)));
+		}) ?? false;
+	}
+
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
 	const binding = operand.type === 'LogicalExpression' ? unwrapChainAndTypeScriptExpression(operand.left) : operand;
 	if (binding.type === 'Identifier') {

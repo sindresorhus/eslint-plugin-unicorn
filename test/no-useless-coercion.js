@@ -1605,6 +1605,30 @@ test({
 			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
 		},
 		{
+			...typeAwareBooleanCoercion(outdent`
+				const read = () => Math.random() > 0.5;
+				const reader = {
+					read(): boolean { return Math.random() > 0.5; },
+					infer() { return Math.random() > 0.5; },
+				};
+				export const enabled = [Boolean(read()), Boolean(reader.read()), Boolean(reader.infer()), Boolean([true][0])];
+			`),
+			output: outdent`
+				const read = () => Math.random() > 0.5;
+				const reader = {
+					read(): boolean { return Math.random() > 0.5; },
+					infer() { return Math.random() > 0.5; },
+				};
+				export const enabled = [read(), reader.read(), reader.infer(), [true][0]];
+			`,
+			errors: [
+				{messageId: 'no-useless-coercion'},
+				{messageId: 'no-useless-coercion'},
+				{messageId: 'no-useless-coercion'},
+				{messageId: 'no-useless-coercion'},
+			],
+		},
+		{
 			code: 'function read(enabled: boolean) { return !!enabled; } read(null);',
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
 			languageOptions: {
@@ -1665,6 +1689,16 @@ test.snapshot({
 		'function read(flags: [boolean]): boolean { flags.pop(); return Boolean(flags[0]); } read([true]);',
 		'function read(flags: [boolean]): boolean { flags.pop(); const enabled = flags[0]; return Boolean(enabled); } read([true]);',
 		'function read(flags: boolean[]): boolean { const first = flags[0]; const enabled = first; return Boolean(enabled); } read([]);',
+		'function first(flags: [boolean]) { flags.pop(); return flags[0]; } export const enabled = Boolean(first([true]));',
+		'const first = (flags: boolean[]) => flags[0]; export const enabled = Boolean(first([]));',
+		'/** @type {unknown} */ const first = (flags: boolean[]) => flags[0]; export const enabled = Boolean(first([]));',
+		outdent`
+			const reader = {
+				/** @returns {unknown} */
+				first(flags: [boolean]) { flags.pop(); return flags[0]; },
+			};
+			export const enabled = Boolean(reader.first([true]));
+		`,
 		'const enabled: unknown = true; export const result = Boolean(enabled);',
 		'const enabled: unknown = true; export const result = Boolean(enabled ?? false);',
 		'function read(flags: boolean[]) { const enabled = flags[0]; return !!enabled; } read([]);',

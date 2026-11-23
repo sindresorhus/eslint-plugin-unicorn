@@ -24,7 +24,7 @@ The rule autofixes `!!` on direct equality and relational comparisons, `in`, `in
 
 The rule suggests removing `!!` in other cases because removal can change inferred types or control-flow narrowing in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
 
-In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
+In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates. When `Boolean()` wraps a call to a function defined in the same file, the rule requires an explicit boolean return type or a return expression it can verify.
 
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
