@@ -1463,7 +1463,11 @@ test.snapshot({
 });
 
 test({
-	valid: [],
+	valid: [
+		'const enabled: unknown = true; export const result = Boolean(enabled ?? false);',
+		'const enabled: unknown = true; const alias = enabled ?? false; export const result = Boolean(alias);',
+		'export const result = Boolean(true ? true : 1);',
+	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	invalid: [
 		{
 			code: 'const isError = value => !!(value instanceof Error);',
@@ -1551,17 +1555,24 @@ nodeTest('nullable JSDoc boolean parameters still need coercion with strict null
 	t.assert.deepStrictEqual(messages, []);
 });
 
-const typeAwareBooleanCoercion = code => ({
+const typeAwareBooleanCoercion = (code, sourceType = 'module') => ({
 	code,
 	filename: 'test/fixtures/prefer-regexp-test/index.ts',
 	languageOptions: {
+		sourceType,
 		parser: parsers.typescript,
 		parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
 	},
 });
 
 test({
-	valid: [],
+	valid: [typeAwareBooleanCoercion(outdent`
+		'use strict';
+		const flags: boolean[] = [];
+		function read() { return Math.random() > 0.5; }
+		globalThis.read = () => flags[0];
+		const enabled = Boolean(read());
+	`, 'script')],
 	invalid: [
 		{
 			...typeAwareBooleanCoercion(outdent`
@@ -1609,17 +1620,15 @@ test({
 				const read = () => Math.random() > 0.5;
 				const reader = {
 					read(): boolean { return Math.random() > 0.5; },
-					infer() { return Math.random() > 0.5; },
 				};
-				export const enabled = [Boolean(read()), Boolean(reader.read()), Boolean(reader.infer()), Boolean([true][0])];
+				export const enabled = [Boolean(read()), Boolean(reader.read()), Boolean((() => Math.random() > 0.5)()), Boolean([true][0])];
 			`),
 			output: outdent`
 				const read = () => Math.random() > 0.5;
 				const reader = {
 					read(): boolean { return Math.random() > 0.5; },
-					infer() { return Math.random() > 0.5; },
 				};
-				export const enabled = [read(), reader.read(), reader.infer(), [true][0]];
+				export const enabled = [read(), reader.read(), (() => Math.random() > 0.5)(), [true][0]];
 			`,
 			errors: [
 				{messageId: 'no-useless-coercion'},
@@ -1691,6 +1700,18 @@ test.snapshot({
 		'function read(flags: boolean[]): boolean { const first = flags[0]; const enabled = first; return Boolean(enabled); } read([]);',
 		'function first(flags: [boolean]) { flags.pop(); return flags[0]; } export const enabled = Boolean(first([true]));',
 		'const first = (flags: boolean[]) => flags[0]; export const enabled = Boolean(first([]));',
+		outdent`
+			const flags: boolean[] = [];
+			let read = () => Math.random() > 0.5;
+			read = () => flags[0];
+			export const enabled = Boolean(read());
+		`,
+		outdent`
+			const flags: boolean[] = [];
+			const reader = {read() { return Math.random() > 0.5; }};
+			reader.read = () => flags[0];
+			export const enabled = Boolean(reader.read());
+		`,
 		'/** @type {unknown} */ const first = (flags: boolean[]) => flags[0]; export const enabled = Boolean(first([]));',
 		outdent`
 			const reader = {

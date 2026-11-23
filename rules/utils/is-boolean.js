@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import typedArray from '../shared/typed-array.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
+import getFunctionFromIdentifier from './get-function-from-identifier.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
@@ -16,6 +17,7 @@ import {
 import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion, unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
+import isTypeScriptFile from './is-typescript-file.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -105,11 +107,14 @@ const isBooleanStaticValue = (node, context) => {
 		return typeof node.value === 'boolean';
 	}
 
+	const {parserServices} = context.sourceCode;
+	const hasTypeScriptSyntax = parserServices?.esTreeNodeToTSNodeMap || isTypeScriptFile(context.physicalFilename);
 	// A folded boolean can still have a wider TypeScript type.
 	return !excludedStaticBooleanNodeTypes.has(node.type)
+		&& (!hasTypeScriptSyntax || Boolean(parserServices?.program))
 		&& typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
 		&& !hasJSDocumentTypeReference(node, context)
-		&& (!context.sourceCode.parserServices?.program || hasBooleanType(node, context));
+		&& (!parserServices?.program || hasBooleanType(node, context));
 };
 
 function isBooleanTypeScriptType(type, checker) {
@@ -262,6 +267,14 @@ function isBooleanTypeInformation(node, context) {
 			const annotation = getJSDocumentReturnType(functionNode, context);
 			if (annotation && getJSDocumentBooleanState(annotation) === 'boolean') {
 				return true;
+			}
+
+			// The resolved signature can still refer to a replaced function, including script globals written through `globalThis`.
+			const callee = unwrapTypeScriptExpression(node.callee);
+			const referencesFunction = callee === functionNode
+				|| (sourceCode.ast.sourceType === 'module' && getFunctionFromIdentifier(callee, context) === functionNode);
+			if (!referencesFunction) {
+				return false;
 			}
 
 			const expression = getFunctionReturnExpression(functionNode);

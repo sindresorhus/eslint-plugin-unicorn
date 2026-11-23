@@ -552,9 +552,9 @@ test('native scalar assertions override documented booleans', t => {
 	}
 });
 
-test('scalar assertion inference preserves literal facts and ordinary boolean assertions', t => {
-	const code = 'inspect(true as string); inspect((value === other) as boolean); inspect(Boolean(value) as unknown); inspect((value > 0) satisfies boolean);';
-	t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
+test('scalar assertion inference respects wider types and preserves boolean assertions', t => {
+	const code = 'inspect(true as true | string); inspect((value === other) as boolean); inspect(Boolean(value) as unknown); inspect((value > 0) satisfies boolean);';
+	t.assert.deepStrictEqual(getResults(code), [false, true, true, true]);
 });
 
 test('scalar assertions retain richer boolean evidence from type information', t => {
