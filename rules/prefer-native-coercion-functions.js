@@ -1,7 +1,7 @@
 import {findVariable, getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {arrayMethodsWithTypePredicates, arrayPredicateMethods} from './shared/array-predicate-methods.js';
+import {arrayMethodsWithTypePredicates, arrayPredicateMethods, getArrayPredicateMethod} from './shared/array-predicate-methods.js';
 import {
 	getFunctionReturnExpression,
 	getOutermostTypeScriptExpression,
@@ -10,6 +10,7 @@ import {
 	hasTypeScriptTypeAssertion,
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
@@ -161,6 +162,23 @@ function getCoercionFunctionProblem(node, context) {
 	return problem;
 }
 
+function getProblem(node, context) {
+	const problem = getArrayCallbackProblem(node, context) || getCoercionFunctionProblem(node, context);
+	if (problem?.replacementFunction !== 'Boolean' || !getArrayPredicateMethod(node)) {
+		return problem;
+	}
+
+	// Passing `Boolean` directly can select a custom overload that an inline callback does not match.
+	const hasCustomSignatures = withTypeInformation(node.parent.callee, context, ({type, program}) =>
+		type.getNonNullableType().getCallSignatures().some(signature => {
+			const declaration = signature.getDeclaration();
+			return declaration !== undefined && !program.isSourceFileDefaultLibrary(declaration.getSourceFile());
+		}));
+	if (!hasCustomSignatures) {
+		return problem;
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -186,7 +204,7 @@ const create = context => {
 			return;
 		}
 
-		let problem = getArrayCallbackProblem(node, context) || getCoercionFunctionProblem(node, context);
+		let problem = getProblem(node, context);
 
 		if (!problem) {
 			return;

@@ -96,6 +96,38 @@ nodeTest('fixing a predicate preserves narrowing through a non-null assertion', 
 	t.assert.deepStrictEqual(messages, []);
 });
 
+nodeTest('fixing a predicate preserves the selected filter overload', t => {
+	const {code, filename, languageOptions} = typeAware(outdent`
+		export {};
+		declare global {
+			interface Array<T> {
+				filter(predicate: BooleanConstructor): Exclude<T, false>[];
+			}
+		}
+
+		const items: (number | false)[] = [0, 1, false];
+		const kept = items.filter(value => !!value);
+		kept.push(false);
+		const wrapped = items.filter(value => Boolean(value));
+		wrapped.push(false);
+
+		const readonlyItems: readonly (number | false)[] = items;
+		const readonlyKept = readonlyItems.filter(value => !!value);
+	`);
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(
+		code,
+		[{files: ['**/*.ts'], languageOptions}, coercionConfig],
+		{filename},
+	);
+
+	const expectedOutput = code
+		.replace('items.filter(value => !!value)', 'items.filter(value => value)')
+		.replace('readonlyItems.filter(value => !!value)', 'readonlyItems.filter(Boolean)');
+	t.assert.strictEqual(output, expectedOutput);
+	t.assert.deepStrictEqual(messages, []);
+});
+
 const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';
 
 test.snapshot({

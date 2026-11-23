@@ -15,6 +15,8 @@ The rule allows coercion wrappers with attached JSDoc, an explicit TypeScript si
 
 For array methods with type predicate overloads, the rule preserves callbacks whose returned value uses a TypeScript wrapper. For example, a non-null assertion in a `filter()` callback can affect the type of the filtered array.
 
+With type information, the rule keeps an inline callback if its array method has custom signatures and the replacement would be `Boolean`. Passing `Boolean` directly can select a different overload.
+
 ## Examples
 
 ```js
