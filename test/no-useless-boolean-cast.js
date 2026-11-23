@@ -1,8 +1,31 @@
+import {test as nodeTest} from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+nodeTest('fixing an identity callback checks the Boolean binding at the call', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			'unicorn/no-useless-boolean-cast': 'error',
+			'unicorn/prefer-native-coercion-functions': 'error',
+		},
+	};
+
+	for (const [source, expectedOutput] of [
+		['const Boolean = () => false; [1].some(value => !!value);', 'const Boolean = () => false; [1].some(value => value);'],
+		['[1].some(Boolean => !!Boolean);', '[1].some(Boolean);'],
+	]) {
+		const {output, messages} = linter.verifyAndFix(source, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
 
 const typeAware = code => ({
 	code,
@@ -12,6 +35,8 @@ const typeAware = code => ({
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
 });
+
+const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';
 
 test.snapshot({
 	valid: [
@@ -47,6 +72,23 @@ test.snapshot({
 		},
 		typeAware('function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); }'),
 		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1));'),
+		typeAware(guardedPredicate),
+		{
+			code: guardedPredicate,
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+			declare const items: Item[];
+			const kept = items.filter(item => {
+				if (item.kind === 'mixed') {
+					throw new Error();
+				}
+
+				return (!!item.flag);
+			});
+			kept.push({kind: 'mixed', flag: true});
+		`),
 	],
 });
 
@@ -131,9 +173,6 @@ test.snapshot({
 				return Boolean(value);
 			});
 		`,
-		'array.some?.(value => Boolean(value.active));',
-		'array?.some(value => Boolean(value.active));',
-		'array["some"](value => Boolean(value.active));',
 		'array.some(value => Boolean());',
 		'array.some(value => Boolean(value.active, value.enabled));',
 		'array.some(value => Boolean(...value));',
@@ -145,6 +184,8 @@ test.snapshot({
 		'array.some(value => { const Boolean = value => value; return Boolean(value.active); });',
 		'array.some(async value => Boolean(value.active));',
 		'array.some(function * (value) {return Boolean(value.active);});',
+		'array.some(value => {if (value) {return Boolean(value);} return false;});',
+		typeAware('new Uint8Array([0, 1])["findIndex"]?.(value => Boolean(value + 1));'),
 		'[1].some(/** @returns {boolean} */ value => Boolean(value + 1));',
 		typeAware('new Uint8Array([0, 1]).findIndex(value => Boolean(value + 1));'),
 		// `Boolean()` normalizes a possibly-`undefined` value from optional chaining, so it is not useless.
@@ -168,12 +209,6 @@ test.snapshot({
 		// Type-aware: keep `Boolean()` when the argument's type includes `void`.
 		typeAware('[{sideEffect() {}}].some((value: {sideEffect(): void}) => Boolean(value.sideEffect()));'),
 		typeAware('[{sideEffect() { return true as boolean | void; }}].some(value => Boolean(value.sideEffect()));'),
-		outdent`
-			array.some(function (value) {
-				'use strict';
-				return Boolean(value.active);
-			});
-		`,
 		{
 			code: 'array.filter((value): boolean => Boolean(value));',
 			languageOptions: {parser: parsers.typescript},
@@ -221,5 +256,16 @@ test.snapshot({
 		'array.some(function (value) {return Boolean((log(), /* keep */ value.active));});',
 		typeAware('const bits: (0 | 1)[] = [0, 1]; const ones = bits.filter(value => Boolean(value === 1)); ones.push(0);'),
 		typeAware('const records = [{name: "record"}]; records.filter(record => Boolean(record.name));'),
+		'array.some?.(value => Boolean(value.active));',
+		'array?.some(value => Boolean(value.active));',
+		'array["some"](value => Boolean(value.active));',
+		'array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);});',
+		outdent`
+			array.some(function (value) {
+				'use strict';
+				return Boolean(value.active);
+			});
+		`,
+		typeAware('function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => Boolean(value === 1));}'),
 	],
 });

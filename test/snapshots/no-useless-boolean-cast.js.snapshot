@@ -280,6 +280,25 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(14): const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);}); 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(14): const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);}); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});
+    |                                                                                                                             ^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the boolean cast.:
+  1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return (value !== 2);});
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(14): function keep(bits?: (0 | 1)[]) {return bits?.[\"filter\"](value => !!value);} 1`] = `
 
 Filename: file.ts
@@ -313,6 +332,23 @@ Message:
 
 Output:
   1 | array.some(value => (value?.method).property);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(15): const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);}); 1`] = `
+
+  1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(15): const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);}); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});
+    |                                                                                                                             ^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the boolean cast.:
+  1 | const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return (value !== 2);});
 
 `;
 
@@ -370,6 +406,52 @@ Message:
 
 Output:
   1 | items.some(item => (log(item), /* keep */ item.name) as string);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};\ndeclare const items: Item[];\nconst kept = items.filter(item => {\n\tif (item.kind === 'mixed') {\n\t\tthrow new Error();\n\t}\n\n\treturn (!!item.flag);\n});\nkept.push({kind: 'mixed', flag: true}); 1`] = `
+
+Filename: file.ts
+
+   1 | type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+   2 | declare const items: Item[];
+   3 | const kept = items.filter(item => {
+   4 | 	if (item.kind === 'mixed') {
+   5 | 		throw new Error();
+   6 | 	}
+   7 |
+   8 | 	return (!!item.flag);
+   9 | });
+  10 | kept.push({kind: 'mixed', flag: true});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};\ndeclare const items: Item[];\nconst kept = items.filter(item => {\n\tif (item.kind === 'mixed') {\n\t\tthrow new Error();\n\t}\n\n\treturn (!!item.flag);\n});\nkept.push({kind: 'mixed', flag: true}); 2`] = `
+
+Message:
+   1 | type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+   2 | declare const items: Item[];
+   3 | const kept = items.filter(item => {
+   4 | 	if (item.kind === 'mixed') {
+   5 | 		throw new Error();
+   6 | 	}
+   7 |
+>  8 | 	return (!!item.flag);
+     | 	        ^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+   9 | });
+  10 | kept.push({kind: 'mixed', flag: true});
+
+Suggestion 1/1: Remove the boolean cast.:
+   1 | type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+   2 | declare const items: Item[];
+   3 | const kept = items.filter(item => {
+   4 | 	if (item.kind === 'mixed') {
+   5 | 		throw new Error();
+   6 | 	}
+   7 |
+   8 | 	return (item.flag);
+   9 | });
+  10 | kept.push({kind: 'mixed', flag: true});
 
 `;
 
@@ -635,6 +717,85 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(26): array.some?.(value => Boolean(value.active)); 1`] = `
+
+  1 | array.some?.(value => Boolean(value.active));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(26): array.some?.(value => Boolean(value.active)); 2`] = `
+
+Message:
+> 1 | array.some?.(value => Boolean(value.active));
+    |                       ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some?.(value => value.active);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(27): array?.some(value => Boolean(value.active)); 1`] = `
+
+  1 | array?.some(value => Boolean(value.active));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(27): array?.some(value => Boolean(value.active)); 2`] = `
+
+Message:
+> 1 | array?.some(value => Boolean(value.active));
+    |                      ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array?.some(value => value.active);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(28): array[\"some\"](value => Boolean(value.active)); 1`] = `
+
+  1 | array["some"](value => Boolean(value.active));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(28): array[\"some\"](value => Boolean(value.active)); 2`] = `
+
+Message:
+> 1 | array["some"](value => Boolean(value.active));
+    |                        ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array["some"](value => value.active);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(29): array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);}); 1`] = `
+
+  1 | array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(29): array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);}); 2`] = `
+
+Message:
+> 1 | array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);});
+    |                                                  ^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => {if (value.selected) {return value.label;} return Boolean(value.name);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(29): array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);}); 3`] = `
+
+Message:
+> 1 | array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);});
+    |                                                                                ^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | array.some(value => {if (value.selected) {return Boolean(value.label);} return value.name;});
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(3): const example = records.some(record => Boolean(record.fieldname)); 1`] = `
 
   1 | const example = records.some(record => Boolean(record.fieldname));
@@ -694,6 +855,51 @@ Message:
 
 Output:
   1 | items.some(item => {if (item.selected) {return !!item.label;} return item.name;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(30): array.some(function (value) {\n\t'use strict';\n\treturn Boolean(value.active);\n}); 1`] = `
+
+  1 | array.some(function (value) {
+  2 | 	'use strict';
+  3 | 	return Boolean(value.active);
+  4 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(30): array.some(function (value) {\n\t'use strict';\n\treturn Boolean(value.active);\n}); 2`] = `
+
+Message:
+  1 | array.some(function (value) {
+  2 | 	'use strict';
+> 3 | 	return Boolean(value.active);
+    | 	       ^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+  4 | });
+
+Output:
+  1 | array.some(function (value) {
+  2 | 	'use strict';
+  3 | 	return value.active;
+  4 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(31): function select(bits?: (0 | 1)[]) {return bits?.[\"filter\"](value => Boolean(value === 1));} 1`] = `
+
+Filename: file.ts
+
+  1 | function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => Boolean(value === 1));}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(31): function select(bits?: (0 | 1)[]) {return bits?.[\"filter\"](value => Boolean(value === 1));} 2`] = `
+
+Message:
+> 1 | function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => Boolean(value === 1));}
+    |                                                                     ^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the boolean cast.:
+  1 | function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => value === 1);}
 
 `;
 

@@ -7,6 +7,7 @@ import {
 	hasFunctionJSDocumentComment,
 	hasJSDocumentExpressionType,
 	hasTypeScriptTypeAssertion,
+	isGlobalNameAvailable,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -50,8 +51,8 @@ const isTypeScriptTypePredicateFunction = node =>
 	node.returnType?.type === 'TSTypeAnnotation'
 	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
 
-function getArrayCallbackProblem(node) {
-	if (!isArrayIdentityCallback(node)) {
+function getArrayCallbackProblem(node, context) {
+	if (!isArrayIdentityCallback(node) || !isGlobalNameAvailable('Boolean', node.parent, context)) {
 		return;
 	}
 
@@ -177,7 +178,7 @@ const create = context => {
 			return;
 		}
 
-		let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node, context);
+		let problem = getArrayCallbackProblem(node, context) || getCoercionFunctionProblem(node, context);
 
 		if (!problem) {
 			return;

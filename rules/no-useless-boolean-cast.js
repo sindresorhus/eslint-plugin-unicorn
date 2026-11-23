@@ -94,14 +94,14 @@ function getPredicateMethod(call) {
 	}
 }
 
-function getBooleanCallArgument(call, callback, cast, context) {
-	if (
-		call.optional
-		|| call.callee.optional
-		|| call.callee.computed
-		|| getFunctionReturnExpression(callback) !== cast
-		|| !isGlobalBooleanCall(cast, context)
-	) {
+const isNegation = node => node?.type === 'UnaryExpression' && node.operator === '!';
+
+function getCastArgument(callback, cast, context) {
+	if (isNegation(cast) && isNegation(cast.argument)) {
+		return cast.argument.argument;
+	}
+
+	if (!isGlobalBooleanCall(cast, context)) {
 		return;
 	}
 
@@ -113,15 +113,13 @@ function getBooleanCallArgument(call, callback, cast, context) {
 	return argument;
 }
 
-const isNegation = node => node?.type === 'UnaryExpression' && node.operator === '!';
-
 function hasBooleanResult(argument, context) {
 	return isBoolean(argument, context)
 		&& (withTypeInformation(argument, context, ({type, checker}) => checker.isTypeAssignableTo(type, checker.getBooleanType()))
 			?? ['BinaryExpression', 'Literal', 'UnaryExpression'].includes(argument.type));
 }
 
-function getTypeCheckedEdit(callback, argument, canAddPredicate, context) {
+function getTypeCheckedEdit(callback, argument, canChangePredicate, context) {
 	const {parserServices} = context.sourceCode;
 	return withTypeInformation(callback.parent, context, ({checker}) => {
 		const typeScriptCallback = parserServices.esTreeNodeToTSNodeMap.get(callback);
@@ -132,11 +130,11 @@ function getTypeCheckedEdit(callback, argument, canAddPredicate, context) {
 
 		const argumentType = parserServices.getTypeAtLocation(argument);
 		const booleanType = checker.getBooleanType();
-		let edit = canAddPredicate && argumentType === booleanType ? 'suggest' : 'fix';
+		let edit = canChangePredicate && argumentType === booleanType ? 'suggest' : 'fix';
 		for (const signature of signatures) {
 			if (checker.getTypePredicateOfSignature(signature)) {
-				// An inferred predicate requires the intrinsic boolean type, even when a different type is assignable to boolean.
-				if (argumentType !== booleanType) {
+				// Predicate inference can depend on both the intrinsic boolean type and the control flow before the return.
+				if (argumentType !== booleanType || !getFunctionReturnExpression(callback)) {
 					edit = 'suggest';
 				}
 			} else if (!checker.isTypeAssignableTo(argumentType, checker.getReturnTypeOfSignature(signature))) {
@@ -169,13 +167,14 @@ const create = context => {
 			return hasBooleanResult(argument, context) ? 'fix' : 'keep';
 		}
 
-		// Removing a `Boolean()` call can expose a boolean expression that TypeScript uses to infer a predicate.
-		const canAddPredicate = cast.type === 'CallExpression' && methodsWithTypePredicates.has(method);
-		const edit = getTypeCheckedEdit(callback, argument, canAddPredicate, context) ?? (
+		// Removing a `Boolean()` call or changing a return after earlier statements can change predicate inference.
+		const canChangePredicate = methodsWithTypePredicates.has(method)
+			&& (cast.type === 'CallExpression' || !getFunctionReturnExpression(callback));
+		const edit = getTypeCheckedEdit(callback, argument, canChangePredicate, context) ?? (
 			!needsTypeReview
 			|| method === 'some'
 			|| method === 'findLastIndex'
-			|| (!canAddPredicate && hasBooleanResult(argument, context))
+			|| (!canChangePredicate && hasBooleanResult(argument, context))
 				? 'fix'
 				: 'suggest'
 		);
@@ -196,8 +195,7 @@ const create = context => {
 			return;
 		}
 
-		const isDoubleNegation = isNegation(cast) && isNegation(cast.argument);
-		const argument = isDoubleNegation ? cast.argument.argument : getBooleanCallArgument(call, callback, cast, context);
+		const argument = getCastArgument(callback, cast, context);
 		if (!argument || isKnownNonIndexedCollection(call.callee.object, context)) {
 			return;
 		}
@@ -228,7 +226,7 @@ const create = context => {
 		return getCommentSafeProblem(context, {
 			node: cast,
 			messageId: MESSAGE_ID,
-			data: {cast: isDoubleNegation ? '!!' : 'Boolean()', method},
+			data: {cast: cast.type === 'CallExpression' ? 'Boolean()' : '!!', method},
 			...edit === 'fix' ? {fix} : {suggest: [{messageId: SUGGESTION_ID, fix}]},
 		}, cast, [getParenthesizedRange(argument, context)]);
 	}
