@@ -37,7 +37,8 @@ nodeTest('coercion rules preserve a checked JavaScript predicate during autofix'
 		const kept = bits['filter']?.(value => Boolean(value === 1));
 		kept.push(0);
 	`;
-	const {output, messages} = new Linter().verifyAndFix(code, {
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(code, {
 		...coercionConfig,
 		rules: {...coercionConfig.rules, 'unicorn/no-useless-coercion': 'error'},
 	});
