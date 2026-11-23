@@ -200,7 +200,7 @@ const isKnownPrimitiveIterable = (node, context) => {
 		}
 
 		const result = getStaticValueForControlFlow(element, context);
-		return Boolean(result && (result.value === null || !['object', 'function'].includes(typeof result.value)));
+		return result && (result.value === null || !['object', 'function'].includes(typeof result.value));
 	});
 };
 
