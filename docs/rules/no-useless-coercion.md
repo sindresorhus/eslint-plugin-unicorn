@@ -15,7 +15,7 @@ This includes redundant double coercion, like `String(String(value))`, and coerc
 
 It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax, uses declared property types only when the receiver is a stable identifier, and skips ordinary calls to user functions. For receivers typed as arrays or tuples, an indexed read needs syntax that proves its value is a boolean, since array methods can remove or shift elements.
+The rule recognizes common cases from syntax and uses TypeScript types when available. For `const name = value` with an inferred type, the boolean check follows the initializer. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax, uses declared property types only when the receiver is a stable identifier, and skips ordinary calls to user functions. For receivers typed as arrays or tuples, an indexed read needs syntax that proves its value is a boolean, since array methods can remove or shift elements.
 
 The rule autofixes `!!` on direct equality and relational comparisons, `in`, `instanceof`, `!`, and `delete`. With typed linting and `strictNullChecks`, it also autofixes reads of type `boolean` in these positions.
 

@@ -1588,6 +1588,23 @@ test({
 			],
 		},
 		{
+			...typeAwareBooleanCoercion(outdent`
+				declare function read(): boolean;
+				const enabled = read();
+				const alias = enabled;
+				const equal = Math.random() > 0.5;
+				export const result = [Boolean(alias), Boolean(equal)];
+			`),
+			output: outdent`
+				declare function read(): boolean;
+				const enabled = read();
+				const alias = enabled;
+				const equal = Math.random() > 0.5;
+				export const result = [alias, equal];
+			`,
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		},
+		{
 			code: 'function read(enabled: boolean) { return !!enabled; } read(null);',
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
 			languageOptions: {
@@ -1646,6 +1663,9 @@ test.snapshot({
 		'function read(flags: [boolean]) { flags.pop(); const enabled = flags[0]; return !!enabled; } read([true]);',
 		'function read(flags: [boolean, string]) { flags.shift(); const enabled = flags[0] ?? false; return !!enabled; } read([false, "ready"]);',
 		'function read(flags: [boolean]): boolean { flags.pop(); return Boolean(flags[0]); } read([true]);',
+		'function read(flags: [boolean]): boolean { flags.pop(); const enabled = flags[0]; return Boolean(enabled); } read([true]);',
+		'function read(flags: boolean[]): boolean { const first = flags[0]; const enabled = first; return Boolean(enabled); } read([]);',
+		'const enabled: unknown = true; Boolean(enabled);',
 		'function read(flags: boolean[]) { const enabled = flags[0]; return !!enabled; } read([]);',
 		'function read(flags: boolean[]) { let enabled = flags[0]; return !!enabled; } read([]);',
 		'function read(flags: boolean[]) { const [enabled] = flags; return !!enabled; } read([]);',

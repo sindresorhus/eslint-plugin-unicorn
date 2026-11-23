@@ -584,32 +584,24 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	return isBoolean;
 }
 
-function isBooleanVariableValue(variable, context, visitedVariables) {
-	if (!variable || visitedVariables.has(variable) || variable.defs.length !== 1) {
-		return false;
-	}
-
-	visitedVariables.add(variable);
-
-	const [definition] = variable.defs;
-	const scope = context.sourceCode.getScope(definition.name);
-	if (definition.name?.typeAnnotation) {
-		visitedVariables.delete(variable);
-		return !definition.name.optional && isBooleanTypeAnnotation(definition.name.typeAnnotation, context, scope);
-	}
-
-	const isBoolean = isSimpleConstVariableDefinition(definition)
-		? isBooleanExpression(definition.node.init, context, visitedVariables)
-		: false;
-
-	visitedVariables.delete(variable);
-	return isBoolean;
-}
-
 function isBooleanIdentifier(node, context, visitedVariables) {
-	const scope = context.sourceCode.getScope(node);
+	const {sourceCode} = context;
+	const variable = findVariable(sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	const name = definition?.name;
+	if (definition && !name?.typeAnnotation && isSimpleConstVariableDefinition(definition)) {
+		if (visitedVariables.has(variable)) {
+			return false;
+		}
 
-	return isBooleanVariableValue(findVariable(scope, node), context, visitedVariables)
+		// An unchecked read can return `undefined` despite the inferred type of its alias.
+		visitedVariables.add(variable);
+		const isBoolean = isBooleanExpression(definition.node.init, context, visitedVariables);
+		visitedVariables.delete(variable);
+		return isBoolean;
+	}
+
+	return Boolean(name?.typeAnnotation && !name.optional && isBooleanTypeAnnotation(name.typeAnnotation, context, sourceCode.getScope(name)))
 		|| isBooleanTypeInformation(node, context);
 }
 
