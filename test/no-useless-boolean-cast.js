@@ -15,6 +15,89 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		'records.filter(record => !!record.owner?.name);',
+		'records.filter(record => !record.name);',
+		'items.map(item => !!item.label);',
+		'[1].some(/** @returns {boolean} */ (value) => !!value);',
+		{
+			code: 'items.some((item: number): boolean => !!item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('const bits: (0 | 1 | null)[] = [0, 1]; bits.filter(value => !!value);'),
+		typeAware('new Uint8Array([0, 1]).findIndex(value => !!value);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!value);'),
+	],
+	invalid: [
+		'records.filter(record => !!record.name);',
+		'items.findIndex(item => {return!!item.label;});',
+		'items.some(item => !!({label: item.label}));',
+		'items.some(item => !/* keep */!item.label);',
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; }'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value);'),
+		typeAware('const words: string[] = [""]; words.filter(word => !!word);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1));'),
+		typeAware('new Uint8Array([0, 1]).findIndex(value => !!(value > 0));'),
+		{
+			code: 'const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); }'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1));'),
+	],
+});
+
+test.snapshot({
+	valid: [
+		'records?.filter(record => !!record.owner?.name);',
+		'items.some(item => {function read() {return !!item.label;} return read();});',
+		'items.some(item => {if (item.selected) {return;} return !item.label;});',
+		'items.some(async item => {const label = await item.getLabel(); return !!label;});',
+		'[1].some(/** @type {(item: number) => boolean} */ (item => !!item));',
+		{
+			code: 'items.some((item): boolean => !!(item.enabled ? (item.count > 0) as unknown : false));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function keep<T extends string | null>(items: T[]) {return items.some(item => !!item);}'),
+		typeAware('function keep<T extends string | undefined>(items: {name: T | number}[]) {return items.some(item => !!item.name);}'),
+		'items[method](item => !!item.name);',
+		'items[`some${suffix}`](item => !!item.name);',
+	],
+	invalid: [
+		'records.filter(record => {const name = record.name.trim(); return !!name;});',
+		'items.find(item => {if (item.disabled) {return false;} return !!item.label;});',
+		'items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;});',
+		'records?.filter(record => !!record.name);',
+		'records.some?.(record => !!record.name);',
+		'items.some(item => {const label = item.label; return !!(label /* keep */);});',
+		'[1].some(/** @returns {boolean} */ (value) => !!(value > 0));',
+		{
+			code: 'items.filter((item): item is "one" => !!(item === "one"));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});}'),
+		typeAware('function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});}'),
+		typeAware('function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);}'),
+		'records["filter"](record => !!record.name);',
+		'records[`some`](record => !!record.name);',
+		typeAware('function keep(bits?: (0 | 1)[]) {return bits?.["filter"](value => !!value);}'),
+		['items.some(item => {', '  return!!item.name;', '});'].join('\r\n'),
+		{
+			code: 'items.some(item => !!((log(item), /* keep */ item.name) as string));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			// @ts-check
+			/** @type {(0 | 1)[]} */
+			const bits = [0, 1];
+			/** @type {1[]} */
+			const ones = bits.filter(value => !!value);
+		`,
+	],
+});
+
+test.snapshot({
+	valid: [
 		'const toBoolean = value => Boolean(value);',
 		'array.map(value => Boolean(value.active));',
 		'array.some(Boolean);',

@@ -15,6 +15,40 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(1): records.filter(record => !!record.name); 1`] = `
+
+  1 | records.filter(record => !!record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(1): records.filter(record => !!record.name); 2`] = `
+
+Message:
+> 1 | records.filter(record => !!record.name);
+    |                          ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | records.filter(record => record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(1): records.filter(record => {const name = record.name.trim(); return !!name;}); 1`] = `
+
+  1 | records.filter(record => {const name = record.name.trim(); return !!name;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(1): records.filter(record => {const name = record.name.trim(); return !!name;}); 2`] = `
+
+Message:
+> 1 | records.filter(record => {const name = record.name.trim(); return !!name;});
+    |                                                                   ^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | records.filter(record => {const name = record.name.trim(); return name;});
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(10): array.some(value => Boolean(value?.active || false)); 1`] = `
 
   1 | array.some(value => Boolean(value?.active || false));
@@ -29,6 +63,44 @@ Message:
 
 Output:
   1 | array.some(value => value?.active || false);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});} 1`] = `
+
+Filename: file.ts
+
+  1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});} 2`] = `
+
+Message:
+> 1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});}
+    |                                                                                                      ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return value;});}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): new Uint8Array([0, 1]).findIndex(value => !!(value > 0)); 1`] = `
+
+Filename: file.ts
+
+  1 | new Uint8Array([0, 1]).findIndex(value => !!(value > 0));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(10): new Uint8Array([0, 1]).findIndex(value => !!(value > 0)); 2`] = `
+
+Message:
+> 1 | new Uint8Array([0, 1]).findIndex(value => !!(value > 0));
+    |                                           ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#findIndex()\` callbacks.
+
+Output:
+  1 | new Uint8Array([0, 1]).findIndex(value => value > 0);
 
 `;
 
@@ -49,6 +121,42 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(11): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value); 1`] = `
+
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(11): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);
+    |                                                      ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(11): function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);} 1`] = `
+
+Filename: file.ts
+
+  1 | function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(11): function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);} 2`] = `
+
+Message:
+> 1 | function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);}
+    |                                                               ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | function keep(bits?: (0 | 1)[]) {return bits?.filter(value => value);}
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(12): array.some(value => Boolean((value.active, value.enabled))); 1`] = `
 
   1 | array.some(value => Boolean((value.active, value.enabled)));
@@ -63,6 +171,42 @@ Message:
 
 Output:
   1 | array.some(value => (value.active, value.enabled));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); } 1`] = `
+
+Filename: file.ts
+
+  1 | function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); }
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); } 2`] = `
+
+Message:
+> 1 | function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); }
+    |                                                                                                  ^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => item); }
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): records[\"filter\"](record => !!record.name); 1`] = `
+
+  1 | records["filter"](record => !!record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(12): records[\"filter\"](record => !!record.name); 2`] = `
+
+Message:
+> 1 | records["filter"](record => !!record.name);
+    |                             ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | records["filter"](record => record.name);
 
 `;
 
@@ -83,6 +227,42 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(13): const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1)); 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(13): const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1)); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1));
+    |                                                         ^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => value === 1);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(13): records[\`some\`](record => !!record.name); 1`] = `
+
+  1 | records[\`some\`](record => !!record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(13): records[\`some\`](record => !!record.name); 2`] = `
+
+Message:
+> 1 | records[\`some\`](record => !!record.name);
+    |                           ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | records[\`some\`](record => record.name);
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(14): array.some(value => Boolean((value?.method)())); 1`] = `
 
   1 | array.some(value => Boolean((value?.method)()));
@@ -97,6 +277,25 @@ Message:
 
 Output:
   1 | array.some(value => (value?.method)());
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(14): function keep(bits?: (0 | 1)[]) {return bits?.[\"filter\"](value => !!value);} 1`] = `
+
+Filename: file.ts
+
+  1 | function keep(bits?: (0 | 1)[]) {return bits?.["filter"](value => !!value);}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(14): function keep(bits?: (0 | 1)[]) {return bits?.[\"filter\"](value => !!value);} 2`] = `
+
+Message:
+> 1 | function keep(bits?: (0 | 1)[]) {return bits?.["filter"](value => !!value);}
+    |                                                                   ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | function keep(bits?: (0 | 1)[]) {return bits?.["filter"](value => value);}
 
 `;
 
@@ -117,6 +316,29 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(15): items.some(item => {\r\n  return!!item.name;\r\n}); 1`] = `
+
+  1 | items.some(item => {
+  2 |   return!!item.name;
+  3 | });
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(15): items.some(item => {\r\n  return!!item.name;\r\n}); 2`] = `
+
+Message:
+  1 | items.some(item => {
+> 2 |   return!!item.name;
+    |         ^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+  3 | });
+
+Output:
+  1 | items.some(item => {
+  2 |   return item.name;
+  3 | });
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(16): array.some(value => Boolean(value.active), thisArgument); 1`] = `
 
   1 | array.some(value => Boolean(value.active), thisArgument);
@@ -131,6 +353,52 @@ Message:
 
 Output:
   1 | array.some(value => value.active, thisArgument);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): items.some(item => !!((log(item), /* keep */ item.name) as string)); 1`] = `
+
+  1 | items.some(item => !!((log(item), /* keep */ item.name) as string));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(16): items.some(item => !!((log(item), /* keep */ item.name) as string)); 2`] = `
+
+Message:
+> 1 | items.some(item => !!((log(item), /* keep */ item.name) as string));
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | items.some(item => (log(item), /* keep */ item.name) as string);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(17): // @ts-check\n/** @type {(0 | 1)[]} */\nconst bits = [0, 1];\n/** @type {1[]} */\nconst ones = bits.filter(value => !!value); 1`] = `
+
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+  4 | /** @type {1[]} */
+  5 | const ones = bits.filter(value => !!value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(17): // @ts-check\n/** @type {(0 | 1)[]} */\nconst bits = [0, 1];\n/** @type {1[]} */\nconst ones = bits.filter(value => !!value); 2`] = `
+
+Message:
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+  4 | /** @type {1[]} */
+> 5 | const ones = bits.filter(value => !!value);
+    |                                   ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+  4 | /** @type {1[]} */
+  5 | const ones = bits.filter(value => value);
 
 `;
 
@@ -214,6 +482,40 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(2): items.find(item => {if (item.disabled) {return false;} return !!item.label;}); 1`] = `
+
+  1 | items.find(item => {if (item.disabled) {return false;} return !!item.label;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): items.find(item => {if (item.disabled) {return false;} return !!item.label;}); 2`] = `
+
+Message:
+> 1 | items.find(item => {if (item.disabled) {return false;} return !!item.label;});
+    |                                                               ^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#find()\` callbacks.
+
+Output:
+  1 | items.find(item => {if (item.disabled) {return false;} return item.label;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): items.findIndex(item => {return!!item.label;}); 1`] = `
+
+  1 | items.findIndex(item => {return!!item.label;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): items.findIndex(item => {return!!item.label;}); 2`] = `
+
+Message:
+> 1 | items.findIndex(item => {return!!item.label;});
+    |                                ^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#findIndex()\` callbacks.
+
+Output:
+  1 | items.findIndex(item => {return item.label;});
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(20): [{active: true}].some((value: {active: boolean}) => Boolean(value.active)); 1`] = `
 
 Filename: file.ts
@@ -278,6 +580,51 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(3): items.some(item => !!({label: item.label})); 1`] = `
+
+  1 | items.some(item => !!({label: item.label}));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): items.some(item => !!({label: item.label})); 2`] = `
+
+Message:
+> 1 | items.some(item => !!({label: item.label}));
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | items.some(item => ({label: item.label}));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;}); 1`] = `
+
+  1 | items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;}); 2`] = `
+
+Message:
+> 1 | items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;});
+    |                                                ^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | items.some(item => {if (item.selected) {return item.label;} return !!item.name;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;}); 3`] = `
+
+Message:
+> 1 | items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;});
+    |                                                                      ^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | items.some(item => {if (item.selected) {return !!item.label;} return item.name;});
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(4): const example = records.find(record => Boolean(record.fieldname)); 1`] = `
 
   1 | const example = records.find(record => Boolean(record.fieldname));
@@ -292,6 +639,56 @@ Message:
 
 Output:
   1 | const example = records.find(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): items.some(item => !/* keep */!item.label); 1`] = `
+
+  1 | items.some(item => !/* keep */!item.label);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): items.some(item => !/* keep */!item.label); 2`] = `
+
+Message:
+> 1 | items.some(item => !/* keep */!item.label);
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): records?.filter(record => !!record.name); 1`] = `
+
+  1 | records?.filter(record => !!record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(4): records?.filter(record => !!record.name); 2`] = `
+
+Message:
+> 1 | records?.filter(record => !!record.name);
+    |                           ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | records?.filter(record => record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(5): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value); 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(5): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);
+    |                                                      ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => value);
 
 `;
 
@@ -312,6 +709,42 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(5): records.some?.(record => !!record.name); 1`] = `
+
+  1 | records.some?.(record => !!record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(5): records.some?.(record => !!record.name); 2`] = `
+
+Message:
+> 1 | records.some?.(record => !!record.name);
+    |                          ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | records.some?.(record => record.name);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; } 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; }
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; } 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; }
+    |                                                         ^^^^^^^ \`!!\` is unnecessary in \`Array#every()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => value)) { const ones: 1[] = bits; }
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(6): const example = records.findIndex(record => Boolean(record.fieldname)); 1`] = `
 
   1 | const example = records.findIndex(record => Boolean(record.fieldname));
@@ -326,6 +759,59 @@ Message:
 
 Output:
   1 | const example = records.findIndex(record => record.fieldname);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): items.some(item => {const label = item.label; return !!(label /* keep */);}); 1`] = `
+
+  1 | items.some(item => {const label = item.label; return !!(label /* keep */);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(6): items.some(item => {const label = item.label; return !!(label /* keep */);}); 2`] = `
+
+Message:
+> 1 | items.some(item => {const label = item.label; return !!(label /* keep */);});
+    |                                                      ^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | items.some(item => {const label = item.label; return (label /* keep */);});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): [1].some(/** @returns {boolean} */ (value) => !!(value > 0)); 1`] = `
+
+  1 | [1].some(/** @returns {boolean} */ (value) => !!(value > 0));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): [1].some(/** @returns {boolean} */ (value) => !!(value > 0)); 2`] = `
+
+Message:
+> 1 | [1].some(/** @returns {boolean} */ (value) => !!(value > 0));
+    |                                               ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | [1].some(/** @returns {boolean} */ (value) => value > 0);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value); 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(7): const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value);
+    |                                                    ^^^^^^^ \`!!\` is unnecessary in \`Array#some()\` callbacks.
+
+Output:
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.some(value => value);
 
 `;
 
@@ -363,6 +849,42 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(8): const words: string[] = [\"\"]; words.filter(word => !!word); 1`] = `
+
+Filename: file.ts
+
+  1 | const words: string[] = [""]; words.filter(word => !!word);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(8): const words: string[] = [\"\"]; words.filter(word => !!word); 2`] = `
+
+Message:
+> 1 | const words: string[] = [""]; words.filter(word => !!word);
+    |                                                    ^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | const words: string[] = [""]; words.filter(word => word);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(8): items.filter((item): item is \"one\" => !!(item === \"one\")); 1`] = `
+
+  1 | items.filter((item): item is "one" => !!(item === "one"));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(8): items.filter((item): item is \"one\" => !!(item === \"one\")); 2`] = `
+
+Message:
+> 1 | items.filter((item): item is "one" => !!(item === "one"));
+    |                                       ^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | items.filter((item): item is "one" => item === "one");
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(9): array.some(value => Boolean(value?.active ?? false)); 1`] = `
 
   1 | array.some(value => Boolean(value?.active ?? false));
@@ -377,5 +899,43 @@ Message:
 
 Output:
   1 | array.some(value => value?.active ?? false);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1)); 1`] = `
+
+Filename: file.ts
+
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1)); 2`] = `
+
+Message:
+> 1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1));
+    |                                                      ^^^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Output:
+  1 | const bits: (0 | 1)[] = [0, 1]; bits.filter(value => value === 1);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});} 1`] = `
+
+Filename: file.ts
+
+  1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});}
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(9): function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});} 2`] = `
+
+Message:
+> 1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});}
+    |                                                                                         ^^^^^^^ \`!!\` is unnecessary in \`Array#filter()\` callbacks.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return value;});}
 
 `;
