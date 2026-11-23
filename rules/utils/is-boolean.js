@@ -30,6 +30,10 @@ const booleanBinaryOperators = new Set([
 	'instanceof',
 ]);
 
+const isBooleanOperatorExpression = node =>
+	(node.type === 'BinaryExpression' && booleanBinaryOperators.has(node.operator))
+	|| (node.type === 'UnaryExpression' && ['!', 'delete'].includes(node.operator));
+
 const booleanTypeStrings = new Set(['boolean', 'true', 'false']);
 const booleanGlobalFunctions = new Set(['Boolean', 'isFinite', 'isNaN']);
 const nullishTypeAnnotationTypes = new Set([
@@ -836,17 +840,14 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 			return isBooleanIdentifier(node, context, visitedVariables);
 		}
 
-		case 'UnaryExpression': {
-			return ['!', 'delete'].includes(node.operator);
+		case 'UnaryExpression':
+		case 'BinaryExpression': {
+			return isBooleanOperatorExpression(node);
 		}
 
 		case 'LogicalExpression': {
 			return isBooleanExpression(node.left, context, visitedVariables)
 				&& isBooleanExpression(node.right, context, visitedVariables);
-		}
-
-		case 'BinaryExpression': {
-			return booleanBinaryOperators.has(node.operator);
 		}
 
 		case 'ConditionalExpression': {
@@ -909,6 +910,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isBooleanOperatorExpression,
 	isBuiltinBooleanCallExpression,
 	isBuiltinBooleanPropertyRead,
 	isKnownBooleanFunctionReference,

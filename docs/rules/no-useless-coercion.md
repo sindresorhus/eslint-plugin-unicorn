@@ -17,7 +17,12 @@ It also flags the equivalent operator idioms when the value is already the targe
 
 The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax and uses declared property types only when the receiver is a stable identifier. It skips ordinary calls to user functions.
 
-The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
+The rule autofixes `!!` on direct equality and relational comparisons, `in`, `instanceof`, `!`, and `delete`. With typed linting and `strictNullChecks`, it also autofixes reads of type `boolean` in these positions.
+
+- Variable reads in variable initializers, return values, and array elements, when the binding itself has type `boolean`.
+- Property reads in return values, array elements, and variable initializers with an explicit TypeScript type annotation.
+
+The rule suggests removing `!!` in other cases because removal can change inferred types or control-flow narrowing in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
 

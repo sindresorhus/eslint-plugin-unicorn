@@ -1453,12 +1453,50 @@ test.snapshot({
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 		'const read = value => /x/.test(value); const ready = !!read(value);',
 		'const ready = !!Object.freeze(true);',
+		'export let equal = !!(/** @type {true} */ (1 < 2));',
+		...[
+			'declare const a: number, b: number; let equal = !!((a === b) as true);',
+			'const isString = (value: unknown) => !(!(typeof value === "string") as any);',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		'export let equal = /** @type {true} */ !!(1 < 2);',
 	],
 });
 
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'const isError = value => !!(value instanceof Error);',
+			output: 'const isError = value => (value instanceof Error);',
+			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'const isString = (value: unknown) => !!(typeof value === "string");',
+			output: 'const isString = (value: unknown) => (typeof value === "string");',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'const rejected = !!!value;',
+			output: 'const rejected = (!value);',
+			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'function remove(settings?: {ready?: boolean}) { return!!(delete settings?.ready); }',
+			output: 'function remove(settings?: {ready?: boolean}) { return (delete settings?.ready); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'export let equal = /** @\\u0074ype {true} */ !!(1 < 2);',
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'export let equal = /** @\\u0074ype {true} */ (1 < 2);',
+				}],
+			}],
+		},
 		{
 			code: 'const quotient = 8/!!/x/.test(value);',
 			errors: [{
@@ -1520,6 +1558,63 @@ const typeAwareBooleanCoercion = code => ({
 		parser: parsers.typescript,
 		parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
 	},
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			...typeAwareBooleanCoercion(outdent`
+				declare const enabled: boolean;
+				declare const flags: {ready: boolean};
+				const ready = !!enabled;
+				const annotated: boolean = !!flags.ready;
+				const read = (flag: boolean) => !!flag;
+				export const result = [ready, annotated, read(true), !!flags.ready];
+			`),
+			output: outdent`
+				declare const enabled: boolean;
+				declare const flags: {ready: boolean};
+				const ready = enabled;
+				const annotated: boolean = flags.ready;
+				const read = (flag: boolean) => flag;
+				export const result = [ready, annotated, read(true), flags.ready];
+			`,
+			errors: [
+				{messageId: 'no-useless-coercion', suggestions: 0},
+				{messageId: 'no-useless-coercion', suggestions: 0},
+				{messageId: 'no-useless-coercion', suggestions: 0},
+				{messageId: 'no-useless-coercion', suggestions: 0},
+			],
+		},
+		{
+			code: 'function read(enabled: boolean) { return !!enabled; } read(null);',
+			filename: 'test/fixtures/prefer-path2d/dummy.ts',
+			languageOptions: {
+				parser: parsers.typescript,
+				parserOptions: {project: 'test/fixtures/prefer-path2d/tsconfig.json'},
+			},
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'function read(enabled: boolean) { return enabled; } read(null);',
+				}],
+			}],
+		},
+		{
+			...typeAwareBooleanCoercion(
+				'declare var enabled: boolean | undefined; globalThis.enabled = true; function read() { if (enabled !== undefined) { globalThis.enabled = undefined; return !!enabled; } }',
+			),
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'declare var enabled: boolean | undefined; globalThis.enabled = true; function read() { if (enabled !== undefined) { globalThis.enabled = undefined; return enabled; } }',
+				}],
+			}],
+		},
+	],
 });
 
 test.snapshot({
@@ -1733,6 +1828,26 @@ test.snapshot({
 		'function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }',
 		'function read(enabled?: boolean) { if (enabled !== undefined) { return !!enabled; } }',
 		'const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, !!({enabled: true}).enabled];',
+		'declare const enabled: true; export let ready = !!enabled;',
+		'export function read(enabled: boolean) { if (enabled) { let ready = !!enabled; return [ready]; } return []; }',
+		'export const read = <T extends boolean>(enabled: T) => !!enabled;',
+		outdent`
+			declare function make<T = boolean>(check: (value: T) => boolean): T;
+			declare function accept(value: boolean): boolean;
+			export const result: boolean | string = !!(true ? (1 < 2) : make(value => accept(value)));
+		`,
+		'export function read(flag: boolean) { switch (!!flag) { case true: return [flag]; default: return []; } }',
+		'declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(!!flag); return [flag]; }',
+		outdent`
+			type State = {ready: true; value: string} | {ready: false; value: number};
+			export function read(state: State) {
+				const ready = !!state.ready;
+				switch (ready) {
+					case true: return state.value;
+					default: return '';
+				}
+			}
+		`,
 	].map(code => typeAwareBooleanCoercion(code)),
 });
 
