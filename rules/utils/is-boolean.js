@@ -87,12 +87,13 @@ const expressionKindCheckers = new Map([
 	['weakSet', createNamedTypeChecker(['WeakSet'])],
 ]);
 
-// The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
-const nonBooleanStaticValueTypes = new Set([
+// Identifiers use their binding types. The other nodes cannot produce primitive booleans, so they skip static evaluation.
+const excludedStaticBooleanNodeTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
 	'ClassExpression',
 	'FunctionExpression',
+	'Identifier',
 	'NewExpression',
 	'ObjectExpression',
 	'TaggedTemplateExpression',
@@ -104,9 +105,11 @@ const isBooleanStaticValue = (node, context) => {
 		return typeof node.value === 'boolean';
 	}
 
-	return !nonBooleanStaticValueTypes.has(node.type)
+	// A folded boolean can still have a wider TypeScript type.
+	return !excludedStaticBooleanNodeTypes.has(node.type)
 		&& typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
-		&& !hasJSDocumentTypeReference(node, context);
+		&& !hasJSDocumentTypeReference(node, context)
+		&& (!context.sourceCode.parserServices?.program || hasBooleanType(node, context));
 };
 
 function isBooleanTypeScriptType(type, checker) {

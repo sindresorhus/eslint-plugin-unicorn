@@ -117,6 +117,11 @@ test('trusts explicit JSDoc over initializers and keeps optional parameters unce
 	t.assert.deepStrictEqual(getResults('/** @param {boolean} value */ function run(value) { inspect(value); }'), [true]);
 });
 
+test('checks explicitly typed identifiers before folding their initializers', t => {
+	const code = 'const enabled: unknown = true; const alias = enabled; const inferred = true; inspect(enabled); inspect(alias); inspect(inferred);';
+	t.assert.deepStrictEqual(getResults(code), [false, false, true]);
+});
+
 test('type information only refines unknown documented value types', t => {
 	for (const type of ['string', 'number', 'Array<boolean>', '() => boolean']) {
 		const code = `/** @type {${type}} */ const value = true; inspect(value);`;
