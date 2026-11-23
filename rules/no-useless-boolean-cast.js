@@ -132,8 +132,12 @@ function getTypeCheckedEdit(callback, argument, canChangePredicate, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const needsTypeReview = isTypeScriptFile(context.physicalFilename)
-		|| Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap)
+	const {esTreeNodeToTSNodeMap} = sourceCode.parserServices ?? {};
+	// TypeScript's public `ScriptKind.TS` and `ScriptKind.TSX` values also identify embedded scripts.
+	const scriptKind = esTreeNodeToTSNodeMap?.get(sourceCode.ast)?.getSourceFile().scriptKind;
+	const isTypeScript = isTypeScriptFile(context.filename) || scriptKind === 3 || scriptKind === 4;
+	const needsTypeReview = isTypeScript
+		|| Boolean(esTreeNodeToTSNodeMap)
 		|| hasJavaScriptTypeAnnotations(context);
 
 	function getCastEdit(callback, cast, argument, method) {
@@ -144,7 +148,8 @@ const create = context => {
 			return 'keep';
 		}
 
-		if (callback.returnType || getJSDocumentReturnType(callback, context)) {
+		// TypeScript only uses JSDoc return tags as type annotations in JavaScript files.
+		if (callback.returnType || (!isTypeScript && getJSDocumentReturnType(callback, context))) {
 			return hasBooleanResult(argument, context) ? 'fix' : 'keep';
 		}
 
@@ -157,7 +162,7 @@ const create = context => {
 		if (edit === undefined && needsTypeReview) {
 			const booleanArgument = hasBooleanResult(argument, context);
 			// Typed-array `find` and `findIndex` require boolean callbacks in TypeScript.
-			if (!booleanArgument && (method === 'find' || method === 'findIndex') && !isArray(call.callee.object, context)) {
+			if (!booleanArgument && ['find', 'findIndex'].includes(method) && !isArray(call.callee.object, context)) {
 				return 'keep';
 			}
 

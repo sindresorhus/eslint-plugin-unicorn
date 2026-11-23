@@ -501,6 +501,37 @@ Suggestion 1/1: Remove the boolean cast.:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(17): // @ts-check\n/** @type {(0 | 1)[]} */\nconst bits = [0, 1];\nconst kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));\nkept.push(0); 1`] = `
+
+Filename: file.js
+
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+  4 | const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));
+  5 | kept.push(0);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(17): // @ts-check\n/** @type {(0 | 1)[]} */\nconst bits = [0, 1];\nconst kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));\nkept.push(0); 2`] = `
+
+Message:
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+> 4 | const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));
+    |                                                             ^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#filter()\` callbacks.
+  5 | kept.push(0);
+
+Output:
+  1 | // @ts-check
+  2 | /** @type {(0 | 1)[]} */
+  3 | const bits = [0, 1];
+  4 | const kept = bits.filter(/** @returns {boolean} */ value => value === 1);
+  5 | kept.push(0);
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(17): array.some(value => {\n\treturn Boolean(value.active);\n}); 1`] = `
 
   1 | array.some(value => {

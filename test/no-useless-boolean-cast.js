@@ -11,6 +11,7 @@ const coercionConfig = {
 	plugins: {unicorn},
 	rules: {
 		'unicorn/no-useless-boolean-cast': 'error',
+		'unicorn/no-useless-coercion': 'error',
 		'unicorn/prefer-native-coercion-functions': 'error',
 	},
 };
@@ -38,10 +39,7 @@ nodeTest('coercion rules preserve a checked JavaScript predicate during autofix'
 		kept.push(0);
 	`;
 	const linter = new Linter();
-	const {output, messages} = linter.verifyAndFix(code, {
-		...coercionConfig,
-		rules: {...coercionConfig.rules, 'unicorn/no-useless-coercion': 'error'},
-	});
+	const {output, messages} = linter.verifyAndFix(code, coercionConfig);
 
 	t.assert.strictEqual(output, code);
 	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast']);
@@ -55,6 +53,32 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+nodeTest('JSDoc return tags do not authorize TypeScript predicate autofixes', t => {
+	const typed = typeAware('const bits = [0, 1]; const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1)); kept.push(0);');
+	const linter = new Linter();
+
+	for (const {code, filename, physicalFilename, languageOptions = {}} of [
+		typed,
+		{...typed, languageOptions: {parser: typescriptEslintParser}},
+		{code: typed.code, filename: 'example.md/0_example.ts', physicalFilename: 'example.md'},
+		{
+			code: `<script lang="ts">${typed.code}</script>`,
+			filename: 'component.vue',
+			languageOptions: {parser: parsers.vue.implementation, parserOptions: {parser: {ts: typescriptEslintParser}}},
+		},
+	]) {
+		const {output, messages} = linter.verifyAndFix(
+			code,
+			[{files: ['**/*.ts', '**/*.vue'], languageOptions}, coercionConfig],
+			{filename, physicalFilename},
+		);
+
+		t.assert.strictEqual(output, code, filename);
+		t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast']);
+		t.assert.strictEqual(messages[0].suggestions[0].fix.text, 'value === 1');
+	}
 });
 
 nodeTest('fixing a predicate preserves narrowing through a non-null assertion', t => {
@@ -151,6 +175,17 @@ test.snapshot({
 			});
 			kept.push({kind: 'mixed', flag: true});
 		`),
+		{
+			code: outdent`
+				// @ts-check
+				/** @type {(0 | 1)[]} */
+				const bits = [0, 1];
+				const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));
+				kept.push(0);
+			`,
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

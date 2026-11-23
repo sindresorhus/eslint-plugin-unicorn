@@ -221,7 +221,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
+	const isTypeScript = isTypeScriptFile(context.filename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
 	const needsTypeReview = isTypeScript || hasJavaScriptTypeAnnotations(context);
 	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
