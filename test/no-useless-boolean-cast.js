@@ -61,7 +61,7 @@ test.snapshot({
 		typeAware('function keep<T extends string | null>(items: T[]) {return items.some(item => !!item);}'),
 		typeAware('function keep<T extends string | undefined>(items: {name: T | number}[]) {return items.some(item => !!item.name);}'),
 		'items[method](item => !!item.name);',
-		'items[`some${suffix}`](item => !!item.name);',
+		'items[`some${suffix}`](item => !!item.name);', // eslint-disable-line no-template-curly-in-string
 	],
 	invalid: [
 		'records.filter(record => {const name = record.name.trim(); return !!name;});',

@@ -63,7 +63,7 @@ function isOptionalChainResult(node) {
 	return false;
 }
 
-const predicateMethods = [
+const predicateMethods = new Set([
 	'every',
 	'filter',
 	'find',
@@ -71,7 +71,7 @@ const predicateMethods = [
 	'findLast',
 	'findLastIndex',
 	'some',
-];
+]);
 
 function getPredicateMethod(call) {
 	if (!isMethodCall(call, {minimumArguments: 1, maximumArguments: 2})) {
@@ -80,7 +80,7 @@ function getPredicateMethod(call) {
 
 	const {computed, property} = call.callee;
 	const method = !computed && property.type === 'Identifier' ? property.name : getStaticStringValue(property);
-	if (predicateMethods.includes(method)) {
+	if (predicateMethods.has(method)) {
 		return method;
 	}
 }
