@@ -1665,7 +1665,7 @@ test.snapshot({
 		'function read(flags: [boolean]): boolean { flags.pop(); return Boolean(flags[0]); } read([true]);',
 		'function read(flags: [boolean]): boolean { flags.pop(); const enabled = flags[0]; return Boolean(enabled); } read([true]);',
 		'function read(flags: boolean[]): boolean { const first = flags[0]; const enabled = first; return Boolean(enabled); } read([]);',
-		'const enabled: unknown = true; Boolean(enabled);',
+		'const enabled: unknown = Math.random() > 0.5; Boolean(enabled);',
 		'function read(flags: boolean[]) { const enabled = flags[0]; return !!enabled; } read([]);',
 		'function read(flags: boolean[]) { let enabled = flags[0]; return !!enabled; } read([]);',
 		'function read(flags: boolean[]) { const [enabled] = flags; return !!enabled; } read([]);',
