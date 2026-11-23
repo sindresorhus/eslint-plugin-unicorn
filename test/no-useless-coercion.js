@@ -1488,12 +1488,12 @@ test({
 			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
 		},
 		{
-			code: 'export let equal = /** @\\u0074ype {true} */ !!(1 < 2);',
+			code: String.raw`export let equal = /** @\u0074ype {true} */ !!(1 < 2);`,
 			errors: [{
 				messageId: 'no-useless-coercion',
 				suggestions: [{
 					messageId: 'remove-double-negation',
-					output: 'export let equal = /** @\\u0074ype {true} */ (1 < 2);',
+					output: String.raw`export let equal = /** @\u0074ype {true} */ (1 < 2);`,
 				}],
 			}],
 		},
