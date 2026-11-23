@@ -11,8 +11,10 @@ import {
 	hasJavaScriptTypeAnnotations,
 	hasJSDocumentExpressionType,
 	hasOptionalChainElement,
+	hasTypeArguments,
 	isBoolean,
 	isGlobalBooleanCall,
+	isKnownNonIndexedCollection,
 	isNullishType,
 	isSameIdentifier,
 	isTypeScriptFile,
@@ -21,10 +23,10 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-boolean-cast';
-const SUGGESTION_ID = 'remove-double-negation';
+const SUGGESTION_ID = 'remove-boolean-cast';
 const messages = {
 	[MESSAGE_ID]: '`{{cast}}` is unnecessary in `Array#{{method}}()` callbacks.',
-	[SUGGESTION_ID]: 'Remove the double negation.',
+	[SUGGESTION_ID]: 'Remove the boolean cast.',
 };
 
 const isNullishOrVoidType = type =>
@@ -33,9 +35,12 @@ const isNullishOrVoidType = type =>
 // The cast preserves a boolean return for nullish operands. A type parameter can be nullish through its constraint.
 function hasNullishOrVoidType(node, context) {
 	return withTypeInformation(node, context, ({type, checker}) => {
-		const constraint = checker.getBaseConstraintOfType(type) ?? type;
-		const types = constraint.isUnion() ? constraint.types : [constraint];
-		return types.some(type => isNullishOrVoidType(type));
+		const types = type.isUnion() ? type.types : [type];
+		return types.some(type => {
+			const constraint = checker.getBaseConstraintOfType(type) ?? type;
+			const constraintTypes = constraint.isUnion() ? constraint.types : [constraint];
+			return constraintTypes.some(type => isNullishOrVoidType(type));
+		});
 	}) ?? false;
 }
 
@@ -63,12 +68,16 @@ function isOptionalChainResult(node) {
 	return false;
 }
 
-const predicateMethods = new Set([
+const methodsWithTypePredicates = new Set([
 	'every',
 	'filter',
 	'find',
-	'findIndex',
 	'findLast',
+]);
+
+const predicateMethods = new Set([
+	...methodsWithTypePredicates,
+	'findIndex',
 	'findLastIndex',
 	'some',
 ]);
@@ -87,8 +96,7 @@ function getPredicateMethod(call) {
 
 function getBooleanCallArgument(call, callback, cast, context) {
 	if (
-		callback.returnType
-		|| call.optional
+		call.optional
 		|| call.callee.optional
 		|| call.callee.computed
 		|| getFunctionReturnExpression(callback) !== cast
@@ -113,7 +121,7 @@ function hasBooleanResult(argument, context) {
 			?? ['BinaryExpression', 'Literal', 'UnaryExpression'].includes(argument.type));
 }
 
-function getTypeCheckedEdit(callback, argument, context) {
+function getTypeCheckedEdit(callback, argument, canAddPredicate, context) {
 	const {parserServices} = context.sourceCode;
 	return withTypeInformation(callback.parent, context, ({checker}) => {
 		const typeScriptCallback = parserServices.esTreeNodeToTSNodeMap.get(callback);
@@ -123,11 +131,12 @@ function getTypeCheckedEdit(callback, argument, context) {
 		}
 
 		const argumentType = parserServices.getTypeAtLocation(argument);
-		let edit = 'fix';
+		const booleanType = checker.getBooleanType();
+		let edit = canAddPredicate && argumentType === booleanType ? 'suggest' : 'fix';
 		for (const signature of signatures) {
 			if (checker.getTypePredicateOfSignature(signature)) {
 				// An inferred predicate requires the intrinsic boolean type, even when a different type is assignable to boolean.
-				if (argumentType !== checker.getBooleanType()) {
+				if (argumentType !== booleanType) {
 					edit = 'suggest';
 				}
 			} else if (!checker.isTypeAssignableTo(argumentType, checker.getReturnTypeOfSignature(signature))) {
@@ -148,24 +157,31 @@ const create = context => {
 		|| Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap)
 		|| hasJavaScriptTypeAnnotations(context);
 
-	function getDoubleNegationEdit(callback, argument, method) {
+	function getCastEdit(callback, cast, argument, method) {
 		if (
-			callback.returnType
-			|| getJSDocumentReturnType(callback, context)
-			|| hasJSDocumentExpressionType(callback, context)
+			hasJSDocumentExpressionType(callback, context)
+			|| hasJSDocumentExpressionType(cast, context)
 		) {
+			return 'keep';
+		}
+
+		if (callback.returnType || getJSDocumentReturnType(callback, context)) {
 			return hasBooleanResult(argument, context) ? 'fix' : 'keep';
 		}
 
-		// Without a signature, these methods accept any return value without narrowing.
-		const edit = getTypeCheckedEdit(callback, argument, context) ?? (
-			!needsTypeReview || method === 'some' || method === 'findLastIndex' || hasBooleanResult(argument, context)
+		// Removing a `Boolean()` call can expose a boolean expression that TypeScript uses to infer a predicate.
+		const canAddPredicate = cast.type === 'CallExpression' && methodsWithTypePredicates.has(method);
+		const edit = getTypeCheckedEdit(callback, argument, canAddPredicate, context) ?? (
+			!needsTypeReview
+			|| method === 'some'
+			|| method === 'findLastIndex'
+			|| (!canAddPredicate && hasBooleanResult(argument, context))
 				? 'fix'
 				: 'suggest'
 		);
 
 		// Explicit type arguments select the predicate overload without an ordinary overload to fall back to.
-		return edit === 'suggest' && callback.parent.typeArguments ? 'keep' : edit;
+		return edit === 'suggest' && hasTypeArguments(callback.parent) ? 'keep' : edit;
 	}
 
 	function getProblem(callback, cast) {
@@ -182,7 +198,7 @@ const create = context => {
 
 		const isDoubleNegation = isNegation(cast) && isNegation(cast.argument);
 		const argument = isDoubleNegation ? cast.argument.argument : getBooleanCallArgument(call, callback, cast, context);
-		if (!argument) {
+		if (!argument || isKnownNonIndexedCollection(call.callee.object, context)) {
 			return;
 		}
 
@@ -194,23 +210,19 @@ const create = context => {
 			return;
 		}
 
-		const edit = isDoubleNegation ? getDoubleNegationEdit(callback, argument, method) : 'fix';
+		const edit = getCastEdit(callback, cast, argument, method);
 		if (edit === 'keep') {
 			return;
 		}
 
 		const fix = function * (fixer) {
-			let text;
-			if (callback.body === cast) {
-				text = getConciseArrowBodyText(argument, context);
-			} else {
-				text = isDoubleNegation ? getParenthesizedText(argument, context) : sourceCode.getText(argument);
-			}
-
-			yield fixer.replaceText(cast, text);
-			if (isDoubleNegation) {
-				yield fixSpaceAroundKeyword(fixer, cast, context);
-			}
+			yield fixer.replaceText(
+				cast,
+				callback.body === cast
+					? getConciseArrowBodyText(argument, context)
+					: getParenthesizedText(argument, context),
+			);
+			yield fixSpaceAroundKeyword(fixer, cast, context);
 		};
 
 		return getCommentSafeProblem(context, {
@@ -218,7 +230,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data: {cast: isDoubleNegation ? '!!' : 'Boolean()', method},
 			...edit === 'fix' ? {fix} : {suggest: [{messageId: SUGGESTION_ID, fix}]},
-		}, cast, isDoubleNegation ? [getParenthesizedRange(argument, context)] : []);
+		}, cast, [getParenthesizedRange(argument, context)]);
 	}
 
 	context.on('ArrowFunctionExpression', callback => getProblem(callback, callback.body));

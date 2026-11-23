@@ -11,11 +11,11 @@
 
 Array predicate methods already treat callback return values as truthy or falsy, so wrapping the returned expression in `Boolean()` or applying double negation (`!!`) is unnecessary.
 
-The rule checks `!!` on direct returns from block callbacks, in callbacks passed to optional calls, and on methods called with a string literal or a static template literal as the property name.
+The rule skips known custom receivers. For `!!`, it also checks direct returns from block callbacks and calls that use optional chaining or a string literal or template literal without substitutions as the method name.
 
 The rule keeps casts around optional chains in the returned value because the cast converts a possibly `undefined` value to a boolean. With [type information](https://typescript-eslint.io/getting-started/typed-linting/), it also keeps casts of values whose type includes `undefined`, `null`, or `void`.
 
-The rule keeps `!!` when the operand cannot satisfy the callback's required return type. In TypeScript and JavaScript with type annotations, it offers a suggestion when removing `!!` could change inferred narrowing or when there is insufficient type information to verify the change.
+The rule keeps a cast when the operand cannot satisfy a required return type or when JSDoc annotates the callback or returned expression with `@type` or `@satisfies`. In TypeScript and JavaScript with type annotations, it offers a suggestion when removing a cast could change inferred narrowing or when it has insufficient type information to verify the change.
 
 ## Examples
 

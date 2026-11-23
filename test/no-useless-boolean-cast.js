@@ -19,6 +19,9 @@ test.snapshot({
 		'records.filter(record => !record.name);',
 		'items.map(item => !!item.label);',
 		'[1].some(/** @returns {boolean} */ (value) => !!value);',
+		'[1].some(value => /** @type {boolean} */ (!!value));',
+		'[1].some(value => /** @type {boolean} */ (Boolean(value + 1)));',
+		'[1].some(value => /** @type {boolean} */ (!!(value > 0)));',
 		{
 			code: 'items.some((item: number): boolean => !!item);',
 			languageOptions: {parser: parsers.typescript},
@@ -60,8 +63,21 @@ test.snapshot({
 		},
 		typeAware('function keep<T extends string | null>(items: T[]) {return items.some(item => !!item);}'),
 		typeAware('function keep<T extends string | undefined>(items: {name: T | number}[]) {return items.some(item => !!item.name);}'),
+		typeAware('function keep<T, U extends string | null>(items: (T | U)[]) {return items.some(item => !!item);}'),
 		'items[method](item => !!item.name);',
 		'items[`some${suffix}`](item => !!item.name);', // eslint-disable-line no-template-curly-in-string
+		'items[tag`some`](item => !!item.name);',
+		'const collection = {some(predicate) {return predicate(1) === true;}}; collection.some(value => !!value);',
+		'({some(predicate) {return predicate(1) === true;}})["some"](value => !!value);',
+		outdent`
+			// @ts-check
+			/** @type {(0 | 1)[]} */
+			const bits = [0, 1];
+			const asserted = bits.filter(value => /** @type {boolean} */ (Boolean(value === 1)));
+			asserted.push(0);
+			const constrained = bits.filter(/** @satisfies {(value: 0 | 1) => boolean} */ (value => Boolean(value === 1)));
+			constrained.push(0);
+		`,
 	],
 	invalid: [
 		'records.filter(record => {const name = record.name.trim(); return !!name;});',
@@ -93,6 +109,7 @@ test.snapshot({
 			/** @type {1[]} */
 			const ones = bits.filter(value => !!value);
 		`,
+		'records.find(function (record) {return !!this.normalize(record.name);}, options);',
 	],
 });
 
@@ -128,6 +145,8 @@ test.snapshot({
 		'array.some(value => { const Boolean = value => value; return Boolean(value.active); });',
 		'array.some(async value => Boolean(value.active));',
 		'array.some(function * (value) {return Boolean(value.active);});',
+		'[1].some(/** @returns {boolean} */ value => Boolean(value + 1));',
+		typeAware('new Uint8Array([0, 1]).findIndex(value => Boolean(value + 1));'),
 		// `Boolean()` normalizes a possibly-`undefined` value from optional chaining, so it is not useless.
 		'array.some(value => Boolean(value?.active));',
 		'array.some(value => Boolean((value?.active)));',
@@ -199,5 +218,8 @@ test.snapshot({
 		typeAware('[{active: true}].some((value: {active: boolean}) => Boolean(value.active));'),
 		'array.some(value => Boolean(/* comment */ value.active));',
 		'array.some(value => Boolean(value.active /* comment */));',
+		'array.some(function (value) {return Boolean((log(), /* keep */ value.active));});',
+		typeAware('const bits: (0 | 1)[] = [0, 1]; const ones = bits.filter(value => Boolean(value === 1)); ones.push(0);'),
+		typeAware('const records = [{name: "record"}]; records.filter(record => Boolean(record.name));'),
 	],
 });
