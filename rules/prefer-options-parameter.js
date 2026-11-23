@@ -92,9 +92,9 @@ function isRecordType(type, checker, program) {
 	if (
 		type.flags !== objectTypeFlag
 		|| !symbol
+		|| isKnownNonRecordType(type, checker, program)
 		|| type.getCallSignatures().length > 0
 		|| type.getConstructSignatures().length > 0
-		|| isKnownNonRecordType(type, checker, program)
 	) {
 		return false;
 	}
