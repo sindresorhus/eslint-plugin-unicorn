@@ -175,8 +175,11 @@ test.snapshot({
 			'function run(verbose = false, values?: ReadonlyMap<string, number>) {}',
 			'function run(verbose = false, values?: Iterable<string>) {}',
 			'function run(verbose = false, values?: AsyncIterable<string>) {}',
+			'declare function readNames(): Iterable<string>; function run(verbose = false, names = readNames()) {}',
 			'type Names = ReadonlySet<string>; function run(verbose = false, names?: Names) {}',
 			'type Values = Iterable<string> | {encoding?: string}; function run(verbose = false, values?: Values) {}',
+			'interface Values extends ReadonlyArray<string> {} function run(verbose = false, values?: Values) {}',
+			'interface Values extends Set<string> {} function run(verbose = false, values?: Values) {}',
 			outdent`
 				interface Base { count: number }
 				interface Left extends Base {}
@@ -217,18 +220,21 @@ test.snapshot({
 			'PromiseLike<string>',
 			'ReadableStreamAsyncIterator<string>',
 			'ReadonlySetLike<string>',
+			'RegExpMatchArray',
 			'RegExpStringIterator<string>',
 			'SetIterator<string>',
 			'StringIterator<string>',
 			'URLSearchParamsIterator<[string, string]>',
 		].map(type => typeAware(`function run(verbose = false, values?: ${type}) {}`)),
 		...[
-			['Iterator<string>', 'lib.es2022.d.ts'],
-			['Promise<string>', 'lib.es5.d.ts'],
-		].map(([type, library]) => {
+			['Iterator<string>', ['es2022']],
+			['Map<string, string>', ['es5', 'es2015.iterable']],
+			['Promise<string>', ['es5']],
+			['Set<string>', ['es5', 'es2015.iterable']],
+		].map(([type, libraries]) => {
 			const code = `function run(verbose = false, values?: ${type}) {}`;
 			const filename = path.resolve('file.ts').replaceAll('\\', '/');
-			const compilerOptions = {lib: [library], strict: true, types: []};
+			const compilerOptions = {lib: libraries.map(library => `lib.${library}.d.ts`), strict: true, types: []};
 			const host = typescript.createCompilerHost(compilerOptions);
 			const {getSourceFile} = host;
 			host.getSourceFile = (name, languageVersion, ...arguments_) => name === filename
@@ -288,6 +294,10 @@ test({
 		},
 		{
 			...typeAware('export {}; interface Iterator { encoding?: string } interface Options extends Iterator {} function run(verbose = false, options?: Options) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('interface Options { next(): IteratorResult<string>; onError?: (error: Error) => void } function run(verbose = false, options?: Options) {}'),
 			errors: [{messageId: 'prefer-options-parameter'}],
 		},
 		{

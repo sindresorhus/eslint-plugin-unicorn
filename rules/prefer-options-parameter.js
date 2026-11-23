@@ -29,16 +29,20 @@ const functionLikeTypes = [
 ];
 
 const nonRecordLibraryTypeNames = new Set([
+	'Array',
 	'ArrayLike',
 	'AsyncIterable',
 	'AsyncIterator',
 	'Iterable',
 	'Iterator',
+	'Map',
 	'Promise',
 	'PromiseLike',
+	'ReadonlyArray',
 	'ReadonlyMap',
 	'ReadonlySet',
 	'ReadonlySetLike',
+	'Set',
 ]);
 
 const isOptionalParameter = parameter =>

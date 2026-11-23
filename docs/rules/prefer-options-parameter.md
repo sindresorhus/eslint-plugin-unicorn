@@ -46,7 +46,7 @@ Functions such as `clamp(value, minimum = 0, maximum = 1)` are allowed by defaul
 
 Recognizes final object destructuring, object-literal or statically known plain-object defaults (including constants and frozen objects), and nonempty inline TypeScript object types. Named record types also qualify with type information.
 
-Type detection excludes arrays, callable or constructable types, class instances, and built-in TypeScript interfaces such as `ArrayLike`, `Iterator`, `ReadonlySet`, and `PromiseLike`. It also excludes interfaces derived from these built-in types, such as `Generator` and `HeadersIterator`.
+Type detection excludes arrays, callable or constructable types, class instances, and built-in TypeScript interfaces such as `ArrayLike`, `Iterator`, `Map`, `ReadonlySet`, and `PromiseLike`. It also excludes interfaces derived from these built-in types, such as `Generator`, `HeadersIterator`, and `RegExpMatchArray`.
 
 Record detection is a heuristic and ignores parameter names. Recognizable defaults qualify independently of types.
 
