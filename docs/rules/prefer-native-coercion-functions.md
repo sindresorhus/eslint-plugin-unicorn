@@ -13,6 +13,8 @@ If a function is equivalent to [`String`](https://developer.mozilla.org/en-US/do
 
 The rule allows coercion wrappers with attached JSDoc, an explicit TypeScript signature, or a return type assertion. It also keeps functions when a TypeScript expression wrapper applies to the function or an enclosing literal, or when JSDoc types an enclosing literal.
 
+For array methods with type predicate overloads, the rule preserves callbacks whose returned value uses a TypeScript wrapper. For example, a non-null assertion in a `filter()` callback can affect the type of the filtered array.
+
 ## Examples
 
 ```js

@@ -1,5 +1,6 @@
 import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import {arrayMethodsWithTypePredicates, arrayPredicateMethods} from './shared/array-predicate-methods.js';
 import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
@@ -69,20 +70,6 @@ function isOptionalChainResult(node) {
 	return false;
 }
 
-const methodsWithTypePredicates = new Set([
-	'every',
-	'filter',
-	'find',
-	'findLast',
-]);
-
-const predicateMethods = new Set([
-	...methodsWithTypePredicates,
-	'findIndex',
-	'findLastIndex',
-	'some',
-]);
-
 function getPredicateMethod(call) {
 	if (!isMethodCall(call, {minimumArguments: 1, maximumArguments: 2})) {
 		return;
@@ -90,7 +77,7 @@ function getPredicateMethod(call) {
 
 	const {computed, property} = call.callee;
 	const method = !computed && property.type === 'Identifier' ? property.name : getStaticStringValue(property);
-	if (predicateMethods.has(method)) {
+	if (arrayPredicateMethods.has(method)) {
 		return method;
 	}
 }
@@ -169,7 +156,7 @@ const create = context => {
 		}
 
 		// Removing a `Boolean()` call or changing a return after earlier statements can change predicate inference.
-		const canChangePredicate = methodsWithTypePredicates.has(method)
+		const canChangePredicate = arrayMethodsWithTypePredicates.has(method)
 			&& (cast.type === 'CallExpression' || !getFunctionReturnExpression(callback));
 		const checkedEdit = getTypeCheckedEdit(callback, argument, canChangePredicate, context);
 		const edit = checkedEdit ?? (

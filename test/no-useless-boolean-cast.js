@@ -7,22 +7,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const coercionConfig = {
+	plugins: {unicorn},
+	rules: {
+		'unicorn/no-useless-boolean-cast': 'error',
+		'unicorn/prefer-native-coercion-functions': 'error',
+	},
+};
+
 nodeTest('fixing a predicate preserves the Boolean binding', t => {
 	const linter = new Linter();
-	const config = {
-		plugins: {unicorn},
-		rules: {
-			'unicorn/no-useless-boolean-cast': 'error',
-			'unicorn/prefer-native-coercion-functions': 'error',
-		},
-	};
 
 	for (const [source, expectedOutput] of [
 		['const Boolean = () => false; [1].some(value => !!value);', 'const Boolean = () => false; [1].some(value => value);'],
 		['[1].some(Boolean => !!Boolean);', '[1].some(Boolean);'],
 		['[() => false].some(Boolean => !!Boolean(Boolean));', '[() => false].some(Boolean => Boolean(Boolean));'],
 	]) {
-		const {output, messages} = linter.verifyAndFix(source, config);
+		const {output, messages} = linter.verifyAndFix(source, coercionConfig);
 		t.assert.strictEqual(output, expectedOutput);
 		t.assert.deepStrictEqual(messages, []);
 	}
@@ -35,6 +36,21 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+nodeTest('fixing a predicate preserves narrowing through a non-null assertion', t => {
+	const {code, filename, languageOptions} = typeAware(
+		'declare const flags: (boolean | undefined)[]; const kept: true[] = flags.filter(value => !!value!);',
+	);
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(
+		code,
+		[{files: ['**/*.ts'], languageOptions}, coercionConfig],
+		{filename},
+	);
+
+	t.assert.strictEqual(output, code.replace('!!value!', 'value!'));
+	t.assert.deepStrictEqual(messages, []);
 });
 
 const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';

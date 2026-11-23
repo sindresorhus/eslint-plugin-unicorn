@@ -1,6 +1,7 @@
 import {findVariable, getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import {arrayMethodsWithTypePredicates, arrayPredicateMethods} from './shared/array-predicate-methods.js';
 import {
 	getFunctionReturnExpression,
 	getOutermostTypeScriptExpression,
@@ -19,7 +20,6 @@ const messages = {
 };
 
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
-const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
 const isNativeCoercionFunctionCall = (node, firstArgumentName, context) =>
 	node?.type === 'CallExpression'
@@ -30,23 +30,25 @@ const isNativeCoercionFunctionCall = (node, firstArgumentName, context) =>
 	&& node.arguments[0].name === firstArgumentName
 	&& isGlobalIdentifier(node.callee, context);
 
-// `v => v` or `function (v) {return v;}`, with TypeScript expression wrappers around the value removed
-const isIdentityFunction = node => {
-	const returnedExpression = unwrapTypeScriptExpression(getFunctionReturnExpression(node));
-	return returnedExpression?.type === 'Identifier'
-		&& returnedExpression.name === node.params[0].name;
+// `v => v` or `function (v) {return v;}`. TypeScript wrappers can affect narrowing in methods with type predicate overloads.
+const isIdentityFunction = (node, method) => {
+	const returnedExpression = getFunctionReturnExpression(node);
+	const expression = arrayMethodsWithTypePredicates.has(method)
+		? returnedExpression
+		: unwrapTypeScriptExpression(returnedExpression);
+	return expression?.type === 'Identifier' && expression.name === node.params[0].name;
 };
 
 const isArrayIdentityCallback = node =>
-	isIdentityFunction(node)
-	&& node.parent.type === 'CallExpression'
+	node.parent.type === 'CallExpression'
 	&& !node.parent.optional
 	&& node.parent.arguments[0] === node
 	&& node.parent.callee.type === 'MemberExpression'
 	&& !node.parent.callee.computed
 	&& !node.parent.callee.optional
 	&& node.parent.callee.property.type === 'Identifier'
-	&& arrayMethodsWithBooleanCallback.has(node.parent.callee.property.name);
+	&& arrayPredicateMethods.has(node.parent.callee.property.name)
+	&& isIdentityFunction(node, node.parent.callee.property.name);
 
 const isTypeScriptTypePredicateFunction = node =>
 	node.returnType?.type === 'TSTypeAnnotation'

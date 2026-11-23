@@ -319,6 +319,8 @@ test.snapshot({
 	valid: [
 		'const toString = value => String(value) as "42";',
 		'const toString = value => {\n\treturn String(value) as string;\n};',
+		'array.filter(value => value!);',
+		'array.find(value => value! satisfies boolean);',
 	],
 	invalid: [
 		'const toString = value => String(value) satisfies string;',
