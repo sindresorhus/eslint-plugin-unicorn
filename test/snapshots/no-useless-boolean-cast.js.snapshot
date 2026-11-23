@@ -892,6 +892,23 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(3): new Uint8Array([0, 1]).find(value => Boolean(value > 0)); 1`] = `
+
+  1 | new Uint8Array([0, 1]).find(value => Boolean(value > 0));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(3): new Uint8Array([0, 1]).find(value => Boolean(value > 0)); 2`] = `
+
+Message:
+> 1 | new Uint8Array([0, 1]).find(value => Boolean(value > 0));
+    |                                      ^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#find()\` callbacks.
+
+Suggestion 1/1: Remove the boolean cast.:
+  1 | new Uint8Array([0, 1]).find(value => value > 0);
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(30): array.some(function (value) {\n\t'use strict';\n\treturn Boolean(value.active);\n}); 1`] = `
 
   1 | array.some(function (value) {

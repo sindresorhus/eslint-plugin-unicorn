@@ -1,6 +1,5 @@
-import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {arrayMethodsWithTypePredicates, arrayPredicateMethods} from './shared/array-predicate-methods.js';
+import {arrayMethodsWithTypePredicates, getArrayPredicateMethod} from './shared/array-predicate-methods.js';
 import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
@@ -70,18 +69,6 @@ function isOptionalChainResult(node) {
 	return false;
 }
 
-function getPredicateMethod(call) {
-	if (!isMethodCall(call, {minimumArguments: 1, maximumArguments: 2})) {
-		return;
-	}
-
-	const {computed, property} = call.callee;
-	const method = !computed && property.type === 'Identifier' ? property.name : getStaticStringValue(property);
-	if (arrayPredicateMethods.has(method)) {
-		return method;
-	}
-}
-
 const isNegation = node => node?.type === 'UnaryExpression' && node.operator === '!';
 
 function getCastArgument(callback, cast, context) {
@@ -89,7 +76,8 @@ function getCastArgument(callback, cast, context) {
 		return cast.argument.argument;
 	}
 
-	if (!isGlobalBooleanCall(cast, context)) {
+	// A type argument to `Boolean()` can supply a contextual type to the operand.
+	if (!isGlobalBooleanCall(cast, context) || hasTypeArguments(cast)) {
 		return;
 	}
 
@@ -160,44 +148,36 @@ const create = context => {
 			return hasBooleanResult(argument, context) ? 'fix' : 'keep';
 		}
 
+		const supportsTypePredicates = arrayMethodsWithTypePredicates.has(method);
 		// Removing a `Boolean()` call or changing a return after earlier statements can change predicate inference.
-		const canChangePredicate = arrayMethodsWithTypePredicates.has(method)
+		const canChangePredicate = supportsTypePredicates
 			&& (cast.type === 'CallExpression' || !getFunctionReturnExpression(callback));
-		const checkedEdit = getTypeCheckedEdit(callback, argument, canChangePredicate, context);
-		const edit = checkedEdit ?? (
-			!needsTypeReview
-			|| method === 'some'
-			|| method === 'findLastIndex'
-			|| (!canChangePredicate && hasBooleanResult(argument, context))
-				? 'fix'
-				: 'suggest'
-		);
+		const call = callback.parent;
+		let edit = getTypeCheckedEdit(callback, argument, canChangePredicate, context);
+		if (edit === undefined && needsTypeReview) {
+			const booleanArgument = hasBooleanResult(argument, context);
+			// Typed-array `find` and `findIndex` require boolean callbacks in TypeScript.
+			if (!booleanArgument && (method === 'find' || method === 'findIndex') && !isArray(call.callee.object, context)) {
+				return 'keep';
+			}
 
-		if (edit !== 'suggest') {
-			return edit;
+			if (supportsTypePredicates && (canChangePredicate || !booleanArgument)) {
+				edit = 'suggest';
+			}
 		}
 
-		const call = callback.parent;
-		// Typed-array `find` and `findIndex` require boolean callbacks in TypeScript.
-		const needsArrayProof = checkedEdit === undefined && (method === 'find' || method === 'findIndex');
 		// Explicit type arguments select the predicate overload without an ordinary overload to fall back to.
-		return hasTypeArguments(call) || (needsArrayProof && !isArray(call.callee.object, context)) ? 'keep' : edit;
+		return edit === 'suggest' && hasTypeArguments(call) ? 'keep' : (edit ?? 'fix');
 	}
 
 	function getProblem(callback, cast) {
-		const call = callback?.parent;
-		const method = getPredicateMethod(call);
-		if (
-			!method
-			|| callback.async
-			|| callback.generator
-			|| call.arguments[0] !== callback
-		) {
+		const method = getArrayPredicateMethod(callback);
+		if (!method || callback.async || callback.generator) {
 			return;
 		}
 
 		const argument = getCastArgument(callback, cast, context);
-		if (!argument || isKnownNonIndexedCollection(call.callee.object, context)) {
+		if (!argument || isKnownNonIndexedCollection(callback.parent.callee.object, context)) {
 			return;
 		}
 

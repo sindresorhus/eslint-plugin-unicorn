@@ -29,6 +29,24 @@ nodeTest('fixing a predicate preserves the Boolean binding', t => {
 	}
 });
 
+nodeTest('coercion rules preserve a checked JavaScript predicate during autofix', t => {
+	const code = outdent`
+		// @ts-check
+		/** @type {(0 | 1)[]} */
+		const bits = [0, 1];
+		const kept = bits['filter']?.(value => Boolean(value === 1));
+		kept.push(0);
+	`;
+	const {output, messages} = new Linter().verifyAndFix(code, {
+		...coercionConfig,
+		rules: {...coercionConfig.rules, 'unicorn/no-useless-coercion': 'error'},
+	});
+
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast']);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -61,11 +79,23 @@ test.snapshot({
 		'new Uint8Array([0, 1]).find(value => !!value);',
 		'new Uint8Array([0, 1]).findIndex(value => !!value);',
 		'items.find(value => !!value);',
+		'items.findIndex(value => !!value);',
 	],
 	invalid: [
 		'[0, 1].find(value => !!value);',
 		'new Uint8Array([0, 1]).findIndex(value => !!(value > 0));',
+		'new Uint8Array([0, 1]).find(value => Boolean(value > 0));',
 	],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [],
+	invalid: [{
+		code: '[0, 1].findIndex(value => !!value);',
+		output: '[0, 1].findIndex(value => value);',
+		errors: [{messageId: 'no-useless-boolean-cast'}],
+	}],
 });
 
 test.snapshot({
@@ -84,6 +114,7 @@ test.snapshot({
 		typeAware('const bits: (0 | 1 | null)[] = [0, 1]; bits.filter(value => !!value);'),
 		typeAware('new Uint8Array([0, 1]).findIndex(value => !!value);'),
 		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!value);'),
+		typeAware('[0]?.some(() => Boolean<(value: number) => number>(value => value));'),
 	],
 	invalid: [
 		'records.filter(record => !!record.name);',

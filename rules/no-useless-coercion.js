@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js';
+import {arrayMethodsWithTypePredicates, getArrayPredicateMethod} from './shared/array-predicate-methods.js';
 import {
 	isBoolean,
 	isBooleanTypeInformation,
@@ -14,8 +15,10 @@ import {
 	getEnclosingFunction,
 	getFunctionReturnExpression,
 	getConstVariableInitializer,
+	getJSDocumentReturnType,
 	getParenthesizedRange,
 	getStaticValueForControlFlow,
+	hasJavaScriptTypeAnnotations,
 	hasStrictNullChecks,
 	containsNode,
 	unwrapChainAndTypeScriptExpression,
@@ -219,6 +222,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
+	const needsTypeReview = isTypeScript || hasJavaScriptTypeAnnotations(context);
 	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
@@ -267,9 +271,16 @@ const create = context => {
 		}
 
 		// `Boolean()` can suppress inferred type predicates in functions without return annotations.
-		if (name === 'Boolean' && isTypeScript) {
+		if (name === 'Boolean' && needsTypeReview) {
 			const functionNode = getEnclosingFunction(callExpression);
-			if (functionNode && !functionNode.returnType) {
+			if (
+				functionNode
+				&& !functionNode.returnType
+				&& (isTypeScript || (
+					arrayMethodsWithTypePredicates.has(getArrayPredicateMethod(functionNode))
+					&& !getJSDocumentReturnType(functionNode, context)
+				))
+			) {
 				return;
 			}
 		}
