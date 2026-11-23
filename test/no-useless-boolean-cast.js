@@ -214,7 +214,6 @@ test.snapshot({
 		'array.some(value => { const Boolean = value => value; return Boolean(value.active); });',
 		'array.some(async value => Boolean(value.active));',
 		'array.some(function * (value) {return Boolean(value.active);});',
-		'array.some(value => {if (value) {return Boolean(value);} return false;});',
 		typeAware('new Uint8Array([0, 1])["findIndex"]?.(value => Boolean(value + 1));'),
 		'[1].some(/** @returns {boolean} */ value => Boolean(value + 1));',
 		typeAware('new Uint8Array([0, 1]).findIndex(value => Boolean(value + 1));'),
@@ -297,5 +296,7 @@ test.snapshot({
 			});
 		`,
 		typeAware('function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => Boolean(value === 1));}'),
+		'array.some(value => {if (value) {return Boolean(value);} return false;});',
+		'array.findIndex(value => {log(value); return Boolean(value);});',
 	],
 });

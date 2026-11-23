@@ -94,7 +94,12 @@ function getCastArgument(callback, cast, context) {
 	}
 
 	const [argument] = cast.arguments;
-	if (callback.params[0]?.type === 'Identifier' && isSameIdentifier(callback.params[0], argument)) {
+	// Leave simple `value => Boolean(value)` wrappers to `prefer-native-coercion-functions`.
+	if (
+		callback.params[0]?.type === 'Identifier'
+		&& isSameIdentifier(callback.params[0], argument)
+		&& getFunctionReturnExpression(callback) === cast
+	) {
 		return;
 	}
 
