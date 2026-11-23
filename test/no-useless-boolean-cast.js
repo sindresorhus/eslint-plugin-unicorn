@@ -7,7 +7,7 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-nodeTest('fixing an identity callback checks the Boolean binding at the call', t => {
+nodeTest('fixing a predicate preserves the Boolean binding', t => {
 	const linter = new Linter();
 	const config = {
 		plugins: {unicorn},
@@ -20,6 +20,7 @@ nodeTest('fixing an identity callback checks the Boolean binding at the call', t
 	for (const [source, expectedOutput] of [
 		['const Boolean = () => false; [1].some(value => !!value);', 'const Boolean = () => false; [1].some(value => value);'],
 		['[1].some(Boolean => !!Boolean);', '[1].some(Boolean);'],
+		['[() => false].some(Boolean => !!Boolean(Boolean));', '[() => false].some(Boolean => Boolean(Boolean));'],
 	]) {
 		const {output, messages} = linter.verifyAndFix(source, config);
 		t.assert.strictEqual(output, expectedOutput);
@@ -37,6 +38,19 @@ const typeAware = code => ({
 });
 
 const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';
+
+test.snapshot({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [
+		'new Uint8Array([0, 1]).find(value => !!value);',
+		'new Uint8Array([0, 1]).findIndex(value => !!value);',
+		'items.find(value => !!value);',
+	],
+	invalid: [
+		'[0, 1].find(value => !!value);',
+		'new Uint8Array([0, 1]).findIndex(value => !!(value > 0));',
+	],
+});
 
 test.snapshot({
 	valid: [

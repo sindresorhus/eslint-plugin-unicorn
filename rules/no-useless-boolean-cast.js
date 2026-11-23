@@ -12,6 +12,7 @@ import {
 	hasJSDocumentExpressionType,
 	hasOptionalChainElement,
 	hasTypeArguments,
+	isArray,
 	isBoolean,
 	isGlobalBooleanCall,
 	isKnownNonIndexedCollection,
@@ -170,7 +171,8 @@ const create = context => {
 		// Removing a `Boolean()` call or changing a return after earlier statements can change predicate inference.
 		const canChangePredicate = methodsWithTypePredicates.has(method)
 			&& (cast.type === 'CallExpression' || !getFunctionReturnExpression(callback));
-		const edit = getTypeCheckedEdit(callback, argument, canChangePredicate, context) ?? (
+		const checkedEdit = getTypeCheckedEdit(callback, argument, canChangePredicate, context);
+		const edit = checkedEdit ?? (
 			!needsTypeReview
 			|| method === 'some'
 			|| method === 'findLastIndex'
@@ -179,8 +181,15 @@ const create = context => {
 				: 'suggest'
 		);
 
+		if (edit !== 'suggest') {
+			return edit;
+		}
+
+		const call = callback.parent;
+		// Typed-array `find` and `findIndex` require boolean callbacks in TypeScript.
+		const needsArrayProof = checkedEdit === undefined && (method === 'find' || method === 'findIndex');
 		// Explicit type arguments select the predicate overload without an ordinary overload to fall back to.
-		return edit === 'suggest' && hasTypeArguments(callback.parent) ? 'keep' : edit;
+		return hasTypeArguments(call) || (needsArrayProof && !isArray(call.callee.object, context)) ? 'keep' : edit;
 	}
 
 	function getProblem(callback, cast) {

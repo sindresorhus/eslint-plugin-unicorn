@@ -1,4 +1,4 @@
-import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
+import {findVariable, getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
@@ -7,7 +7,7 @@ import {
 	hasFunctionJSDocumentComment,
 	hasJSDocumentExpressionType,
 	hasTypeScriptTypeAssertion,
-	isGlobalNameAvailable,
+	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -21,13 +21,14 @@ const messages = {
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
 const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
-const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
+const isNativeCoercionFunctionCall = (node, firstArgumentName, context) =>
 	node?.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
 	&& nativeCoercionFunctionNames.has(node.callee.name)
 	&& node.arguments[0]?.type === 'Identifier'
-	&& node.arguments[0].name === firstArgumentName;
+	&& node.arguments[0].name === firstArgumentName
+	&& isGlobalIdentifier(node.callee, context);
 
 // `v => v` or `function (v) {return v;}`, with TypeScript expression wrappers around the value removed
 const isIdentityFunction = node => {
@@ -52,7 +53,12 @@ const isTypeScriptTypePredicateFunction = node =>
 	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
 
 function getArrayCallbackProblem(node, context) {
-	if (!isArrayIdentityCallback(node) || !isGlobalNameAvailable('Boolean', node.parent, context)) {
+	if (
+		!isArrayIdentityCallback(node)
+		|| hasExplicitTypeContext(node, context)
+		// A type-only import can also block use of the name as a value.
+		|| findVariable(context.sourceCode.getScope(node.parent), 'Boolean')?.defs.length
+	) {
 		return;
 	}
 
@@ -109,7 +115,7 @@ function getCoercionFunctionProblem(node, context) {
 
 	// Replacing the wrapper can discard its declared signature.
 	if (
-		!isNativeCoercionFunctionCall(callExpression, parameter.name)
+		!isNativeCoercionFunctionCall(callExpression, parameter.name, context)
 		|| parameter.typeAnnotation
 		|| parameter.optional
 		|| node.returnType

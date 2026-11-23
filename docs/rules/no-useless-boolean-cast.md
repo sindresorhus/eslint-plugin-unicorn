@@ -17,6 +17,8 @@ The rule keeps casts around optional chains in the returned value because the ca
 
 The rule keeps a cast when the operand cannot satisfy a required return type or when JSDoc annotates the callback or returned expression with `@type` or `@satisfies`. In TypeScript and JavaScript with type annotations, it offers a suggestion when removing a cast could change inferred narrowing or when it has insufficient type information to verify the change.
 
+When type information is unavailable, suggestions for `find` and `findIndex` require a known standard array.
+
 ## Examples
 
 ```js

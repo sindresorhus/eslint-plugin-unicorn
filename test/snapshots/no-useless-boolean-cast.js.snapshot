@@ -1,3 +1,20 @@
+exports[`no-useless-boolean-cast > invalid(1): [0, 1].find(value => !!value); 1`] = `
+
+  1 | [0, 1].find(value => !!value);
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(1): [0, 1].find(value => !!value); 2`] = `
+
+Message:
+> 1 | [0, 1].find(value => !!value);
+    |                      ^^^^^^^ \`!!\` is unnecessary in \`Array#find()\` callbacks.
+
+Suggestion 1/1: Remove the boolean cast.:
+  1 | [0, 1].find(value => value);
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(1): const example = records.filter(({fieldname}) => Boolean(fieldname)); 1`] = `
 
   1 | const example = records.filter(({fieldname}) => Boolean(fieldname));
@@ -612,6 +629,23 @@ Message:
 
 Output:
   1 | items.findIndex(item => {return item.label;});
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): new Uint8Array([0, 1]).findIndex(value => !!(value > 0)); 1`] = `
+
+  1 | new Uint8Array([0, 1]).findIndex(value => !!(value > 0));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(2): new Uint8Array([0, 1]).findIndex(value => !!(value > 0)); 2`] = `
+
+Message:
+> 1 | new Uint8Array([0, 1]).findIndex(value => !!(value > 0));
+    |                                           ^^^^^^^^^^^^^ \`!!\` is unnecessary in \`Array#findIndex()\` callbacks.
+
+Output:
+  1 | new Uint8Array([0, 1]).findIndex(value => value > 0);
 
 `;
 

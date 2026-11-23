@@ -218,6 +218,11 @@ test.snapshot({
 		'array.some(function(v) {return notFirstParameterName;})',
 		'array.some(function(v) {return;})',
 		'array.some(function(v) {return v.v;})',
+		'array.filter(/** @returns {value is true} */ (value) => value);',
+		{
+			code: 'import type {Script as Boolean} from "node:vm"; [1].some(value => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const identity = v => v;
 			array.some(identity)
