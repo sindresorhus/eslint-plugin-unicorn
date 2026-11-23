@@ -29,7 +29,6 @@ const functionLikeTypes = [
 ];
 
 const nonRecordLibraryTypeNames = new Set([
-	'Array',
 	'ArrayLike',
 	'AsyncIterable',
 	'AsyncIterator',
@@ -38,7 +37,6 @@ const nonRecordLibraryTypeNames = new Set([
 	'Map',
 	'Promise',
 	'PromiseLike',
-	'ReadonlyArray',
 	'ReadonlyMap',
 	'ReadonlySet',
 	'ReadonlySetLike',
@@ -71,7 +69,11 @@ function isKnownNonRecordType(type, checker, program, visitedTypes = new Set()) 
 
 	visitedTypes.add(type);
 	const symbol = type.getSymbol();
-	if (nonRecordLibraryTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program)) {
+	if (
+		checker.isArrayType(type)
+		|| checker.isTupleType(type)
+		|| (nonRecordLibraryTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program))
+	) {
 		return true;
 	}
 
@@ -90,8 +92,6 @@ function isRecordType(type, checker, program) {
 	if (
 		type.flags !== objectTypeFlag
 		|| !symbol
-		|| checker.isArrayType(type)
-		|| checker.isTupleType(type)
 		|| type.getCallSignatures().length > 0
 		|| type.getConstructSignatures().length > 0
 		|| isKnownNonRecordType(type, checker, program)

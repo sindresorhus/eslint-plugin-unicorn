@@ -179,6 +179,8 @@ test.snapshot({
 			'type Names = ReadonlySet<string>; function run(verbose = false, names?: Names) {}',
 			'type Values = Iterable<string> | {encoding?: string}; function run(verbose = false, values?: Values) {}',
 			'interface Values extends ReadonlyArray<string> {} function run(verbose = false, values?: Values) {}',
+			'type Pair = [string, number]; interface Values extends Pair { label: string } function run(verbose = false, values?: Values) {}',
+			'type Pair = readonly [name: string, count: number]; interface Values extends Pair {} function run(verbose = false, values?: Values) {}',
 			'interface Values extends Set<string> {} function run(verbose = false, values?: Values) {}',
 			outdent`
 				interface Base { count: number }
@@ -294,6 +296,10 @@ test({
 		},
 		{
 			...typeAware('export {}; interface Iterator { encoding?: string } interface Options extends Iterator {} function run(verbose = false, options?: Options) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('export {}; interface Array<Value> { value?: Value } interface Options extends Array<string> {} function run(verbose = false, options?: Options) {}'),
 			errors: [{messageId: 'prefer-options-parameter'}],
 		},
 		{
