@@ -1698,6 +1698,7 @@ ruleTest.snapshot({
 			options: [{'*.foo.bar': 1}],
 		},
 		'function outer() { return (() => arguments.length)(1); }\nouter(1);',
+		'function count(record) { return record.arguments; }\ncount({}, 2);',
 	],
 });
 

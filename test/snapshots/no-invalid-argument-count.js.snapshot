@@ -9991,6 +9991,22 @@ Message:
 
 `;
 
+exports[`no-invalid-argument-count > invalid(732): function count(record) { return record.arguments; }\ncount({}, 2); 1`] = `
+
+  1 | function count(record) { return record.arguments; }
+  2 | count({}, 2);
+
+`;
+
+exports[`no-invalid-argument-count > invalid(732): function count(record) { return record.arguments; }\ncount({}, 2); 2`] = `
+
+Message:
+  1 | function count(record) { return record.arguments; }
+> 2 | count({}, 2);
+    | ^^^^^ Expected at most 1 argument, but got 2 arguments.
+
+`;
+
 exports[`no-invalid-argument-count > invalid(74): moveTo(x, y, extra); 1`] = `
 
   1 | moveTo(x, y, extra);
