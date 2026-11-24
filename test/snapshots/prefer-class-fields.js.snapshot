@@ -328,8 +328,8 @@ Output:
   1 | class Foo {
   2 | constructor() {
   3 | }
-  4 | static// comment;
-  5 | ;bar = 1;
+  4 | static;// comment;
+  5 | bar = 1;
   6 | }
 
 `;

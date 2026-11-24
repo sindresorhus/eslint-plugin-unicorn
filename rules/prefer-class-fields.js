@@ -1,14 +1,18 @@
 import {getStringIfConstant, isSemicolonToken} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isNumericLiteral, isStringLiteral} from './ast/index.js';
+import {removeStatement} from './fix/index.js';
 import {
 	getIndentString,
+	getLineIndent,
 	getLinebreak,
 	hasJavaScriptTypeAnnotations,
+	hasMultilineToken,
 	isNodeContainsLexicalThis,
 	isNumeric,
 	isParenthesized,
 	isTypeScriptConstAssertion,
 	isTypeScriptFile,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-class-fields/error';
@@ -37,24 +41,13 @@ const removeFieldAssignment = (node, context, fixer) => {
 		return fixer.replaceText(node, ';');
 	}
 
-	const {sourceCode} = context;
-	const {line} = sourceCode.getLoc(node).start;
-	const nodeText = sourceCode.getText(node);
-	const lineText = sourceCode.lines[line - 1];
-	const isOnlyNodeOnLine = lineText.trim() === nodeText;
-
-	return isOnlyNodeOnLine
-		? fixer.removeRange([
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
-		])
-		: fixer.remove(node);
+	return removeStatement(node, context, fixer);
 };
 
 // `TSAbstractPropertyDefinition` is a declaration-only field and cannot have an initializer.
 const fieldTypes = new Set(['AccessorProperty', 'PropertyDefinition', 'TSAbstractPropertyDefinition']);
 
-const hasNoInitializer = property => Boolean(
+const cannotHaveInitializer = property => Boolean(
 	property.declare
 	|| property.definite
 	|| property.type === 'TSAbstractPropertyDefinition',
@@ -144,7 +137,7 @@ const create = context => {
 		*/
 		if (
 			existingProperties.length > 1
-			|| (existingProperty && hasNoInitializer(existingProperty))
+			|| (existingProperty && cannotHaveInitializer(existingProperty))
 		) {
 			return;
 		}
@@ -173,7 +166,11 @@ const create = context => {
 			*/
 		function * fix(fixer) {
 			yield removeFieldAssignment(node, context, fixer);
-			const propertyValue = sourceCode.getText(right);
+			const indent = getIndentString(existingProperty ?? constructor, context);
+			const valueText = sourceCode.getText(right);
+			const propertyValue = hasMultilineToken(right, context)
+				? valueText
+				: reindentText(valueText, getLineIndent(node, context), indent);
 
 			if (existingProperty) {
 				if (existingProperty.value) {
@@ -192,32 +189,28 @@ const create = context => {
 				return;
 			}
 
-			const closingBrace = sourceCode.getLastToken(classBody);
-			const indent = getIndentString(constructor, context);
-			const linebreak = getLinebreak(context);
+			const lastProperty = classBody.body.at(-1);
+			if (fieldTypes.has(lastProperty.type) && !isSemicolonToken(sourceCode.getLastToken(lastProperty))) {
+				yield fixer.insertTextAfter(lastProperty, ';');
+			}
 
+			const closingBrace = sourceCode.getLastToken(classBody);
+			const {line, column} = sourceCode.getLoc(closingBrace).start;
+			const isClosingBraceOnOwnLine = column === getIndentString(closingBrace, context).length;
+			const insertionIndex = sourceCode.getIndexFromLoc({line, column: isClosingBraceOnOwnLine ? 0 : column});
+
+			const linebreak = getLinebreak(context);
 			const propertyText = sourceCode.getText(left.property);
 			const fieldName = left.computed ? `[${propertyText}]` : propertyText;
-			let text = `${indent}${fieldName} = ${propertyValue};${linebreak}`;
-
-			const characterBefore = sourceCode.text[sourceCode.getRange(closingBrace)[0] - 1];
-			if (characterBefore !== '\n') {
-				text = `${linebreak}${text}`;
-			}
-
-			const lastProperty = classBody.body.at(-1);
-			if (
-				lastProperty.type === 'PropertyDefinition'
-				&& !isSemicolonToken(sourceCode.getLastToken(lastProperty))
-			) {
-				text = `;${text}`;
-			}
-
-			yield fixer.insertTextBefore(closingBrace, text);
+			const fieldText = `${indent}${fieldName} = ${propertyValue};${linebreak}`;
+			const text = isClosingBraceOnOwnLine
+				? fieldText
+				: `${linebreak}${fieldText}${getLineIndent(classBody.parent, context)}`;
+			yield fixer.insertTextBeforeRange([insertionIndex, insertionIndex], text);
 		}
 
-		// The assignment is rebuilt as a field, a comment inside it would be lost
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		// An edit can remove comments inside the assignment or the initializer it replaces.
+		if ([node, existingProperty?.value].some(target => target && sourceCode.getCommentsInside(target).length > 0)) {
 			return;
 		}
 

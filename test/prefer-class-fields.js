@@ -89,6 +89,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
+		{
+			code: 'class Model { [\'items\']: number; constructor() { this.items = 1; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
 	],
 });
 
@@ -106,6 +111,16 @@ test({
 		{
 			code: 'class Model {\n\tconstructor() {\n\t\tthis.items = [];\n\t}\n}',
 			output: 'class Model {\n\tconstructor() {\n\t}\n\titems = [];\n}',
+			errors: 1,
+		},
+		{
+			code: 'function createModel() {\r\n  class Model {\r\n    constructor() {\r\n      this[\'items\'] = [\r\n        1,\r\n      ];\r\n    }\r\n    name = \'model\' // keep\r\n  }\r\n}\r\n',
+			output: 'function createModel() {\r\n  class Model {\r\n    constructor() {\r\n    }\r\n    name = \'model\'; // keep\r\n    [\'items\'] = [\r\n      1,\r\n    ];\r\n  }\r\n}\r\n',
+			errors: 1,
+		},
+		{
+			code: 'class Model {\n  constructor() {\n    this.items = [`one\n    two`];\n  }\n}',
+			output: 'class Model {\n  constructor() {\n  }\n  items = [`one\n    two`];\n}',
 			errors: 1,
 		},
 		{
@@ -143,6 +158,10 @@ test({
 			],
 		},
 		{
+			code: 'class Model { items = [/* keep */ 1]; constructor() { this.items = []; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
 			code: 'class Model { constructor() { /** @type {string[]} */ this.items = []; } }',
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
@@ -172,6 +191,10 @@ test({
 		},
 		{
 			code: '// @ts-check\nclass Model { /** @type {string[] | number[]} */ items; constructor() { this.items = [1]; this.items.push(2); } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: '// @ts-check\nclass Model { constructor() { this.items = []; } }',
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
 	],
