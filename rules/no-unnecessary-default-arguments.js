@@ -80,7 +80,7 @@ function getJsxAttributes(element) {
 		}
 
 		const {name} = attribute.name;
-		// Vue JSX directives can generate or override props.
+		// Vue.js JSX directives can generate or override props.
 		if (name === '__proto__' || attributes.has(name) || /^v[-A-Z]/u.test(name)) {
 			return;
 		}
