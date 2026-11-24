@@ -710,6 +710,16 @@ testRule.snapshot({
 	]),
 });
 
+testRule.svelte({
+	valid: [],
+	invalid: [{
+		code: '<script>function run(value = true) { return value; }</script>{run(true)}{#each items as run}{run(true)}{/each}',
+		output: '<script>function run(value = true) { return value; }</script>{run()}{#each items as run}{run(true)}{/each}',
+		filename: 'component.svelte',
+		errors: [{messageId: 'arguments'}],
+	}],
+});
+
 testRule({
 	valid: [],
 	invalid: [{
@@ -876,6 +886,10 @@ test('typed autofixes preserve strict type checking', t => {
 		[
 			'function run(value = true) {} run(true);',
 			'function run(value = true) {} run();',
+		],
+		[
+			'type Run = boolean; function Run(value: Run = true) {} Run(true);',
+			'type Run = boolean; function Run(value: Run = true) {} Run();',
 		],
 		[
 			'function run(first = true, second = false) {} run(true, false);',

@@ -61,7 +61,7 @@ JSX removals are suggestions because omitting a prop can change rendering.
 
 ## Type information
 
-Local functions need no type information. Imported functions require TypeScript, [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
+The rule can report matches for local functions without type information. Imported functions require TypeScript, [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
 
 For calls in TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check`, the rule offers suggestions unless type information confirms a single nongeneric call signature and optional parameters or properties. Object arguments wrapped in parentheses or TypeScript expressions, or with non-nullish union/intersection types, always receive suggestions.
 
