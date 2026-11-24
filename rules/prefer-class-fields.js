@@ -140,12 +140,16 @@ const create = context => {
 			return true;
 		}
 
-		// Appending a field can split a line directive from the closing brace it covers.
-		const closingLine = sourceCode.getLoc(classBody).end.line;
-		return !existingProperty && getEslintDisableDirectives(context).some(({type, node}) => {
+		// An edit can split a line directive from the line it covers, including when the edit is on the directive's own line.
+		const destination = sourceCode.getLoc(existingProperty ?? sourceCode.getLastToken(classBody));
+		return getEslintDisableDirectives(context).some(({type, node}) => {
+			if (type !== 'disable-line' && type !== 'disable-next-line') {
+				return false;
+			}
+
 			const location = sourceCode.getLoc(node);
-			return (type === 'disable-line' && location.start.line === closingLine)
-				|| (type === 'disable-next-line' && location.end.line === closingLine - 1);
+			const lastAffectedLine = location.end.line + (type === 'disable-next-line' ? 1 : 0);
+			return location.start.line <= destination.end.line && lastAffectedLine >= destination.start.line;
 		});
 	};
 
@@ -203,7 +207,7 @@ const create = context => {
 			*/
 		function * fix(fixer) {
 			yield removeFieldAssignment(node, context, fixer);
-			const indent = getIndentString(existingProperty ?? constructor, context);
+			const indent = existingProperty ? getLineIndent(existingProperty, context) : getIndentString(constructor, context);
 			const valueText = sourceCode.getText(right);
 			const propertyValue = hasMultilineToken(right, context)
 				? valueText
@@ -298,7 +302,7 @@ const create = context => {
 			}
 
 			/*
-			TypeScript emits the assignment of a parameter property at the top of the constructor, after the class field initializers, so `constructor(private x) { this.x = 0; }` must not become a field, and a field named like a parameter property would be a duplicate declaration.
+			A TypeScript parameter property already declares and initializes the field. Moving an assignment to that property into a separate field would create a duplicate declaration.
 			*/
 			if (constructor.value.params.some(parameter =>
 				parameter.type === 'TSParameterProperty'

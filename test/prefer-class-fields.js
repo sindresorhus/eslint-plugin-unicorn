@@ -59,7 +59,7 @@ nodeTest('keeps line directives with constructor assignments', t => {
 	}
 });
 
-nodeTest('keeps line directives active at class endings', t => {
+nodeTest('keeps line directives active at edit destinations', t => {
 	const linter = new Linter();
 	const config = {...linterConfig, rules: {...linterConfig.rules, 'no-inline-comments': 'error'}};
 	for (const code of [
@@ -83,10 +83,32 @@ nodeTest('keeps line directives active at class endings', t => {
 				}
 				/* eslint-disable-line no-inline-comments */ } // keep
 		`,
+		...['items;', 'items = [0];'].map(field => outdent`
+			class Model {
+				/* keep */ ${field} // eslint-disable-line no-inline-comments
+				constructor() {
+					this.items = [
+						1,
+					];
+				}
+			}
+		`),
+		outdent`
+			class Model {
+				/* eslint-disable-next-line no-inline-comments */ items;
+				enabled; // keep
+				constructor() {
+					this.items = [
+						1,
+					];
+				}
+			}
+		`,
 	]) {
 		const {messages, output} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(output, code);
 		t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/prefer-class-fields']);
+		t.assert.strictEqual(messages[0].suggestions, undefined);
 	}
 });
 
@@ -233,6 +255,28 @@ test({
 		{
 			code: 'class Model {\n  constructor() {\n    this.items = [`one\n    two`];\n  }\n}',
 			output: 'class Model {\n  constructor() {\n  }\n  items = [`one\n    two`];\n}',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Model {
+				  /* keep */ items;
+				  constructor() {
+				    this.items = [
+				      1,
+				    ];
+				  }
+				}
+			`,
+			output: outdent`
+				class Model {
+				  /* keep */ items = [
+				    1,
+				  ];
+				  constructor() {
+				  }
+				}
+			`,
 			errors: 1,
 		},
 		{
@@ -744,7 +788,7 @@ test({
 	],
 });
 
-// TypeScript emits a parameter property assignment at the top of the constructor, after the class field initializers
+// A TypeScript parameter property already declares and initializes the field.
 test({
 	valid: [
 		...[
