@@ -1475,12 +1475,6 @@ test({
 			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
 		},
 		{
-			code: 'const isString = (value: unknown) => !!(typeof value === "string");',
-			output: 'const isString = (value: unknown) => (typeof value === "string");',
-			languageOptions: {parser: parsers.typescript},
-			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
-		},
-		{
 			code: 'const rejected = !!!value;',
 			output: 'const rejected = (!value);',
 			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
@@ -1523,6 +1517,55 @@ test({
 			}],
 		},
 	],
+});
+
+nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
+	const code = outdent`
+		type Named = {name: string};
+		type Unnamed = {message: string};
+		export const isString = (value: unknown) => !!(typeof value === 'string');
+		export const isError = (value: unknown) => !!(value instanceof Error);
+		export const hasName = (value: Named | Unnamed) => !!('name' in value);
+	`;
+	const filename = 'comparison-before-fix.ts';
+	const {output, messages} = linter.verifyAndFix(code, {
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	}, {filename});
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(output, code.replaceAll('!!(', '('));
+
+	const sources = new Map([
+		[filename, code],
+		['comparison-after-fix.ts', output],
+	]);
+	const options = {
+		strict: true,
+		declaration: true,
+		emitDeclarationOnly: true,
+		noEmitOnError: true,
+		types: [],
+	};
+	const host = typescript.createCompilerHost(options);
+	const getSourceFile = host.getSourceFile.bind(host);
+	host.getSourceFile = (file, languageVersion, onError) => sources.has(file)
+		? typescript.createSourceFile(file, sources.get(file), languageVersion)
+		: getSourceFile(file, languageVersion, onError);
+	const program = typescript.createProgram(sources.keys().toArray(), options, host);
+	const declarations = [];
+	const {diagnostics} = program.emit(undefined, (file, text) => {
+		declarations.push(text);
+	});
+	t.assert.deepStrictEqual(diagnostics, []);
+	t.assert.strictEqual(declarations.length, 2);
+	const [before, after] = declarations;
+	for (const type of ['string', 'Error', 'Named']) {
+		t.assert.ok(before.includes(`=> value is ${type};`));
+	}
+
+	t.assert.strictEqual(after, before);
 });
 
 nodeTest('nullable JSDoc boolean parameters still need coercion with strict null checks disabled', t => {
