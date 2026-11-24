@@ -191,11 +191,11 @@ testRule({
 	],
 	invalid: [
 		{
-			code: 'function Badge({color = "gray"}) {} <Badge color="gray" />;',
+			code: 'function Badge({color = "gray"}) {} <Badge key="badge" color="gray" />;',
 			errors: [{
 				messageId: 'jsx-prop',
 				data: {name: 'color'},
-				suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({color = "gray"}) {} <Badge  />;'}],
+				suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({color = "gray"}) {} <Badge key="badge"  />;'}],
 			}],
 		},
 		{
@@ -669,6 +669,22 @@ testRule.snapshot({
 	]),
 });
 
+testRule({
+	valid: [],
+	invalid: [{
+		code: '<script lang="jsx">function Badge({color = "gray"}) {} <Badge color="gray" />;</script>',
+		filename: 'Badge.vue',
+		languageOptions: {parser: parsers.vue, parserOptions: {ecmaFeatures: {jsx: true}}},
+		errors: [{
+			messageId: 'jsx-prop',
+			suggestions: [{
+				messageId: 'remove-jsx-prop',
+				output: '<script lang="jsx">function Badge({color = "gray"}) {} <Badge  />;</script>',
+			}],
+		}],
+	}],
+});
+
 const linter = new Linter();
 const config = {
 	plugins: {unicorn: plugin},
@@ -678,9 +694,10 @@ const config = {
 test('JSX suggestions preserve TypeScript requirements', t => {
 	const namedImport = 'import {Badge} from "./no-unnecessary-default-arguments.callee.js"; <Badge mode="text" />;';
 	const defaultImport = 'import Badge from "./no-unnecessary-default-arguments.callee.js"; <Badge mode="text" />;';
+	const genericComponent = 'const Badge = (({mode = "text"}: {mode?: string}) => null) as <T>(props: {mode?: T; format: (value: T) => void}) => null;';
 	const cases = [
 		{
-			code: 'function Badge({mode = "text"}: {mode?: string}) { return null; } <Badge mode="text" />;',
+			code: 'function Badge({mode = "text"}: {mode?: string}) { return null; } <Badge mode="text"></Badge>;',
 			canRemove: true,
 		},
 		{
@@ -718,6 +735,17 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 		},
 		{
 			code: 'function Badge<T>({mode = "text"}: {mode?: string; value?: T}) { return null; } <Badge<number> mode="text" />;',
+			canRemove: true,
+		},
+		{
+			code: `${genericComponent} <Badge<string> mode="text" format={value => { const copy: string = value; }} />;`,
+			canRemove: true,
+		},
+		{
+			code: `${genericComponent} <Badge mode="text" format={value => { const copy: string = value; }} />;`,
+		},
+		{
+			code: 'function Badge<T, Value = string>({mode = "text"}: {mode?: string; first?: T; second?: Value}) { return null; } <Badge<number> mode="text" />;',
 		},
 		{
 			code: [

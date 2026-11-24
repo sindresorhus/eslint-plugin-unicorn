@@ -508,9 +508,9 @@ function getTrailingArgumentsProblem(call, parameters, context) {
 	}, [start, end]);
 }
 
-function hasSingleNonGenericCallSignature(type) {
+function hasSingleCallSignature(type, typeArgumentCount = 0) {
 	const signatures = type.getCallSignatures();
-	return signatures.length === 1 && !signatures[0].typeParameters?.length;
+	return signatures.length === 1 && (signatures[0].typeParameters?.length ?? 0) === typeArgumentCount;
 }
 
 function getJsxTypeInformation(element, context, typescript) {
@@ -519,12 +519,13 @@ function getJsxTypeInformation(element, context, typescript) {
 			return {hasStaticProperties: true};
 		}
 
-		// TypeScript prefers construct signatures when resolving JSX.
-		if (!hasSingleNonGenericCallSignature(type) || type.getConstructSignatures().length > 0) {
+		const typeScriptElement = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(element);
+		const typeArgumentCount = typeScriptElement.typeArguments?.length ?? 0;
+		// TypeScript prefers construct signatures for JSX. A complete type argument list avoids prop inference.
+		if (!hasSingleCallSignature(type, typeArgumentCount) || type.getConstructSignatures().length > 0) {
 			return;
 		}
 
-		const typeScriptElement = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(element);
 		const attributeType = checker.getContextualType(typeScriptElement.attributes);
 		if (!attributeType) {
 			return;
@@ -550,7 +551,7 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 		const {esTreeNodeToTSNodeMap} = context.sourceCode.parserServices;
 		const typeScriptCall = esTreeNodeToTSNodeMap.get(call);
 		const type = checker.getTypeAtLocation(typeScriptCall.expression);
-		if (!hasSingleNonGenericCallSignature(checker.getNonNullableType(type))) {
+		if (!hasSingleCallSignature(checker.getNonNullableType(type))) {
 			return false;
 		}
 
