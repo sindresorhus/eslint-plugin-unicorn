@@ -15,16 +15,15 @@ This includes redundant double coercion, like `String(String(value))`, and coerc
 
 It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The rule recognizes common cases from syntax and uses TypeScript types when available. The boolean check uses declared types for identifiers and follows the initializer of an inferred `const name = value` binding. When using a TypeScript parser, the `Boolean()` check folds nonliteral expressions only when the compiler confirms their boolean type. With `strictNullChecks`, it can recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax, uses declared property types only when the receiver is a stable identifier, and skips ordinary calls to user functions. An array or tuple element read needs syntax that proves its value is a boolean, since array methods can remove or shift elements.
+The rule uses syntax and available TypeScript types. With `strictNullChecks`, it can recognize boolean results from `??`, `||`, and some `await` expressions. The typed `!!` check recognizes built-in receivers from syntax, uses declared property types on stable identifiers, and skips ordinary calls to user functions. Array and tuple element reads need syntax that proves the value is boolean.
 
-The rule autofixes `!!` on direct equality and relational comparisons, `in`, `instanceof`, `!`, and `delete`. With typed linting and `strictNullChecks`, it also autofixes reads in the following positions when both the read and the double negation have the exact type `boolean`.
+The rule autofixes `!!` on direct equality and relational comparisons, `in`, `instanceof`, `!`, and `delete`. With typed linting and `strictNullChecks`, it can also autofix reads in variable initializers, returns, and array elements when both the read and the double negation have the exact type `boolean`.
 
-- Variable reads in variable initializers, return values, and array elements, when the binding itself has type `boolean`.
-- Property reads in return values, array elements, and variable initializers with an explicit TypeScript type annotation.
+Variable bindings must also have type `boolean`. For property reads in variable initializers, the declaration needs a TypeScript type annotation.
 
-The rule suggests removing `!!` in other cases because removal can change inferred types or control-flow narrowing in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
+Other reports can offer suggestions because removing `!!` can change TypeScript inference or narrowing. The rule skips `!!` checks in files with direct `eval` calls.
 
-In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates. When the rule uses an inferred return type from the compiler for a function in the same file, it verifies the return expression. It does this for directly invoked function expressions and unreassigned function bindings in modules.
+In TypeScript, the rule skips `Boolean()` calls inside functions with inferred return types because removal can introduce a type predicate.
 
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
