@@ -175,6 +175,8 @@ testRule({
 		'function Badge({color = "gray"}) {} <Badge color="blue" />;',
 		'function Badge({color = "gray"}) {} <Badge color={tag`gray`} />;',
 		'function Badge({size = 0}) {} <Badge size={-0} />;',
+		'function Badge({label = "a\\tb"}) {} <Badge label="a\tb" />;',
+		String.raw`function Badge({label = "a\tb"}) {} <Badge label="a&#9;b" />;`,
 		'function Badge({value = "a\\n  b"}) {} <Badge value="a\n  b" />;',
 		String.raw`function Badge({value = "a\n  b"}) {} <Badge value="a&#10;  b" />;`,
 		String.raw`function Badge({value = "\uF600"}) {} <Badge value="&#x1F600;" />;`,
@@ -236,6 +238,10 @@ testRule({
 		{
 			code: 'function Badge({label = "&#x+26;"}) {} <Badge label={"&#x+26;"} />;',
 			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({label = "&#x+26;"}) {} <Badge  />;'}]}],
+		},
+		{
+			code: String.raw`function Badge({label = "a\tb"}) {} <Badge label={"a\tb"} />;`,
+			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: String.raw`function Badge({label = "a\tb"}) {} <Badge  />;`}]}],
 		},
 		{
 			code: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge label="&amp;" enabled size={-2} />;',

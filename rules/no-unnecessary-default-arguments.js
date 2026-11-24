@@ -100,7 +100,8 @@ function getJsxAttributeValue({value}, sourceCode) {
 		return getPrimitiveLiteralValue(value.expression);
 	}
 
-	if (value.type !== 'Literal' || linebreakPattern.test(value.value)) {
+	// JSX transforms can normalize tabs and line breaks in quoted values.
+	if (value.type !== 'Literal' || value.value.includes('\t') || linebreakPattern.test(value.value)) {
 		return;
 	}
 
