@@ -416,12 +416,15 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 		return getKnownTypeReferenceType(typeReferenceName, options);
 	}
 
-	// A single declaration can omit the heritage of a merged type.
+	// One local declaration cannot describe an imported or merged type.
 	if (
 		visitedTypeReferenceDefinitions.has(definition)
 		|| (
-			options.treatMergedTypeReferencesAsUnknown
-			&& definitionScope.set.get(typeReferenceName).defs.some(otherDefinition => otherDefinition !== definition && typeReferenceDefinitionTypes.has(otherDefinition.type))
+			options.requireSingleLocalTypeDeclaration
+			&& (
+				definition.type === 'ImportBinding'
+				|| definitionScope.set.get(typeReferenceName).defs.some(otherDefinition => otherDefinition !== definition && typeReferenceDefinitionTypes.has(otherDefinition.type))
+			)
 		)
 	) {
 		return unknown;

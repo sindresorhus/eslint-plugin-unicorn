@@ -201,10 +201,16 @@ test({
 				declare const tree: Node;
 				tree.children[0];
 				tree.childNodes[0];
+
+			(class Node { static parentElement = {parentElement: {}}; }).parentElement.parentElement;
 			`,
 		},
 	],
 	invalid: [
+		{
+			code: 'import type {Element as DOMElement} from "./dom-types.js"; declare const element: DOMElement; element.children[1];',
+			errors: [{messageId: 'query-selector'}],
+		},
 		{
 			...typeAwareOptions,
 			code: 'declare const node: ParentNode; node.children[0];',
@@ -237,6 +243,18 @@ test({
 				widget.children[1];
 			`,
 			errors: [{messageId: 'query-selector'}],
+		},
+		{
+			...typeAwareOptions,
+			code: outdent`
+				function visit(node: {children: ArrayLike<Element>}) {
+					if (node instanceof HTMLElement && node.parentElement) {
+						node.children[1];
+						node.parentElement.parentElement;
+					}
+				}
+			`,
+			errors: [{messageId: 'query-selector'}, {messageId: 'closest'}],
 		},
 	],
 });

@@ -211,13 +211,20 @@ test('an interface that extends a member expression is unknown', t => {
 test('merged type references can leave classification to the compiler', t => {
 	const mergedTarget = 'class Foo {} interface Bar {} declare class Bar extends Foo {} function f(a: Bar) { check(a); }';
 	const mergedNonTarget = 'interface Bar {first: string} interface Bar {second: string} function f(a: Bar) { check(a); }';
-	const options = {treatMergedTypeReferencesAsUnknown: true};
+	const options = {requireSingleLocalTypeDeclaration: true};
 
 	t.assert.deepStrictEqual(getTypes(mergedTarget, options), [unknown]);
 	t.assert.deepStrictEqual(getTypes(mergedTarget, options, {typeAware: true}), [target]);
 	t.assert.deepStrictEqual(getTypes(mergedNonTarget, options, {typeAware: true}), [nonTarget]);
 	t.assert.deepStrictEqual(getTypes(mergedNonTarget, {}), [nonTarget]);
 	t.assert.deepStrictEqual(getTypes('const Bar = 1; interface Bar {first: string} function f(a: Bar) { check(a); }', options), [nonTarget]);
+});
+
+test('local type declarations can be required for syntax-based classification', t => {
+	const code = 'import type {Foo as Bar} from "foo"; function f(a: Bar) { check(a); }';
+
+	t.assert.deepStrictEqual(getTypes(code, {requireSingleLocalTypeDeclaration: true}), [unknown]);
+	t.assert.deepStrictEqual(getTypes(code, {}), [nonTarget]);
 });
 
 test('a class that extends a member expression is unknown', t => {

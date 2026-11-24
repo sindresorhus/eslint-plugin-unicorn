@@ -28,11 +28,12 @@ const QUERY_SELECTOR_CALL = {
 	optionalCall: false,
 	optionalMember: false,
 };
-const DOM_RECEIVER_TYPE_OPTIONS = {
+const SYNTAX_DOM_RECEIVER_OPTIONS = {
 	isNonTargetNode: isNodeValueNotDomNode,
+	requireSingleLocalTypeDeclaration: true,
 	requireStableJSDocumentBindings: true,
-	treatMergedTypeReferencesAsUnknown: true,
 };
+const TYPED_DOM_RECEIVER_OPTIONS = {useTypeInformationOnly: true};
 
 const messages = {
 	[MESSAGE_ID_FIRST_CHILD]: 'Prefer `.firstChild` over `.childNodes[0]`.',
@@ -44,6 +45,14 @@ const messages = {
 	[SUGGESTION_ID_FIRST_ELEMENT_CHILD]: 'Switch to `.firstElementChild`.',
 	[SUGGESTION_ID_MERGE_QUERY_SELECTOR]: 'Merge the `.querySelector()` calls.',
 };
+
+const isKnownNonDomReceiver = (node, context) =>
+	isNodeValueNotDomNode(node)
+	|| isKnownNonDomNode(
+		node,
+		context,
+		context.sourceCode.parserServices?.program ? TYPED_DOM_RECEIVER_OPTIONS : SYNTAX_DOM_RECEIVER_OPTIONS,
+	);
 
 const isNonOptionalMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -193,7 +202,7 @@ const getQuerySelectorChain = (node, context) => {
 	if (
 		calls.length < 2
 		|| node.type === 'ChainExpression'
-		|| isKnownNonDomNode(node, context, DOM_RECEIVER_TYPE_OPTIONS)
+		|| isKnownNonDomReceiver(node, context)
 	) {
 		return;
 	}
@@ -238,12 +247,9 @@ const create = context => {
 			!collectionName
 			// Writing to the indexed access is not a traversal, `element.firstChild` is not assignable the same way
 			|| isLeftHandSide(node)
-			|| (
-				collectionName === 'children'
-				&& isPropertiesChildrenMemberExpression(node.object)
-			)
+			|| isPropertiesChildrenMemberExpression(node.object)
 			|| isNestedIndexedDomCollection(node)
-			|| isKnownNonDomNode(node.object.object, context, DOM_RECEIVER_TYPE_OPTIONS)
+			|| isKnownNonDomReceiver(node.object.object, context)
 			// Native DOM collections are `HTMLCollection` or `NodeList`.
 			|| withTypeInformation(node.object, context, ({type, checker}) => checker.isArrayType(type) || checker.isTupleType(type))
 		) {
@@ -280,7 +286,7 @@ const create = context => {
 			!isParentElementMemberExpression(node)
 			|| !isParentElementMemberExpression(node.object)
 			|| !isOutermostParentElementChain(node)
-			|| isKnownNonDomNode(getParentElementChainRoot(node), context, DOM_RECEIVER_TYPE_OPTIONS)
+			|| isKnownNonDomReceiver(getParentElementChainRoot(node), context)
 		) {
 			return;
 		}
