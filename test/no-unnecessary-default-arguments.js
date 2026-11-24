@@ -182,8 +182,9 @@ testRule({
 		'function Badge({color = "gray"}) {} <Badge {...props} color="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge other:color="black" color="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge color="blue" color="gray" />;',
+		'function Badge({color = "gray"}) {} <Badge __proto__={{color: "blue"}} color="gray" />;',
 		'function Badge({key = "gray", ref = null}) {} <Badge key="gray" ref={null} />;',
-		'function Badge({children = "fallback"}) {} <Badge children="fallback">actual</Badge>;',
+		'function Badge({__self = "first", __source = "second"}) {} <Badge __self="first" __source="second" />;',
 		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge.defaultProps = {color: "blue"};',
 		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge = Other;',
 		'function Badge({color = "gray"}) {} { const Badge = Other; <Badge color="gray" />; }',
@@ -200,6 +201,10 @@ testRule({
 		{
 			code: 'function Badge({label = "&©"}) {} <Badge label="&#38;&#xA9;" />;',
 			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({label = "&©"}) {} <Badge  />;'}]}],
+		},
+		{
+			code: 'function Badge({label = "&#x+26;"}) {} <Badge label={"&#x+26;"} />;',
+			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({label = "&#x+26;"}) {} <Badge  />;'}]}],
 		},
 		{
 			code: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge label="&amp;" enabled size={-2} />;',
@@ -232,6 +237,17 @@ testRule({
 		{
 			code: 'function Badge({children = "fallback"}) {} <Badge children="fallback" />;',
 			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({children = "fallback"}) {} <Badge  />;'}]}],
+		},
+		{
+			code: 'function Badge({children = "fallback", color = "gray"}) {} <Badge children="fallback" color="gray">actual</Badge>;',
+			errors: [{
+				messageId: 'jsx-prop',
+				data: {name: 'color'},
+				suggestions: [{
+					messageId: 'remove-jsx-prop',
+					output: 'function Badge({children = "fallback", color = "gray"}) {} <Badge children="fallback" >actual</Badge>;',
+				}],
+			}],
 		},
 		{
 			code: 'function Badge({"data-kind": kind = "info"}) {} <Badge\r\n  data-kind="info"\r\n  prominent\r\n/>;',
@@ -708,6 +724,15 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 				'type Numeric = {mode?: "number"; format: (value: number) => void};',
 				'type Text = {mode?: "text"; format: (value: string) => void};',
 				'const Badge: {(props: Numeric): null; (props: Text): null} = ({mode = "text"}: Numeric | Text) => null;',
+				'<Badge mode="text" format={value => { const copy: string = value; }} />;',
+			].join('\n'),
+		},
+		{
+			code: [
+				'type Numeric = {mode?: "number"; format: (value: number) => void};',
+				'type Text = {mode?: "text"; format: (value: string) => void};',
+				'type BadgeComponent = { (props: Numeric | Text): null; new (props: Numeric): {}; new (props: Text): {}; };',
+				'const Badge = (({mode = "text"}: Numeric | Text) => null) as BadgeComponent;',
 				'<Badge mode="text" format={value => { const copy: string = value; }} />;',
 			].join('\n'),
 		},

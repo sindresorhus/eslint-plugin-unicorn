@@ -73,11 +73,16 @@ function getProperties(node) {
 function getJsxAttributes(element) {
 	const attributes = new Map();
 	for (const attribute of element.attributes) {
-		if (attribute.type !== 'JSXAttribute' || attribute.name.type !== 'JSXIdentifier' || attributes.has(attribute.name.name)) {
+		if (attribute.type !== 'JSXAttribute' || attribute.name.type !== 'JSXIdentifier') {
 			return;
 		}
 
-		attributes.set(attribute.name.name, attribute);
+		const {name} = attribute.name;
+		if (name === '__proto__' || attributes.has(name)) {
+			return;
+		}
+
+		attributes.set(name, attribute);
 	}
 
 	return attributes;
@@ -514,7 +519,8 @@ function getJsxTypeInformation(element, context, typescript) {
 			return {hasStaticProperties: true};
 		}
 
-		if (!hasSingleNonGenericCallSignature(type)) {
+		// TypeScript prefers construct signatures when resolving JSX.
+		if (!hasSingleNonGenericCallSignature(type) || type.getConstructSignatures().length > 0) {
 			return;
 		}
 
@@ -615,7 +621,7 @@ const create = context => {
 		for (const [name, attribute] of attributes) {
 			const defaultValue = defaults.get(name);
 			if (
-				['key', 'ref'].includes(name)
+				['key', 'ref', '__self', '__source'].includes(name)
 				|| (name === 'children' && element.parent.children.length > 0)
 				|| defaultValue === undefined
 				|| !Object.is(defaultValue, getJsxAttributeValue(attribute, sourceCode))
