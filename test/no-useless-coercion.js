@@ -1481,9 +1481,24 @@ test({
 		},
 		{
 			code: 'function remove(settings?: {ready?: boolean}) { return!!(delete settings?.ready); }',
-			output: 'function remove(settings?: {ready?: boolean}) { return (delete settings?.ready); }',
+			output: 'function remove(settings?: {ready?: boolean}) { return delete settings?.ready; }',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'function lower(a, b) { return!!(\n a /* keep */ < b\n); }',
+			output: 'function lower(a, b) { return a /* keep */ < b; }',
+			errors: [{messageId: 'no-useless-coercion', suggestions: 0}],
+		},
+		{
+			code: 'function lower(a, b) { return !!(/* keep */ a < b); }',
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'function lower(a, b) { return (/* keep */ a < b); }',
+				}],
+			}],
 		},
 		{
 			code: String.raw`export let equal = /** @\u0074ype {true} */ !!(1 < 2);`,
@@ -1526,6 +1541,12 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 		export const isString = (value: unknown) => !!(typeof value === 'string');
 		export const isError = (value: unknown) => !!(value instanceof Error);
 		export const hasName = (value: Named | Unnamed) => !!('name' in value);
+		export function isStringAfterGuard(value: string | number | boolean) {
+			if (typeof value === 'boolean') {
+				throw new Error();
+			}
+			return!!(typeof value !== 'number');
+		}
 	`;
 	const filename = 'comparison-before-fix.ts';
 	const {output, messages} = linter.verifyAndFix(code, {
@@ -1535,7 +1556,9 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 		rules: {'unicorn/no-useless-coercion': 'error'},
 	}, {filename});
 	t.assert.deepStrictEqual(messages, []);
-	t.assert.strictEqual(output, code.replaceAll('!!(', '('));
+	t.assert.strictEqual(output, code
+		.replace('return!!(typeof value !== \'number\');', 'return typeof value !== \'number\';')
+		.replaceAll('!!(', '('));
 
 	const sources = new Map([
 		[filename, code],
@@ -1565,6 +1588,7 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 		t.assert.ok(before.includes(`=> value is ${type};`));
 	}
 
+	t.assert.ok(before.includes('isStringAfterGuard(value: string | number | boolean): value is string;'));
 	t.assert.strictEqual(after, before);
 });
 
@@ -1617,6 +1641,14 @@ test({
 		const enabled = Boolean(read());
 	`, 'script')],
 	invalid: [
+		{
+			...typeAwareBooleanCoercion('function read(flags: boolean[] & {enabled: boolean}): boolean[] { return [!!flags.enabled, !!flags["enabled"]]; }'),
+			output: 'function read(flags: boolean[] & {enabled: boolean}): boolean[] { return [flags.enabled, flags["enabled"]]; }',
+			errors: [
+				{messageId: 'no-useless-coercion', suggestions: 0},
+				{messageId: 'no-useless-coercion', suggestions: 0},
+			],
+		},
 		{
 			...typeAwareBooleanCoercion(outdent`
 				declare const enabled: boolean;

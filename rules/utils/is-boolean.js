@@ -232,8 +232,9 @@ function hasBooleanPropertyType(expression, operand, context, {checker, program}
 	receiverType = checker.getApparentType(receiverType);
 	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
 	// Array methods can remove or shift tuple elements without updating their declared types.
+	const readsIndex = operand.computed && names.some(name => /^\d+$/v.test(name));
 	return receiverTypes.every(type =>
-		(!operand.computed || !checker.isArrayLikeType(type))
+		(!readsIndex || !checker.isArrayLikeType(type))
 		&& names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
 }
 

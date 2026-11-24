@@ -270,7 +270,7 @@ const create = context => {
 	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
-	const getProblem = (node, expression, description, type) => ({
+	const getProblem = (node, expression, {description, type, removeGrouping = false}) => ({
 		node,
 		messageId: MESSAGE_ID,
 		data: {description, type},
@@ -279,11 +279,14 @@ const create = context => {
 		*/
 		* fix(fixer, {abort}) {
 			// Removing the coercion would drop comments outside the preserved expression.
-			if (wouldRemoveComments(context, node, [getParenthesizedRange(expression, context)])) {
+			const preservedRange = removeGrouping ? sourceCode.getRange(expression) : getParenthesizedRange(expression, context);
+			if (wouldRemoveComments(context, node, [preservedRange])) {
 				return abort();
 			}
 
-			const replacement = replaceNodeWithExpression(fixer, node, expression, context);
+			const replacement = removeGrouping
+				? fixer.replaceText(node, sourceCode.getText(expression))
+				: replaceNodeWithExpression(fixer, node, expression, context);
 			if (!replacement) {
 				return abort();
 			}
@@ -327,7 +330,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(callExpression, argument, `\`${name}()\``, coercion.type);
+		return getProblem(callExpression, argument, {description: `\`${name}()\``, type: coercion.type});
 	});
 
 	// `+value` on a value already a number. `~~` and `-` change the value, so they are excluded.
@@ -339,7 +342,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, node.argument, '`+`', 'number');
+		return getProblem(node, node.argument, {description: '`+`', type: 'number'});
 	});
 
 	// Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript.
@@ -357,8 +360,17 @@ const create = context => {
 			return;
 		}
 
-		const problem = getProblem(node, negation.argument, '`!!`', 'boolean');
-		if (canAutofixDoubleNegation(node, negation, context)) {
+		const operand = negation.argument;
+		// Parentheses around a return value can hide earlier narrowing when TypeScript infers a predicate.
+		const removeGrouping = node.parent.type === 'ReturnStatement' && isBooleanOperatorExpression(operand);
+		const canAutofix = canAutofixDoubleNegation(node, negation, context)
+			&& (!removeGrouping || !wouldRemoveComments(context, node, [sourceCode.getRange(operand)]));
+		const problem = getProblem(node, operand, {
+			description: '`!!`',
+			type: 'boolean',
+			removeGrouping: canAutofix && removeGrouping,
+		});
+		if (canAutofix) {
 			return problem;
 		}
 
@@ -382,7 +394,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, value, 'Concatenation with `\'\'`', 'string');
+		return getProblem(node, value, {description: 'Concatenation with `\'\'`', type: 'string'});
 	});
 
 	// `value.toString()` on a value already a string.
@@ -401,7 +413,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, callee.object, '`.toString()`', 'string');
+		return getProblem(node, callee.object, {description: '`.toString()`', type: 'string'});
 	});
 };
 

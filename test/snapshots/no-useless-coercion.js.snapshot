@@ -1080,7 +1080,7 @@ Message:
     |                                ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
 Output:
-  1 | function isPositive(x) { return (x > 0); }
+  1 | function isPositive(x) { return x > 0; }
 
 `;
 
