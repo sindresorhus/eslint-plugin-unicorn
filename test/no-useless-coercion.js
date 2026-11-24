@@ -1547,6 +1547,12 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 			}
 			return!!(typeof value !== 'number');
 		}
+		export function isStringWithGroupedReturn(value: string | number | boolean) {
+			if (typeof value === 'boolean') {
+				throw new Error();
+			}
+			return(!!(typeof value !== 'number'));
+		}
 	`;
 	const filename = 'comparison-before-fix.ts';
 	const {output, messages} = linter.verifyAndFix(code, {
@@ -1558,6 +1564,7 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(output, code
 		.replace('return!!(typeof value !== \'number\');', 'return typeof value !== \'number\';')
+		.replace('return(!!(typeof value !== \'number\'));', 'return (typeof value !== \'number\');')
 		.replaceAll('!!(', '('));
 
 	const sources = new Map([
@@ -1589,6 +1596,7 @@ nodeTest('comparison autofixes preserve emitted TypeScript predicates', t => {
 	}
 
 	t.assert.ok(before.includes('isStringAfterGuard(value: string | number | boolean): value is string;'));
+	t.assert.ok(before.includes('isStringWithGroupedReturn(value: string | number | boolean): value is string | boolean;'));
 	t.assert.strictEqual(after, before);
 });
 
@@ -1768,6 +1776,7 @@ test.snapshot({
 		`,
 		'function read(flags: boolean[]) { return !!flags[0]; } read([]);',
 		'function read(flags: [boolean]) { flags.pop(); return !!flags[0]; } read([true]);',
+		'function read(flags: [boolean] & {enabled: boolean}, key: 0 | "enabled") { flags.pop(); return !!flags[key]; }',
 		'function read(flags: [boolean]) { flags.pop(); const enabled = flags[0]; return !!enabled; } read([true]);',
 		'function read(flags: [boolean, string]) { flags.shift(); const enabled = flags[0] ?? false; return !!enabled; } read([false, "ready"]);',
 		'function read(flags: [boolean]): boolean { flags.pop(); return Boolean(flags[0]); } read([true]);',
