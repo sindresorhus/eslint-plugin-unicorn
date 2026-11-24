@@ -159,7 +159,7 @@ nodeTest('coercion rules suggest changes to a guarded predicate property read', 
 		files: ['**/*.ts'],
 		languageOptions: {
 			parser: typescriptEslintParser,
-			parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
+			parserOptions: parsers.typescript.mergeParserOptions({project: 'test/fixtures/prefer-regexp-test/tsconfig.json'}),
 		},
 	}, coercionConfig], {filename: 'test/fixtures/prefer-regexp-test/index.ts'});
 
