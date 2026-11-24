@@ -4,6 +4,10 @@ import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-class-fields': rule}}},
+	rules: {'unicorn/prefer-class-fields': 'error'},
+};
 
 nodeTest('fixes consecutive assignments in order without creating a directive', t => {
 	const linter = new Linter();
@@ -16,10 +20,7 @@ nodeTest('fixes consecutive assignments in order without creating a directive', 
 			}
 		}
 	`;
-	const {output, messages} = linter.verifyAndFix(code, {
-		plugins: {unicorn: {rules: {'prefer-class-fields': rule}}},
-		rules: {'unicorn/prefer-class-fields': 'error'},
-	});
+	const {output, messages} = linter.verifyAndFix(code, linterConfig);
 
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(output, outdent`
@@ -32,6 +33,61 @@ nodeTest('fixes consecutive assignments in order without creating a directive', 
 			enabled = true;
 		}
 	`);
+});
+
+nodeTest('keeps line directives with constructor assignments', t => {
+	const linter = new Linter();
+	const config = {...linterConfig, rules: {...linterConfig.rules, 'no-magic-numbers': 'error'}};
+	for (const code of [
+		outdent`
+			class Model {
+				// eslint-disable-next-line no-magic-numbers
+				constructor() { this.items = [999]; }
+			}
+		`,
+		outdent`
+			class Model {
+				constructor() {
+					this.items = [999]; this.configure(); // eslint-disable-line no-magic-numbers
+				}
+			}
+		`,
+	]) {
+		const {messages, output} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/prefer-class-fields']);
+	}
+});
+
+nodeTest('keeps line directives active at class endings', t => {
+	const linter = new Linter();
+	const config = {...linterConfig, rules: {...linterConfig.rules, 'no-inline-comments': 'error'}};
+	for (const code of [
+		outdent`
+			class Model {
+				constructor() { this.items = []; }
+				// eslint-disable-next-line no-inline-comments
+			} // keep
+		`,
+		outdent`
+			class Model {
+				constructor() {
+					this.items = [];
+				} // eslint-disable-next-line no-inline-comments
+			} // keep
+		`,
+		outdent`
+			class Model {
+				constructor() {
+					this.items = [];
+				}
+				/* eslint-disable-line no-inline-comments */ } // keep
+		`,
+	]) {
+		const {messages, output} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/prefer-class-fields']);
+	}
 });
 
 test({

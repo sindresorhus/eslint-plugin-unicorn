@@ -15,7 +15,7 @@ Class fields keep property initialization next to the declaration and avoid boil
 
 This rule checks consecutive assignments to distinct properties at the start of a constructor. It accepts literal defaults, including nested arrays and objects whose elements and values are literals. Bracket notation is supported when the key is a primitive literal, a signed numeric literal, or a template literal without substitutions. The rule stops at other statements or at assignments that can invoke a known setter.
 
-The rule fixes one assignment at a time to preserve their order. An existing public field is report-only if a later instance field has an unknown name and could overwrite it.
+The rule fixes one assignment at a time to preserve their order. An assignment is report-only when its lines or the line before it contain a comment. The rule also withholds edits that would insert a field on a line covered by an ESLint line directive, or move a default into a public field that a later field with an unknown name could overwrite.
 
 In TypeScript and JavaScript with type annotations or a `@ts-check` comment, arrays, objects, signed numeric literals, and assignments involving a computed field name are report-only. Moving these defaults can affect type inference or narrowing. Literal defaults with a TypeScript const assertion are also report-only.
 

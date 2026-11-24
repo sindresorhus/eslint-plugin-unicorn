@@ -2,6 +2,7 @@ import {getStringIfConstant, isSemicolonToken} from '@eslint-community/eslint-ut
 import {getStaticStringValue, isNumericLiteral, isStringLiteral} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getEslintDisableDirectives,
 	getIndentString,
 	getLineIndent,
 	getLinebreak,
@@ -220,8 +221,26 @@ const create = context => {
 			yield fixer.insertTextBeforeRange([insertionIndex, insertionIndex], text);
 		}
 
-		// An edit can remove comments inside the assignment or the initializer it replaces.
-		if ([node, existingProperty?.value].some(target => target && sourceCode.getCommentsInside(target).length > 0)) {
+		// Moving the assignment can detach line-based comments. Replacing an initializer can remove comments inside it.
+		const {start, end} = sourceCode.getLoc(node);
+		if (
+			sourceCode.getCommentsBefore(node).length > 0
+			|| sourceCode.getAllComments().some(comment => {
+				const location = sourceCode.getLoc(comment);
+				return location.end.line >= start.line - 1 && location.start.line <= end.line;
+			})
+			|| (existingProperty?.value && sourceCode.getCommentsInside(existingProperty.value).length > 0)
+		) {
+			return;
+		}
+
+		// Appending a field can split a line directive from the closing brace it covers.
+		const closingLine = sourceCode.getLoc(classBody).end.line;
+		if (!existingProperty && getEslintDisableDirectives(context).some(({type, node}) => {
+			const location = sourceCode.getLoc(node);
+			return (type === 'disable-line' && location.start.line === closingLine)
+				|| (type === 'disable-next-line' && location.end.line === closingLine - 1);
+		})) {
 			return;
 		}
 
