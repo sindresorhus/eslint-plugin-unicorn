@@ -11,6 +11,8 @@ test.snapshot({
 		'const map = new Map(); if (map.has(/key/)) { map.delete(/key/); log(); }',
 		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); log(); }',
 		'const map = new Map(); if (map.has(first.item.key)) { map.delete(second.item.key); log(); }',
+		'const set = new Set(); if (set.has(warning["message"])) { set.delete(warning["message"]); log(); }',
+		'const set = new Set(); if (set.has(warning?.message)) { set.delete(warning?.message); log(); }',
 	],
 	invalid: [
 		outdent`
@@ -60,6 +62,17 @@ test({
 			output: 'const set = new Set();\r\nif (set.delete(key) as boolean) {\r\n  log(key);\r\n}',
 			languageOptions: {parser: parsers.typescript},
 			errors: 1,
+		},
+		{
+			code: outdent`
+				const set = new Set();
+				if (set.has(key)) {
+					set.delete(key); // eslint-disable-line no-restricted-syntax
+					log(key);
+				}
+			`,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
 		},
 		{
 			code: outdent`

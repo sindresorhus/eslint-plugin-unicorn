@@ -11,11 +11,11 @@
 
 Deletion is already safe when the property, key, or value does not exist, so an existence guard is usually unnecessary.
 
-This rule reports simple `in` checks before deleting from known objects, and `.has()` checks before deleting from local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances. When deletion is the first of several statements in the branch, the edit uses the boolean result of `.delete()` as the condition. Both calls must use the collection variable directly for this edit.
+This rule reports simple `in` checks before deleting from known objects. It also reports `.has()` checks before deleting from local `const` variables initialized with `new Map`, `new Set`, `new WeakMap`, or `new WeakSet`. When `.delete()` is the first of several statements in the branch, the edit uses its boolean result as the condition. Both calls must use the collection variable directly for this edit.
 
 The rule ignores compound conditions, unknown receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom collections, and type-only collection annotations. When deletion is the only statement in the branch, it also ignores guards with an `else` branch and `else if` clauses.
 
-Collection fixes assume the standard `.has()` and `.delete()` methods. The rule fixes cases where the key is safe to evaluate once and the edit preserves comments. It offers a suggestion for keys read from properties because a getter can make repeated reads observable. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
+Collection fixes assume the standard `.has()` and `.delete()` methods. The rule fixes cases where the key is safe to evaluate once and the edit preserves comments. For keys read with plain dot notation, such as `warning.message`, it offers a suggestion because a getter can make repeated reads observable. It skips computed and optional property reads as collection keys. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
 
 ## Examples
 
