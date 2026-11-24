@@ -615,8 +615,7 @@ const create = context => {
 		for (const [name, attribute] of attributes) {
 			const defaultValue = defaults.get(name);
 			if (
-				name === 'key'
-				|| name === 'ref'
+				['key', 'ref'].includes(name)
 				|| (name === 'children' && element.parent.children.length > 0)
 				|| defaultValue === undefined
 				|| !Object.is(defaultValue, getJsxAttributeValue(attribute, sourceCode))
