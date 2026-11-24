@@ -138,6 +138,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isBooleanOperatorExpression,
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,
 	isBuiltinBooleanCallExpression,

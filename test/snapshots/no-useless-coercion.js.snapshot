@@ -118,7 +118,7 @@ Message:
 > 2 | !!(a === b);
     | ^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | foo
   2 | ;(a === b);
 
@@ -208,7 +208,7 @@ Message:
 > 1 | async function read(pending: Promise<boolean>) { const enabled = await pending; return !!enabled; }
     |                                                                                        ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | async function read(pending: Promise<boolean>) { const enabled = await pending; return enabled; }
 
 `;
@@ -317,22 +317,22 @@ Suggestion 1/1: Remove the double negation.:
 
 `;
 
-exports[`no-useless-coercion > invalid(14): function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; } 1`] = `
+exports[`no-useless-coercion > invalid(14): function read(flags: {0: boolean; 1: boolean}, key: 0 | 1) { return !!flags[key]; } 1`] = `
 
 Filename: test/fixtures/prefer-regexp-test/index.ts
 
-  1 | function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }
+  1 | function read(flags: {0: boolean; 1: boolean}, key: 0 | 1) { return !!flags[key]; }
 
 `;
 
-exports[`no-useless-coercion > invalid(14): function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; } 2`] = `
+exports[`no-useless-coercion > invalid(14): function read(flags: {0: boolean; 1: boolean}, key: 0 | 1) { return !!flags[key]; } 2`] = `
 
 Message:
-> 1 | function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }
-    |                                                               ^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+> 1 | function read(flags: {0: boolean; 1: boolean}, key: 0 | 1) { return !!flags[key]; }
+    |                                                                     ^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
-  1 | function read(flags: [boolean, boolean], key: 0 | 1) { return flags[key]; }
+Output:
+  1 | function read(flags: {0: boolean; 1: boolean}, key: 0 | 1) { return flags[key]; }
 
 `;
 
@@ -431,7 +431,7 @@ Message:
 > 1 | const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, !!({enabled: true}).enabled];
     |                                                          ^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | const items = [1]; const enabled = [!!items.includes(1), /x/g.global, !!({enabled: true}).enabled];
 
 `;
@@ -442,7 +442,7 @@ Message:
 > 1 | const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, !!({enabled: true}).enabled];
     |                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, ({enabled: true}).enabled];
 
 `;
@@ -495,6 +495,25 @@ Suggestion 1/1: Remove the double negation.:
 
 `;
 
+exports[`no-useless-coercion > invalid(17): declare const enabled: true; export let ready = !!enabled; 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | declare const enabled: true; export let ready = !!enabled;
+
+`;
+
+exports[`no-useless-coercion > invalid(17): declare const enabled: true; export let ready = !!enabled; 2`] = `
+
+Message:
+> 1 | declare const enabled: true; export let ready = !!enabled;
+    |                                                 ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | declare const enabled: true; export let ready = enabled;
+
+`;
+
 exports[`no-useless-coercion > invalid(18): Boolean(x instanceof Foo) 1`] = `
 
   1 | Boolean(x instanceof Foo)
@@ -529,6 +548,25 @@ Suggestion 1/1: Remove the double negation.:
 
 `;
 
+exports[`no-useless-coercion > invalid(18): export function read(enabled: boolean) { if (enabled) { let ready = !!enabled; return [ready]; } return []; } 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | export function read(enabled: boolean) { if (enabled) { let ready = !!enabled; return [ready]; } return []; }
+
+`;
+
+exports[`no-useless-coercion > invalid(18): export function read(enabled: boolean) { if (enabled) { let ready = !!enabled; return [ready]; } return []; } 2`] = `
+
+Message:
+> 1 | export function read(enabled: boolean) { if (enabled) { let ready = !!enabled; return [ready]; } return []; }
+    |                                                                     ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | export function read(enabled: boolean) { if (enabled) { let ready = enabled; return [ready]; } return []; }
+
+`;
+
 exports[`no-useless-coercion > invalid(19): Boolean(x in obj) 1`] = `
 
   1 | Boolean(x in obj)
@@ -543,6 +581,42 @@ Message:
 
 Output:
   1 | (x in obj)
+
+`;
+
+exports[`no-useless-coercion > invalid(19): export const read = <T extends boolean>(enabled: T) => !!enabled; 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | export const read = <T extends boolean>(enabled: T) => !!enabled;
+
+`;
+
+exports[`no-useless-coercion > invalid(19): export const read = <T extends boolean>(enabled: T) => !!enabled; 2`] = `
+
+Message:
+> 1 | export const read = <T extends boolean>(enabled: T) => !!enabled;
+    |                                                        ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | export const read = <T extends boolean>(enabled: T) => enabled;
+
+`;
+
+exports[`no-useless-coercion > invalid(19): export let equal = !!(/** @type {true} */ (1 < 2)); 1`] = `
+
+  1 | export let equal = !!(/** @type {true} */ (1 < 2));
+
+`;
+
+exports[`no-useless-coercion > invalid(19): export let equal = !!(/** @type {true} */ (1 < 2)); 2`] = `
+
+Message:
+> 1 | export let equal = !!(/** @type {true} */ (1 < 2));
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | export let equal = (/** @type {true} */ (1 < 2));
 
 `;
 
@@ -575,7 +649,7 @@ Message:
 > 1 | const equal = !!(a === b);
     |               ^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | const equal = (a === b);
 
 `;
@@ -633,6 +707,48 @@ Output:
 
 `;
 
+exports[`no-useless-coercion > invalid(20): declare const a: number, b: number; let equal = !!((a === b) as true); 1`] = `
+
+  1 | declare const a: number, b: number; let equal = !!((a === b) as true);
+
+`;
+
+exports[`no-useless-coercion > invalid(20): declare const a: number, b: number; let equal = !!((a === b) as true); 2`] = `
+
+Message:
+> 1 | declare const a: number, b: number; let equal = !!((a === b) as true);
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | declare const a: number, b: number; let equal = ((a === b) as true);
+
+`;
+
+exports[`no-useless-coercion > invalid(20): declare function make<T = boolean>(check: (value: T) => boolean): T;\ndeclare function accept(value: boolean): boolean;\nexport const result: boolean | string = !!(true ? (1 < 2) : make(value => accept(value))); 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | declare function make<T = boolean>(check: (value: T) => boolean): T;
+  2 | declare function accept(value: boolean): boolean;
+  3 | export const result: boolean | string = !!(true ? (1 < 2) : make(value => accept(value)));
+
+`;
+
+exports[`no-useless-coercion > invalid(20): declare function make<T = boolean>(check: (value: T) => boolean): T;\ndeclare function accept(value: boolean): boolean;\nexport const result: boolean | string = !!(true ? (1 < 2) : make(value => accept(value))); 2`] = `
+
+Message:
+  1 | declare function make<T = boolean>(check: (value: T) => boolean): T;
+  2 | declare function accept(value: boolean): boolean;
+> 3 | export const result: boolean | string = !!(true ? (1 < 2) : make(value => accept(value)));
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | declare function make<T = boolean>(check: (value: T) => boolean): T;
+  2 | declare function accept(value: boolean): boolean;
+  3 | export const result: boolean | string = (true ? (1 < 2) : make(value => accept(value)));
+
+`;
+
 exports[`no-useless-coercion > invalid(21): Boolean(a?.b === c) 1`] = `
 
   1 | Boolean(a?.b === c)
@@ -647,6 +763,42 @@ Message:
 
 Output:
   1 | (a?.b === c)
+
+`;
+
+exports[`no-useless-coercion > invalid(21): const isString = (value: unknown) => !(!(typeof value === \"string\") as any); 1`] = `
+
+  1 | const isString = (value: unknown) => !(!(typeof value === "string") as any);
+
+`;
+
+exports[`no-useless-coercion > invalid(21): const isString = (value: unknown) => !(!(typeof value === \"string\") as any); 2`] = `
+
+Message:
+> 1 | const isString = (value: unknown) => !(!(typeof value === "string") as any);
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | const isString = (value: unknown) => (typeof value === "string");
+
+`;
+
+exports[`no-useless-coercion > invalid(21): export function read(flag: boolean) { switch (!!flag) { case true: return [flag]; default: return []; } } 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | export function read(flag: boolean) { switch (!!flag) { case true: return [flag]; default: return []; } }
+
+`;
+
+exports[`no-useless-coercion > invalid(21): export function read(flag: boolean) { switch (!!flag) { case true: return [flag]; default: return []; } } 2`] = `
+
+Message:
+> 1 | export function read(flag: boolean) { switch (!!flag) { case true: return [flag]; default: return []; } }
+    |                                               ^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | export function read(flag: boolean) { switch (flag) { case true: return [flag]; default: return []; } }
 
 `;
 
@@ -667,6 +819,42 @@ Output:
 
 `;
 
+exports[`no-useless-coercion > invalid(22): declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(!!flag); return [flag]; } 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(!!flag); return [flag]; }
+
+`;
+
+exports[`no-useless-coercion > invalid(22): declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(!!flag); return [flag]; } 2`] = `
+
+Message:
+> 1 | declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(!!flag); return [flag]; }
+    |                                                                                                                      ^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | declare function assertTrue(value: unknown): asserts value is true; export function read(flag: boolean) { assertTrue(flag); return [flag]; }
+
+`;
+
+exports[`no-useless-coercion > invalid(22): export let equal = /** @type {true} */ !!(1 < 2); 1`] = `
+
+  1 | export let equal = /** @type {true} */ !!(1 < 2);
+
+`;
+
+exports[`no-useless-coercion > invalid(22): export let equal = /** @type {true} */ !!(1 < 2); 2`] = `
+
+Message:
+> 1 | export let equal = /** @type {true} */ !!(1 < 2);
+    |                                        ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+
+Suggestion 1/1: Remove the double negation.:
+  1 | export let equal = /** @type {true} */ (1 < 2);
+
+`;
+
 exports[`no-useless-coercion > invalid(23): Number(Math.PI) 1`] = `
 
   1 | Number(Math.PI)
@@ -681,6 +869,46 @@ Message:
 
 Output:
   1 | Math.PI
+
+`;
+
+exports[`no-useless-coercion > invalid(23): type State = {ready: true; value: string} | {ready: false; value: number};\nexport function read(state: State) {\n\tconst ready = !!state.ready;\n\tswitch (ready) {\n\t\tcase true: return state.value;\n\t\tdefault: return '';\n\t}\n} 1`] = `
+
+Filename: test/fixtures/prefer-regexp-test/index.ts
+
+  1 | type State = {ready: true; value: string} | {ready: false; value: number};
+  2 | export function read(state: State) {
+  3 | 	const ready = !!state.ready;
+  4 | 	switch (ready) {
+  5 | 		case true: return state.value;
+  6 | 		default: return '';
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-coercion > invalid(23): type State = {ready: true; value: string} | {ready: false; value: number};\nexport function read(state: State) {\n\tconst ready = !!state.ready;\n\tswitch (ready) {\n\t\tcase true: return state.value;\n\t\tdefault: return '';\n\t}\n} 2`] = `
+
+Message:
+  1 | type State = {ready: true; value: string} | {ready: false; value: number};
+  2 | export function read(state: State) {
+> 3 | 	const ready = !!state.ready;
+    | 	              ^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+  4 | 	switch (ready) {
+  5 | 		case true: return state.value;
+  6 | 		default: return '';
+  7 | 	}
+  8 | }
+
+Suggestion 1/1: Remove the double negation.:
+  1 | type State = {ready: true; value: string} | {ready: false; value: number};
+  2 | export function read(state: State) {
+  3 | 	const ready = state.ready;
+  4 | 	switch (ready) {
+  5 | 		case true: return state.value;
+  6 | 		default: return '';
+  7 | 	}
+  8 | }
 
 `;
 
@@ -851,8 +1079,8 @@ Message:
 > 1 | function isPositive(x) { return!!(x > 0); }
     |                                ^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
-  1 | function isPositive(x) { return (x > 0); }
+Output:
+  1 | function isPositive(x) { return x > 0; }
 
 `;
 
@@ -1060,22 +1288,22 @@ Suggestion 1/1: Remove the double negation.:
 
 `;
 
-exports[`no-useless-coercion > invalid(4): declare const flags: [boolean]; const enabled = !!flags[0]; 1`] = `
+exports[`no-useless-coercion > invalid(4): declare const flags: {0: boolean}; const enabled = !!flags[0]; 1`] = `
 
 Filename: test/fixtures/prefer-regexp-test/index.ts
 
-  1 | declare const flags: [boolean]; const enabled = !!flags[0];
+  1 | declare const flags: {0: boolean}; const enabled = !!flags[0];
 
 `;
 
-exports[`no-useless-coercion > invalid(4): declare const flags: [boolean]; const enabled = !!flags[0]; 2`] = `
+exports[`no-useless-coercion > invalid(4): declare const flags: {0: boolean}; const enabled = !!flags[0]; 2`] = `
 
 Message:
-> 1 | declare const flags: [boolean]; const enabled = !!flags[0];
-    |                                                 ^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
+> 1 | declare const flags: {0: boolean}; const enabled = !!flags[0];
+    |                                                    ^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
 Suggestion 1/1: Remove the double negation.:
-  1 | declare const flags: [boolean]; const enabled = flags[0];
+  1 | declare const flags: {0: boolean}; const enabled = flags[0];
 
 `;
 
@@ -1091,7 +1319,7 @@ Message:
 > 1 | foo(!!(key in object));
     |     ^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | foo((key in object));
 
 `;
@@ -1532,7 +1760,7 @@ Message:
 > 1 | const equal = !!(a /* keep */ === b);
     |               ^^^^^^^^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | const equal = (a /* keep */ === b);
 
 `;
@@ -1808,7 +2036,7 @@ Message:
 > 1 | function read(flags: {enabled: boolean}) { return !!flags.enabled; }
     |                                                   ^^^^^^^^^^^^^^^ \`!!\` is unnecessary because the value is already a boolean.
 
-Suggestion 1/1: Remove the double negation.:
+Output:
   1 | function read(flags: {enabled: boolean}) { return flags.enabled; }
 
 `;

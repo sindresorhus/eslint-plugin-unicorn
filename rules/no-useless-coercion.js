@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js';
 import {
 	isBoolean,
+	isBooleanOperatorExpression,
 	isBooleanTypeInformation,
 	isBuiltinBooleanCallExpression,
 	isBuiltinBooleanPropertyRead,
@@ -16,10 +17,12 @@ import {
 	getConstVariableInitializer,
 	getParenthesizedRange,
 	getStaticValueForControlFlow,
+	hasJSDocumentExpressionType,
 	hasStrictNullChecks,
 	containsNode,
 	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword, replaceNodeWithExpression} from './fix/index.js';
@@ -213,6 +216,51 @@ function isBooleanDoubleNegationOperand(node, context) {
 	}
 }
 
+function canAutofixDoubleNegation(node, negation, context) {
+	const operand = negation.argument;
+	if (
+		negation !== node.argument
+		|| hasJSDocumentExpressionType(operand, context)
+		|| hasJSDocumentExpressionType(node, context)
+	) {
+		return false;
+	}
+
+	if (isBooleanOperatorExpression(operand)) {
+		return true;
+	}
+
+	// Other expressions can be contextually typed after removing `!!`, even when their current type is `boolean`.
+	if (operand.type !== 'Identifier' && operand.type !== 'MemberExpression') {
+		return false;
+	}
+
+	// A bare read can introduce narrowing. An unannotated const initializer can also alias a discriminant property.
+	const {parent} = node;
+	const isVariableInitializer = parent.type === 'VariableDeclarator'
+		&& (operand.type === 'Identifier' || (parent.id.type === 'Identifier' && Boolean(parent.id.typeAnnotation)));
+	if (!isVariableInitializer && !['ArrayExpression', 'ReturnStatement', 'ArrowFunctionExpression'].includes(parent.type)) {
+		return false;
+	}
+
+	const {parserServices} = context.sourceCode;
+	return withTypeInformation(operand, context, ({type, checker, program}) => {
+		const booleanType = checker.getBooleanType();
+		// Without strict null checks, a `boolean` annotation also accepts `null` and `undefined`.
+		if (!hasStrictNullChecks(program) || type !== booleanType || parserServices.getTypeAtLocation(node) !== booleanType) {
+			return false;
+		}
+
+		if (operand.type === 'MemberExpression') {
+			return true;
+		}
+
+		// A narrowed identifier can stay `boolean` in the checker after a write through another reference.
+		const symbol = parserServices.getSymbolAtLocation(operand);
+		return Boolean(symbol) && checker.getTypeOfSymbol(symbol) === booleanType;
+	}) === true;
+}
+
 /**
 @param {ESLint.Rule.RuleContext} context
 */
@@ -222,7 +270,7 @@ const create = context => {
 	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
-	const getProblem = (node, expression, description, type) => ({
+	const getProblem = (node, expression, {description, type, removeGrouping = false}) => ({
 		node,
 		messageId: MESSAGE_ID,
 		data: {description, type},
@@ -231,11 +279,14 @@ const create = context => {
 		*/
 		* fix(fixer, {abort}) {
 			// Removing the coercion would drop comments outside the preserved expression.
-			if (wouldRemoveComments(context, node, [getParenthesizedRange(expression, context)])) {
+			const preservedRange = removeGrouping ? sourceCode.getRange(expression) : getParenthesizedRange(expression, context);
+			if (wouldRemoveComments(context, node, [preservedRange])) {
 				return abort();
 			}
 
-			const replacement = replaceNodeWithExpression(fixer, node, expression, context);
+			const replacement = removeGrouping
+				? fixer.replaceText(node, sourceCode.getText(expression))
+				: replaceNodeWithExpression(fixer, node, expression, context);
 			if (!replacement) {
 				return abort();
 			}
@@ -279,7 +330,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(callExpression, argument, `\`${name}()\``, coercion.type);
+		return getProblem(callExpression, argument, {description: `\`${name}()\``, type: coercion.type});
 	});
 
 	// `+value` on a value already a number. `~~` and `-` change the value, so they are excluded.
@@ -291,7 +342,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, node.argument, '`+`', 'number');
+		return getProblem(node, node.argument, {description: '`+`', type: 'number'});
 	});
 
 	// Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript.
@@ -309,8 +360,22 @@ const create = context => {
 			return;
 		}
 
-		const {fix, ...problem} = getProblem(node, negation.argument, '`!!`', 'boolean');
-		return {...problem, suggest: [{messageId: SUGGESTION_ID, fix}]};
+		const operand = negation.argument;
+		// Parentheses around a return value can hide earlier narrowing when TypeScript infers a predicate.
+		const removeGrouping = node.parent.type === 'ReturnStatement' && isBooleanOperatorExpression(operand);
+		const canAutofix = canAutofixDoubleNegation(node, negation, context)
+			&& (!removeGrouping || !wouldRemoveComments(context, node, [sourceCode.getRange(operand)]));
+		const problem = getProblem(node, operand, {
+			description: '`!!`',
+			type: 'boolean',
+			removeGrouping: canAutofix && removeGrouping,
+		});
+		if (canAutofix) {
+			return problem;
+		}
+
+		const {fix, ...report} = problem;
+		return {...report, suggest: [{messageId: SUGGESTION_ID, fix}]};
 	});
 
 	// `value + ''` / `'' + value` on a value already a string. We intentionally do not special-case rare directive prologue creation.
@@ -329,7 +394,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, value, 'Concatenation with `\'\'`', 'string');
+		return getProblem(node, value, {description: 'Concatenation with `\'\'`', type: 'string'});
 	});
 
 	// `value.toString()` on a value already a string.
@@ -348,7 +413,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, callee.object, '`.toString()`', 'string');
+		return getProblem(node, callee.object, {description: '`.toString()`', type: 'string'});
 	});
 };
 

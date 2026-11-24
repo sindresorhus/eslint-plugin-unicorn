@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import typedArray from '../shared/typed-array.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
+import getFunctionFromIdentifier from './get-function-from-identifier.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
@@ -16,6 +17,7 @@ import {
 import unwrapTypeScriptExpression, {hasTypeScriptTypeAssertion, unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
+import isTypeScriptFile from './is-typescript-file.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -29,6 +31,10 @@ const booleanBinaryOperators = new Set([
 	'in',
 	'instanceof',
 ]);
+
+const isBooleanOperatorExpression = node =>
+	(node.type === 'BinaryExpression' && booleanBinaryOperators.has(node.operator))
+	|| (node.type === 'UnaryExpression' && ['!', 'delete'].includes(node.operator));
 
 const booleanTypeStrings = new Set(['boolean', 'true', 'false']);
 const booleanGlobalFunctions = new Set(['Boolean', 'isFinite', 'isNaN']);
@@ -83,12 +89,13 @@ const expressionKindCheckers = new Map([
 	['weakSet', createNamedTypeChecker(['WeakSet'])],
 ]);
 
-// The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
-const nonBooleanStaticValueTypes = new Set([
+// Identifiers use their binding types. The other nodes cannot produce primitive booleans, so they skip static evaluation.
+const excludedStaticBooleanNodeTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
 	'ClassExpression',
 	'FunctionExpression',
+	'Identifier',
 	'NewExpression',
 	'ObjectExpression',
 	'TaggedTemplateExpression',
@@ -100,9 +107,14 @@ const isBooleanStaticValue = (node, context) => {
 		return typeof node.value === 'boolean';
 	}
 
-	return !nonBooleanStaticValueTypes.has(node.type)
+	const {parserServices} = context.sourceCode;
+	const hasTypeScriptSyntax = parserServices?.esTreeNodeToTSNodeMap || isTypeScriptFile(context.physicalFilename);
+	// A folded boolean can still have a wider TypeScript type.
+	return !excludedStaticBooleanNodeTypes.has(node.type)
+		&& (!hasTypeScriptSyntax || Boolean(parserServices?.program))
 		&& typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
-		&& !hasJSDocumentTypeReference(node, context);
+		&& !hasJSDocumentTypeReference(node, context)
+		&& (!parserServices?.program || hasBooleanType(node, context));
 };
 
 function isBooleanTypeScriptType(type, checker) {
@@ -219,7 +231,11 @@ function hasBooleanPropertyType(expression, operand, context, {checker, program}
 
 	receiverType = checker.getApparentType(receiverType);
 	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
-	return receiverTypes.every(type => names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
+	// Array methods can remove or shift tuple elements without updating their declared types.
+	const readsIndex = operand.computed && names.some(name => /^\d+$/v.test(name));
+	return receiverTypes.every(type =>
+		(!readsIndex || !checker.isArrayLikeType(type))
+		&& names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
 }
 
 // The checker can assign a boolean type even when an unchecked read may return `undefined`.
@@ -232,6 +248,39 @@ function isBooleanTypeInformation(node, context) {
 	const {sourceCode} = context;
 	if (!hasBooleanType(node, context)) {
 		return false;
+	}
+
+	if (node.type === 'CallExpression') {
+		return withTypeInformation(node, context, ({checker}) => {
+			const {esTreeNodeToTSNodeMap, tsNodeToESTreeNodeMap} = sourceCode.parserServices;
+			const declaration = checker.getResolvedSignature(esTreeNodeToTSNodeMap.get(node))?.getDeclaration();
+			if (!declaration?.body || declaration.type) {
+				return true;
+			}
+
+			// An inferred return type can hide an unchecked read in a local function.
+			const declarationNode = tsNodeToESTreeNodeMap.get(declaration);
+			if (!declarationNode) {
+				return true;
+			}
+
+			const functionNode = declarationNode.value ?? declarationNode;
+			const annotation = getJSDocumentReturnType(functionNode, context);
+			if (annotation && getJSDocumentBooleanState(annotation) === 'boolean') {
+				return true;
+			}
+
+			// The resolved signature can still refer to a replaced function, including script globals written through `globalThis`.
+			const callee = unwrapTypeScriptExpression(node.callee);
+			const referencesFunction = callee === functionNode
+				|| (sourceCode.ast.sourceType === 'module' && getFunctionFromIdentifier(callee, context) === functionNode);
+			if (!referencesFunction) {
+				return false;
+			}
+
+			const expression = getFunctionReturnExpression(functionNode);
+			return Boolean(expression && (isBooleanOperatorExpression(expression) || isBooleanStaticValue(expression, context)));
+		}) ?? false;
 	}
 
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
@@ -577,32 +626,24 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	return isBoolean;
 }
 
-function isBooleanVariableValue(variable, context, visitedVariables) {
-	if (!variable || visitedVariables.has(variable) || variable.defs.length !== 1) {
-		return false;
-	}
-
-	visitedVariables.add(variable);
-
-	const [definition] = variable.defs;
-	const scope = context.sourceCode.getScope(definition.name);
-	if (definition.name?.typeAnnotation) {
-		visitedVariables.delete(variable);
-		return !definition.name.optional && isBooleanTypeAnnotation(definition.name.typeAnnotation, context, scope);
-	}
-
-	const isBoolean = isSimpleConstVariableDefinition(definition)
-		? isBooleanExpression(definition.node.init, context, visitedVariables)
-		: false;
-
-	visitedVariables.delete(variable);
-	return isBoolean;
-}
-
 function isBooleanIdentifier(node, context, visitedVariables) {
-	const scope = context.sourceCode.getScope(node);
+	const {sourceCode} = context;
+	const variable = findVariable(sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	const name = definition?.name;
+	if (definition && !name?.typeAnnotation && isSimpleConstVariableDefinition(definition)) {
+		if (visitedVariables.has(variable)) {
+			return false;
+		}
 
-	return isBooleanVariableValue(findVariable(scope, node), context, visitedVariables)
+		// An unchecked read can return `undefined` despite the inferred type of its alias.
+		visitedVariables.add(variable);
+		const isBoolean = isBooleanExpression(definition.node.init, context, visitedVariables);
+		visitedVariables.delete(variable);
+		return isBoolean;
+	}
+
+	return Boolean(name?.typeAnnotation && !name.optional && isBooleanTypeAnnotation(name.typeAnnotation, context, sourceCode.getScope(name)))
 		|| isBooleanTypeInformation(node, context);
 }
 
@@ -836,17 +877,14 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 			return isBooleanIdentifier(node, context, visitedVariables);
 		}
 
-		case 'UnaryExpression': {
-			return ['!', 'delete'].includes(node.operator);
+		case 'UnaryExpression':
+		case 'BinaryExpression': {
+			return isBooleanOperatorExpression(node);
 		}
 
 		case 'LogicalExpression': {
 			return isBooleanExpression(node.left, context, visitedVariables)
 				&& isBooleanExpression(node.right, context, visitedVariables);
-		}
-
-		case 'BinaryExpression': {
-			return booleanBinaryOperators.has(node.operator);
 		}
 
 		case 'ConditionalExpression': {
@@ -909,6 +947,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isBooleanOperatorExpression,
 	isBuiltinBooleanCallExpression,
 	isBuiltinBooleanPropertyRead,
 	isKnownBooleanFunctionReference,

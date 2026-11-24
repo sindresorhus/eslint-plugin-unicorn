@@ -15,11 +15,15 @@ This includes redundant double coercion, like `String(String(value))`, and coerc
 
 It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. With type information, the `!!` check identifies built-in method receivers from syntax and uses declared property types only when the receiver is a stable identifier. It skips ordinary calls to user functions.
+The rule uses syntax and available TypeScript types. With `strictNullChecks`, it can recognize boolean results from `??`, `||`, and some `await` expressions. The typed `!!` check recognizes built-in receivers from syntax, uses declared property types on stable identifiers, and skips ordinary calls to user functions. Array and tuple element reads need syntax that proves the value is boolean.
 
-The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
+The rule autofixes `!!` on direct equality and relational comparisons, `in`, `instanceof`, `!`, and `delete`. With typed linting and `strictNullChecks`, it can also autofix reads in variable initializers, returns, and array elements when both the read and the double negation have the exact type `boolean`.
 
-In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
+Variable bindings must also have type `boolean`. For property reads in variable initializers, the declaration needs a TypeScript type annotation.
+
+Other reports can offer suggestions because removing `!!` can change TypeScript inference or narrowing. The rule skips `!!` checks in files with direct `eval` calls.
+
+In TypeScript, the rule skips `Boolean()` calls inside functions with inferred return types because removal can introduce a type predicate.
 
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
