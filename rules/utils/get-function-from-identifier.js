@@ -2,6 +2,24 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
+function getFunctionFromDefinition(definition) {
+	if (definition.type === 'FunctionName') {
+		return isFunction(definition.node) ? definition.node : undefined;
+	}
+
+	if (
+		definition.type === 'Variable'
+		&& definition.node.id === definition.name
+		// `init` is `null` for `let foo;` and `declare const foo`
+		&& definition.node.init
+	) {
+		const initializer = unwrapTypeScriptExpression(definition.node.init);
+		if (isFunction(initializer)) {
+			return initializer;
+		}
+	}
+}
+
 /**
 Get the function that an identifier refers to, when it is declared in the same file and never reassigned.
 
@@ -37,20 +55,7 @@ export default function getFunctionFromIdentifier(node, context) {
 		return;
 	}
 
-	const [definition] = definitions;
-	if (definition.type === 'FunctionName') {
-		return isFunction(definition.node) ? definition.node : undefined;
-	}
-
-	if (
-		definition.type === 'Variable'
-		&& definition.node.id === definition.name
-		// `init` is `null` for `let foo;` and `declare const foo`
-		&& definition.node.init
-	) {
-		const initializer = unwrapTypeScriptExpression(definition.node.init);
-		if (isFunction(initializer)) {
-			return initializer;
-		}
-	}
+	return getFunctionFromDefinition(definitions[0]);
 }
+
+export {getFunctionFromDefinition};

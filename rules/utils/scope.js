@@ -9,7 +9,20 @@ function isUnassignedParameter(variable) {
 		&& variable.references.every(reference => !reference.isWrite());
 }
 
+// Some references, such as switch discriminants, are recorded in a parent scope.
+const getIdentifierReference = (identifier, scope) => {
+	while (scope) {
+		const reference = scope.references.find(reference => reference.identifier === identifier);
+		if (reference) {
+			return reference;
+		}
+
+		scope = scope.upper;
+	}
+};
+
 export {
+	getIdentifierReference,
 	isDefinitionBeforeReference,
 	isUnassignedParameter,
 };
