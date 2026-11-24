@@ -17,7 +17,6 @@ const typeAwareOptions = {
 	filename: 'file.ts',
 	languageOptions: {parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
 };
-const importedDomTraversal = 'import type {Element as DOMElement} from "./test/fixtures/better-dom-traversing/receivers.js"; declare const element: DOMElement; element.children[1];';
 
 test.snapshot({
 	valid: [
@@ -198,7 +197,7 @@ test({
 				declare const root: {tree: {parentElement: {parentElement: object}}};
 				root.tree.parentElement.parentElement;
 
-				type Node = {children: readonly Node[]; childNodes: readonly [Node]};
+				interface Node {children: readonly Node[]; childNodes: readonly [Node]}
 				declare const tree: Node;
 				tree.children[0];
 				tree.childNodes[0];
@@ -206,28 +205,26 @@ test({
 				(class Node { static parentElement = {parentElement: {}}; }).parentElement.parentElement;
 			`,
 		},
-		{
-			...typeAwareOptions,
-			code: outdent`
-				import type {QueryTree} from './test/fixtures/better-dom-traversing/receivers.js';
-
-				function visit(receiver: HTMLElement | QueryTree) {
-					if ('kind' in receiver) {
-						receiver.querySelector('a').querySelector('b');
-					}
-				}
-			`,
-		},
 	],
 	invalid: [
 		{
-			code: importedDomTraversal,
+			code: 'import type {Element as DOMElement} from "./test/fixtures/better-dom-traversing/receivers.js"; declare const element: DOMElement; element.children[1];',
 			errors: [{messageId: 'query-selector'}],
 		},
 		{
 			...typeAwareOptions,
-			code: importedDomTraversal,
-			errors: [{messageId: 'query-selector'}],
+			code: outdent`
+				import type {Element as DOMElement, QueryTree} from './test/fixtures/better-dom-traversing/receivers.js';
+
+				function visit(receiver: DOMElement | QueryTree) {
+					if ('kind' in receiver) {
+						receiver.querySelector('a').querySelector('b');
+					} else {
+						receiver.children[1];
+					}
+				}
+			`,
+			errors: [{messageId: 'query-selector', line: 7}],
 		},
 		{
 			...typeAwareOptions,
