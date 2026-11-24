@@ -11,31 +11,30 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When an `if` branch starts by reading the same entry that its condition checks with `.has()`, use one `.get()` call and check the returned value. Comparing with `undefined` keeps the branch behavior for stored values such as `0`, `false`, and `null`.
+Use one `.get()` when a branch guarded by `map.has(key)` starts with `const entry = map.get(key)`. Both calls must use the same map variable and a matching simple key. Checking `entry !== undefined` preserves stored values such as `0`, `false`, and `null`.
 
-This rule runs when TypeScript type information is available and `strictNullChecks` is enabled. It checks `Map`, `ReadonlyMap`, and `WeakMap` when their value types exclude `undefined`. A `Map` can have an `undefined` key. A stored `undefined` value makes `.get()` ambiguous.
+With TypeScript type information and `strictNullChecks`, the rule checks `Map`, `ReadonlyMap`, and `WeakMap` whose value types exclude `undefined`. For `.get(key)!`, the value type must also exclude `null`. The rule assumes standard methods and skips type expressions on the `.get()` receiver or key.
 
-The rule checks `if (map.has(key))` when the branch starts with `const entry = map.get(key)`. Both calls must use the same map variable and a matching simple key, such as a variable or primitive literal. The rule assumes standard collection methods and skips `.get()` calls with type expressions on the receiver or key. For `.get(key)!`, the value type must also exclude `null`.
-
-The rule offers an editor suggestion when it can move the declaration into an enclosing block or module scope without a name conflict or comment loss. Use [`prefer-has-check`](./prefer-has-check.md) for checks that only need to know whether the entry exists.
+Suggestions move the declaration into an enclosing block or module when scope and comments permit. For existence-only checks, see [`prefer-has-check`](./prefer-has-check.md).
 
 ## Examples
 
 ```ts
-export {};
-
-declare const map: Map<string, number>;
-declare const key: string;
-
 // ❌
-if (map.has(key)) {
-	const entry = map.get(key);
-	console.log(entry);
+function logEntry(map: Map<string, number>, key: string) {
+	if (map.has(key)) {
+		const entry = map.get(key);
+		console.log(entry);
+	}
 }
+```
 
+```ts
 // ✅
-const entry = map.get(key);
-if (entry !== undefined) {
-	console.log(entry);
+function logEntry(map: Map<string, number>, key: string) {
+	const entry = map.get(key);
+	if (entry !== undefined) {
+		console.log(entry);
+	}
 }
 ```
