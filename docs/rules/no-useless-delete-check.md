@@ -11,11 +11,11 @@
 
 Deletion is already safe when the property, key, or value does not exist, so an existence guard is usually unnecessary.
 
-This rule reports simple `in` checks before deleting from known objects, and `.has()` checks before deleting from local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
+This rule reports simple `in` checks before deleting from known objects, and `.has()` checks before deleting from local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances. When deletion is the first of several statements in the branch, the rule uses the boolean result of `.delete()` as the condition.
 
-The rule is conservative. It ignores `else` branches, compound conditions, unknown receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom collections, type-only collection annotations, type-only TypeScript intersection types, and cases where removing the guard may be observable.
+The rule ignores compound conditions, unknown receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom collections, and type-only collection annotations. When deletion is the only statement in the branch, it also ignores guards with an `else` branch and `else if` clauses.
 
-Collection cases are automatically fixed when doing so preserves comments. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
+Collection fixes assume the standard `.has()` and `.delete()` methods. The rule fixes cases where the key is safe to evaluate once and the edit preserves comments. It offers a suggestion for keys read from properties because a getter can make repeated reads observable. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
 
 ## Examples
 
@@ -53,6 +53,21 @@ if (set.has(value)) {
 
 // ✅
 set.delete(value);
+```
+
+```js
+const set = new Set();
+
+// ❌
+if (set.has(value)) {
+	set.delete(value);
+	console.log(value);
+}
+
+// ✅
+if (set.delete(value)) {
+	console.log(value);
+}
 ```
 
 ```js

@@ -3,6 +3,46 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'const map = new Map(); if (map.has(key)) { log(); map.delete(key); }',
+		'const map = new Map(); if (map.has(key)) { map.delete(key); use(key); const key = "other"; }',
+		'const map = new Map(); if (map.has(key)) { map.delete(key); const map = new Map(); }',
+		'const map = new Map(); if (map.has(/key/)) { map.delete(/key/); log(); }',
+		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); log(); }',
+		'const map = new Map(); if (map.has(first.item.key)) { map.delete(second.item.key); log(); }',
+	],
+	invalid: [
+		outdent`
+			const set = new Set();
+			if (set.has(value)) {
+				set.delete(value);
+				log(value);
+			} else {
+				missing(value);
+			}
+		`,
+		'const map = new Map(); if (map.has(key)) { map.delete(key); log(key); }',
+		'const map = new Map(); if (map.has(/* keep */ key)) { map.delete(key); log(key); }',
+		'const map = new Map(); if (map.has(key)) { map.delete(/* keep */ key); log(key); }',
+		outdent`
+			const map = new Map();
+			if (map.has(key)) {
+				// eslint-disable-next-line no-restricted-syntax
+				map.delete(key);
+				log(key);
+			}
+		`,
+		'const set = new Set(); if (set.has(warning.message)) { set.delete(warning.message); log(warning.message); }',
+		'const set = new Set(); if (set.has(warning.details.message)) { set.delete(warning.details.message); log(warning); }',
+		'const map = new Map(); if (ready) { start(); } else if (map.has(key)) { map.delete(key); log(key); }',
+		{
+			code: 'const set = new Set();\r\nif (set.has(key) as boolean) {\r\n  set.delete(key as string);\r\n  log(key);\r\n}',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 test({
 	valid: [
 		'const map = new Map(); if (map.has(`first`)) { map.delete(`second`); }',

@@ -5,9 +5,12 @@ import {
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {removeStatement} from './fix/index.js';
+import isSameCollectionReference from './shared/is-same-collection-reference.js';
 import {
+	getCommentSafeProblem,
 	getConstVariableInitializer,
-	getOnlyExpression,
+	getLastTrailingCommentOnSameLine,
 	hasCommentInRange,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
@@ -226,8 +229,9 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 		: undefined;
 }
 
-function getCollectionDeleteProblem(ifStatement, callExpression, context) {
+function getCollectionDeleteProblem(ifStatement, statement, hasMoreStatements, context) {
 	const {test} = ifStatement;
+	const callExpression = statement.expression;
 
 	// `map.has(key) as boolean` and `map.has(key)!` are the call at runtime
 	const hasCall = unwrapTypeScriptExpression(test);
@@ -237,43 +241,54 @@ function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 		isOneArgumentMethodCall(hasCall, 'has')
 		&& isOneArgumentMethodCall(deleteCall, 'delete')
 		&& isKnownConstCollection(hasCall.callee.object, context)
-		&& isSameReference(hasCall.callee.object, deleteCall.callee.object)
-		&& isSameReference(hasCall.arguments[0], deleteCall.arguments[0])
-		&& isSafeExpression(hasCall.arguments[0], context)
+		&& isSameCollectionReference(hasCall.callee.object, deleteCall.callee.object, context)
+		&& isSameCollectionReference(hasCall.arguments[0], deleteCall.arguments[0], context)
 	)) {
 		return;
 	}
 
-	return {
-		fix: getFix(ifStatement, callExpression, context),
-	};
+	if (hasMoreStatements && (
+		context.sourceCode.getCommentsBefore(statement).length > 0
+		|| getLastTrailingCommentOnSameLine(context, statement)
+	)) {
+		return {};
+	}
+
+	const fix = hasMoreStatements
+		? function * (fixer) {
+			yield fixer.replaceText(hasCall.callee.property, 'delete');
+			yield removeStatement(statement, context, fixer);
+		}
+		: getFix(ifStatement, callExpression, context);
+	const problem = isSafeExpression(hasCall.arguments[0], context)
+		? {fix}
+		: {suggest: [{messageId: SUGGESTION_MESSAGE_ID, fix}]};
+
+	return hasMoreStatements ? getCommentSafeProblem(context, problem, statement) : problem;
 }
 
 function getProblem(ifStatement, context) {
-	if (
-		ifStatement.alternate
-		|| (
-			ifStatement.parent.type === 'IfStatement'
-			&& ifStatement.parent.alternate === ifStatement
-		)
-	) {
+	const {alternate, consequent, parent} = ifStatement;
+	const isBlock = consequent.type === 'BlockStatement';
+	const statement = isBlock ? consequent.body[0] : consequent;
+	if (statement?.type !== 'ExpressionStatement') {
 		return;
 	}
 
-	const expression = getOnlyExpression(ifStatement.consequent);
-
-	if (!expression) {
+	const hasMoreStatements = isBlock && consequent.body.length > 1;
+	if (!hasMoreStatements && (alternate || parent.alternate === ifStatement)) {
 		return;
 	}
 
+	const {expression} = statement;
 	if (
 		expression.type === 'UnaryExpression'
 		&& expression.operator === 'delete'
 	) {
-		return getObjectDeleteProblem(ifStatement, expression, context);
+		return hasMoreStatements ? undefined : getObjectDeleteProblem(ifStatement, expression, context);
 	}
 
-	return getCollectionDeleteProblem(ifStatement, expression, context);
+	return getCollectionDeleteProblem(ifStatement, statement, hasMoreStatements, context);
 }
 
 const getFix = (ifStatement, consequentExpression, context) => fixer => {

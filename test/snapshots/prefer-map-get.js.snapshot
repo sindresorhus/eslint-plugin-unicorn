@@ -1,0 +1,230 @@
+exports[`prefer-map-get > invalid(1): const map = new Map([[undefined, 0]]);\nif (map.has(undefined)) {\n\tconst entry = map.get(undefined);\n\tuse(entry);\n} else {\n\tmissing();\n} 1`] = `
+
+Filename: file.ts
+
+  1 | const map = new Map([[undefined, 0]]);
+  2 | if (map.has(undefined)) {
+  3 | 	const entry = map.get(undefined);
+  4 | 	use(entry);
+  5 | } else {
+  6 | 	missing();
+  7 | }
+
+`;
+
+exports[`prefer-map-get > invalid(1): const map = new Map([[undefined, 0]]);\nif (map.has(undefined)) {\n\tconst entry = map.get(undefined);\n\tuse(entry);\n} else {\n\tmissing();\n} 2`] = `
+
+Message:
+  1 | const map = new Map([[undefined, 0]]);
+> 2 | if (map.has(undefined)) {
+    |         ^^^ Reuse the result of \`.get()\` to check for this entry.
+  3 | 	const entry = map.get(undefined);
+  4 | 	use(entry);
+  5 | } else {
+  6 | 	missing();
+  7 | }
+
+Suggestion 1/1: Read the entry before the condition and check the result.:
+  1 | const map = new Map([[undefined, 0]]);
+  2 | const entry = map.get(undefined);
+  3 | if (entry !== undefined) {
+  4 | 	use(entry);
+  5 | } else {
+  6 | 	missing();
+  7 | }
+
+`;
+
+exports[`prefer-map-get > invalid(10): declare const map: Map<string, number>; if (ready) { start(); } else if (map.has(\"key\")) { const entry = map.get(\"key\"); use(entry); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, number>; if (ready) { start(); } else if (map.has("key")) { const entry = map.get("key"); use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(10): declare const map: Map<string, number>; if (ready) { start(); } else if (map.has(\"key\")) { const entry = map.get(\"key\"); use(entry); } 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, number>; if (ready) { start(); } else if (map.has("key")) { const entry = map.get("key"); use(entry); }
+    |                                                                              ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+`;
+
+exports[`prefer-map-get > invalid(2): declare const map: ReadonlyMap<string, false | null>; if (map.has(\`key\`)) { const entry = map.get(\"key\"); use(entry); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: ReadonlyMap<string, false | null>; if (map.has(\`key\`)) { const entry = map.get("key"); use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(2): declare const map: ReadonlyMap<string, false | null>; if (map.has(\`key\`)) { const entry = map.get(\"key\"); use(entry); } 2`] = `
+
+Message:
+> 1 | declare const map: ReadonlyMap<string, false | null>; if (map.has(\`key\`)) { const entry = map.get("key"); use(entry); }
+    |                                                               ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+Suggestion 1/1: Read the entry before the condition and check the result.:
+  1 | declare const map: ReadonlyMap<string, false | null>; const entry = map.get("key");
+  2 | if (entry !== undefined) {  use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(3): declare const map: WeakMap<object, number>; declare const key: object; if (map.has(key)) { const entry = map.get(key); use(entry); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: WeakMap<object, number>; declare const key: object; if (map.has(key)) { const entry = map.get(key); use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(3): declare const map: WeakMap<object, number>; declare const key: object; if (map.has(key)) { const entry = map.get(key); use(entry); } 2`] = `
+
+Message:
+> 1 | declare const map: WeakMap<object, number>; declare const key: object; if (map.has(key)) { const entry = map.get(key); use(entry); }
+    |                                                                                ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+Suggestion 1/1: Read the entry before the condition and check the result.:
+  1 | declare const map: WeakMap<object, number>; declare const key: object; const entry = map.get(key);
+  2 | if (entry !== undefined) {  use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(4): function read<Value extends number | null>(map: Map<string, Value>, key: string) { if (map.has(key)) { const entry = map.get(key); use(entry); } } 1`] = `
+
+Filename: file.ts
+
+  1 | function read<Value extends number | null>(map: Map<string, Value>, key: string) { if (map.has(key)) { const entry = map.get(key); use(entry); } }
+
+`;
+
+exports[`prefer-map-get > invalid(4): function read<Value extends number | null>(map: Map<string, Value>, key: string) { if (map.has(key)) { const entry = map.get(key); use(entry); } } 2`] = `
+
+Message:
+> 1 | function read<Value extends number | null>(map: Map<string, Value>, key: string) { if (map.has(key)) { const entry = map.get(key); use(entry); } }
+    |                                                                                            ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+Suggestion 1/1: Read the entry before the condition and check the result.:
+  1 | function read<Value extends number | null>(map: Map<string, Value>, key: string) { const entry = map.get(key);
+  2 | if (entry !== undefined) {  use(entry); } }
+
+`;
+
+exports[`prefer-map-get > invalid(5): function read(map: Map<string, number>, key: string, undefined: number) {\n\tif (map.has(key)) {\n\t\tconst entry = map.get(key)!;\n\t\tuse(entry, undefined);\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function read(map: Map<string, number>, key: string, undefined: number) {
+  2 | 	if (map.has(key)) {
+  3 | 		const entry = map.get(key)!;
+  4 | 		use(entry, undefined);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-map-get > invalid(5): function read(map: Map<string, number>, key: string, undefined: number) {\n\tif (map.has(key)) {\n\t\tconst entry = map.get(key)!;\n\t\tuse(entry, undefined);\n\t}\n} 2`] = `
+
+Message:
+  1 | function read(map: Map<string, number>, key: string, undefined: number) {
+> 2 | 	if (map.has(key)) {
+    | 	        ^^^ Reuse the result of \`.get()\` to check for this entry.
+  3 | 		const entry = map.get(key)!;
+  4 | 		use(entry, undefined);
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Read the entry before the condition and check the result.:
+  1 | function read(map: Map<string, number>, key: string, undefined: number) {
+  2 | 	const entry = map.get(key);
+  3 | 	if (entry !== void 0) {
+  4 | 		use(entry, undefined);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-map-get > invalid(6): declare const map: Map<string, number>; if (map.has(\"key\")) { const entry = map.get(\"key\"); use(entry); } use(entry); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, number>; if (map.has("key")) { const entry = map.get("key"); use(entry); } use(entry);
+
+`;
+
+exports[`prefer-map-get > invalid(6): declare const map: Map<string, number>; if (map.has(\"key\")) { const entry = map.get(\"key\"); use(entry); } use(entry); 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, number>; if (map.has("key")) { const entry = map.get("key"); use(entry); } use(entry);
+    |                                                 ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+`;
+
+exports[`prefer-map-get > invalid(7): declare const map: Map<string, number>; if (map.has(/* comment */ \"key\")) { const entry = map.get(\"key\"); use(entry); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, number>; if (map.has(/* comment */ "key")) { const entry = map.get("key"); use(entry); }
+
+`;
+
+exports[`prefer-map-get > invalid(7): declare const map: Map<string, number>; if (map.has(/* comment */ \"key\")) { const entry = map.get(\"key\"); use(entry); } 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, number>; if (map.has(/* comment */ "key")) { const entry = map.get("key"); use(entry); }
+    |                                                 ^^^ Reuse the result of \`.get()\` to check for this entry.
+
+`;
+
+exports[`prefer-map-get > invalid(8): declare const map: Map<string, number>;\nif (map.has('key')) {\n\t// @ts-expect-error\n\tconst entry = map.get('key');\n\tuse(entry);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, number>;
+  2 | if (map.has('key')) {
+  3 | 	// @ts-expect-error
+  4 | 	const entry = map.get('key');
+  5 | 	use(entry);
+  6 | }
+
+`;
+
+exports[`prefer-map-get > invalid(8): declare const map: Map<string, number>;\nif (map.has('key')) {\n\t// @ts-expect-error\n\tconst entry = map.get('key');\n\tuse(entry);\n} 2`] = `
+
+Message:
+  1 | declare const map: Map<string, number>;
+> 2 | if (map.has('key')) {
+    |         ^^^ Reuse the result of \`.get()\` to check for this entry.
+  3 | 	// @ts-expect-error
+  4 | 	const entry = map.get('key');
+  5 | 	use(entry);
+  6 | }
+
+`;
+
+exports[`prefer-map-get > invalid(9): declare const map: Map<string, number>;\n// @ts-ignore\nif (map.has('key')) {\n\tconst entry = map.get('key');\n\tuse(entry);\n} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, number>;
+  2 | // @ts-ignore
+  3 | if (map.has('key')) {
+  4 | 	const entry = map.get('key');
+  5 | 	use(entry);
+  6 | }
+
+`;
+
+exports[`prefer-map-get > invalid(9): declare const map: Map<string, number>;\n// @ts-ignore\nif (map.has('key')) {\n\tconst entry = map.get('key');\n\tuse(entry);\n} 2`] = `
+
+Message:
+  1 | declare const map: Map<string, number>;
+  2 | // @ts-ignore
+> 3 | if (map.has('key')) {
+    |         ^^^ Reuse the result of \`.get()\` to check for this entry.
+  4 | 	const entry = map.get('key');
+  5 | 	use(entry);
+  6 | }
+
+`;
