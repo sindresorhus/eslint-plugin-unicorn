@@ -140,6 +140,32 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 });
 
 const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';
+const guardedPropertyPredicate = outdent`
+	type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+	declare const items: Item[];
+	const kept = items.filter(item => {
+		if (item.kind === 'mixed') {
+			throw new Error();
+		}
+
+		return (!!item.flag);
+	});
+	kept.push({kind: 'mixed', flag: true});
+`;
+
+nodeTest('coercion rules suggest changes to a guarded predicate property read', t => {
+	const linter = new Linter();
+	const messages = linter.verify(guardedPropertyPredicate, [{
+		files: ['**/*.ts'],
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
+		},
+	}, coercionConfig], {filename: 'test/fixtures/prefer-regexp-test/index.ts'});
+
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast', 'unicorn/no-useless-coercion']);
+	t.assert.ok(messages.every(message => !message.fix && message.suggestions?.length === 1));
+});
 
 test.snapshot({
 	testerOptions: {languageOptions: {parser: parsers.typescript}},
@@ -216,18 +242,7 @@ test.snapshot({
 			code: guardedPredicate,
 			languageOptions: {parser: parsers.typescript},
 		},
-		typeAware(outdent`
-			type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
-			declare const items: Item[];
-			const kept = items.filter(item => {
-				if (item.kind === 'mixed') {
-					throw new Error();
-				}
-
-				return (!!item.flag);
-			});
-			kept.push({kind: 'mixed', flag: true});
-		`),
+		typeAware(guardedPropertyPredicate),
 		{
 			code: outdent`
 				// @ts-check

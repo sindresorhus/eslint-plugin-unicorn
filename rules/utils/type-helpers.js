@@ -416,7 +416,17 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 		return getKnownTypeReferenceType(typeReferenceName, options);
 	}
 
-	if (visitedTypeReferenceDefinitions.has(definition)) {
+	// One local declaration cannot describe an imported or merged type.
+	if (
+		visitedTypeReferenceDefinitions.has(definition)
+		|| (
+			options.requireSingleLocalTypeDeclaration
+			&& definitionScope.set.get(typeReferenceName).defs.some(candidate =>
+				typeReferenceDefinitionTypes.has(candidate.type)
+				&& (candidate !== definition || candidate.type === 'ImportBinding'),
+			)
+		)
+	) {
 		return unknown;
 	}
 

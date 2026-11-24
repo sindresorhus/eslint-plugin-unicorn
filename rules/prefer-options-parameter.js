@@ -1,7 +1,9 @@
 import {functionTypes} from './ast/index.js';
 import {
+	getBaseTypes,
 	getConstVariableInitializer,
 	getStaticValueIfNoSideEffects,
+	isDefaultLibrarySymbol,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from './utils/index.js';
@@ -26,6 +28,21 @@ const functionLikeTypes = [
 	'TSMethodSignature',
 ];
 
+const nonRecordLibraryTypeNames = new Set([
+	'ArrayLike',
+	'AsyncIterable',
+	'AsyncIterator',
+	'Iterable',
+	'Iterator',
+	'Map',
+	'Promise',
+	'PromiseLike',
+	'ReadonlyMap',
+	'ReadonlySet',
+	'ReadonlySetLike',
+	'Set',
+]);
+
 const isOptionalParameter = parameter =>
 	(parameter.type === 'Identifier' && parameter.optional === true)
 	|| (parameter.type === 'AssignmentPattern' && parameter.left.type === 'Identifier');
@@ -45,10 +62,29 @@ function isRecordTypeAnnotation(annotation) {
 		&& annotation.members.every(member => ['TSPropertySignature', 'TSMethodSignature', 'TSIndexSignature'].includes(member.type));
 }
 
-function isRecordType(type, checker) {
+function isKnownNonRecordType(type, checker, program, visitedTypes = new Set()) {
+	if (visitedTypes.has(type)) {
+		return false;
+	}
+
+	visitedTypes.add(type);
+	const symbol = type.getSymbol();
+	if (
+		checker.isArrayType(type)
+		|| checker.isTupleType(type)
+		|| (nonRecordLibraryTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program))
+	) {
+		return true;
+	}
+
+	const baseTypes = type.isIntersection() ? type.types : getBaseTypes(type, checker);
+	return baseTypes?.some(baseType => isKnownNonRecordType(baseType, checker, program, visitedTypes)) ?? false;
+}
+
+function isRecordType(type, checker, program) {
 	if (type.isUnionOrIntersection()) {
 		const types = type.types.filter(type => type.intrinsicName !== 'undefined');
-		return types.length > 0 && types.every(type => isRecordType(type, checker));
+		return types.length > 0 && types.every(type => isRecordType(type, checker, program));
 	}
 
 	const objectTypeFlag = 1_048_576; // TypeScript's TypeFlags.Object.
@@ -56,8 +92,7 @@ function isRecordType(type, checker) {
 	if (
 		type.flags !== objectTypeFlag
 		|| !symbol
-		|| checker.isArrayType(type)
-		|| checker.isTupleType(type)
+		|| isKnownNonRecordType(type, checker, program)
 		|| type.getCallSignatures().length > 0
 		|| type.getConstructSignatures().length > 0
 	) {
@@ -109,7 +144,7 @@ function isOptionsParameter(parameter, context) {
 		}
 	}
 
-	return withTypeInformation(binding, context, ({type, checker}) => isRecordType(type, checker)) === true;
+	return withTypeInformation(binding, context, ({type, checker, program}) => isRecordType(type, checker, program)) === true;
 }
 
 /**
