@@ -3,6 +3,44 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'const map = new Map(); if (map.has(key)) { log(); map.delete(key); }',
+		'const map = new Map(); if (map.has(key)) { map.delete(key); use(key); const key = "other"; }',
+		'const map = new Map(); if (map.has(key)) { map.delete(key); const map = new Map(); }',
+		'const map = new Map(); if (map.has(/key/)) { map.delete(/key/); log(); }',
+		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); log(); }',
+		'const map = new Map(); if (map.has(first.item.key)) { map.delete(second.item.key); log(); }',
+		'const set = new Set(); if (set.has(warning["message"])) { set.delete(warning["message"]); log(); }',
+		'const set = new Set(); if (set.has(warning?.message)) { set.delete(warning?.message); log(); }',
+	],
+	invalid: [
+		outdent`
+			const set = new Set();
+			if (set.has(value)) {
+				set.delete(value);
+				log(value);
+			} else {
+				missing(value);
+			}
+		`,
+		'const map = new Map(); if (map.has(key)) { map.delete(key); log(key); }',
+		'const map = new Map(); if (map.has(/* keep */ key)) { map.delete(key); log(key); }',
+		'const map = new Map(); if (map.has(key)) { map.delete(/* keep */ key); log(key); }',
+		outdent`
+			const map = new Map();
+			if (map.has(key)) {
+				// eslint-disable-next-line no-restricted-syntax
+				map.delete(key);
+				log(key);
+			}
+		`,
+		'const set = new Set(); if (set.has(warning.message)) { set.delete(warning.message); log(warning.message); }',
+		'const set = new Set(); if (set.has(warning.details.message)) { set.delete(warning.details.message); log(warning); }',
+		'const map = new Map(); if (ready) { start(); } else if (map.has(key)) { map.delete(key); log(key); }',
+	],
+});
+
 test({
 	valid: [
 		'const map = new Map(); if (map.has(`first`)) { map.delete(`second`); }',
@@ -17,6 +55,53 @@ test({
 		{
 			code: 'const set = new Set(); if (set.has("name")) { set.delete(`na\\u{6d}e`); }',
 			output: 'const set = new Set(); set.delete(`na\\u{6d}e`);',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set();\r\nif (set.has(key) as boolean) {\r\n  set.delete(key as string);\r\n  log(key);\r\n}',
+			output: 'const set = new Set();\r\nif (set.delete(key) as boolean) {\r\n  log(key);\r\n}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const set = new Set();
+				if (set.has(key)) {
+					set.delete(key); // eslint-disable-line no-restricted-syntax
+					log(key);
+				}
+			`,
+			linterOptions: {reportUnusedDisableDirectives: 'off'},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
+		},
+		{
+			code: outdent`
+				declare const key: string;
+				const set = new Set<string>();
+				if ((set as ReadonlySet<string>).has(key)) {
+					set.delete(key);
+					console.log(key);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
+		},
+		{
+			code: outdent`
+				declare const key: string;
+				const set: ReadonlySet<string> = new Set<string>();
+				if (set.has(key)) {
+					(set as Set<string>).delete(key);
+					console.log(key);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
+		},
+		{
+			code: 'const set = new Set<string>(); if ((set as ReadonlySet<string>).has("key")) { set.delete("key"); }',
+			output: 'const set = new Set<string>(); set.delete("key");',
+			languageOptions: {parser: parsers.typescript},
 			errors: 1,
 		},
 	],

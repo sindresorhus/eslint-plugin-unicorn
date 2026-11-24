@@ -9,13 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Deletion is already safe when the property, key, or value does not exist, so an existence guard is usually unnecessary.
+This rule flags `in` guards before deleting from known objects and `.has()` guards before deleting from local `const` collections initialized with `new Map`, `new Set`, `new WeakMap`, or `new WeakSet`.
 
-This rule reports simple `in` checks before deleting from known objects, and `.has()` checks before deleting from local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
+When `.delete()` starts a branch with more statements, the edit uses its result as the condition. Both calls must use the collection variable directly. The rule skips delete-only `else if` clauses and delete-only branches with an `else`.
 
-The rule is conservative. It ignores `else` branches, compound conditions, unknown receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom collections, type-only collection annotations, type-only TypeScript intersection types, and cases where removing the guard may be observable.
-
-Collection cases are automatically fixed when doing so preserves comments. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
+Collection fixes assume standard methods and preserve comments. Object deletion and keys read with plain dot notation get suggestions because proxy traps or getters can make the edit observable. The rule skips compound conditions, `Object.hasOwn()`, `hasOwnProperty()`, and computed or optional collection keys.
 
 ## Examples
 
@@ -53,6 +51,21 @@ if (set.has(value)) {
 
 // ✅
 set.delete(value);
+```
+
+```js
+const set = new Set();
+
+// ❌
+if (set.has(value)) {
+	set.delete(value);
+	console.log(value);
+}
+
+// ✅
+if (set.delete(value)) {
+	console.log(value);
+}
 ```
 
 ```js
