@@ -416,7 +416,14 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 		return getKnownTypeReferenceType(typeReferenceName, options);
 	}
 
-	if (visitedTypeReferenceDefinitions.has(definition)) {
+	// A single declaration can omit the heritage of a merged type.
+	if (
+		visitedTypeReferenceDefinitions.has(definition)
+		|| (
+			options.treatMergedTypeReferencesAsUnknown
+			&& definitionScope.set.get(typeReferenceName).defs.some(otherDefinition => otherDefinition !== definition && typeReferenceDefinitionTypes.has(otherDefinition.type))
+		)
+	) {
 		return unknown;
 	}
 

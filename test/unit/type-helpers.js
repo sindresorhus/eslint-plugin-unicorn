@@ -208,6 +208,18 @@ test('an interface that extends a member expression is unknown', t => {
 	t.assert.deepStrictEqual(getTypes('interface Bar extends namespace.Foo {} function f(a: Bar) { check(a); }', {}), [unknown]);
 });
 
+test('merged type references can leave classification to the compiler', t => {
+	const mergedTarget = 'class Foo {} interface Bar {} declare class Bar extends Foo {} function f(a: Bar) { check(a); }';
+	const mergedNonTarget = 'interface Bar {first: string} interface Bar {second: string} function f(a: Bar) { check(a); }';
+	const options = {treatMergedTypeReferencesAsUnknown: true};
+
+	t.assert.deepStrictEqual(getTypes(mergedTarget, options), [unknown]);
+	t.assert.deepStrictEqual(getTypes(mergedTarget, options, {typeAware: true}), [target]);
+	t.assert.deepStrictEqual(getTypes(mergedNonTarget, options, {typeAware: true}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes(mergedNonTarget, {}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes('const Bar = 1; interface Bar {first: string} function f(a: Bar) { check(a); }', options), [nonTarget]);
+});
+
 test('a class that extends a member expression is unknown', t => {
 	t.assert.deepStrictEqual(getTypes('class Bar extends namespace.Foo {} function f(a: Bar) { check(a); }', {}), [unknown]);
 });
