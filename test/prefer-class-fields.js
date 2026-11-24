@@ -1,7 +1,181 @@
+import {test as nodeTest} from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+nodeTest('fixes consecutive assignments in order without creating a directive', t => {
+	const linter = new Linter();
+	const code = outdent`
+		class Model {
+			constructor(options = {}) {
+				this.items = [];
+				this.enabled = true;
+				'use strict';
+			}
+		}
+	`;
+	const {output, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'prefer-class-fields': rule}}},
+		rules: {'unicorn/prefer-class-fields': 'error'},
+	});
+
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(output, outdent`
+		class Model {
+			constructor(options = {}) {
+				;
+				'use strict';
+			}
+			items = [];
+			enabled = true;
+		}
+	`);
+});
+
+test({
+	valid: [
+		'class Model { constructor() { this.items = {[/a/]: []}; } }',
+		'class Model { constructor() { this[{}] = []; } }',
+		'class Model { constructor() { this[\'__proto__\'] = []; } }',
+		{
+			code: 'class Model { items; constructor(items: number[]) { this.items = [] as typeof items; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'class Model {\n\tconstructor() {\n\t\tthis[\'item-list\'] = [];\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t}\n\t[\'item-list\'] = [];\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model { [\'items\']; constructor() { this.items = []; } }',
+			output: 'class Model { [\'items\'] = []; constructor() {  } }',
+			errors: 1,
+		},
+		{
+			code: 'class Model { set [\'items\'](value) { this.size = value.length; } constructor() { this.items = []; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model {\n\tconstructor() {\n\t\tthis.options = {[-1]: [1], [\'__proto__\']: null};\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t}\n\toptions = {[-1]: [1], [\'__proto__\']: null};\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model { #items; constructor() { this[\'#items\'] = []; this.#items = []; } }',
+			output: 'class Model { #items; constructor() {  this.#items = []; } \n [\'#items\'] = [];\n}',
+			errors: 2,
+		},
+		{
+			code: 'class Model { constructor() { this[-1] = []; this[`-1`] = {}; this.other = true; } }',
+			output: 'class Model { constructor() {  this[`-1`] = {}; this.other = true; } \n [-1] = [];\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model { items; constructor() { this.items = [1, 2] as const; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items; constructor() { this.items = <const>[1, 2]; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items: number; constructor() { this[\'items\'] = 1; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'class Model { constructor(id) { this.items = [id]; } }',
+		'class Model { constructor(items) { this.items = [...items]; } }',
+		'class Model { constructor(defaults) { this.options = {...defaults}; } }',
+		'class Model { constructor() { this.options = {[getKey()]: true}; } }',
+		'class Model { constructor() { this.options = {nested: [getValue()]}; } }',
+		'class Model { constructor() { this.options = {get enabled() { return true; }}; } }',
+		'class Model { constructor() { this.__proto__ = []; } }',
+	],
+	invalid: [
+		{
+			code: 'class Model {\n\tconstructor() {\n\t\tthis.items = [];\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t}\n\titems = [];\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model {\n\tconstructor(options = {}) {\n\t\tthis.items = [];\n\t\t(\'use strict\');\n\t}\n}',
+			output: 'class Model {\n\tconstructor(options = {}) {\n\t\t(\'use strict\');\n\t}\n\titems = [];\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model {\n\tconstructor() {\n\t\tthis.options = ({items: [-1, -2n, {enabled: true}]});\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t}\n\toptions = {items: [-1, -2n, {enabled: true}]};\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model {\n\tconstructor() {\n\t\tthis.items = [];\n\t\t;\n\t\tthis.options = {};\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t\t;\n\t\tthis.options = {};\n\t}\n\titems = [];\n}',
+			errors: [
+				{messageId: 'prefer-class-fields/error', line: 3, suggestions: []},
+				{messageId: 'prefer-class-fields/error', line: 5, suggestions: []},
+			],
+		},
+		{
+			code: 'class Model { constructor(id) { this.name = \'\'; this.id = id; this.count = 0; } }',
+			output: 'class Model { constructor(id) {  this.id = id; this.count = 0; } \n name = \'\';\n}',
+			errors: 1,
+		},
+		{
+			code: 'class Model { items; snapshot = this.items; constructor() { this.items = []; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { constructor() { this.items = [/* keep */]; this.enabled = true; } }',
+			errors: [
+				{messageId: 'prefer-class-fields/error', suggestions: []},
+				{messageId: 'prefer-class-fields/error', suggestions: []},
+			],
+		},
+		{
+			code: 'class Model { constructor() { /** @type {string[]} */ this.items = []; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { constructor(snapshot = this.items) { this.items = []; this.snapshot = snapshot; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items; constructor() { this.items = []; this.items = [\'a\']; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items: string[]; constructor() { this.items = []; } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items; constructor(flag: boolean) { this.items = [1]; if (flag) { this.items = [\'x\']; } } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'class Model { items: string[] | number[]; constructor() { this.items = [1]; this.items.push(2); } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: '// @ts-check\nclass Model { /** @type {string[] | number[]} */ items; constructor() { this.items = [1]; this.items.push(2); } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+	],
+});
 
 test.snapshot({
 	valid: [
@@ -19,7 +193,7 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'class Foo {bar = 1}',
-		// Only the first statement is checked, the parent class could define a setter
+		// Assignments after `super()` are ignored, the parent class could define a setter
 		'class Foo extends Bar {constructor(message) {super(message); this.name = \'Foo\';}}',
 		'class Foo {static bar = 1}',
 		'class Foo {#bar = 1}',

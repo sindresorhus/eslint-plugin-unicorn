@@ -13,6 +13,10 @@ Enforces declaring property defaults with class fields instead of setting them i
 
 Class fields keep property initialization next to the declaration and avoid boilerplate in constructors.
 
+This rule checks consecutive assignments to distinct properties at the start of a constructor. It accepts literal values, including nested arrays and objects. Bracket notation is supported when the key is a primitive literal, a signed number, or a template literal without substitutions. The rule stops at other statements or at assignments that can invoke a known setter.
+
+The rule fixes one assignment at a time to preserve their order. In TypeScript and JavaScript with type annotations or a `@ts-check` comment, arrays, objects, signed numbers, and assignments involving a computed field name are report-only. Moving these defaults can affect type inference or narrowing. Literal defaults with a TypeScript const assertion are also report-only.
+
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
 ## Examples
@@ -28,6 +32,22 @@ class Foo {
 // ✅
 class Foo {
 	foo = 'foo';
+}
+```
+
+```js
+// ❌
+class Model {
+	constructor() {
+		this.items = [];
+		this.options = {enabled: true};
+	}
+}
+
+// ✅
+class Model {
+	items = [];
+	options = {enabled: true};
 }
 ```
 
@@ -71,4 +91,4 @@ class MyError extends Error {
 }
 ```
 
-Only a constructor that starts with the assignment is checked. An assignment after `super()` is ignored, because the parent class could define a setter with the same name, and a class field would shadow it.
+An assignment after `super()` is ignored, because the parent class could define a setter with the same name, and a class field would shadow it.
