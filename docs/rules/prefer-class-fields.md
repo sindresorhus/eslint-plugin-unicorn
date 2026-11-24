@@ -13,31 +13,13 @@ Enforces declaring property defaults with class fields instead of setting them i
 
 Class fields keep property initialization next to the declaration and avoid boilerplate in constructors.
 
-This rule checks consecutive assignments to distinct properties at the start of a constructor. It accepts literal defaults, including nested arrays and objects whose elements and values are literals. Bracket notation is supported when the key is a primitive literal, a signed numeric literal, or a template literal without substitutions. Literal keys match by property name, so `this[1n]` and `this['1']` refer to the same property.
+Checks leading literal defaults for distinct properties, including nested literals and literal bracket keys. Fixes move one assignment at a time. Comments and class member conflicts can prevent edits.
 
-The scan ignores empty statements. It stops at a repeated assignment, an assignment that conflicts with a class member such as a setter, or any other unsupported statement.
-
-The rule fixes one assignment at a time to preserve their order. An assignment is report-only when its lines or the line before it contain a comment. The rule also withholds edits when the destination overlaps an ESLint line directive or the line it covers, or when a later field with an unknown name could overwrite the default in an existing public field.
-
-In TypeScript and JavaScript with type annotations or a `@ts-check` comment, arrays, objects, signed numeric literals, and assignments involving a computed field name are report-only. Moving these defaults can affect type inference or narrowing. Literal defaults with a TypeScript const assertion are also report-only.
+In TypeScript and JavaScript with JSDoc types or `@ts-check`, array, object, signed numeric, and computed-key defaults are report-only. TypeScript const assertions are also report-only.
 
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
 ## Examples
-
-```js
-// ❌
-class Foo {
-	constructor() {
-		this.foo = 'foo';
-	}
-}
-
-// ✅
-class Foo {
-	foo = 'foo';
-}
-```
 
 ```js
 // ❌
