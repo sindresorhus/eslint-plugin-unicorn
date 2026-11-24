@@ -166,6 +166,15 @@ test({
 	}],
 });
 
+test({
+	valid: ['items.some(...[predicate], item => !!item.label);'],
+	invalid: [{
+		code: '["enabled"].some(function (key) {return !!this[key];}, ...[{enabled: 1}]);',
+		output: '["enabled"].some(function (key) {return this[key];}, ...[{enabled: 1}]);',
+		errors: [{messageId: 'no-useless-boolean-cast'}],
+	}],
+});
+
 test.snapshot({
 	valid: [
 		'records.filter(record => !!record.owner?.name);',

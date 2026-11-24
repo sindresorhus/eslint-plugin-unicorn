@@ -11,7 +11,7 @@
 
 Array predicate methods already treat callback return values as truthy or falsy, so wrapping the returned expression in `Boolean()` or applying double negation (`!!`) is unnecessary.
 
-The rule checks arrays and typed arrays. It skips receivers known to be neither. It checks direct returns from block callbacks and calls that use optional chaining or a string literal or template literal without substitutions as the method name.
+The rule checks arrays and typed arrays. It skips receivers known to be neither. It checks callbacks passed directly as the first argument, including direct returns from block callbacks. It supports optional chaining and computed method names written as string literals or template literals without substitutions.
 
 With type information, the rule skips array methods with custom signatures. Removing a cast can change which overload TypeScript selects.
 
