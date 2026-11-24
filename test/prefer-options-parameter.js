@@ -1,4 +1,7 @@
+import assert from 'node:assert/strict';
+import path from 'node:path';
 import outdent from 'outdent';
+import typescript from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -168,6 +171,25 @@ test.snapshot({
 			'function run(verbose = false, options?: Date) {}',
 			'function run(verbose = false, options?: URL) {}',
 			'function run(verbose = false, options?: Map<string, string>) {}',
+			'const run = (name: string, verbose = false, names?: ReadonlySet<string>) => {};',
+			'function run(verbose = false, values?: ReadonlyMap<string, number>) {}',
+			'function run(verbose = false, values?: Iterable<string>) {}',
+			'function run(verbose = false, values?: AsyncIterable<string>) {}',
+			'declare function readNames(): Iterable<string>; function run(verbose = false, names = readNames()) {}',
+			'type Names = ReadonlySet<string>; function run(verbose = false, names?: Names) {}',
+			'type Values = Iterable<string> | {encoding?: string}; function run(verbose = false, values?: Values) {}',
+			'interface Values extends ReadonlyArray<string> {} function run(verbose = false, values?: Values) {}',
+			'type Pair = [string, number]; interface Values extends Pair { label: string } function run(verbose = false, values?: Values) {}',
+			'type Pair = readonly [name: string, count: number]; interface Values extends Pair {} function run(verbose = false, values?: Values) {}',
+			'interface Values extends Set<string> {} function run(verbose = false, values?: Values) {}',
+			outdent`
+				interface Base { count: number }
+				interface Left extends Base {}
+				interface Right extends Base, Iterator<string> {}
+				interface Names extends Left, Right {}
+				function run(verbose = false, names?: Names) {}
+			`,
+			'type Base = Iterator<string> & {count: number}; interface Names extends Base { label: string } function run(verbose = false, names?: Names) {}',
 			'class Options { encoding = "utf8" } function run(verbose = false, options?: Options) {}',
 			'class Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}',
 			'abstract class Options { encoding?: string } function run(verbose = false, options?: Options) {}',
@@ -185,6 +207,45 @@ test.snapshot({
 			'function run(first: number | undefined, options?: {encoding?: string}) {}',
 			'function run(verbose = false, options?: {encoding?: string}, ...rest: unknown[]) {}',
 		].map(code => typeAware(code)),
+		...[
+			'ArrayIterator<string>',
+			'ArrayLike<string>',
+			'AsyncGenerator<string>',
+			'AsyncIterableIterator<string>',
+			'AsyncIterator<string>',
+			'AsyncIteratorObject<string>',
+			'Generator<string>',
+			'HeadersIterator<[string, string]>',
+			'IterableIterator<string>',
+			'IteratorObject<string>',
+			'MapIterator<string>',
+			'PromiseLike<string>',
+			'ReadableStreamAsyncIterator<string>',
+			'ReadonlySetLike<string>',
+			'RegExpMatchArray',
+			'RegExpStringIterator<string>',
+			'SetIterator<string>',
+			'StringIterator<string>',
+			'URLSearchParamsIterator<[string, string]>',
+		].map(type => typeAware(`function run(verbose = false, values?: ${type}) {}`)),
+		...[
+			['Iterator<string>', ['es2022']],
+			['Map<string, string>', ['es5', 'es2015.iterable']],
+			['Promise<string>', ['es5']],
+			['Set<string>', ['es5', 'es2015.iterable']],
+		].map(([type, libraries]) => {
+			const code = `function run(verbose = false, values?: ${type}) {}`;
+			const filename = path.resolve('file.ts').replaceAll('\\', '/');
+			const compilerOptions = {lib: libraries.map(library => `lib.${library}.d.ts`), strict: true, types: []};
+			const host = typescript.createCompilerHost(compilerOptions);
+			const {getSourceFile} = host;
+			host.getSourceFile = (name, languageVersion, ...arguments_) => name === filename
+				? typescript.createSourceFile(name, code, languageVersion)
+				: getSourceFile(name, languageVersion, ...arguments_);
+			const program = typescript.createProgram([filename], compilerOptions, host);
+			assert.deepEqual(typescript.getPreEmitDiagnostics(program, program.getSourceFile(filename)), []);
+			return {code, filename, languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}}};
+		}),
 	],
 	invalid: [
 		...[
@@ -218,12 +279,41 @@ test({
 	valid: [
 		'function clamp(value, minimum = 0, maximum = 1) {}',
 		{code: 'declare function run(verbose?: boolean, retries?: number): void;', languageOptions: {parser: parsers.typescript}},
+		{
+			...typeAware('function run(verbose = false, values: Iterable<string>) {}'),
+			options: [allOptionalParameters],
+		},
 	],
 	invalid: [
 		{
 			code: 'function run(input, verbose = false, retries = 3) {}',
 			options: [allOptionalParameters],
 			errors: [{messageId: 'prefer-options-parameter', column: 21, endColumn: 36}],
+		},
+		{
+			...typeAware('export {}; interface ReadonlySet { encoding?: string } function run(verbose = false, options?: ReadonlySet) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('export {}; interface Iterator { encoding?: string } interface Options extends Iterator {} function run(verbose = false, options?: Options) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('export {}; interface Array<Value> { value?: Value } interface Options extends Array<string> {} function run(verbose = false, options?: Options) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('interface Options { next(): IteratorResult<string>; onError?: (error: Error) => void } function run(verbose = false, options?: Options) {}'),
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('function run(verbose = false, values?: Iterable<string>) {}'),
+			options: [allOptionalParameters],
+			errors: [{messageId: 'prefer-options-parameter'}],
+		},
+		{
+			...typeAware('function run(verbose = false, values: ArrayLike<string> = {length: 0}) {}'),
+			errors: [{messageId: 'prefer-options-parameter', column: 14, endColumn: 29}],
 		},
 	],
 });
