@@ -69,6 +69,9 @@ ruleTest.snapshot({
 		'function foo(a, {b} = {}) {}\nfoo(1);',
 		'function foo(a = 1, b = 2) {}\nfoo();',
 		'function foo(a, ...rest) {}\nfoo(1, 2, 3);',
+		'function count() { return arguments.length; }\ncount(1, 2);',
+		'const args = (function () { return arguments; })(1, 2);',
+		'function count() { return (() => arguments.length)(); }\ncount(1, 2);',
 		'const foo = function (a, b) {};\nfoo(1, 2);',
 		'const foo = (a, b) => {};\nfoo(1, 2);',
 		'(function (a, b) {})(1, 2);',
@@ -864,7 +867,7 @@ ruleTest.snapshot({
 		'((a, b) => {})?.(1, 2, 3);',
 		outdent`
 			function foo() {
-				console.log(arguments);
+				return (function () { return arguments; })();
 			}
 
 			foo(1);
@@ -1694,11 +1697,14 @@ ruleTest.snapshot({
 			code: 'this.foo.bar(1, 2);',
 			options: [{'*.foo.bar': 1}],
 		},
+		'function outer() { return (() => arguments.length)(1); }\nouter(1);',
+		'function count(record) { return record.arguments; }\ncount({}, 2);',
 	],
 });
 
 ruleTest.typescript({
 	valid: [
+		'const count = function inner(first: number) { return arguments.length; };\ncount(1, 2);',
 		'const callback: (value: number) => number = () => 1;\ncallback(2);',
 		'type Callback = (value: number) => number;\nconst callback: Callback = () => 1;\ncallback(2);',
 		'type Callback = (value: number) => number;\nlet callback: Callback = (() => 1) as () => number;\ncallback(2);',
@@ -1722,6 +1728,15 @@ ruleTest.typescript({
 		{
 			code: 'const callback: (value: number) => number = (value, extra?: number) => value;\ncallback(2, 3);',
 			errors: [{message: 'Expected at most 1 argument, but got 2 arguments.'}],
+		},
+		{
+			code: 'const count: () => number = function () { return arguments.length; };\ncount(1);',
+			errors: [{message: 'Expected 0 arguments, but got 1 argument.'}],
+		},
+		{
+			code: 'function count() { return arguments.length; }\ncount(1, 2);',
+			options: [{count: 1}],
+			errors: [{message: 'Expected 1 argument, but got 2 arguments.'}],
 		},
 		{
 			code: 'const callback = (first = 0, second: number) => second;\ncallback(1, 2, 3);',
