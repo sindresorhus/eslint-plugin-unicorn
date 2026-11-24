@@ -79,7 +79,7 @@ function getSuggestion(ifStatement, declaration, getCall, context) {
 	const separator = previousToken && sourceCode.getLoc(previousToken).end.line === sourceCode.getLoc(ifStatement).start.line
 		? ' '
 		: `${getLinebreak(context)}${getLineIndent(ifStatement, context)}`;
-	const missingValue = findVariable(scope, 'undefined')?.defs.length ? 'void 0' : 'undefined';
+	const missingValue = findVariable(scope, 'undefined')?.defs.length === 0 ? 'undefined' : 'void 0';
 
 	return {
 		messageId: SUGGESTION_MESSAGE_ID,

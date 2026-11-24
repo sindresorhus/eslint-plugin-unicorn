@@ -1,5 +1,6 @@
 import {fileURLToPath} from 'node:url';
 import {outdent} from 'outdent';
+import typescript from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -28,13 +29,68 @@ const globalScript = typeAware(outdent`
 	}
 `);
 
+const undefinedBinding = typeAware(outdent`
+	function read(map: Map<string, number>, key: string) {
+		if (map.has(key)) {
+			const undefined = map.get(key);
+			console.log(undefined);
+		}
+	}
+`);
+
+const lookup = typeAware(outdent`
+	function read(map: Map<string, number>, key: string) {
+		if (map.has(key)) {
+			const entry = map.get(key);
+			console.log(entry);
+		}
+	}
+`);
+
+const fixtureFilename = fileURLToPath(new URL('fixtures/prefer-map-get/lookup.ts', import.meta.url));
+const programWithoutStrictNullChecks = typescript.createProgram([fixtureFilename], {
+	strict: true,
+	strictNullChecks: false,
+	target: typescript.ScriptTarget.ESNext,
+	types: [],
+});
+
 test({
-	valid: [],
+	valid: [
+		{
+			code: programWithoutStrictNullChecks.getSourceFile(fixtureFilename).text,
+			filename: fixtureFilename,
+			languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [programWithoutStrictNullChecks]}},
+		},
+	],
 	invalid: [
 		{
 			...globalScript,
 			languageOptions: {...globalScript.languageOptions, globals: {name: 'off'}},
 			errors: [{messageId: 'prefer-map-get', suggestions: 0}],
+		},
+		{
+			...undefinedBinding,
+			languageOptions: {...undefinedBinding.languageOptions, globals: {undefined: 'off'}},
+			errors: [{messageId: 'prefer-map-get', suggestions: 0}],
+		},
+		{
+			...lookup,
+			languageOptions: {...lookup.languageOptions, globals: {undefined: 'off'}},
+			errors: [{
+				messageId: 'prefer-map-get',
+				suggestions: [{
+					messageId: 'reuseGetResult',
+					output: outdent`
+						function read(map: Map<string, number>, key: string) {
+							const entry = map.get(key);
+							if (entry !== void 0) {
+								console.log(entry);
+							}
+						}
+					`,
+				}],
+			}],
 		},
 		{
 			...typeAware('function read(map: WeakMap<object, number>, key: object) {\r\n  if (map.has(key)) {\r\n    const entry = map.get(key);\r\n    use(entry);\r\n  }\r\n}'),

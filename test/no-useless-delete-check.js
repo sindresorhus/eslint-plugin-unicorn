@@ -36,10 +36,6 @@ test.snapshot({
 		'const set = new Set(); if (set.has(warning.message)) { set.delete(warning.message); log(warning.message); }',
 		'const set = new Set(); if (set.has(warning.details.message)) { set.delete(warning.details.message); log(warning); }',
 		'const map = new Map(); if (ready) { start(); } else if (map.has(key)) { map.delete(key); log(key); }',
-		{
-			code: 'const set = new Set();\r\nif (set.has(key) as boolean) {\r\n  set.delete(key as string);\r\n  log(key);\r\n}',
-			languageOptions: {parser: parsers.typescript},
-		},
 	],
 });
 
@@ -57,6 +53,12 @@ test({
 		{
 			code: 'const set = new Set(); if (set.has("name")) { set.delete(`na\\u{6d}e`); }',
 			output: 'const set = new Set(); set.delete(`na\\u{6d}e`);',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set();\r\nif (set.has(key) as boolean) {\r\n  set.delete(key as string);\r\n  log(key);\r\n}',
+			output: 'const set = new Set();\r\nif (set.delete(key) as boolean) {\r\n  log(key);\r\n}',
+			languageOptions: {parser: parsers.typescript},
 			errors: 1,
 		},
 		{
