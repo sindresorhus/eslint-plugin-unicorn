@@ -53,14 +53,14 @@ const cannotHaveInitializer = property => Boolean(
 	|| property.type === 'TSAbstractPropertyDefinition',
 );
 
-const isSignedNumberLiteral = node => node.type === 'UnaryExpression'
+const isSignedNumericLiteral = node => node.type === 'UnaryExpression'
 	&& ((node.operator === '-' && isNumeric(node.argument))
 		|| (node.operator === '+' && isNumericLiteral(node.argument)));
 
-// Object and regular expression keys can invoke user code during coercion.
+// Object-valued keys can invoke user code during coercion.
 const isLiteralPropertyKey = node => (node.type === 'Literal' && !node.regex)
 	|| getStaticStringValue(node) !== undefined
-	|| isSignedNumberLiteral(node);
+	|| isSignedNumericLiteral(node);
 
 function getPropertyKey(node, computed = false) {
 	if (!computed && node.type === 'Identifier') {
@@ -90,7 +90,7 @@ function isLiteralValue(node) {
 		}
 
 		case 'UnaryExpression': {
-			return isSignedNumberLiteral(node);
+			return isSignedNumericLiteral(node);
 		}
 
 		case 'ArrayExpression': {
@@ -155,9 +155,18 @@ const create = context => {
 			return;
 		}
 
-		// Moving a value to an existing field can make it visible to later instance initializers.
+		// Later fields can observe the moved value or overwrite a public field through an unknown key.
 		if (existingProperty && classBody.body.slice(classBody.body.indexOf(existingProperty) + 1).some(member =>
-			fieldTypes.has(member.type) && !member.static && member.value && !isLiteralValue(member.value))) {
+			fieldTypes.has(member.type)
+			&& !member.static
+			&& (
+				(member.value && !isLiteralValue(member.value))
+				|| (
+					member.computed
+					&& left.property.type !== 'PrivateIdentifier'
+					&& getPropertyKey(member.key, true) === undefined
+				)
+			))) {
 			return;
 		}
 

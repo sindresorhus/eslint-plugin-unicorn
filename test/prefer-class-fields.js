@@ -38,6 +38,7 @@ test({
 	valid: [
 		'class Model { constructor() { this.items = {[/a/]: []}; } }',
 		'class Model { constructor() { this[{}] = []; } }',
+		'class Model { constructor() { this[+1n] = []; this.items = []; } }',
 		'class Model { constructor() { this[\'__proto__\'] = []; } }',
 		{
 			code: 'class Model { items; constructor(items: number[]) { this.items = [] as typeof items; } }',
@@ -52,6 +53,16 @@ test({
 		},
 		{
 			code: 'class Model { [\'items\']; constructor() { this.items = []; } }',
+			output: 'class Model { [\'items\'] = []; constructor() {  } }',
+			errors: 1,
+		},
+		{
+			code: 'class Model { [\'\']; constructor() { this[``] = []; } }',
+			output: 'class Model { [\'\'] = []; constructor() {  } }',
+			errors: 1,
+		},
+		{
+			code: 'class Model { [\'items\']; constructor() { this[`it\\u0065ms`] = []; } }',
 			output: 'class Model { [\'items\'] = []; constructor() {  } }',
 			errors: 1,
 		},
@@ -194,6 +205,15 @@ test({
 		{
 			code: 'class Model { items; snapshot = this.items; constructor() { this.items = []; } }',
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'const key = \'items\'; class Model { [\'items\']; [key]; constructor() { this.items = []; } }',
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
+		{
+			code: 'const key = \'items\'; class Model { #items; [key]; constructor() { this.#items = []; } }',
+			output: 'const key = \'items\'; class Model { #items = []; [key]; constructor() {  } }',
+			errors: 1,
 		},
 		{
 			code: 'class Model { constructor() { this.items = [/* keep */]; this.enabled = true; } }',
