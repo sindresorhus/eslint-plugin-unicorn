@@ -218,6 +218,11 @@ test.snapshot({
 		'array.some(function(v) {return notFirstParameterName;})',
 		'array.some(function(v) {return;})',
 		'array.some(function(v) {return v.v;})',
+		'array.filter(/** @returns {value is true} */ (value) => value);',
+		{
+			code: 'import type {Script as Boolean} from "node:vm"; [1].some(value => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const identity = v => v;
 			array.some(identity)
@@ -314,6 +319,8 @@ test.snapshot({
 	valid: [
 		'const toString = value => String(value) as "42";',
 		'const toString = value => {\n\treturn String(value) as string;\n};',
+		'array.filter(value => value!);',
+		'array.find(value => value! satisfies boolean);',
 	],
 	invalid: [
 		'const toString = value => String(value) satisfies string;',

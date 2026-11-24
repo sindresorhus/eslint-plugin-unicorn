@@ -1,29 +1,47 @@
-import {isFunction, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {arrayMethodsWithTypePredicates, getArrayPredicateMethod, hasCustomArrayPredicateSignatures} from './shared/array-predicate-methods.js';
 import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
+	getEnclosingFunction,
 	getFunctionReturnExpression,
+	getJSDocumentReturnType,
+	getParenthesizedRange,
+	getParenthesizedText,
+	hasJavaScriptTypeAnnotations,
+	hasJSDocumentExpressionType,
 	hasOptionalChainElement,
+	hasTypeArguments,
+	isArray,
+	isBoolean,
 	isGlobalBooleanCall,
+	isKnownNonIndexedCollection,
 	isNullishType,
 	isSameIdentifier,
+	isTypeScriptFile,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-boolean-cast';
+const SUGGESTION_ID = 'remove-boolean-cast';
 const messages = {
-	[MESSAGE_ID]: '`Boolean()` is unnecessary in `Array#{{method}}()` callbacks.',
+	[MESSAGE_ID]: '`{{cast}}` is unnecessary in `Array#{{method}}()` callbacks.',
+	[SUGGESTION_ID]: 'Remove the boolean cast.',
 };
 
 const isNullishOrVoidType = type =>
 	type.intrinsicName === 'void' || isNullishType(type);
 
-// When type information is available, the `Boolean()` cast is meaningful if the argument's type includes `null`/`undefined`/`void`, since removing it would widen the predicate's return type. Returns `false` when type information is unavailable, so it only ever keeps more casts than the syntactic check alone, never fewer.
+// The cast preserves a boolean return for nullish operands. A type parameter can be nullish through its constraint.
 function hasNullishOrVoidType(node, context) {
-	return withTypeInformation(node, context, ({type}) => {
+	return withTypeInformation(node, context, ({type, checker}) => {
 		const types = type.isUnion() ? type.types : [type];
-		return types.some(type => isNullishOrVoidType(type));
+		return types.some(type => {
+			const constraint = checker.getBaseConstraintOfType(type) ?? type;
+			const constraintTypes = constraint.isUnion() ? constraint.types : [constraint];
+			return constraintTypes.some(type => isNullishOrVoidType(type));
+		});
 	}) ?? false;
 }
 
@@ -51,65 +69,125 @@ function isOptionalChainResult(node) {
 	return false;
 }
 
-const predicateMethods = [
-	'every',
-	'filter',
-	'find',
-	'findIndex',
-	'findLast',
-	'findLastIndex',
-	'some',
-];
+const isNegation = node => node?.type === 'UnaryExpression' && node.operator === '!';
 
-function getReturnedExpression(callback) {
+function getCastArgument(callback, cast, context) {
+	if (isNegation(cast) && isNegation(cast.argument)) {
+		return cast.argument.argument;
+	}
+
+	// A type argument to `Boolean()` can supply a contextual type to the operand.
+	if (!isGlobalBooleanCall(cast, context) || hasTypeArguments(cast)) {
+		return;
+	}
+
+	const [argument] = cast.arguments;
+	// Leave simple `value => Boolean(value)` wrappers to `prefer-native-coercion-functions`.
 	if (
-		callback.async
-		|| callback.generator
-		|| callback.returnType
+		callback.params[0]?.type === 'Identifier'
+		&& isSameIdentifier(callback.params[0], argument)
+		&& getFunctionReturnExpression(callback) === cast
 	) {
 		return;
 	}
 
-	return getFunctionReturnExpression(callback);
+	return argument;
 }
 
-const isBooleanFirstParameterCallback = (callback, argument) =>
-	callback.params[0]?.type === 'Identifier'
-	&& isSameIdentifier(callback.params[0], argument);
+function hasBooleanResult(argument, context) {
+	return isBoolean(argument, context)
+		&& (withTypeInformation(argument, context, ({type, checker}) => checker.isTypeAssignableTo(type, checker.getBooleanType()))
+			?? ['BinaryExpression', 'Literal', 'UnaryExpression'].includes(argument.type));
+}
+
+function getTypeCheckedEdit(callback, argument, canChangePredicate, context) {
+	const {parserServices} = context.sourceCode;
+	return withTypeInformation(callback.parent, context, ({checker}) => {
+		const typeScriptCallback = parserServices.esTreeNodeToTSNodeMap.get(callback);
+		const signatures = checker.getContextualType(typeScriptCallback)?.getCallSignatures();
+		if (!signatures?.length) {
+			return;
+		}
+
+		const argumentType = parserServices.getTypeAtLocation(argument);
+		const booleanType = checker.getBooleanType();
+		let edit = canChangePredicate && argumentType === booleanType ? 'suggest' : 'fix';
+		for (const signature of signatures) {
+			if (checker.getTypePredicateOfSignature(signature)) {
+				// Predicate inference can depend on both the intrinsic boolean type and the control flow before the return.
+				if (argumentType !== booleanType || !getFunctionReturnExpression(callback)) {
+					edit = 'suggest';
+				}
+			} else if (!checker.isTypeAssignableTo(argumentType, checker.getReturnTypeOfSignature(signature))) {
+				return 'keep';
+			}
+		}
+
+		return edit;
+	});
+}
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
+	const {esTreeNodeToTSNodeMap} = sourceCode.parserServices ?? {};
+	// TypeScript's public `ScriptKind.TS` and `ScriptKind.TSX` values also identify embedded scripts.
+	const scriptKind = esTreeNodeToTSNodeMap?.get(sourceCode.ast)?.getSourceFile().scriptKind;
+	const isTypeScript = isTypeScriptFile(context.filename) || scriptKind === 3 || scriptKind === 4;
+	const needsTypeReview = isTypeScript
+		|| Boolean(esTreeNodeToTSNodeMap)
+		|| hasJavaScriptTypeAnnotations(context);
 
-	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {
-			methods: predicateMethods,
-			minimumArguments: 1,
-			maximumArguments: 2,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
+	function getCastEdit(callback, cast, argument, method) {
+		if (
+			hasJSDocumentExpressionType(callback, context)
+			|| hasJSDocumentExpressionType(cast, context)
+		) {
+			return 'keep';
+		}
+
+		// TypeScript only uses JSDoc return tags as type annotations in JavaScript files.
+		if (callback.returnType || (!isTypeScript && getJSDocumentReturnType(callback, context))) {
+			return hasBooleanResult(argument, context) ? 'fix' : 'keep';
+		}
+
+		const supportsTypePredicates = arrayMethodsWithTypePredicates.has(method);
+		// Removing a `Boolean()` call or changing a return after earlier statements can change predicate inference.
+		const canChangePredicate = supportsTypePredicates
+			&& (cast.type === 'CallExpression' || !getFunctionReturnExpression(callback));
+		const call = callback.parent;
+		let edit = getTypeCheckedEdit(callback, argument, canChangePredicate, context);
+		if (edit === undefined && needsTypeReview) {
+			const booleanArgument = hasBooleanResult(argument, context);
+			// Typed-array `find` and `findIndex` require boolean callbacks in TypeScript.
+			if (!booleanArgument && ['find', 'findIndex'].includes(method) && !isArray(call.callee.object, context)) {
+				return 'keep';
+			}
+
+			if (supportsTypePredicates && (canChangePredicate || !booleanArgument)) {
+				edit = 'suggest';
+			}
+		}
+
+		// Explicit type arguments select the predicate overload without an ordinary overload to fall back to.
+		return edit === 'suggest' && hasTypeArguments(call) ? 'keep' : (edit ?? 'fix');
+	}
+
+	function getProblem(callback, cast) {
+		const method = getArrayPredicateMethod(callback);
+		if (!method || callback.parent.arguments.length > 2 || callback.async || callback.generator) {
 			return;
 		}
 
-		const [callback] = node.arguments;
-		if (!isFunction(callback)) {
+		const argument = getCastArgument(callback, cast, context);
+		const call = callback.parent;
+		if (!argument || isKnownNonIndexedCollection(call.callee.object, context) || hasCustomArrayPredicateSignatures(call, context)) {
 			return;
 		}
 
-		const booleanCall = getReturnedExpression(callback);
-		if (!isGlobalBooleanCall(booleanCall, context)) {
-			return;
-		}
-
-		const [argument] = booleanCall.arguments;
-		if (isBooleanFirstParameterCallback(callback, argument)) {
-			return;
-		}
-
-		// `Boolean()` normalizes a possibly-`undefined` value, so it is not useless. Detect this syntactically via optional chaining, and, when type information is available, via the resolved type.
+		// The cast normalizes a possibly-`undefined` value, so it is not useless. Detect this syntactically via optional chaining, and, when type information is available, via the resolved type.
 		if (
 			isOptionalChainResult(argument)
 			|| hasNullishOrVoidType(argument, context)
@@ -117,18 +195,31 @@ const create = context => {
 			return;
 		}
 
-		return getCommentSafeProblem(context, {
-			node: booleanCall,
-			messageId: MESSAGE_ID,
-			data: {method: node.callee.property.name},
-			fix: fixer => fixer.replaceText(
-				booleanCall,
-				callback.body === booleanCall
+		const edit = getCastEdit(callback, cast, argument, method);
+		if (edit === 'keep') {
+			return;
+		}
+
+		const fix = function * (fixer) {
+			yield fixer.replaceText(
+				cast,
+				callback.body === cast
 					? getConciseArrowBodyText(argument, context)
-					: sourceCode.getText(argument),
-			),
-		});
-	});
+					: getParenthesizedText(argument, context),
+			);
+			yield fixSpaceAroundKeyword(fixer, cast, context);
+		};
+
+		return getCommentSafeProblem(context, {
+			node: cast,
+			messageId: MESSAGE_ID,
+			data: {cast: cast.type === 'CallExpression' ? 'Boolean()' : '!!', method},
+			...edit === 'fix' ? {fix} : {suggest: [{messageId: SUGGESTION_ID, fix}]},
+		}, cast, [getParenthesizedRange(argument, context)]);
+	}
+
+	context.on('ArrowFunctionExpression', callback => getProblem(callback, callback.body));
+	context.on('ReturnStatement', node => getProblem(getEnclosingFunction(node), node.argument));
 };
 
 /**
@@ -139,10 +230,11 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow unnecessary `Boolean()` casts in array predicate callbacks.',
+			description: 'Disallow unnecessary `Boolean()` and `!!` casts in array predicate callbacks.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

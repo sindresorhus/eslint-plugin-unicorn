@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js';
+import {arrayMethodsWithTypePredicates, getArrayPredicateMethod} from './shared/array-predicate-methods.js';
 import {
 	isBoolean,
 	isBooleanOperatorExpression,
@@ -15,8 +16,10 @@ import {
 	getEnclosingFunction,
 	getFunctionReturnExpression,
 	getConstVariableInitializer,
+	getJSDocumentReturnType,
 	getParenthesizedRange,
 	getStaticValueForControlFlow,
+	hasJavaScriptTypeAnnotations,
 	hasJSDocumentExpressionType,
 	hasStrictNullChecks,
 	containsNode,
@@ -237,6 +240,14 @@ function canAutofixDoubleNegation(node, negation, context) {
 
 	// A bare read can introduce narrowing. An unannotated const initializer can also alias a discriminant property.
 	const {parent} = node;
+	if (parent.type === 'ReturnStatement') {
+		const callback = getEnclosingFunction(parent);
+		// A bare return can change how preceding statements affect an inferred array predicate.
+		if (arrayMethodsWithTypePredicates.has(getArrayPredicateMethod(callback)) && !getFunctionReturnExpression(callback)) {
+			return false;
+		}
+	}
+
 	const isVariableInitializer = parent.type === 'VariableDeclarator'
 		&& (operand.type === 'Identifier' || (parent.id.type === 'Identifier' && Boolean(parent.id.typeAnnotation)));
 	if (!isVariableInitializer && !['ArrayExpression', 'ReturnStatement', 'ArrowFunctionExpression'].includes(parent.type)) {
@@ -266,7 +277,8 @@ function canAutofixDoubleNegation(node, negation, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
+	const isTypeScript = isTypeScriptFile(context.filename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
+	const needsTypeReview = isTypeScript || hasJavaScriptTypeAnnotations(context);
 	const hasDirectEval = containsNode(sourceCode.ast, context, isDirectEvalCall);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
@@ -318,9 +330,16 @@ const create = context => {
 		}
 
 		// `Boolean()` can suppress inferred type predicates in functions without return annotations.
-		if (name === 'Boolean' && isTypeScript) {
+		if (name === 'Boolean' && needsTypeReview) {
 			const functionNode = getEnclosingFunction(callExpression);
-			if (functionNode && !functionNode.returnType) {
+			if (
+				functionNode
+				&& !functionNode.returnType
+				&& (isTypeScript || (
+					arrayMethodsWithTypePredicates.has(getArrayPredicateMethod(functionNode))
+					&& !getJSDocumentReturnType(functionNode, context)
+				))
+			) {
 				return;
 			}
 		}

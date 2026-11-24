@@ -463,7 +463,7 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 			const firstIndex = call.arguments.indexOf(node);
 			return call.arguments.slice(firstIndex).every((argument, offset) => {
 				const parameter = signature?.parameters[firstIndex + offset]?.valueDeclaration;
-				return Boolean(parameter && typescript.isParameter(parameter) && checker.isOptionalParameter(parameter));
+				return parameter && typescript.isParameter(parameter) && checker.isOptionalParameter(parameter);
 			});
 		}
 

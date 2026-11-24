@@ -1,8 +1,55 @@
+import {test as nodeTest} from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const coercionConfig = {
+	plugins: {unicorn},
+	rules: {
+		'unicorn/no-useless-boolean-cast': 'error',
+		'unicorn/no-useless-coercion': 'error',
+		'unicorn/prefer-native-coercion-functions': 'error',
+	},
+};
+
+nodeTest('fixing a predicate preserves the Boolean binding', t => {
+	const linter = new Linter();
+
+	for (const [source, expectedOutput] of [
+		['const Boolean = () => false; [1].some(value => !!value);', 'const Boolean = () => false; [1].some(value => value);'],
+		['[1].some(Boolean => !!Boolean);', '[1].some(Boolean);'],
+		['[() => false].some(Boolean => !!Boolean(Boolean));', '[() => false].some(Boolean => Boolean(Boolean));'],
+	]) {
+		const {output, messages} = linter.verifyAndFix(source, coercionConfig);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+nodeTest('coercion rules preserve a checked JavaScript predicate during autofix', t => {
+	const code = outdent`
+		// @ts-check
+		/** @type {(0 | 1)[]} */
+		const bits = [0, 1];
+		const kept = bits['filter']?.(value => Boolean(value === 1));
+		kept.push(0);
+
+		/** @type {[unknown]} */
+		const filterArguments = [undefined];
+		const keptWithSpread = bits.filter(value => Boolean(value === 1), ...filterArguments);
+		keptWithSpread.push(0);
+	`;
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(code, coercionConfig);
+
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast', 'unicorn/no-useless-boolean-cast']);
+	t.assert.deepStrictEqual(messages.map(message => message.suggestions.length), [1, 1]);
+});
 
 const typeAware = code => ({
 	code,
@@ -11,6 +58,271 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+nodeTest('JSDoc return tags do not authorize TypeScript predicate autofixes', t => {
+	const typed = typeAware('const bits = [0, 1]; const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1)); kept.push(0);');
+	const linter = new Linter();
+
+	for (const {code, filename, physicalFilename, languageOptions = {}} of [
+		typed,
+		{...typed, languageOptions: {parser: typescriptEslintParser}},
+		{code: typed.code, filename: 'example.md/0_example.ts', physicalFilename: 'example.md'},
+		{
+			code: `<script lang="ts">${typed.code}</script>`,
+			filename: 'component.vue',
+			languageOptions: {parser: parsers.vue.implementation, parserOptions: {parser: {ts: typescriptEslintParser}}},
+		},
+	]) {
+		const {output, messages} = linter.verifyAndFix(
+			code,
+			[{files: ['**/*.ts', '**/*.vue'], languageOptions}, coercionConfig],
+			{filename, physicalFilename},
+		);
+
+		t.assert.strictEqual(output, code, filename);
+		t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast']);
+		t.assert.strictEqual(messages[0].suggestions[0].fix.text, 'value === 1');
+	}
+});
+
+nodeTest('fixing a predicate preserves narrowing through a non-null assertion', t => {
+	const {code, filename, languageOptions} = typeAware(
+		'declare const flags: (boolean | undefined)[]; const kept: true[] = flags.filter(value => !!value!);',
+	);
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(
+		code,
+		[{files: ['**/*.ts'], languageOptions}, coercionConfig],
+		{filename},
+	);
+
+	t.assert.strictEqual(output, code.replace('!!value!', 'value!'));
+	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('fixing a predicate preserves the selected filter overload', t => {
+	const {code, filename, languageOptions} = typeAware(outdent`
+		export {};
+		declare global {
+			interface Array<T> {
+				filter(predicate: BooleanConstructor, thisArg?: unknown): Exclude<T, false>[];
+				filter(predicate: (value: T) => string): Extract<T, string>[];
+			}
+		}
+
+		const items: (number | false)[] = [0, 1, false];
+		const kept = items.filter(value => !!value);
+		kept.push(false);
+		const filterArguments: [undefined] = [undefined];
+		const wrapped = items.filter(value => Boolean(value), ...filterArguments);
+		wrapped.push(false);
+		const values: (string | number)[] = ['one', 1];
+		const strings = values.filter(value => !!String(value));
+		strings.push(1);
+
+		const readonlyItems: readonly (number | false)[] = items;
+		const readonlyKept = readonlyItems.filter(value => !!value, ...filterArguments);
+	`);
+	const linter = new Linter();
+	const {output, messages} = linter.verifyAndFix(
+		code,
+		[{files: ['**/*.ts'], languageOptions}, coercionConfig],
+		{filename},
+	);
+
+	const expectedOutput = code.replace(
+		'readonlyItems.filter(value => !!value, ...filterArguments)',
+		'readonlyItems.filter(Boolean, ...filterArguments)',
+	);
+	t.assert.strictEqual(output, expectedOutput);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+const guardedPredicate = 'const bits: (0 | 1 | 2)[] = [0, 1, 2]; const ones: 1[] = bits.filter(value => {if (value === 0) {throw new Error();} return !!(value !== 2);});';
+const guardedPropertyPredicate = outdent`
+	type Item = {kind: 'a'; flag: true} | {kind: 'b'; flag: false} | {kind: 'mixed'; flag: boolean};
+	declare const items: Item[];
+	const kept = items.filter(item => {
+		if (item.kind === 'mixed') {
+			throw new Error();
+		}
+
+		return (!!item.flag);
+	});
+	kept.push({kind: 'mixed', flag: true});
+`;
+
+nodeTest('coercion rules suggest changes to a guarded predicate property read', t => {
+	const linter = new Linter();
+	const messages = linter.verify(guardedPropertyPredicate, [{
+		files: ['**/*.ts'],
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: parsers.typescript.mergeParserOptions({project: 'test/fixtures/prefer-regexp-test/tsconfig.json'}),
+		},
+	}, coercionConfig], {filename: 'test/fixtures/prefer-regexp-test/index.ts'});
+
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast', 'unicorn/no-useless-coercion']);
+	t.assert.ok(messages.every(message => !message.fix && message.suggestions?.length === 1));
+});
+
+test.snapshot({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [
+		'new Uint8Array([0, 1]).find(value => !!value);',
+		'new Uint8Array([0, 1]).findIndex(value => !!value);',
+		'items.find(value => !!value);',
+		'items.findIndex(value => !!value);',
+	],
+	invalid: [
+		'[0, 1].find(value => !!value);',
+		'new Uint8Array([0, 1]).findIndex(value => !!(value > 0));',
+		'new Uint8Array([0, 1]).find(value => Boolean(value > 0));',
+	],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [],
+	invalid: [{
+		code: '[0, 1].findIndex(value => !!value);',
+		output: '[0, 1].findIndex(value => value);',
+		errors: [{messageId: 'no-useless-boolean-cast'}],
+	}],
+});
+
+test({
+	valid: ['items.some(...[predicate], item => !!item.label);'],
+	invalid: [{
+		code: '["enabled"].some(function (key) {return !!this[key];}, ...[{enabled: 1}]);',
+		output: '["enabled"].some(function (key) {return this[key];}, ...[{enabled: 1}]);',
+		errors: [{messageId: 'no-useless-boolean-cast'}],
+	}],
+});
+
+test.snapshot({
+	valid: [
+		'records.filter(record => !!record.owner?.name);',
+		'records.filter(record => !record.name);',
+		'items.map(item => !!item.label);',
+		'items.filter(item => !!item.label, thisArg, options);',
+		'[1].some(/** @returns {boolean} */ (value) => !!value);',
+		'[1].some(value => /** @type {boolean} */ (!!value));',
+		'[1].some(value => /** @type {boolean} */ (Boolean(value + 1)));',
+		'[1].some(value => /** @type {boolean} */ (!!(value > 0)));',
+		{
+			code: 'items.some((item: number): boolean => !!item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('const bits: (0 | 1 | null)[] = [0, 1]; bits.filter(value => !!value);'),
+		typeAware('new Uint8Array([0, 1]).findIndex(value => !!value);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!value);'),
+		typeAware('[0]?.some(() => Boolean<(value: number) => number>(value => value));'),
+	],
+	invalid: [
+		'records.filter(record => !!record.name);',
+		'items.findIndex(item => {return!!item.label;});',
+		'items.some(item => !!({label: item.label}));',
+		'items.some(item => !/* keep */!item.label);',
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; if (bits.every(value => !!value)) { const ones: 1[] = bits; }'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.some(value => !!value);'),
+		typeAware('const words: string[] = [""]; words.filter(word => !!word);'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!(value === 1));'),
+		typeAware('new Uint8Array([0, 1]).findIndex(value => !!(value > 0));'),
+		{
+			code: 'const bits: (0 | 1)[] = [0, 1]; bits.filter(value => !!value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function filter<T extends true>(items: (false | T)[]) { const result: T[] = items.filter(item => !!item); }'),
+		typeAware('const bits: (0 | 1)[] = [0, 1]; bits.filter<1>(value => !!(value === 1));'),
+		typeAware(guardedPredicate),
+		{
+			code: guardedPredicate,
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(guardedPropertyPredicate),
+		{
+			code: outdent`
+				// @ts-check
+				/** @type {(0 | 1)[]} */
+				const bits = [0, 1];
+				const kept = bits.filter(/** @returns {boolean} */ value => Boolean(value === 1));
+				kept.push(0);
+			`,
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			const items = new Uint8Array([0, 1]);
+			const preserved: 1 | undefined = items.findLast(value => !!(value === 1));
+			const possiblyNumber = items.findLast(value => Boolean(value === 1));
+		`),
+	],
+});
+
+test.snapshot({
+	valid: [
+		'records?.filter(record => !!record.owner?.name);',
+		'items.some(item => {function read() {return !!item.label;} return read();});',
+		'items.some(item => {if (item.selected) {return;} return !item.label;});',
+		'items.some(async item => {const label = await item.getLabel(); return !!label;});',
+		'[1].some(/** @type {(item: number) => boolean} */ (item => !!item));',
+		{
+			code: 'items.some((item): boolean => !!(item.enabled ? (item.count > 0) as unknown : false));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function keep<T extends string | null>(items: T[]) {return items.some(item => !!item);}'),
+		typeAware('function keep<T extends string | undefined>(items: {name: T | number}[]) {return items.some(item => !!item.name);}'),
+		typeAware('function keep<T, U extends string | null>(items: (T | U)[]) {return items.some(item => !!item);}'),
+		'items[method](item => !!item.name);',
+		'items[`some${suffix}`](item => !!item.name);', // eslint-disable-line no-template-curly-in-string
+		'items[tag`some`](item => !!item.name);',
+		'const collection = {some(predicate) {return predicate(1) === true;}}; collection.some(value => !!value);',
+		'({some(predicate) {return predicate(1) === true;}})["some"](value => !!value);',
+		outdent`
+			// @ts-check
+			/** @type {(0 | 1)[]} */
+			const bits = [0, 1];
+			const asserted = bits.filter(value => /** @type {boolean} */ (Boolean(value === 1)));
+			asserted.push(0);
+			const constrained = bits.filter(/** @satisfies {(value: 0 | 1) => boolean} */ (value => Boolean(value === 1)));
+			constrained.push(0);
+		`,
+	],
+	invalid: [
+		'records.filter(record => {const name = record.name.trim(); return !!name;});',
+		'items.find(item => {if (item.disabled) {return false;} return !!item.label;});',
+		'items.some(item => {if (item.selected) {return !!item.label;} return !!item.name;});',
+		'records?.filter(record => !!record.name);',
+		'records.some?.(record => !!record.name);',
+		'items.some(item => {const label = item.label; return !!(label /* keep */);});',
+		'[1].some(/** @returns {boolean} */ (value) => !!(value > 0));',
+		{
+			code: 'items.filter((item): item is "one" => !!(item === "one"));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function keep(bits: (0 | 1)[]) {return bits.filter(value => {console.log(value); return !!value;});}'),
+		typeAware('function keep(bits: (0 | 1)[]) {return bits.filter(value => {if (value === 0) {return false;} return !!value;});}'),
+		typeAware('function keep(bits?: (0 | 1)[]) {return bits?.filter(value => !!value);}'),
+		'records["filter"](record => !!record.name);',
+		'records[`some`](record => !!record.name);',
+		typeAware('function keep(bits?: (0 | 1)[]) {return bits?.["filter"](value => !!value);}'),
+		['items.some(item => {', '  return!!item.name;', '});'].join('\r\n'),
+		{
+			code: 'items.some(item => !!((log(item), /* keep */ item.name) as string));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			// @ts-check
+			/** @type {(0 | 1)[]} */
+			const bits = [0, 1];
+			/** @type {1[]} */
+			const ones = bits.filter(value => !!value);
+		`,
+		'records.find(function (record) {return !!this.normalize(record.name);}, options);',
+	],
 });
 
 test.snapshot({
@@ -31,9 +343,6 @@ test.snapshot({
 				return Boolean(value);
 			});
 		`,
-		'array.some?.(value => Boolean(value.active));',
-		'array?.some(value => Boolean(value.active));',
-		'array["some"](value => Boolean(value.active));',
 		'array.some(value => Boolean());',
 		'array.some(value => Boolean(value.active, value.enabled));',
 		'array.some(value => Boolean(...value));',
@@ -45,6 +354,9 @@ test.snapshot({
 		'array.some(value => { const Boolean = value => value; return Boolean(value.active); });',
 		'array.some(async value => Boolean(value.active));',
 		'array.some(function * (value) {return Boolean(value.active);});',
+		typeAware('new Uint8Array([0, 1])["findIndex"]?.(value => Boolean(value + 1));'),
+		'[1].some(/** @returns {boolean} */ value => Boolean(value + 1));',
+		typeAware('new Uint8Array([0, 1]).findIndex(value => Boolean(value + 1));'),
 		// `Boolean()` normalizes a possibly-`undefined` value from optional chaining, so it is not useless.
 		'array.some(value => Boolean(value?.active));',
 		'array.some(value => Boolean((value?.active)));',
@@ -66,12 +378,6 @@ test.snapshot({
 		// Type-aware: keep `Boolean()` when the argument's type includes `void`.
 		typeAware('[{sideEffect() {}}].some((value: {sideEffect(): void}) => Boolean(value.sideEffect()));'),
 		typeAware('[{sideEffect() { return true as boolean | void; }}].some(value => Boolean(value.sideEffect()));'),
-		outdent`
-			array.some(function (value) {
-				'use strict';
-				return Boolean(value.active);
-			});
-		`,
 		{
 			code: 'array.filter((value): boolean => Boolean(value));',
 			languageOptions: {parser: parsers.typescript},
@@ -112,9 +418,25 @@ test.snapshot({
 			code: 'array.some(value => Boolean({active: value.active} as Record<string, boolean>));',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// Type-aware: a non-nullish argument type is still reported, so type information only suppresses nullish cases.
+		// Type-aware: a non-nullish argument on a standard array is still reported.
 		typeAware('[{active: true}].some((value: {active: boolean}) => Boolean(value.active));'),
 		'array.some(value => Boolean(/* comment */ value.active));',
 		'array.some(value => Boolean(value.active /* comment */));',
+		'array.some(function (value) {return Boolean((log(), /* keep */ value.active));});',
+		typeAware('const bits: (0 | 1)[] = [0, 1]; const ones = bits.filter(value => Boolean(value === 1)); ones.push(0);'),
+		typeAware('const records = [{name: "record"}]; records.filter(record => Boolean(record.name));'),
+		'array.some?.(value => Boolean(value.active));',
+		'array?.some(value => Boolean(value.active));',
+		'array["some"](value => Boolean(value.active));',
+		'array.some(value => {if (value.selected) {return Boolean(value.label);} return Boolean(value.name);});',
+		outdent`
+			array.some(function (value) {
+				'use strict';
+				return Boolean(value.active);
+			});
+		`,
+		typeAware('function select(bits?: (0 | 1)[]) {return bits?.["filter"](value => Boolean(value === 1));}'),
+		'array.some(value => {if (value) {return Boolean(value);} return false;});',
+		'array.findIndex(value => {log(value); return Boolean(value);});',
 	],
 });

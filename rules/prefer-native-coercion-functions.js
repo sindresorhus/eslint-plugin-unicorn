@@ -1,12 +1,19 @@
-import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
+import {findVariable, getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import {
+	arrayMethodsWithTypePredicates,
+	arrayPredicateMethods,
+	getArrayPredicateMethod,
+	hasCustomArrayPredicateSignatures,
+} from './shared/array-predicate-methods.js';
 import {
 	getFunctionReturnExpression,
 	getOutermostTypeScriptExpression,
 	hasFunctionJSDocumentComment,
 	hasJSDocumentExpressionType,
 	hasTypeScriptTypeAssertion,
+	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -18,40 +25,47 @@ const messages = {
 };
 
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
-const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
-const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
+const isNativeCoercionFunctionCall = (node, firstArgumentName, context) =>
 	node?.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
 	&& nativeCoercionFunctionNames.has(node.callee.name)
 	&& node.arguments[0]?.type === 'Identifier'
-	&& node.arguments[0].name === firstArgumentName;
+	&& node.arguments[0].name === firstArgumentName
+	&& isGlobalIdentifier(node.callee, context);
 
-// `v => v` or `function (v) {return v;}`, with TypeScript expression wrappers around the value removed
-const isIdentityFunction = node => {
-	const returnedExpression = unwrapTypeScriptExpression(getFunctionReturnExpression(node));
-	return returnedExpression?.type === 'Identifier'
-		&& returnedExpression.name === node.params[0].name;
+// `v => v` or `function (v) {return v;}`. TypeScript wrappers can affect narrowing in methods with type predicate overloads.
+const isIdentityFunction = (node, method) => {
+	const returnedExpression = getFunctionReturnExpression(node);
+	const expression = arrayMethodsWithTypePredicates.has(method)
+		? returnedExpression
+		: unwrapTypeScriptExpression(returnedExpression);
+	return expression?.type === 'Identifier' && expression.name === node.params[0].name;
 };
 
 const isArrayIdentityCallback = node =>
-	isIdentityFunction(node)
-	&& node.parent.type === 'CallExpression'
+	node.parent.type === 'CallExpression'
 	&& !node.parent.optional
 	&& node.parent.arguments[0] === node
 	&& node.parent.callee.type === 'MemberExpression'
 	&& !node.parent.callee.computed
 	&& !node.parent.callee.optional
 	&& node.parent.callee.property.type === 'Identifier'
-	&& arrayMethodsWithBooleanCallback.has(node.parent.callee.property.name);
+	&& arrayPredicateMethods.has(node.parent.callee.property.name)
+	&& isIdentityFunction(node, node.parent.callee.property.name);
 
 const isTypeScriptTypePredicateFunction = node =>
 	node.returnType?.type === 'TSTypeAnnotation'
 	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
 
-function getArrayCallbackProblem(node) {
-	if (!isArrayIdentityCallback(node)) {
+function getArrayCallbackProblem(node, context) {
+	if (
+		!isArrayIdentityCallback(node)
+		|| hasExplicitTypeContext(node, context)
+		// A type-only import can also block use of the name as a value.
+		|| findVariable(context.sourceCode.getScope(node.parent), 'Boolean')?.defs.length
+	) {
 		return;
 	}
 
@@ -108,7 +122,7 @@ function getCoercionFunctionProblem(node, context) {
 
 	// Replacing the wrapper can discard its declared signature.
 	if (
-		!isNativeCoercionFunctionCall(callExpression, parameter.name)
+		!isNativeCoercionFunctionCall(callExpression, parameter.name, context)
 		|| parameter.typeAnnotation
 		|| parameter.optional
 		|| node.returnType
@@ -152,6 +166,20 @@ function getCoercionFunctionProblem(node, context) {
 	return problem;
 }
 
+function getProblem(node, context) {
+	const problem = getArrayCallbackProblem(node, context) || getCoercionFunctionProblem(node, context);
+	// Passing `Boolean` directly can select a custom overload that an inline callback does not match.
+	if (
+		problem?.replacementFunction === 'Boolean'
+		&& getArrayPredicateMethod(node)
+		&& hasCustomArrayPredicateSignatures(node.parent, context)
+	) {
+		return;
+	}
+
+	return problem;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -177,7 +205,7 @@ const create = context => {
 			return;
 		}
 
-		let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node, context);
+		let problem = getProblem(node, context);
 
 		if (!problem) {
 			return;

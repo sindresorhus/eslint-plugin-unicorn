@@ -23,9 +23,9 @@ Variable bindings must also have type `boolean`. For property reads in variable 
 
 Other reports can offer suggestions because removing `!!` can change TypeScript inference or narrowing. The rule skips `!!` checks in files with direct `eval` calls.
 
-In TypeScript, the rule skips `Boolean()` calls inside functions with inferred return types because removal can introduce a type predicate.
+The rule keeps `Boolean()` in TypeScript functions with inferred returns and in narrowing array predicates in checked JavaScript.
 
-For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
+See [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md) for coercion wrappers and [`no-useless-boolean-cast`](./no-useless-boolean-cast.md) for casts in array predicates.
 
 ## Examples
 
