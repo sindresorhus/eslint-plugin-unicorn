@@ -1,12 +1,13 @@
 import {createRequire} from 'node:module';
-import {findVariable, getPropertyName, isCommaToken} from '@eslint-community/eslint-utils';
+import {getPropertyName, isCommaToken} from '@eslint-community/eslint-utils';
 import {isDirectEvalCall} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty} from './fix/index.js';
 import {getNumericCharacterReferenceCodePoint, jsxNumericCharacterReferencePattern} from './shared/numeric-character-references.js';
 import {
 	containsNode,
 	getCommentSafeProblem,
-	getFunctionFromIdentifier,
+	getFunctionFromDefinition,
+	getIdentifierReference,
 	getOutermostTypeScriptExpression,
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
@@ -428,7 +429,8 @@ function getImportedParameters(callee, context, typescript, cache) {
 }
 
 function getParameters(callee, context, typescript, cache) {
-	const variable = findVariable(context.sourceCode.getScope(callee), callee);
+	// Parameter initializers can resolve outside the function body's scope.
+	const variable = getIdentifierReference(callee, context.sourceCode.getScope(callee))?.resolved;
 	if (variable?.defs.length !== 1 || variable.references.some(reference => !reference.init && reference.isWrite())) {
 		return;
 	}
@@ -456,7 +458,7 @@ function getParameters(callee, context, typescript, cache) {
 		return;
 	}
 
-	const functionNode = getFunctionFromIdentifier(callee, context);
+	const functionNode = getFunctionFromDefinition(definition);
 	if (!functionNode?.body) {
 		return;
 	}

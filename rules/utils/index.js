@@ -70,7 +70,7 @@ export {
 	isBlockScopedDeclaration,
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
-export {default as getFunctionFromIdentifier} from './get-function-from-identifier.js';
+export {default as getFunctionFromIdentifier, getFunctionFromDefinition} from './get-function-from-identifier.js';
 export {default as getPrimitiveLiteralValue} from './get-primitive-literal-value.js';
 export {default as hasJavaScriptTypeAnnotations} from './has-javascript-type-annotations.js';
 export {
@@ -219,6 +219,7 @@ export {
 	isTypeOnlyDefinition,
 } from './imports.js';
 export {
+	getIdentifierReference,
 	isDefinitionBeforeReference,
 	isUnassignedParameter,
 } from './scope.js';

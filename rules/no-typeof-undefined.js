@@ -7,6 +7,7 @@ import {
 	needsSemicolon,
 	isOnSameLine,
 	isParenthesized,
+	getIdentifierReference,
 	getUnparenthesizedKeywordArgumentParent,
 	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
@@ -22,17 +23,6 @@ const messages = {
 const isAmbientVariableDefinition = definition =>
 	definition.type === 'Variable'
 	&& definition.parent.declare === true;
-
-const getIdentifierReference = (identifier, scope) => {
-	while (scope) {
-		const reference = scope.references.find(reference => reference.identifier === identifier);
-		if (reference) {
-			return reference;
-		}
-
-		scope = scope.upper;
-	}
-};
 
 const isAmbientVariable = variable => {
 	if (!variable) {

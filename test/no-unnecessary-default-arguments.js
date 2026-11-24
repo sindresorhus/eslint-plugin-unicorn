@@ -16,11 +16,17 @@ testRule({
 			languageOptions: {sourceType: 'script'},
 		},
 		'function run(value = true) {} run(true); eval(source);',
+		'function run(value = false) {} function outer(value = run(true)) { function run(value = true) {} }',
 	],
 	invalid: [
 		{
 			code: 'function run(flag = true) {} run(true);',
 			output: 'function run(flag = true) {} run();',
+			errors: [{messageId: 'arguments'}],
+		},
+		{
+			code: 'function run(value = true) {} switch (run(true)) { default: break; }',
+			output: 'function run(value = true) {} switch (run()) { default: break; }',
 			errors: [{messageId: 'arguments'}],
 		},
 		{
@@ -188,6 +194,9 @@ testRule({
 		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge.defaultProps = {color: "blue"};',
 		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge = Other;',
 		'function Badge({color = "gray"}) {} { const Badge = Other; <Badge color="gray" />; }',
+		'function Badge({color = "blue"}) {} function Page(element = <Badge color="gray" />) { function Badge({color = "gray"}) {} return element; }',
+		'function Page(element = <Badge color="gray" />) { function Badge({color = "gray"}) {} return element; }',
+		'function Page(element = <éBadge color="gray" />) { function éBadge({color = "gray"}) {} return element; }',
 	],
 	invalid: [
 		{
@@ -196,6 +205,26 @@ testRule({
 				messageId: 'jsx-prop',
 				data: {name: 'color'},
 				suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({color = "gray"}) {} <Badge key="badge"  />;'}],
+			}],
+		},
+		{
+			code: 'function Badge({color = "gray"}) {} function Page(element = <Badge color="gray" />) { function Badge({color = "blue"}) {} return element; }',
+			errors: [{
+				messageId: 'jsx-prop',
+				suggestions: [{
+					messageId: 'remove-jsx-prop',
+					output: 'function Badge({color = "gray"}) {} function Page(element = <Badge  />) { function Badge({color = "blue"}) {} return element; }',
+				}],
+			}],
+		},
+		{
+			code: 'function Badge({color = "gray"}) {} switch (<Badge color="gray" />) { default: break; }',
+			errors: [{
+				messageId: 'jsx-prop',
+				suggestions: [{
+					messageId: 'remove-jsx-prop',
+					output: 'function Badge({color = "gray"}) {} switch (<Badge  />) { default: break; }',
+				}],
 			}],
 		},
 		{
@@ -701,8 +730,16 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 			canRemove: true,
 		},
 		{
-			code: namedImport,
+			code: [
+				'import {Badge as ImportedBadge} from "./no-unnecessary-default-arguments.callee.js";',
+				'<ImportedBadge mode="text" />;',
+				'{ const ImportedBadge = ({mode = "number"}: {mode?: string}) => null; <ImportedBadge mode="text" />; }',
+			].join('\n'),
 			declarations: 'export function Badge({mode = "text"}: {mode?: string}) { return null; }',
+			canRemove: true,
+		},
+		{
+			code: 'const Badge = ({mode = "text"}: {mode?: string}) => null; { type Badge = string; <Badge mode="text" />; }',
 			canRemove: true,
 		},
 		{
