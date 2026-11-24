@@ -11,8 +11,9 @@ import {
 	getTypeSymbol,
 	hasStrictNullChecks,
 	isDefaultLibrarySymbol,
-	isUnknownType,
+	isSameBinding,
 	isTypeScriptExpressionWrapper,
+	isUnknownType,
 	withTypeInformation,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -50,7 +51,7 @@ const isLookupCall = (node, method) => isMethodCall(node, {
 	optionalCall: false,
 	optionalMember: false,
 	allowSpreadElement: false,
-});
+}) && node.callee.object.type === 'Identifier';
 
 function getSuggestion(ifStatement, declaration, getCall, context) {
 	const {sourceCode} = context;
@@ -103,12 +104,10 @@ function getProblem(ifStatement, context) {
 	if (
 		id.type !== 'Identifier'
 		|| id.typeAnnotation
-		|| receiver.type !== 'Identifier'
 		|| !isLookupCall(getCall, 'get')
-		// Moving the lookup can move type expressions out of their scope.
-		|| getCall.callee.object.type !== 'Identifier'
+		// Type expressions on the key can refer to types scoped to the branch.
 		|| isTypeScriptExpressionWrapper(getCall.arguments[0])
-		|| !isSameCollectionReference(receiver, getCall.callee.object, context)
+		|| !isSameBinding(receiver, getCall.callee.object, context)
 		|| !isSameCollectionReference(key, getCall.arguments[0], context)
 		|| hasSideEffect(key, context.sourceCode, {considerGetters: true})
 		|| !hasSupportedMapValues(receiver, getCall === init, context)
