@@ -170,7 +170,7 @@ const create = context => {
 			const valueText = sourceCode.getText(right);
 			const propertyValue = hasMultilineToken(right, context)
 				? valueText
-				: reindentText(valueText, getLineIndent(node, context), indent);
+				: reindentText(valueText, getLineIndent(right, context), indent);
 
 			if (existingProperty) {
 				if (existingProperty.value) {

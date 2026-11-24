@@ -114,8 +114,53 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'function createModel() {\r\n  class Model {\r\n    constructor() {\r\n      this[\'items\'] = [\r\n        1,\r\n      ];\r\n    }\r\n    name = \'model\' // keep\r\n  }\r\n}\r\n',
-			output: 'function createModel() {\r\n  class Model {\r\n    constructor() {\r\n    }\r\n    name = \'model\'; // keep\r\n    [\'items\'] = [\r\n      1,\r\n    ];\r\n  }\r\n}\r\n',
+			code: outdent`
+				function createModel() {
+				  class Model {
+				    constructor() {
+				      this['items'] = [
+				        1,
+				      ];
+				    }
+				    name = 'model' // keep
+				  }
+				}
+			`.replaceAll('\n', '\r\n'),
+			output: outdent`
+				function createModel() {
+				  class Model {
+				    constructor() {
+				    }
+				    name = 'model'; // keep
+				    ['items'] = [
+				      1,
+				    ];
+				  }
+				}
+			`.replaceAll('\n', '\r\n'),
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Model {
+					constructor() {
+						this.items = (
+							[
+								1,
+							]
+						);
+					}
+				}
+			`,
+			output: outdent`
+				class Model {
+					constructor() {
+					}
+					items = [
+						1,
+					];
+				}
+			`,
 			errors: 1,
 		},
 		{
