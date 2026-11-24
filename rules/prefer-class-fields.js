@@ -126,6 +126,29 @@ const create = context => {
 		|| Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap)
 		|| hasJavaScriptTypeAnnotations(context);
 
+	const hasCommentsAffectedByEdit = (node, existingProperty, classBody) => {
+		// Moving the assignment can detach line-based comments. Replacing an initializer can remove comments inside it.
+		const {start, end} = sourceCode.getLoc(node);
+		if (
+			sourceCode.getCommentsBefore(node).length > 0
+			|| sourceCode.getAllComments().some(comment => {
+				const location = sourceCode.getLoc(comment);
+				return location.end.line >= start.line - 1 && location.start.line <= end.line;
+			})
+			|| (existingProperty?.value && sourceCode.getCommentsInside(existingProperty.value).length > 0)
+		) {
+			return true;
+		}
+
+		// Appending a field can split a line directive from the closing brace it covers.
+		const closingLine = sourceCode.getLoc(classBody).end.line;
+		return !existingProperty && getEslintDisableDirectives(context).some(({type, node}) => {
+			const location = sourceCode.getLoc(node);
+			return (type === 'disable-line' && location.start.line === closingLine)
+				|| (type === 'disable-next-line' && location.end.line === closingLine - 1);
+		});
+	};
+
 	const addFixOrSuggestion = (problem, constructor, matchingMembers) => {
 		const {node} = problem;
 		const {parent: classBody} = constructor;
@@ -168,6 +191,10 @@ const create = context => {
 					&& getPropertyKey(member.key, true) === undefined
 				)
 			))) {
+			return;
+		}
+
+		if (hasCommentsAffectedByEdit(node, existingProperty, classBody)) {
 			return;
 		}
 
@@ -219,29 +246,6 @@ const create = context => {
 				? fieldText
 				: `${linebreak}${fieldText}${getLineIndent(classBody.parent, context)}`;
 			yield fixer.insertTextBeforeRange([insertionIndex, insertionIndex], text);
-		}
-
-		// Moving the assignment can detach line-based comments. Replacing an initializer can remove comments inside it.
-		const {start, end} = sourceCode.getLoc(node);
-		if (
-			sourceCode.getCommentsBefore(node).length > 0
-			|| sourceCode.getAllComments().some(comment => {
-				const location = sourceCode.getLoc(comment);
-				return location.end.line >= start.line - 1 && location.start.line <= end.line;
-			})
-			|| (existingProperty?.value && sourceCode.getCommentsInside(existingProperty.value).length > 0)
-		) {
-			return;
-		}
-
-		// Appending a field can split a line directive from the closing brace it covers.
-		const closingLine = sourceCode.getLoc(classBody).end.line;
-		if (!existingProperty && getEslintDisableDirectives(context).some(({type, node}) => {
-			const location = sourceCode.getLoc(node);
-			return (type === 'disable-line' && location.start.line === closingLine)
-				|| (type === 'disable-next-line' && location.end.line === closingLine - 1);
-		})) {
-			return;
 		}
 
 		if (existingProperty?.value) {
