@@ -15,6 +15,7 @@ import {
 	isAliasSymbol,
 	isLeftHandSide,
 	isOptionalSymbol,
+	isTypeOnlyDefinition,
 	isTypeScriptFile,
 	linebreakPattern,
 	unwrapTypeScriptExpression,
@@ -79,7 +80,8 @@ function getJsxAttributes(element) {
 		}
 
 		const {name} = attribute.name;
-		if (name === '__proto__' || attributes.has(name)) {
+		// Vue JSX directives can generate or override props.
+		if (name === '__proto__' || attributes.has(name) || /^v[-A-Z]/u.test(name)) {
 			return;
 		}
 
@@ -397,11 +399,12 @@ function getImportedParameters(callee, context, typescript, cache) {
 			symbol = checker.getAliasedSymbol(symbol);
 		}
 
-		if (symbol?.declarations?.length !== 1) {
+		const declarations = symbol?.declarations?.filter(declaration => !typescript.isTypeAliasDeclaration(declaration) && !typescript.isInterfaceDeclaration(declaration));
+		if (declarations?.length !== 1) {
 			return;
 		}
 
-		const [declaration] = symbol.declarations;
+		const [declaration] = declarations;
 		if (cache.has(declaration)) {
 			return cache.get(declaration);
 		}
@@ -431,7 +434,12 @@ function getImportedParameters(callee, context, typescript, cache) {
 function getParameters(callee, context, typescript, cache) {
 	// Parameter initializers can resolve outside the function body's scope.
 	const variable = getIdentifierReference(callee, context.sourceCode.getScope(callee))?.resolved;
-	if (variable?.defs.length !== 1 || variable.references.some(reference => !reference.init && reference.isWrite())) {
+	if (!variable || variable.references.some(reference => !reference.init && reference.isWrite())) {
+		return;
+	}
+
+	const definitions = variable.defs.filter(definition => !isTypeOnlyDefinition(definition));
+	if (definitions.length !== 1) {
 		return;
 	}
 
@@ -444,7 +452,7 @@ function getParameters(callee, context, typescript, cache) {
 		return;
 	}
 
-	const [definition] = variable.defs;
+	const [definition] = definitions;
 	// Script function declarations can be reassigned through the global object without identifier writes.
 	if (definition.type === 'FunctionName' && variable.scope.type === 'global') {
 		return;

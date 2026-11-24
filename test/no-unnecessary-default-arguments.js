@@ -186,6 +186,8 @@ testRule({
 		'function Badge({color = "gray"}) {} <Badge-icon color="gray" />;',
 		'function Badge({color = "gray"}) {} <ui.Badge color="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge {...props} color="gray" />;',
+		'let selected = "blue"; function Badge({modelValue = "gray"}) {} <Badge modelValue="gray" v-model={selected} />;',
+		'function Badge({innerHTML = "blue", vHtml = "gray"}) { return innerHTML; } <Badge vHtml="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge other:color="black" color="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge color="blue" color="gray" />;',
 		'function Badge({color = "gray"}) {} <Badge __proto__={{color: "blue"}} color="gray" />;',
@@ -218,12 +220,12 @@ testRule({
 			}],
 		},
 		{
-			code: 'function Badge({color = "gray"}) {} switch (<Badge color="gray" />) { default: break; }',
+			code: 'function Badge({color = "gray"}) {} switch (<Badge color="gray" />) { default: const Badge = ({color = "blue"}) => null; break; }',
 			errors: [{
 				messageId: 'jsx-prop',
 				suggestions: [{
 					messageId: 'remove-jsx-prop',
-					output: 'function Badge({color = "gray"}) {} switch (<Badge  />) { default: break; }',
+					output: 'function Badge({color = "gray"}) {} switch (<Badge  />) { default: const Badge = ({color = "blue"}) => null; break; }',
 				}],
 			}],
 		},
@@ -261,6 +263,10 @@ testRule({
 		},
 		{
 			code: 'function Badge({color = "gray"}) {} <Badge color={/* keep */ "gray"} />;',
+			errors: [{messageId: 'jsx-prop', suggestions: []}],
+		},
+		{
+			code: '/** @param {{color: string}} props */ function Badge({color = "gray"}) {} <Badge color="gray" />;',
 			errors: [{messageId: 'jsx-prop', suggestions: []}],
 		},
 		{
@@ -374,7 +380,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 		allowJs: true, checkJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
 	const rootNames = [filename];
-	if (extension === 'tsx') {
+	if (extension === 'tsx' || extension === 'jsx') {
 		options.jsx = ts.JsxEmit.Preserve;
 		const jsxDeclarations = path.join(path.dirname(filename), 'no-unnecessary-default-arguments.jsx.d.ts').replaceAll('\\', '/');
 		sources.set(jsxDeclarations, 'declare namespace JSX { interface Element {} interface IntrinsicAttributes { key?: string } }');
@@ -743,6 +749,15 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 			canRemove: true,
 		},
 		{
+			code: 'type Badge = {mode?: string}; const Badge = ({mode = "text"}: Badge) => null; <Badge mode="text" />;',
+			canRemove: true,
+		},
+		{
+			code: namedImport,
+			declarations: 'export interface Badge {mode?: string} export const Badge = ({mode = "text"}: Badge) => null;',
+			canRemove: true,
+		},
+		{
 			code: defaultImport,
 			declarations: 'export default ({mode = "text"}: {mode?: string}) => null;',
 			canRemove: true,
@@ -762,6 +777,15 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 		},
 		{
 			code: 'function Badge({mode = "text"}: {mode: string}) { return null; } <Badge mode="text" />;',
+		},
+		{
+			code: '/** @param {{mode?: string}} props */ function Badge({mode = "text"}) { return null; } <Badge mode="text" />;',
+			extension: 'jsx',
+			canRemove: true,
+		},
+		{
+			code: '/** @param {{mode: string}} props */ function Badge({mode = "text"}) { return null; } <Badge mode="text" />;',
+			extension: 'jsx',
 		},
 		{
 			code: [
@@ -803,8 +827,8 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 		},
 	];
 
-	for (const {code, declarations, canRemove, reports = true} of cases) {
-		const {filename, languageOptions} = typeAware(code, declarations, 'tsx');
+	for (const {code, declarations, extension = 'tsx', canRemove, reports = true} of cases) {
+		const {filename, languageOptions} = typeAware(code, declarations, extension);
 		const [program] = languageOptions.parserOptions.programs;
 		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
 		const result = linter.verifyAndFix(code, {...config, files: ['**'], languageOptions}, {filename});
@@ -822,7 +846,7 @@ test('JSX suggestions preserve TypeScript requirements', t => {
 			const [start, end] = fix.range;
 			const output = code.slice(0, start) + fix.text + code.slice(end);
 			t.assert.strictEqual(output, code.replace('mode="text"', ''), code);
-			const [fixedProgram] = typeAware(output, declarations, 'tsx').languageOptions.parserOptions.programs;
+			const [fixedProgram] = typeAware(output, declarations, extension).languageOptions.parserOptions.programs;
 			t.assert.deepStrictEqual(fixedProgram.getSemanticDiagnostics(), [], output);
 		}
 	}
