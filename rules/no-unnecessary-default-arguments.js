@@ -454,21 +454,19 @@ function getParameters(callee, context, typescript, cache) {
 		return typescript ? getImportedParameters(callee, context, typescript, cache) : undefined;
 	}
 
-	if (definition.type === 'Variable' && definition.parent.kind !== 'const') {
-		return;
-	}
-
 	const functionNode = getFunctionFromDefinition(definition);
 	if (!functionNode?.body) {
 		return;
 	}
 
-	if (
-		functionNode.typeParameters?.params.length > 0
-		&& definition.type === 'Variable'
-		&& (definition.name.typeAnnotation || definition.node.init !== functionNode)
-	) {
-		return;
+	if (definition.type === 'Variable') {
+		if (definition.parent.kind !== 'const') {
+			return;
+		}
+
+		if (functionNode.typeParameters?.params.length > 0 && (definition.name.typeAnnotation || definition.node.init !== functionNode)) {
+			return;
+		}
 	}
 
 	if (!cache.has(functionNode)) {
