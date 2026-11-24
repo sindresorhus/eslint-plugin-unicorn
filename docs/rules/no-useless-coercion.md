@@ -19,9 +19,9 @@ The rule recognizes common cases from syntax and uses TypeScript types when avai
 
 The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with direct `eval` calls.
 
-In TypeScript, the rule keeps `Boolean()` calls inside functions without explicit return annotations because removing them can introduce inferred type predicates. In JavaScript with type annotations, this protection applies to callbacks for array methods that can narrow types.
+The rule keeps `Boolean()` in TypeScript functions with inferred returns and in narrowing array predicates in checked JavaScript.
 
-For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` and `!!` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
+See [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md) for coercion wrappers and [`no-useless-boolean-cast`](./no-useless-boolean-cast.md) for casts in array predicates.
 
 ## Examples
 

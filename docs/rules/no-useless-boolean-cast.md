@@ -9,19 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Array predicate methods already treat callback return values as truthy or falsy, so wrapping the returned expression in `Boolean()` or applying double negation (`!!`) is unnecessary.
+Array predicates already test truthiness. The rule checks `Boolean()` and `!!` in inline first-argument callbacks on arrays and typed arrays.
 
-The rule checks arrays and typed arrays. It skips receivers known to be neither. It checks callbacks passed directly as the first argument, including direct returns from block callbacks. It supports optional chaining and computed method names written as string literals or template literals without substitutions.
+It keeps `Boolean()` calls with type arguments, casts of optional-chain results, and casts with JSDoc `@type` or `@satisfies` on the cast or callback. With [type information](https://typescript-eslint.io/getting-started/typed-linting/), it skips custom signatures and operands that may be `null`, `undefined`, or `void`.
 
-With type information, the rule skips array methods with custom signatures. Removing a cast can change which overload TypeScript selects.
-
-The rule keeps casts around optional chains in the returned value because the cast converts a possibly `undefined` value to a boolean. With [type information](https://typescript-eslint.io/getting-started/typed-linting/), it also keeps casts of values whose type includes `undefined`, `null`, or `void`.
-
-The rule keeps a cast when the operand cannot satisfy the callback's required return type. When the callback has an explicit return annotation, including JSDoc `@returns` in JavaScript, the rule requires a known boolean operand. It also keeps a cast when JSDoc annotates the callback or returned expression with `@type` or `@satisfies`.
-
-In TypeScript and in JavaScript with type information, type annotations, or `@ts-check`, the rule offers a suggestion when removing a cast could change inferred narrowing or when it has insufficient type information to verify the change.
-
-The rule keeps `Boolean()` calls with explicit type arguments because the type argument can supply the operand's type. In typed files without type information, the rule requires a known standard array before it can remove a cast around a non-boolean return from `find` or `findIndex`.
+Explicit return annotations, including `@returns` in JavaScript, require a known boolean operand. The rule suggests edits when narrowing might change. In typed code without type information, removing a cast from a non-boolean `find` or `findIndex` return requires a known standard array.
 
 ## Examples
 
