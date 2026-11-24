@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Find trailing arguments, object-literal properties, and JSX props that match their parameter defaults.
+Find trailing arguments, object-literal properties, and JSX props that match defaults.
 
 This rule is opt-in because explicit arguments can preserve behavior when an API's defaults change.
 
@@ -57,15 +57,15 @@ function Badge({color = 'gray'}) {}
 <Badge />;
 ```
 
-JSX removals are suggestions because omitting a prop can change rendering.
+JSX removals are suggestions because checks like `'color' in props` can affect rendering.
 
 ## Type information
 
-The rule can report matches for local functions without type information. Imported functions require TypeScript, [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
+The rule can report local matches without type information. Imported functions require TypeScript, [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
 
 For calls in TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check`, the rule offers suggestions unless type information confirms a single nongeneric call signature and optional parameters or properties. Object arguments wrapped in parentheses or TypeScript expressions, or with non-nullish union/intersection types, always receive suggestions.
 
-In these files, JSX suggestions require type information that supports omitting the prop. Suggestions for generic tags also require all type arguments to be explicit.
+In these files, JSX suggestions need an optional prop confirmed by the checker and a full type argument list for generic tags.
 
 Generic functions are checked only for defaults whose types and initializers are independent of their type parameters. Destructured properties are checked individually; resolving generic aliases and interfaces requires typed linting. Uncertain cases are skipped.
 
@@ -75,4 +75,4 @@ The rule checks stable function declarations, `const` function/arrow initializer
 
 Calls containing spreads retain positional arguments; object arguments before the first spread can still lose matching properties. Object spreads, computed/duplicate keys, accessors, methods, `__proto__`, and `Object.prototype` keys are skipped. The rule skips functions that use `arguments` or declare overloads, and code with dynamic scope. Member calls, constructors, variable aliases, type-asserted callees, `wrap(fn)` initializers, and legacy `Function#arguments`/`caller` reflection are unsupported. Imported function declarations are assumed not to be reassigned. Comments that would be discarded prevent edits, but still allow reports.
 
-JSX checks simple component tags with a resolved value binding. Spreads, duplicate or namespaced attributes, Vue.js directive names, `__proto__`, and known static properties on the component exclude the element. The rule skips `key`, `ref`, `__self`, `__source`, `children` with nested content, and quoted values with tabs, line breaks, or ambiguous character references.
+JSX checks simple, resolved component tags. It skips elements with known component statics, spreads, duplicate or namespaced attributes, Vue.js directive names, or `__proto__`. It ignores `key`, `ref`, `__self`, `__source`, `children` with nested content, and quoted values with tabs, line breaks, or ambiguous character references.
