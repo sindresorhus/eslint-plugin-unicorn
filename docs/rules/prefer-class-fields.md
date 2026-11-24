@@ -13,7 +13,9 @@ Enforces declaring property defaults with class fields instead of setting them i
 
 Class fields keep property initialization next to the declaration and avoid boilerplate in constructors.
 
-This rule checks consecutive assignments to distinct properties at the start of a constructor. It accepts literal defaults, including nested arrays and objects whose elements and values are literals. Bracket notation is supported when the key is a primitive literal, a signed numeric literal, or a template literal without substitutions. The rule stops at other statements or at assignments that can invoke a known setter.
+This rule checks consecutive assignments to distinct properties at the start of a constructor. It accepts literal defaults, including nested arrays and objects whose elements and values are literals. Bracket notation is supported when the key is a primitive literal, a signed numeric literal, or a template literal without substitutions. Literal keys match by property name, so `this[1n]` and `this['1']` refer to the same property.
+
+The scan ignores empty statements. It stops at a repeated assignment, an assignment that conflicts with a class member such as a setter, or any other unsupported statement.
 
 The rule fixes one assignment at a time to preserve their order. An assignment is report-only when its lines or the line before it contain a comment. The rule also withholds edits when the destination overlaps an ESLint line directive or the line it covers, or when a later field with an unknown name could overwrite the default in an existing public field.
 

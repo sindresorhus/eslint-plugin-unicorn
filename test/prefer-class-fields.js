@@ -144,6 +144,15 @@ test({
 			output: 'class Model { [\'items\'] = []; constructor() {  } }',
 			errors: 1,
 		},
+		...[
+			['-1', '-1n'],
+			['1', '+1'],
+			['null', 'null'],
+		].map(([name, key]) => ({
+			code: `class Model { ['${name}']; constructor() { this[${key}] = []; } }`,
+			output: `class Model { ['${name}'] = []; constructor() {  } }`,
+			errors: 1,
+		})),
 		{
 			code: 'class Model { set [\'items\'](value) { this.size = value.length; } constructor() { this.items = []; } }',
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
@@ -285,8 +294,8 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'class Model {\n\tconstructor() {\n\t\tthis.options = ({items: [-1, -2n, {enabled: true}]});\n\t}\n}',
-			output: 'class Model {\n\tconstructor() {\n\t}\n\toptions = {items: [-1, -2n, {enabled: true}]};\n}',
+			code: 'class Model {\n\tconstructor() {\n\t\tthis.options = ({items: [-1, -2n, {pattern: /item/u}]});\n\t}\n}',
+			output: 'class Model {\n\tconstructor() {\n\t}\n\toptions = {items: [-1, -2n, {pattern: /item/u}]};\n}',
 			errors: 1,
 		},
 		{
