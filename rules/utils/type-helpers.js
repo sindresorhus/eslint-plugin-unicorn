@@ -421,9 +421,9 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceDefiniti
 		visitedTypeReferenceDefinitions.has(definition)
 		|| (
 			options.requireSingleLocalTypeDeclaration
-			&& (
-				definition.type === 'ImportBinding'
-				|| definitionScope.set.get(typeReferenceName).defs.some(otherDefinition => otherDefinition !== definition && typeReferenceDefinitionTypes.has(otherDefinition.type))
+			&& definitionScope.set.get(typeReferenceName).defs.some(candidate =>
+				typeReferenceDefinitionTypes.has(candidate.type)
+				&& (candidate !== definition || candidate.type === 'ImportBinding'),
 			)
 		)
 	) {

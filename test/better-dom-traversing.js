@@ -202,7 +202,7 @@ test({
 				tree.children[0];
 				tree.childNodes[0];
 
-			(class Node { static parentElement = {parentElement: {}}; }).parentElement.parentElement;
+				(class Node { static parentElement = {parentElement: {}}; }).parentElement.parentElement;
 			`,
 		},
 	],
