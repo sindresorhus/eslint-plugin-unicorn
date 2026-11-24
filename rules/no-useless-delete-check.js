@@ -248,7 +248,10 @@ function getCollectionDeleteProblem(ifStatement, statement, hasMoreStatements, c
 	}
 
 	if (hasMoreStatements && (
-		context.sourceCode.getCommentsBefore(statement).length > 0
+		// A type assertion can change which methods are available on the receiver.
+		hasCall.callee.object.type !== 'Identifier'
+		|| deleteCall.callee.object.type !== 'Identifier'
+		|| context.sourceCode.getCommentsBefore(statement).length > 0
 		|| getLastTrailingCommentOnSameLine(context, statement)
 	)) {
 		return {};

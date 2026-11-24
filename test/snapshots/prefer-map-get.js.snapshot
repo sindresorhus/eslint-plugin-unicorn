@@ -53,8 +53,7 @@ Message:
     |                                                                          ^^^ Reuse the result of \`.get()\` to check for this entry.
 
 Suggestion 1/1: Read the entry before the condition and check the result.:
-  1 | export {}; declare const map: ReadonlyMap<string, false | null>; const entry = map.get("key");
-  2 | if (entry !== undefined) {  use(entry); }
+  1 | export {}; declare const map: ReadonlyMap<string, false | null>; const entry = map.get("key"); if (entry !== undefined) {  use(entry); }
 
 `;
 
@@ -73,8 +72,7 @@ Message:
     |                                                                                            ^^^ Reuse the result of \`.get()\` to check for this entry.
 
 Suggestion 1/1: Read the entry before the condition and check the result.:
-  1 | function read<Value extends number | null>(map: Map<string, Value>, key: string) { const entry = map.get(key);
-  2 | if (entry !== undefined) {  use(entry); } }
+  1 | function read<Value extends number | null>(map: Map<string, Value>, key: string) { const entry = map.get(key); if (entry !== undefined) {  use(entry); } }
 
 `;
 

@@ -75,14 +75,16 @@ function getSuggestion(ifStatement, declaration, getCall, context) {
 	}
 
 	const declarationText = `const ${sourceCode.getText(id)} = ${sourceCode.getText(getCall)};`;
-	const linebreak = getLinebreak(context);
-	const indentation = getLineIndent(ifStatement, context);
+	const previousToken = sourceCode.getTokenBefore(ifStatement);
+	const separator = previousToken && sourceCode.getLoc(previousToken).end.line === sourceCode.getLoc(ifStatement).start.line
+		? ' '
+		: `${getLinebreak(context)}${getLineIndent(ifStatement, context)}`;
 	const missingValue = findVariable(scope, 'undefined')?.defs.length ? 'void 0' : 'undefined';
 
 	return {
 		messageId: SUGGESTION_MESSAGE_ID,
 		* fix(fixer) {
-			yield fixer.insertTextBefore(ifStatement, `${declarationText}${linebreak}${indentation}`);
+			yield fixer.insertTextBefore(ifStatement, declarationText + separator);
 			yield fixer.replaceText(test, `${name} !== ${missingValue}`);
 			yield removeStatement(declaration, context, fixer);
 		},

@@ -46,6 +46,16 @@ test({
 				}],
 			}],
 		},
+		{
+			...typeAware('function read(map: Map<string, number>, key: string) { if (map.has(key)) { const entry = map.get(key);use(entry); } }'),
+			errors: [{
+				messageId: 'prefer-map-get',
+				suggestions: [{
+					messageId: 'reuseGetResult',
+					output: 'function read(map: Map<string, number>, key: string) { const entry = map.get(key); if (entry !== undefined) { use(entry); } }',
+				}],
+			}],
+		},
 	],
 });
 

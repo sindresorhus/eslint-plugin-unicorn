@@ -59,6 +59,36 @@ test({
 			output: 'const set = new Set(); set.delete(`na\\u{6d}e`);',
 			errors: 1,
 		},
+		{
+			code: outdent`
+				declare const key: string;
+				const set = new Set<string>();
+				if ((set as ReadonlySet<string>).has(key)) {
+					set.delete(key);
+					console.log(key);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
+		},
+		{
+			code: outdent`
+				declare const key: string;
+				const set: ReadonlySet<string> = new Set<string>();
+				if (set.has(key)) {
+					(set as Set<string>).delete(key);
+					console.log(key);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-useless-delete-check', suggestions: 0}],
+		},
+		{
+			code: 'const set = new Set<string>(); if ((set as ReadonlySet<string>).has("key")) { set.delete("key"); }',
+			output: 'const set = new Set<string>(); set.delete("key");',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
 	],
 });
 
