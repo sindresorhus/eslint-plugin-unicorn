@@ -2,15 +2,20 @@ import {createRequire} from 'node:module';
 import {findVariable, getPropertyName, isCommaToken} from '@eslint-community/eslint-utils';
 import {isDirectEvalCall} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty} from './fix/index.js';
+import {getNumericCharacterReferenceCodePoint, jsxNumericCharacterReferencePattern} from './shared/numeric-character-references.js';
 import {
 	containsNode,
 	getCommentSafeProblem,
 	getFunctionFromIdentifier,
+	getOutermostTypeScriptExpression,
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
 	hasJavaScriptTypeAnnotations,
 	isAliasSymbol,
+	isLeftHandSide,
+	isOptionalSymbol,
 	isTypeScriptFile,
+	linebreakPattern,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
 } from './utils/index.js';
@@ -23,8 +28,10 @@ import {
 const messages = {
 	arguments: 'Omit trailing arguments that match their parameter defaults.',
 	property: 'Property `{{name}}` matches its destructuring default.',
+	'jsx-prop': 'Prop `{{name}}` matches the component’s destructuring default.',
 	'remove-arguments': 'Remove these arguments (requires type review).',
 	'remove-property': 'Remove this property (requires type review).',
+	'remove-jsx-prop': 'Remove this prop (requires runtime review).',
 };
 
 const loadModule = createRequire(import.meta.url);
@@ -61,6 +68,52 @@ function getProperties(node) {
 	}
 
 	return properties;
+}
+
+function getJsxAttributes(element) {
+	const attributes = new Map();
+	for (const attribute of element.attributes) {
+		if (attribute.type !== 'JSXAttribute' || attribute.name.type !== 'JSXIdentifier' || attributes.has(attribute.name.name)) {
+			return;
+		}
+
+		attributes.set(attribute.name.name, attribute);
+	}
+
+	return attributes;
+}
+
+function getJsxAttributeValue({value}, sourceCode) {
+	if (!value) {
+		return true;
+	}
+
+	if (value.type === 'JSXExpressionContainer') {
+		return getPrimitiveLiteralValue(value.expression);
+	}
+
+	if (value.type !== 'Literal' || linebreakPattern.test(value.value)) {
+		return;
+	}
+
+	const raw = sourceCode.getText(value);
+	// Limit numeric references to BMP scalar values that Espree can read without truncation.
+	const rawWithoutSupportedNumericReferences = raw.replaceAll(
+		jsxNumericCharacterReferencePattern,
+		reference => {
+			const codePoint = getNumericCharacterReferenceCodePoint(reference);
+			return codePoint <= 0xFF_FF && String.fromCodePoint(codePoint).isWellFormed() ? ' ' : reference;
+		},
+	);
+	if (
+		rawWithoutSupportedNumericReferences.includes('&#')
+		// Some parsers look up inherited names such as `toString` as if they were entities.
+		|| raw.matchAll(/&(\w+);/gv).some(([, name]) => Object.hasOwn(Object.prototype, name))
+	) {
+		return;
+	}
+
+	return value.value;
 }
 
 /**
@@ -375,6 +428,15 @@ function getParameters(callee, context, typescript, cache) {
 		return;
 	}
 
+	// JSX runtimes can use static properties to change which props reach the component.
+	if (callee.type === 'JSXIdentifier' && variable.references.some(({identifier}) => {
+		const receiver = getOutermostTypeScriptExpression(identifier);
+		const member = receiver.parent;
+		return member?.type === 'MemberExpression' && member.object === receiver && isLeftHandSide(member);
+	})) {
+		return;
+	}
+
 	const [definition] = variable.defs;
 	// Script function declarations can be reassigned through the global object without identifier writes.
 	if (definition.type === 'FunctionName' && variable.scope.type === 'global') {
@@ -441,6 +503,35 @@ function getTrailingArgumentsProblem(call, parameters, context) {
 	}, [start, end]);
 }
 
+function hasSingleNonGenericCallSignature(type) {
+	const signatures = type.getCallSignatures();
+	return signatures.length === 1 && !signatures[0].typeParameters?.length;
+}
+
+function getJsxTypeInformation(element, context, typescript) {
+	return withTypeInformation(element.name, context, ({type, checker}) => {
+		if (type.getProperties().length > 0) {
+			return {hasStaticProperties: true};
+		}
+
+		if (!hasSingleNonGenericCallSignature(type)) {
+			return;
+		}
+
+		const typeScriptElement = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(element);
+		const attributeType = checker.getContextualType(typeScriptElement.attributes);
+		if (!attributeType) {
+			return;
+		}
+
+		// JSX often intersects the declared props with the runtime's intrinsic attributes.
+		const attributeTypes = attributeType.isIntersection() ? attributeType.types : [attributeType];
+		if (attributeTypes.every(type => type.flags === typescript.TypeFlags.Object)) {
+			return {attributeType};
+		}
+	});
+}
+
 /**
 Check whether removing the reported arguments or property preserves the call's types.
 */
@@ -453,8 +544,7 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 		const {esTreeNodeToTSNodeMap} = context.sourceCode.parserServices;
 		const typeScriptCall = esTreeNodeToTSNodeMap.get(call);
 		const type = checker.getTypeAtLocation(typeScriptCall.expression);
-		const signatures = checker.getNonNullableType(type).getCallSignatures();
-		if (signatures.length !== 1 || signatures[0].typeParameters?.length > 0) {
+		if (!hasSingleNonGenericCallSignature(checker.getNonNullableType(type))) {
 			return false;
 		}
 
@@ -483,8 +573,7 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 		}
 
 		const property = objectType.getProperty(getPropertyName(node));
-		// eslint-disable-next-line no-bitwise -- TypeScript symbol flags are a bitmask.
-		return Boolean(property && (property.flags & typescript.SymbolFlags.Optional));
+		return Boolean(property && isOptionalSymbol(property));
 	}) ?? false;
 }
 
@@ -496,6 +585,7 @@ const create = context => {
 	const typescript = getTypeScript(context);
 	const cache = new WeakMap();
 	const calls = [];
+	const jsxElements = [];
 	let hasDynamicScope = false;
 	const needsTypeReview = isTypeScriptFile(context.filename)
 		|| Boolean(sourceCode.parserServices.esTreeNodeToTSNodeMap)
@@ -508,6 +598,40 @@ const create = context => {
 
 		const {fix, ...problemWithoutFix} = problem;
 		return {...problemWithoutFix, suggest: [{messageId: suggestionId, fix}]};
+	};
+
+	const getJsxProblems = function * (element) {
+		const attributes = getJsxAttributes(element);
+		const defaults = attributes && getParameters(element.name, context, typescript, cache)?.[0]?.properties;
+		if (!defaults?.size) {
+			return;
+		}
+
+		const typeInformation = typescript && getJsxTypeInformation(element, context, typescript);
+		if (typeInformation?.hasStaticProperties) {
+			return;
+		}
+
+		for (const [name, attribute] of attributes) {
+			const defaultValue = defaults.get(name);
+			if (
+				name === 'key'
+				|| name === 'ref'
+				|| (name === 'children' && element.parent.children.length > 0)
+				|| defaultValue === undefined
+				|| !Object.is(defaultValue, getJsxAttributeValue(attribute, sourceCode))
+			) {
+				continue;
+			}
+
+			const problem = {node: attribute, messageId: 'jsx-prop', data: {name}};
+			const property = typeInformation?.attributeType?.getProperty(name);
+			if (!needsTypeReview || (property && isOptionalSymbol(property))) {
+				problem.suggest = [{messageId: 'remove-jsx-prop', fix: fixer => fixer.remove(attribute)}];
+			}
+
+			yield getCommentSafeProblem(context, problem);
+		}
 	};
 
 	context.on('WithStatement', () => {
@@ -534,6 +658,11 @@ const create = context => {
 			)
 		) {
 			calls.push(node);
+		}
+	});
+	context.on('JSXOpeningElement', node => {
+		if (node.attributes.length > 0 && node.name.type === 'JSXIdentifier' && !/^[a-z]|-/u.test(node.name.name)) {
+			jsxElements.push(node);
 		}
 	});
 
@@ -577,6 +706,10 @@ const create = context => {
 				}
 			}
 		}
+
+		for (const element of jsxElements) {
+			yield * getJsxProblems(element);
+		}
 	});
 };
 
@@ -588,7 +721,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow arguments that match their parameter defaults.',
+			description: 'Disallow arguments and JSX props that match their defaults.',
 			recommended: false,
 		},
 		fixable: 'code',

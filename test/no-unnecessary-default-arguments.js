@@ -105,7 +105,6 @@ testRule.snapshot({
 		'function run(value = true) {} eval("run = other"); run(true);',
 		{code: 'function run(value = true) {} with (object) { run(true); }', languageOptions: {sourceType: 'script'}},
 		{code: 'if (enabled) { function run(value = true) {} run(true); }', languageOptions: {sourceType: 'script'}},
-		{code: 'function Badge({color = "gray"}) {} const element = <Badge color="gray" />;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 	],
 	invalid: [
 		'function run(flag = true) {} run(false); run(true);',
@@ -161,6 +160,92 @@ testRule.snapshot({
 		'function run({value = true}, next, {value: last = false}) {} run({value: true}, ...other, {value: false});',
 		'function run({value = true}, last = false) {} run({value: true}, ...other, false);',
 		'function run({value = true}, ...rest) {} run({value: /* keep */ true}, ...other);',
+	],
+});
+
+testRule({
+	testerOptions: {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+	valid: [
+		'function Badge({color = "gray"}) {} <Badge color="blue" />;',
+		'function Badge({color = "gray"}) {} <Badge color={tag`gray`} />;',
+		'function Badge({size = 0}) {} <Badge size={-0} />;',
+		'function Badge({value = "a\\n  b"}) {} <Badge value="a\n  b" />;',
+		String.raw`function Badge({value = "a\n  b"}) {} <Badge value="a&#10;  b" />;`,
+		String.raw`function Badge({value = "\uF600"}) {} <Badge value="&#x1F600;" />;`,
+		String.raw`function Badge({value = "\uD800"}) {} <Badge value="&#xD800;" />;`,
+		'function Badge({value = "&#000000038;"}) {} <Badge value="&#000000038;" />;',
+		'function Badge({value = "&#x+26;"}) {} <Badge value="&#x+26;" />;',
+		'function Badge({value = "function toString() { [native code] }"}) {} <Badge value="&toString;" />;',
+		'function badge({color = "gray"}) {} <badge color="gray" />;',
+		'function Badge({color = "gray"}) {} <Badge-icon color="gray" />;',
+		'function Badge({color = "gray"}) {} <ui.Badge color="gray" />;',
+		'function Badge({color = "gray"}) {} <Badge {...props} color="gray" />;',
+		'function Badge({color = "gray"}) {} <Badge other:color="black" color="gray" />;',
+		'function Badge({color = "gray"}) {} <Badge color="blue" color="gray" />;',
+		'function Badge({key = "gray", ref = null}) {} <Badge key="gray" ref={null} />;',
+		'function Badge({children = "fallback"}) {} <Badge children="fallback">actual</Badge>;',
+		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge.defaultProps = {color: "blue"};',
+		'function Badge({color = "gray"}) {} <Badge color="gray" />; Badge = Other;',
+		'function Badge({color = "gray"}) {} { const Badge = Other; <Badge color="gray" />; }',
+	],
+	invalid: [
+		{
+			code: 'function Badge({color = "gray"}) {} <Badge color="gray" />;',
+			errors: [{
+				messageId: 'jsx-prop',
+				data: {name: 'color'},
+				suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({color = "gray"}) {} <Badge  />;'}],
+			}],
+		},
+		{
+			code: 'function Badge({label = "&©"}) {} <Badge label="&#38;&#xA9;" />;',
+			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({label = "&©"}) {} <Badge  />;'}]}],
+		},
+		{
+			code: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge label="&amp;" enabled size={-2} />;',
+			errors: [
+				{
+					messageId: 'jsx-prop',
+					data: {name: 'label'},
+					suggestions: [{messageId: 'remove-jsx-prop', output: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge  enabled size={-2} />;'}],
+				},
+				{
+					messageId: 'jsx-prop',
+					data: {name: 'enabled'},
+					suggestions: [{messageId: 'remove-jsx-prop', output: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge label="&amp;"  size={-2} />;'}],
+				},
+				{
+					messageId: 'jsx-prop',
+					data: {name: 'size'},
+					suggestions: [{messageId: 'remove-jsx-prop', output: 'const Badge = ({label = "&", enabled = true, size = -2}) => null; <Badge label="&amp;" enabled  />;'}],
+				},
+			],
+		},
+		{
+			code: 'function Badge({color = "gray"}) {} <Badge color={(`gray`)}flag>child</Badge>;',
+			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({color = "gray"}) {} <Badge flag>child</Badge>;'}]}],
+		},
+		{
+			code: 'function Badge({color = "gray"}) {} <Badge color={/* keep */ "gray"} />;',
+			errors: [{messageId: 'jsx-prop', suggestions: []}],
+		},
+		{
+			code: 'function Badge({children = "fallback"}) {} <Badge children="fallback" />;',
+			errors: [{messageId: 'jsx-prop', suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({children = "fallback"}) {} <Badge  />;'}]}],
+		},
+		{
+			code: 'function Badge({"data-kind": kind = "info"}) {} <Badge\r\n  data-kind="info"\r\n  prominent\r\n/>;',
+			errors: [{
+				messageId: 'jsx-prop',
+				data: {name: 'data-kind'},
+				suggestions: [{messageId: 'remove-jsx-prop', output: 'function Badge({"data-kind": kind = "info"}) {} <Badge\r\n  \r\n  prominent\r\n/>;'}],
+			}],
+		},
+		{
+			code: 'function Badge({color = "gray"}) {} Badge.defaultProps = {color: "blue"}; Badge({color: "gray"}); <Badge color="gray" />;',
+			output: 'function Badge({color = "gray"}) {} Badge.defaultProps = {color: "blue"}; Badge({ }); <Badge color="gray" />;',
+			errors: [{messageId: 'property'}],
+		},
 	],
 });
 
@@ -243,12 +328,20 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 	const options = {
 		allowJs: true, checkJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
+	const rootNames = [filename];
+	if (extension === 'tsx') {
+		options.jsx = ts.JsxEmit.Preserve;
+		const jsxDeclarations = path.join(path.dirname(filename), 'no-unnecessary-default-arguments.jsx.d.ts').replaceAll('\\', '/');
+		sources.set(jsxDeclarations, 'declare namespace JSX { interface Element {} interface IntrinsicAttributes { key?: string } }');
+		rootNames.push(jsxDeclarations);
+	}
+
 	const host = ts.createCompilerHost(options);
 	const readFile = host.readFile.bind(host);
 	const fileExists = host.fileExists.bind(host);
 	host.readFile = filename => sources.get(filename) ?? readFile(filename);
 	host.fileExists = filename => sources.has(filename) || fileExists(filename);
-	const program = ts.createProgram([filename], options, host);
+	const program = ts.createProgram(rootNames, options, host);
 	return {
 		code,
 		filename,
@@ -565,6 +658,98 @@ const config = {
 	plugins: {unicorn: plugin},
 	rules: {'unicorn/no-unnecessary-default-arguments': 'error'},
 };
+
+test('JSX suggestions preserve TypeScript requirements', t => {
+	const namedImport = 'import {Badge} from "./no-unnecessary-default-arguments.callee.js"; <Badge mode="text" />;';
+	const defaultImport = 'import Badge from "./no-unnecessary-default-arguments.callee.js"; <Badge mode="text" />;';
+	const cases = [
+		{
+			code: 'function Badge({mode = "text"}: {mode?: string}) { return null; } <Badge mode="text" />;',
+			canRemove: true,
+		},
+		{
+			code: namedImport,
+			declarations: 'export function Badge({mode = "text"}: {mode?: string}) { return null; }',
+			canRemove: true,
+		},
+		{
+			code: defaultImport,
+			declarations: 'export default ({mode = "text"}: {mode?: string}) => null;',
+			canRemove: true,
+		},
+		{
+			code: namedImport,
+			declarations: 'export function Badge({mode = "text"}: {mode?: string}) { return null; } Badge.defaultProps = {mode: "number"};',
+			reports: false,
+		},
+		{
+			code: [
+				'function Badge({mode = "text"}: {mode?: string}) { return null; }',
+				'(Badge as typeof Badge & {defaultProps?: {mode: string}}).defaultProps = {mode: "number"};',
+				'<Badge mode="text" />;',
+			].join('\n'),
+			reports: false,
+		},
+		{
+			code: 'function Badge({mode = "text"}: {mode: string}) { return null; } <Badge mode="text" />;',
+		},
+		{
+			code: [
+				'type Props = {mode?: "text"; format: (value: string) => void} | {mode?: "number"; format: (value: number) => void};',
+				'function Badge({mode = "text"}: Props) { return null; }',
+				'<Badge mode="text" format={value => { const copy: string = value; }} />;',
+			].join('\n'),
+		},
+		{
+			code: 'function Badge<T>({mode = "text"}: {mode?: string; value?: T}) { return null; } <Badge<number> mode="text" />;',
+		},
+		{
+			code: [
+				'type Numeric = {mode?: "number"; format: (value: number) => void};',
+				'type Text = {mode?: "text"; format: (value: string) => void};',
+				'const Badge: {(props: Numeric): null; (props: Text): null} = ({mode = "text"}: Numeric | Text) => null;',
+				'<Badge mode="text" format={value => { const copy: string = value; }} />;',
+			].join('\n'),
+		},
+	];
+
+	for (const {code, declarations, canRemove, reports = true} of cases) {
+		const {filename, languageOptions} = typeAware(code, declarations, 'tsx');
+		const [program] = languageOptions.parserOptions.programs;
+		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
+		const result = linter.verifyAndFix(code, {...config, files: ['**'], languageOptions}, {filename});
+		t.assert.strictEqual(result.fixed, false, code);
+		t.assert.strictEqual(result.messages.length, reports ? 1 : 0, code);
+		if (!reports) {
+			continue;
+		}
+
+		const [message] = result.messages;
+		t.assert.strictEqual(message.messageId, 'jsx-prop', code);
+		t.assert.strictEqual(message.suggestions?.length ?? 0, canRemove ? 1 : 0, code);
+		if (canRemove) {
+			const [{fix}] = message.suggestions;
+			const [start, end] = fix.range;
+			const output = code.slice(0, start) + fix.text + code.slice(end);
+			t.assert.strictEqual(output, code.replace('mode="text"', ''), code);
+			const [fixedProgram] = typeAware(output, declarations, 'tsx').languageOptions.parserOptions.programs;
+			t.assert.deepStrictEqual(fixedProgram.getSemanticDiagnostics(), [], output);
+		}
+	}
+});
+
+test('syntax-only TSX reports matches without a removal suggestion', t => {
+	const code = 'function Badge({mode = "text"}: {mode?: string}) { return null; } <Badge mode="text" />;';
+	const result = linter.verifyAndFix(code, {
+		...config,
+		files: ['**'],
+		languageOptions: {parser: parsers.typescript.implementation},
+	}, {filename: 'example.tsx'});
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'jsx-prop');
+	t.assert.strictEqual(result.messages[0].suggestions, undefined);
+});
 
 test('typed autofixes preserve strict type checking', t => {
 	const cases = [
