@@ -37,13 +37,18 @@ nodeTest('coercion rules preserve a checked JavaScript predicate during autofix'
 		const bits = [0, 1];
 		const kept = bits['filter']?.(value => Boolean(value === 1));
 		kept.push(0);
+
+		/** @type {[unknown]} */
+		const filterArguments = [undefined];
+		const keptWithSpread = bits.filter(value => Boolean(value === 1), ...filterArguments);
+		keptWithSpread.push(0);
 	`;
 	const linter = new Linter();
 	const {output, messages} = linter.verifyAndFix(code, coercionConfig);
 
 	t.assert.strictEqual(output, code);
-	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast']);
-	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/no-useless-boolean-cast', 'unicorn/no-useless-boolean-cast']);
+	t.assert.deepStrictEqual(messages.map(message => message.suggestions.length), [1, 1]);
 });
 
 const typeAware = code => ({
@@ -101,7 +106,7 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		export {};
 		declare global {
 			interface Array<T> {
-				filter(predicate: BooleanConstructor): Exclude<T, false>[];
+				filter(predicate: BooleanConstructor, thisArg?: unknown): Exclude<T, false>[];
 				filter(predicate: (value: T) => string): Extract<T, string>[];
 			}
 		}
@@ -109,14 +114,15 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		const items: (number | false)[] = [0, 1, false];
 		const kept = items.filter(value => !!value);
 		kept.push(false);
-		const wrapped = items.filter(value => Boolean(value));
+		const filterArguments: [undefined] = [undefined];
+		const wrapped = items.filter(value => Boolean(value), ...filterArguments);
 		wrapped.push(false);
 		const values: (string | number)[] = ['one', 1];
 		const strings = values.filter(value => !!String(value));
 		strings.push(1);
 
 		const readonlyItems: readonly (number | false)[] = items;
-		const readonlyKept = readonlyItems.filter(value => !!value);
+		const readonlyKept = readonlyItems.filter(value => !!value, ...filterArguments);
 	`);
 	const linter = new Linter();
 	const {output, messages} = linter.verifyAndFix(
@@ -125,7 +131,10 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		{filename},
 	);
 
-	const expectedOutput = code.replace('readonlyItems.filter(value => !!value)', 'readonlyItems.filter(Boolean)');
+	const expectedOutput = code.replace(
+		'readonlyItems.filter(value => !!value, ...filterArguments)',
+		'readonlyItems.filter(Boolean, ...filterArguments)',
+	);
 	t.assert.strictEqual(output, expectedOutput);
 	t.assert.deepStrictEqual(messages, []);
 });
@@ -162,6 +171,7 @@ test.snapshot({
 		'records.filter(record => !!record.owner?.name);',
 		'records.filter(record => !record.name);',
 		'items.map(item => !!item.label);',
+		'items.filter(item => !!item.label, thisArg, options);',
 		'[1].some(/** @returns {boolean} */ (value) => !!value);',
 		'[1].some(value => /** @type {boolean} */ (!!value));',
 		'[1].some(value => /** @type {boolean} */ (Boolean(value + 1)));',
@@ -384,7 +394,7 @@ test.snapshot({
 			code: 'array.some(value => Boolean({active: value.active} as Record<string, boolean>));',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// Type-aware: a non-nullish argument type is still reported, so type information only suppresses nullish cases.
+		// Type-aware: a non-nullish argument on a standard array is still reported.
 		typeAware('[{active: true}].some((value: {active: boolean}) => Boolean(value.active));'),
 		'array.some(value => Boolean(/* comment */ value.active));',
 		'array.some(value => Boolean(value.active /* comment */));',

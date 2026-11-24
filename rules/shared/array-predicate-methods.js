@@ -17,7 +17,7 @@ export const arrayPredicateMethods = new Set([
 
 export function getArrayPredicateMethod(callback) {
 	const call = callback?.parent;
-	if (!isMethodCall(call, {minimumArguments: 1, maximumArguments: 2}) || call.arguments[0] !== callback) {
+	if (!isMethodCall(call) || call.arguments[0] !== callback) {
 		return;
 	}
 

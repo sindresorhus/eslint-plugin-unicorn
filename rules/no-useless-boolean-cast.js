@@ -177,7 +177,7 @@ const create = context => {
 
 	function getProblem(callback, cast) {
 		const method = getArrayPredicateMethod(callback);
-		if (!method || callback.async || callback.generator) {
+		if (!method || callback.parent.arguments.length > 2 || callback.async || callback.generator) {
 			return;
 		}
 
