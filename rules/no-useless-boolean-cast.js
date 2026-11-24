@@ -1,5 +1,5 @@
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {arrayMethodsWithTypePredicates, getArrayPredicateMethod} from './shared/array-predicate-methods.js';
+import {arrayMethodsWithTypePredicates, getArrayPredicateMethod, hasCustomArrayPredicateSignatures} from './shared/array-predicate-methods.js';
 import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
@@ -182,7 +182,8 @@ const create = context => {
 		}
 
 		const argument = getCastArgument(callback, cast, context);
-		if (!argument || isKnownNonIndexedCollection(callback.parent.callee.object, context)) {
+		const call = callback.parent;
+		if (!argument || isKnownNonIndexedCollection(call.callee.object, context) || hasCustomArrayPredicateSignatures(call, context)) {
 			return;
 		}
 

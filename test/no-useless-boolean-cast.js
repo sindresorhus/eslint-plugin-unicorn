@@ -102,6 +102,7 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		declare global {
 			interface Array<T> {
 				filter(predicate: BooleanConstructor): Exclude<T, false>[];
+				filter(predicate: (value: T) => string): Extract<T, string>[];
 			}
 		}
 
@@ -110,6 +111,9 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		kept.push(false);
 		const wrapped = items.filter(value => Boolean(value));
 		wrapped.push(false);
+		const values: (string | number)[] = ['one', 1];
+		const strings = values.filter(value => !!String(value));
+		strings.push(1);
 
 		const readonlyItems: readonly (number | false)[] = items;
 		const readonlyKept = readonlyItems.filter(value => !!value);
@@ -121,9 +125,7 @@ nodeTest('fixing a predicate preserves the selected filter overload', t => {
 		{filename},
 	);
 
-	const expectedOutput = code
-		.replace('items.filter(value => !!value)', 'items.filter(value => value)')
-		.replace('readonlyItems.filter(value => !!value)', 'readonlyItems.filter(Boolean)');
+	const expectedOutput = code.replace('readonlyItems.filter(value => !!value)', 'readonlyItems.filter(Boolean)');
 	t.assert.strictEqual(output, expectedOutput);
 	t.assert.deepStrictEqual(messages, []);
 });
@@ -218,6 +220,11 @@ test.snapshot({
 			filename: 'file.js',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware(outdent`
+			const items = new Uint8Array([0, 1]);
+			const preserved: 1 | undefined = items.findLast(value => !!(value === 1));
+			const possiblyNumber = items.findLast(value => Boolean(value === 1));
+		`),
 	],
 });
 

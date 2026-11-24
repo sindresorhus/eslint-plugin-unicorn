@@ -1,4 +1,5 @@
 import {getStaticStringValue, isMethodCall} from '../ast/index.js';
+import {withTypeInformation} from '../utils/index.js';
 
 export const arrayMethodsWithTypePredicates = new Set([
 	'every',
@@ -25,4 +26,12 @@ export function getArrayPredicateMethod(callback) {
 	if (arrayPredicateMethods.has(method)) {
 		return method;
 	}
+}
+
+export function hasCustomArrayPredicateSignatures(call, context) {
+	return withTypeInformation(call.callee, context, ({type, program}) =>
+		type.getNonNullableType().getCallSignatures().some(signature => {
+			const declaration = signature.getDeclaration();
+			return declaration !== undefined && !program.isSourceFileDefaultLibrary(declaration.getSourceFile());
+		})) ?? false;
 }

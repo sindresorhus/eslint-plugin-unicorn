@@ -13,9 +13,11 @@ Array predicate methods already treat callback return values as truthy or falsy,
 
 The rule checks arrays and typed arrays. It skips receivers known to be neither. It checks direct returns from block callbacks and calls that use optional chaining or a string literal or template literal without substitutions as the method name.
 
+With type information, the rule skips array methods with custom signatures. Removing a cast can change which overload TypeScript selects.
+
 The rule keeps casts around optional chains in the returned value because the cast converts a possibly `undefined` value to a boolean. With [type information](https://typescript-eslint.io/getting-started/typed-linting/), it also keeps casts of values whose type includes `undefined`, `null`, or `void`.
 
-The rule keeps a cast when the operand cannot satisfy the callback's required return type, including a JSDoc `@returns` type in JavaScript. It also keeps a cast when JSDoc annotates the callback or returned expression with `@type` or `@satisfies`.
+The rule keeps a cast when the operand cannot satisfy the callback's required return type. When the callback has an explicit return annotation, including JSDoc `@returns` in JavaScript, the rule requires a known boolean operand. It also keeps a cast when JSDoc annotates the callback or returned expression with `@type` or `@satisfies`.
 
 In TypeScript and in JavaScript with type information, type annotations, or `@ts-check`, the rule offers a suggestion when removing a cast could change inferred narrowing or when it has insufficient type information to verify the change.
 
