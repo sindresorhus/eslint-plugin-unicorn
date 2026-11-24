@@ -5,7 +5,7 @@ function isUnassignedParameter(variable) {
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 	// In strict mode, `arguments` does not alias parameters.
 	return definition?.type === 'Parameter'
-		&& definition.node.params.includes(definition.name)
+		&& definition.node.params?.includes(definition.name) === true
 		&& variable.references.every(reference => !reference.isWrite());
 }
 

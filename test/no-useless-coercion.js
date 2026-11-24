@@ -13,6 +13,14 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test.svelte({
+	valid: [{
+		code: '{#each items as item}<button disabled={!!item.disabled}>Submit</button>{/each}',
+		filename: 'component.svelte',
+	}],
+	invalid: [],
+});
+
 test({
 	valid: [
 		'const text = "hello"; text + `${value}`;', // eslint-disable-line no-template-curly-in-string
