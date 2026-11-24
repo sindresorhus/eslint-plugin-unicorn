@@ -173,19 +173,21 @@ const create = context => {
 				: reindentText(valueText, getLineIndent(right, context), indent);
 
 			if (existingProperty) {
+				const lastToken = sourceCode.getLastToken(existingProperty);
+				const hasSemicolon = isSemicolonToken(lastToken);
 				if (existingProperty.value) {
 					yield fixer.replaceText(existingProperty.value, propertyValue);
-					return;
+					// A following computed member can become part of the new initializer.
+					if (!hasSemicolon) {
+						yield fixer.insertTextAfter(existingProperty, ';');
+					}
+				} else {
+					const initializer = ` = ${propertyValue}`;
+					yield hasSemicolon
+						? fixer.insertTextBefore(lastToken, initializer)
+						: fixer.insertTextAfter(existingProperty, `${initializer};`);
 				}
 
-				const text = ` = ${propertyValue}`;
-				const lastToken = sourceCode.getLastToken(existingProperty);
-				if (isSemicolonToken(lastToken)) {
-					yield fixer.insertTextBefore(lastToken, text);
-					return;
-				}
-
-				yield fixer.insertTextAfter(existingProperty, `${text};`);
 				return;
 			}
 

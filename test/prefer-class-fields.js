@@ -207,6 +207,31 @@ test({
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
 		{
+			code: outdent`
+				class Model {
+					items = () => {} // keep
+					['enabled'] = true;
+					constructor() {
+						this.items = [];
+					}
+				}
+			`,
+			errors: [{
+				messageId: 'prefer-class-fields/error',
+				suggestions: [{
+					messageId: 'prefer-class-fields/suggestion',
+					output: outdent`
+						class Model {
+							items = []; // keep
+							['enabled'] = true;
+							constructor() {
+							}
+						}
+					`,
+				}],
+			}],
+		},
+		{
 			code: 'class Model { constructor() { /** @type {string[]} */ this.items = []; } }',
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
@@ -505,7 +530,7 @@ test({
 			`,
 			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
 		},
-		// A `declare` field has no initializer, a definite assignment assertion can not have one either
+		// A field with `declare`, `abstract`, or a definite assignment assertion cannot have an initializer.
 		{
 			code: outdent`
 				class A {
