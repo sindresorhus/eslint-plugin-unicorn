@@ -630,21 +630,21 @@ Message:
 
 `;
 
-exports[`no-invalid-argument-count > invalid(14): function foo() {\n\tconsole.log(arguments);\n}\n\nfoo(1); 1`] = `
+exports[`no-invalid-argument-count > invalid(14): function foo() {\n\treturn (function () { return arguments; })();\n}\n\nfoo(1); 1`] = `
 
   1 | function foo() {
-  2 | 	console.log(arguments);
+  2 | 	return (function () { return arguments; })();
   3 | }
   4 |
   5 | foo(1);
 
 `;
 
-exports[`no-invalid-argument-count > invalid(14): function foo() {\n\tconsole.log(arguments);\n}\n\nfoo(1); 2`] = `
+exports[`no-invalid-argument-count > invalid(14): function foo() {\n\treturn (function () { return arguments; })();\n}\n\nfoo(1); 2`] = `
 
 Message:
   1 | function foo() {
-  2 | 	console.log(arguments);
+  2 | 	return (function () { return arguments; })();
   3 | }
   4 |
 > 5 | foo(1);
@@ -9972,6 +9972,22 @@ exports[`no-invalid-argument-count > invalid(730): this.foo.bar(1, 2); 2`] = `
 Message:
 > 1 | this.foo.bar(1, 2);
     | ^^^^^^^^^^^^ Expected 1 argument, but got 2 arguments.
+
+`;
+
+exports[`no-invalid-argument-count > invalid(731): function outer() { return (() => arguments.length)(1); }\nouter(1); 1`] = `
+
+  1 | function outer() { return (() => arguments.length)(1); }
+  2 | outer(1);
+
+`;
+
+exports[`no-invalid-argument-count > invalid(731): function outer() { return (() => arguments.length)(1); }\nouter(1); 2`] = `
+
+Message:
+> 1 | function outer() { return (() => arguments.length)(1); }
+    |                            ^^^^^^^^^^^^^^^^^^^^^^ Expected 0 arguments, but got 1 argument.
+  2 | outer(1);
 
 `;
 

@@ -156,4 +156,6 @@ For local TypeScript calls, the outermost type assertion at the call site takes 
 
 Spread argument contents are not analyzed, even for array literals or TypeScript tuples. The local check treats rest parameters as accepting any number of additional arguments.
 
+The rule skips the inferred argument limit when a local function reads its own `arguments` object. Configured limits and explicit TypeScript function types still apply. Scope analysis can misidentify reads in parameter defaults and TypeScript type syntax.
+
 Default built-in checks only apply when the built-in global is not shadowed.

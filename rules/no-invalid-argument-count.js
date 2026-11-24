@@ -976,9 +976,17 @@ const getFunctionParameters = (callExpression, context) => {
 	const annotation = getAssertedType(callExpression.callee, callee)
 		?? definition?.name.typeAnnotation?.typeAnnotation
 		?? getAssertedType(definition?.node.init);
-	if (!annotation || annotation.type === 'TSFunctionType') {
-		return (annotation ?? functionNode).params;
+	if (annotation) {
+		return annotation.type === 'TSFunctionType' ? annotation.params : undefined;
 	}
+
+	const functionScope = context.sourceCode.scopeManager.acquire(functionNode, true);
+	const argumentsVariable = functionScope?.set.get('arguments');
+	if (argumentsVariable?.defs.length === 0 && argumentsVariable.references.some(reference => reference.isRead())) {
+		return;
+	}
+
+	return functionNode.params;
 };
 
 const hasInvalidArgumentCount = ({minimum, maximum}, argumentCount) =>
