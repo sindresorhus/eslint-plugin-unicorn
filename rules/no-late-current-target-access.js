@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMemberExpression} from './ast/index.js';
+import {isFunction, isMemberExpression} from './ast/index.js';
 import {getEnclosingFunction, isKnownNonEvent, unwrapTypeScriptExpression} from './utils/index.js';
 import {
 	createLateEventHandlerTracker,
@@ -32,15 +32,16 @@ const create = context => {
 
 		const variable = findVariable(sourceCode.getScope(object), object);
 		const definition = variable?.defs.find(({type}) => type === 'Parameter');
+		// Svelte also uses `Parameter` definitions for template bindings.
 		if (
 			!definition
+			|| !isFunction(definition.node)
 			// A parameter that is known not to be an event, e.g. `function f(event: number)`
 			|| isKnownNonEvent(object, context)
 		) {
 			return;
 		}
 
-		// For a parameter definition, `definition.node` is the function that declares it.
 		const handlerFunction = definition.node;
 		const isInNestedFunction = getEnclosingFunction(node) !== handlerFunction;
 

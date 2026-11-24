@@ -1,4 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {isFunction} from './ast/index.js';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
@@ -69,16 +70,16 @@ const create = context => {
 		const {event, method} = eventControlCall;
 		const variable = findVariable(sourceCode.getScope(event), event);
 		const definition = variable?.defs.find(({type}) => type === 'Parameter');
-		if (!definition) {
+		// Svelte also uses `Parameter` definitions for template bindings.
+		if (
+			!definition
+			|| !isFunction(definition.node)
+			|| !isEventParameter(definition.name)
+		) {
 			return;
 		}
 
-		// For a parameter definition, `definition.node` is the function that declares it.
 		const handlerFunction = definition.node;
-		if (!isEventParameter(definition.name)) {
-			return;
-		}
-
 		const isInNestedFunction = getEnclosingFunction(node) !== handlerFunction;
 		const isInGeneratorHandler = handlerFunction.generator;
 		if (
