@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
 
@@ -10,6 +11,11 @@ const jsxLanguageOptions = {
 			jsx: true,
 		},
 	},
+};
+
+const typeAwareOptions = {
+	filename: 'file.ts',
+	languageOptions: {parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
 };
 
 test.snapshot({
@@ -86,6 +92,7 @@ test.snapshot({
 		...notDomNodeTypes.map(data => `(${data}).childNodes[0];`),
 		...notDomNodeTypes.map(data => `(${data}).parentElement.parentElement;`),
 		...notDomNodeTypes.map(data => `(${data}).querySelector("a").querySelector("b");`),
+		'const tree = {children: []}; tree.children[0];',
 
 		// Component `props.children` is not DOM traversal
 		{
@@ -151,6 +158,119 @@ test.snapshot({
 		'globalThis.document.querySelector("a").querySelector("b");',
 		'window.frame.querySelector("a").querySelector("b");',
 		'window[document].querySelector("a").querySelector("b");',
+	],
+});
+
+test({
+	valid: [
+		'/** @param {{parentElement: object}} node */ function visit(node) { node.parentElement.parentElement; }',
+	],
+	invalid: [
+		{
+			code: '/** @param {{parentElement: object}} node */ function visit(node) { node = document.body; node.parentElement.parentElement; }',
+			errors: [{messageId: 'closest'}],
+		},
+	],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: typescriptEslintParser}},
+	valid: [
+		outdent`
+			type Tree = {
+				children: Tree[];
+				childNodes: Tree[];
+				parentElement: Tree;
+				querySelector(selector: string): Tree;
+			};
+			declare const tree: Tree;
+			tree.children[0];
+			tree.children[2];
+			tree.childNodes[0];
+			tree.parentElement.parentElement;
+			tree.querySelector('a').querySelector('b');
+		`,
+		{
+			...typeAwareOptions,
+			code: outdent`
+				export {};
+				declare const root: {tree: {parentElement: {parentElement: object}}};
+				root.tree.parentElement.parentElement;
+
+				interface Node {children: readonly Node[]; childNodes: readonly [Node]}
+				declare const tree: Node;
+				tree.children[0];
+				tree.childNodes[0];
+
+				(class Node { static parentElement = {parentElement: {}}; }).parentElement.parentElement;
+			`,
+		},
+	],
+	invalid: [
+		{
+			code: 'import type {Element as DOMElement} from "./test/fixtures/better-dom-traversing/receivers.js"; declare const element: DOMElement; element.children[1];',
+			errors: [{messageId: 'query-selector'}],
+		},
+		{
+			...typeAwareOptions,
+			code: outdent`
+				import type {Element as DOMElement, QueryTree} from './test/fixtures/better-dom-traversing/receivers.js';
+
+				function visit(receiver: DOMElement | QueryTree) {
+					if ('kind' in receiver) {
+						receiver.querySelector('a').querySelector('b');
+					} else {
+						receiver.children[1];
+					}
+				}
+			`,
+			errors: [{messageId: 'query-selector', line: 7}],
+		},
+		{
+			...typeAwareOptions,
+			code: 'declare const node: ParentNode; node.children[0];',
+			errors: [{
+				messageId: 'first-element-child',
+				suggestions: [{messageId: 'suggestion-first-element-child', output: 'declare const node: ParentNode; node.firstElementChild;'}],
+			}],
+		},
+		{
+			...typeAwareOptions,
+			code: outdent`
+				declare const mixed: HTMLElement | {children: Element[]};
+				declare const untyped: any;
+				mixed.children[1];
+				untyped.children[1];
+				(document.body as HTMLElement & {children: Element[]}).children[1];
+			`,
+			errors: [
+				{messageId: 'query-selector', line: 3},
+				{messageId: 'query-selector', line: 4},
+				{messageId: 'query-selector', line: 5},
+			],
+		},
+		{
+			...typeAwareOptions,
+			code: outdent`
+				interface Widget {name: string}
+				declare class Widget extends HTMLElement {}
+				declare const widget: Widget;
+				widget.children[1];
+			`,
+			errors: [{messageId: 'query-selector'}],
+		},
+		{
+			...typeAwareOptions,
+			code: outdent`
+				function visit(node: {children: ArrayLike<Element>}) {
+					if (node instanceof HTMLElement && node.parentElement) {
+						node.children[1];
+						node.parentElement.parentElement;
+					}
+				}
+			`,
+			errors: [{messageId: 'query-selector'}, {messageId: 'closest'}],
+		},
 	],
 });
 

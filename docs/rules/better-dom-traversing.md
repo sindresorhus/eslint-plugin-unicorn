@@ -13,7 +13,9 @@ Prefer more readable and robust DOM traversal APIs.
 
 Use named first-child properties instead of positional access, selectors instead of positional child traversal, `.closest()` instead of repeated parent traversal, and merged `.querySelector()` calls when static selectors can be combined.
 
-This rule is syntax-based and reports common DOM traversal patterns. Suggestions are intentionally manual because the replacement can change behavior in some cases, such as `undefined` versus `null` for empty child collections, exact-depth parent traversal versus selector-based ancestor lookup, or chained `querySelector()` calls that only search inside the first matching element.
+The rule skips known non-DOM receivers using local syntax or JSDoc. With typed linting, it uses the type at the access site and skips indexed `children` and `childNodes` typed as a single array or tuple. Narrow types such as `Pick<HTMLElement, 'children'>` can hide valid reports.
+
+Suggestions are intentionally manual because the replacement can change behavior in some cases, such as `undefined` versus `null` for empty child collections, exact-depth parent traversal versus selector-based ancestor lookup, or chained `querySelector()` calls that only search inside the first matching element.
 
 `props.children` access is ignored because it is component data, not DOM traversal.
 

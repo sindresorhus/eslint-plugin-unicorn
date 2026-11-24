@@ -8,8 +8,10 @@ import {
 	escapeString,
 	getMemberExpressionObjectText,
 	getParenthesizedRange,
+	isKnownNonDomNode,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID_FIRST_CHILD = 'first-child';
@@ -26,6 +28,12 @@ const QUERY_SELECTOR_CALL = {
 	optionalCall: false,
 	optionalMember: false,
 };
+const SYNTAX_DOM_RECEIVER_OPTIONS = {
+	isNonTargetNode: isNodeValueNotDomNode,
+	requireSingleLocalTypeDeclaration: true,
+	requireStableJSDocumentBindings: true,
+};
+const TYPED_DOM_RECEIVER_OPTIONS = {useTypeInformationOnly: true};
 
 const messages = {
 	[MESSAGE_ID_FIRST_CHILD]: 'Prefer `.firstChild` over `.childNodes[0]`.',
@@ -37,6 +45,14 @@ const messages = {
 	[SUGGESTION_ID_FIRST_ELEMENT_CHILD]: 'Switch to `.firstElementChild`.',
 	[SUGGESTION_ID_MERGE_QUERY_SELECTOR]: 'Merge the `.querySelector()` calls.',
 };
+
+const isKnownNonDomReceiver = (node, context) =>
+	isNodeValueNotDomNode(node)
+	|| isKnownNonDomNode(
+		node,
+		context,
+		context.sourceCode.parserServices?.program ? TYPED_DOM_RECEIVER_OPTIONS : SYNTAX_DOM_RECEIVER_OPTIONS,
+	);
 
 const isNonOptionalMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -170,7 +186,7 @@ const isPartOfChainExpression = node => {
 	return node.parent?.type === 'ChainExpression';
 };
 
-const getQuerySelectorChain = node => {
+const getQuerySelectorChain = (node, context) => {
 	const calls = [];
 
 	while (isQuerySelectorCall(node)) {
@@ -186,7 +202,7 @@ const getQuerySelectorChain = node => {
 	if (
 		calls.length < 2
 		|| node.type === 'ChainExpression'
-		|| isNodeValueNotDomNode(node)
+		|| isKnownNonDomReceiver(node, context)
 	) {
 		return;
 	}
@@ -231,12 +247,11 @@ const create = context => {
 			!collectionName
 			// Writing to the indexed access is not a traversal, `element.firstChild` is not assignable the same way
 			|| isLeftHandSide(node)
-			|| isNodeValueNotDomNode(node.object.object)
-			|| (
-				collectionName === 'children'
-				&& isPropertiesChildrenMemberExpression(node.object)
-			)
+			|| isPropertiesChildrenMemberExpression(node.object)
 			|| isNestedIndexedDomCollection(node)
+			|| isKnownNonDomReceiver(node.object.object, context)
+			// Native DOM collections are `HTMLCollection` or `NodeList`.
+			|| withTypeInformation(node.object, context, ({type, checker}) => checker.isArrayType(type) || checker.isTupleType(type))
 		) {
 			return;
 		}
@@ -271,7 +286,7 @@ const create = context => {
 			!isParentElementMemberExpression(node)
 			|| !isParentElementMemberExpression(node.object)
 			|| !isOutermostParentElementChain(node)
-			|| isNodeValueNotDomNode(getParentElementChainRoot(node))
+			|| isKnownNonDomReceiver(getParentElementChainRoot(node), context)
 		) {
 			return;
 		}
@@ -291,7 +306,7 @@ const create = context => {
 			return;
 		}
 
-		const querySelectorChain = getQuerySelectorChain(node);
+		const querySelectorChain = getQuerySelectorChain(node, context);
 		if (!querySelectorChain) {
 			return;
 		}
