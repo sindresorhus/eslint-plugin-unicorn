@@ -20,6 +20,35 @@ const typeAware = code => ({
 	},
 });
 
+const globalScript = typeAware(outdent`
+	const map = new Map([['key', 'value']]);
+	if (map.has('key')) {
+		const name = map.get('key');
+		console.log(name);
+	}
+`);
+
+test({
+	valid: [],
+	invalid: [
+		{
+			...globalScript,
+			languageOptions: {...globalScript.languageOptions, globals: {name: 'off'}},
+			errors: [{messageId: 'prefer-map-get', suggestions: 0}],
+		},
+		{
+			...typeAware('function read(map: WeakMap<object, number>, key: object) {\r\n  if (map.has(key)) {\r\n    const entry = map.get(key);\r\n    use(entry);\r\n  }\r\n}'),
+			errors: [{
+				messageId: 'prefer-map-get',
+				suggestions: [{
+					messageId: 'reuseGetResult',
+					output: 'function read(map: WeakMap<object, number>, key: object) {\r\n  const entry = map.get(key);\r\n  if (entry !== undefined) {\r\n    use(entry);\r\n  }\r\n}',
+				}],
+			}],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'const map = new Map(); if (map.has(key)) { const entry = map.get(key); use(entry); }',
@@ -69,6 +98,7 @@ test.snapshot({
 	],
 	invalid: [
 		typeAware(outdent`
+			export {};
 			const map = new Map([[undefined, 0]]);
 			if (map.has(undefined)) {
 				const entry = map.get(undefined);
@@ -77,8 +107,7 @@ test.snapshot({
 				missing();
 			}
 		`),
-		typeAware('declare const map: ReadonlyMap<string, false | null>; if (map.has(`key`)) { const entry = map.get("key"); use(entry); }'),
-		typeAware('declare const map: WeakMap<object, number>; declare const key: object; if (map.has(key)) { const entry = map.get(key); use(entry); }'),
+		typeAware('export {}; declare const map: ReadonlyMap<string, false | null>; if (map.has(`key`)) { const entry = map.get("key"); use(entry); }'),
 		typeAware('function read<Value extends number | null>(map: Map<string, Value>, key: string) { if (map.has(key)) { const entry = map.get(key); use(entry); } }'),
 		typeAware(outdent`
 			function read(map: Map<string, number>, key: string, undefined: number) {
@@ -88,9 +117,10 @@ test.snapshot({
 				}
 			}
 		`),
-		typeAware('declare const map: Map<string, number>; if (map.has("key")) { const entry = map.get("key"); use(entry); } use(entry);'),
-		typeAware('declare const map: Map<string, number>; if (map.has(/* comment */ "key")) { const entry = map.get("key"); use(entry); }'),
+		typeAware('export {}; declare const map: Map<string, number>; if (map.has("key")) { const entry = map.get("key"); use(entry); } use(entry);'),
+		typeAware('export {}; declare const map: Map<string, number>; if (map.has(/* comment */ "key")) { const entry = map.get("key"); use(entry); }'),
 		typeAware(outdent`
+			export {};
 			declare const map: Map<string, number>;
 			if (map.has('key')) {
 				// @ts-expect-error
@@ -99,6 +129,7 @@ test.snapshot({
 			}
 		`),
 		typeAware(outdent`
+			export {};
 			declare const map: Map<string, number>;
 			// @ts-ignore
 			if (map.has('key')) {

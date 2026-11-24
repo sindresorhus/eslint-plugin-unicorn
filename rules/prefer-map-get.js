@@ -4,7 +4,6 @@ import {removeStatement} from './fix/index.js';
 import isSameCollectionReference from './shared/is-same-collection-reference.js';
 import {
 	getAvailableVariableName,
-	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
 	getLineIndent,
 	getLinebreak,
@@ -55,17 +54,21 @@ const isLookupCall = (node, method) => isMethodCall(node, {
 
 function getSuggestion(ifStatement, declaration, getCall, context) {
 	const {sourceCode} = context;
+	const {parent, test} = ifStatement;
 	const [{id}] = declaration.declarations;
 	const {name} = id;
 	const scope = sourceCode.getScope(ifStatement);
 	const {start, end} = sourceCode.getLoc(declaration);
+	// A top-level binding in a TypeScript script is visible to other files.
+	const isModule = parent.type === 'Program' && Boolean(sourceCode.parserServices.getSymbolAtLocation?.(parent));
 	if (
-		(ifStatement.parent.type !== 'Program' && ifStatement.parent.type !== 'BlockStatement')
+		(parent.type !== 'BlockStatement' && !isModule)
 		|| start.line !== end.line
 		|| getAvailableVariableName(name, [scope]) !== name
 		|| sourceCode.getCommentsBefore(ifStatement).length > 0
 		|| sourceCode.getCommentsBefore(declaration).length > 0
 		|| getLastTrailingCommentOnSameLine(context, declaration)
+		|| wouldRemoveComments(context, test)
 		|| wouldRemoveComments(context, declaration)
 	) {
 		return;
@@ -80,7 +83,7 @@ function getSuggestion(ifStatement, declaration, getCall, context) {
 		messageId: SUGGESTION_MESSAGE_ID,
 		* fix(fixer) {
 			yield fixer.insertTextBefore(ifStatement, `${declarationText}${linebreak}${indentation}`);
-			yield fixer.replaceText(ifStatement.test, `${name} !== ${missingValue}`);
+			yield fixer.replaceText(test, `${name} !== ${missingValue}`);
 			yield removeStatement(declaration, context, fixer);
 		},
 	};
@@ -115,11 +118,12 @@ function getProblem(ifStatement, context) {
 		return;
 	}
 
-	const problem = {node: test.callee.property, messageId: MESSAGE_ID};
 	const suggestion = getSuggestion(ifStatement, declaration, getCall, context);
-	return suggestion
-		? getCommentSafeProblem(context, {...problem, suggest: [suggestion]}, test)
-		: problem;
+	return {
+		node: test.callee.property,
+		messageId: MESSAGE_ID,
+		suggest: suggestion ? [suggestion] : undefined,
+	};
 }
 
 /**

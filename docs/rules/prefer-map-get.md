@@ -15,11 +15,13 @@ When an `if` branch starts by reading the same entry that its condition checks w
 
 This rule runs when TypeScript type information is available and `strictNullChecks` is enabled. It checks `Map`, `ReadonlyMap`, and `WeakMap` when their value types exclude `undefined`. A map can have an `undefined` key. A stored `undefined` value makes `.get()` ambiguous.
 
-The rule checks a direct `.has()` condition followed by a single `const` binding at the start of the branch. It skips lookups with type expressions on the receiver or key. For `.get(key)!`, the value type must also exclude `null`. The rule offers an editor suggestion when it can move the declaration without a name conflict or comment loss. Use [`prefer-has-check`](./prefer-has-check.md) for checks that only need to know whether the entry exists.
+The rule checks a direct `.has()` condition followed by a single `const` binding at the start of the branch. It skips lookups with type expressions on the receiver or key. For `.get(key)!`, the value type must also exclude `null`. The rule offers an editor suggestion when it can move the declaration into an enclosing block or module scope without a name conflict or comment loss. Use [`prefer-has-check`](./prefer-has-check.md) for checks that only need to know whether the entry exists.
 
 ## Examples
 
 ```ts
+export {};
+
 declare const map: Map<string, number>;
 declare const key: string;
 
