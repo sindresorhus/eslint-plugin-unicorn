@@ -275,6 +275,25 @@ test.snapshot({
 	],
 });
 
+test.svelte({
+	valid: [
+		'{#each events as event}{event.preventDefault()}{/each}',
+		'{#each events as event}<button onclick={() => event.preventDefault()}>Click</button>{/each}',
+		'{#await promise then event}{event.preventDefault()}{/await}',
+		'{#snippet label(event)}{event.preventDefault()}{/snippet}',
+	],
+	invalid: [
+		{
+			code: '<button onclick={async event => { await ready(); event.preventDefault(); }}>Click</button>',
+			errors: [{messageId: 'after-suspension', data: {name: 'event', method: 'preventDefault'}}],
+		},
+		{
+			code: '{#each events as event}<button onclick={event => setTimeout(() => event.preventDefault())}>Click</button>{/each}',
+			errors: [{messageId: 'in-nested-function', data: {name: 'event', method: 'preventDefault'}}],
+		},
+	],
+});
+
 // `event['preventDefault']()` and `` event[`preventDefault`]() `` are the same call
 test({
 	valid: [],

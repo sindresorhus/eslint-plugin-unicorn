@@ -220,6 +220,25 @@ test.snapshot({
 	],
 });
 
+test.svelte({
+	valid: [
+		'{#each events as event}{event.currentTarget}{/each}',
+		'{#each events as event}<button onclick={() => log(event.currentTarget)}>Click</button>{/each}',
+		'{#await promise then event}{event.currentTarget}{/await}',
+		'{#snippet label(event)}{event.currentTarget}{/snippet}',
+	],
+	invalid: [
+		{
+			code: '<button onclick={async event => { await ready(); log(event.currentTarget); }}>Click</button>',
+			errors: [{messageId: 'after-suspension', data: {name: 'event'}}],
+		},
+		{
+			code: '{#each events as event}<button onclick={event => setTimeout(() => log(event.currentTarget))}>Click</button>{/each}',
+			errors: [{messageId: 'in-nested-function', data: {name: 'event'}}],
+		},
+	],
+});
+
 // A parameter that is known not to be an event
 test({
 	valid: [
