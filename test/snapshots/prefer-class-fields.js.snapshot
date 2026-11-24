@@ -328,8 +328,8 @@ Output:
   1 | class Foo {
   2 | constructor() {
   3 | }
-  4 | static// comment;
-  5 | ;bar = 1;
+  4 | static;// comment;
+  5 | bar = 1;
   6 | }
 
 `;
@@ -502,6 +502,19 @@ Output:
   3 | 		this.baz = 2;
   4 | 	}
   5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(3): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t\tthis.baz = 2;\n\t}\n} 3`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.bar = 1;
+> 4 | 		this.baz = 2;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
   6 | }
 
 `;

@@ -13,21 +13,27 @@ Enforces declaring property defaults with class fields instead of setting them i
 
 Class fields keep property initialization next to the declaration and avoid boilerplate in constructors.
 
+Checks leading literal defaults for distinct properties, including nested literals and literal bracket keys. Fixes move one assignment at a time. Comments and class member conflicts can prevent edits.
+
+In TypeScript and JavaScript with JSDoc types or `@ts-check`, array, object, signed numeric, and computed-key defaults are report-only. TypeScript const assertions are also report-only.
+
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
 ## Examples
 
 ```js
 // ❌
-class Foo {
+class Model {
 	constructor() {
-		this.foo = 'foo';
+		this.items = [];
+		this.options = {enabled: true};
 	}
 }
 
 // ✅
-class Foo {
-	foo = 'foo';
+class Model {
+	items = [];
+	options = {enabled: true};
 }
 ```
 
@@ -71,4 +77,4 @@ class MyError extends Error {
 }
 ```
 
-Only a constructor that starts with the assignment is checked. An assignment after `super()` is ignored, because the parent class could define a setter with the same name, and a class field would shadow it.
+An assignment after `super()` is ignored, because the parent class could define a setter with the same name, and a class field would shadow it.
