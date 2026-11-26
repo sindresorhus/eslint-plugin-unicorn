@@ -416,6 +416,31 @@ testTypeAwareSearches({
 	method: 'some', replacement: 'includes', rule, test: nodeTest,
 });
 
+const setIteratorSearch = 'const set = new Set(["a", "b", "c"]); set.values().some(value => value === "a");';
+
+test({
+	valid: [
+		setIteratorSearch,
+		{code: setIteratorSearch, languageOptions: {parser: parsers.typescript}},
+		'const keys = new Map([[1, "a"]]).keys(); keys.some(key => key === 1);',
+		'Iterator.from([1, 2]).take(1).some(value => value === 1);',
+		'function* generate() { yield 1; } generate().some(value => value === 1);',
+		typeAware('declare const values: string[] | IteratorObject<string>; values.some((value: string) => value === "a");'),
+	],
+	invalid: [
+		{
+			...typeAware('declare const collection: {values(): string[]}; collection.values().some(value => value === "a");'),
+			output: 'declare const collection: {values(): string[]}; collection.values().includes("a");',
+			errors: 1,
+		},
+		{
+			...typeAware('declare const collection: {values(): Uint8Array | undefined}; collection.values()?.some(value => value === 1);'),
+			output: 'declare const collection: {values(): Uint8Array | undefined}; collection.values()?.includes(1);',
+			errors: 1,
+		},
+	],
+});
+
 test({
 	valid: [
 		'const array = [true, false, true]; array.some(value => value);',
