@@ -429,6 +429,11 @@ test({
 	],
 	invalid: [
 		{
+			code: 'Iterator.from([1]).toArray().some(value => value === 1);',
+			output: 'Iterator.from([1]).toArray().includes(1);',
+			errors: 1,
+		},
+		{
 			...typeAware('declare const collection: {values(): string[]}; collection.values().some(value => value === "a");'),
 			output: 'declare const collection: {values(): string[]}; collection.values().includes("a");',
 			errors: 1,

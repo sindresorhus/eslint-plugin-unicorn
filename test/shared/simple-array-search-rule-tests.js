@@ -201,7 +201,7 @@ export default function tests(options) {
 function createTypeScriptProgram(code, filename) {
 	filename = filename.replaceAll('\\', '/');
 	const options = {
-		strict: true, allowJs: true, checkJs: true, noEmit: true, types: [], target: typescript.ScriptTarget.ESNext,
+		strict: true, exactOptionalPropertyTypes: true, allowJs: true, checkJs: true, noEmit: true, types: [], target: typescript.ScriptTarget.ESNext,
 	};
 	const host = typescript.createCompilerHost(options);
 	const {getSourceFile} = host;
@@ -212,18 +212,24 @@ function createTypeScriptProgram(code, filename) {
 }
 
 export function testTypeAwareSearches({method, replacement, rule, test}) {
-	const returnType = method === 'some' ? 'value is Type' : 'number';
+	const returnType = method === 'some' ? 'boolean' : 'number';
+	const genericReturnType = method === 'some' ? 'value is Type' : returnType;
 	for (const [name, template, callback, searchValue, {hasSideEffect = false, extension = 'ts'} = {}] of [
 		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => value === input'],
 		['wider object', 'declare const values: readonly {id: string; label: string}[]; declare const input: {id: string}; values.SEARCH;', 'value => value === input'],
 		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => input === value'],
-		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return values.SEARCH; }`, 'option => option === value'],
+		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${genericReturnType} { return values.SEARCH; }`, 'option => option === value'],
 		['constrained literal receiver', 'function check<Type extends readonly ["small", "large"]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input'],
 		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined; values.SEARCH;', 'value => {return value === input;}'],
 		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()'],
 		['widened callback parameter', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', '(value: string) => value === input'],
 		['incompatible union receiver', 'declare const values: string[] | number[]; declare const input: string; values.SEARCH;', 'value => value === input'],
 		['incompatible optional receiver', 'declare const values: readonly ["small"] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input'],
+		[
+			'optional replacement method',
+			`declare const values: string[] | {${method}(callback: (value: string) => boolean): ${returnType}; ${replacement}?: (value: string) => ${returnType}}; values.SEARCH;`,
+			'(value: string) => value === "small"',
+		],
 		['compatible string', 'declare const values: string[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
 		[
 			'compatible object with extra property',

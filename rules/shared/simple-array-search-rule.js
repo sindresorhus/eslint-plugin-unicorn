@@ -156,17 +156,12 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 			if (withTypeInformation(searchValueNode, context, ({type, checker}) => {
 				const {parserServices} = sourceCode;
 				const receiverType = parserServices.getTypeAtLocation(receiver).getNonNullableType();
-				const replacementMethod = receiverType.getProperty(replacement);
-				if (!replacementMethod) {
-					return method === 'some' && Boolean(receiverType.getProperty(method));
+				const searchParameter = checker.getTypeOfPropertyOfType(receiverType, replacement)?.getCallSignatures()[0]?.parameters[0];
+				if (!searchParameter) {
+					return Boolean(receiverType.getProperty(method));
 				}
 
 				const location = parserServices.esTreeNodeToTSNodeMap.get(callExpression);
-				const searchParameter = checker.getTypeOfSymbolAtLocation(replacementMethod, location).getCallSignatures()[0]?.parameters[0];
-				if (!searchParameter) {
-					return;
-				}
-
 				return !checker.isTypeAssignableTo(type, checker.getTypeOfSymbolAtLocation(searchParameter, location));
 			})) {
 				return;
