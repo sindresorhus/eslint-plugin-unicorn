@@ -13,7 +13,7 @@ Replace simple equality callbacks passed to [`Array#findIndex()`](https://develo
 
 Search expressions with side effects receive suggestions instead of autofixes.
 
-With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), searches are skipped when the search value's type is not accepted by `.indexOf()` or `.lastIndexOf()`. Using the TypeScript parser alone does not enable this check.
+With [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips searches when the receiver is known to lack a replacement method that accepts the search value.
 
 ## Examples
 

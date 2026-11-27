@@ -4,10 +4,12 @@ import {
 	getFunctionReturnExpression,
 	isSameIdentifier,
 	isFunctionSelfUsedInside,
+	isIndexedCollection,
 	isParenthesized,
 	shouldSkipKnownNonArrayReceiver,
 	withTypeInformation,
 } from '../utils/index.js';
+import {isIteratorExpression} from './iterator-helpers.js';
 
 const booleanLiteralTypeNames = new Set(['false', 'true']);
 
@@ -114,8 +116,19 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 					optionalCall: false,
 				})
 				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
+			) {
+				return;
+			}
+
+			const receiver = callExpression.callee.object;
+			if (
 				// Skip receivers known to be neither an array nor a typed array
-				|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
+				shouldSkipKnownNonArrayReceiver(receiver, context)
+				|| (
+					method === 'some'
+					&& isIteratorExpression(receiver, context)
+					&& !isIndexedCollection(receiver, context, {allowNullishInMixedUnion: true})
+				)
 			) {
 				return;
 			}
@@ -142,18 +155,13 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 
 			if (withTypeInformation(searchValueNode, context, ({type, checker}) => {
 				const {parserServices} = sourceCode;
-				const receiverType = parserServices.getTypeAtLocation(callExpression.callee.object).getNonNullableType();
-				const replacementMethod = receiverType.getProperty(replacement);
-				if (!replacementMethod) {
-					return;
+				const receiverType = parserServices.getTypeAtLocation(receiver).getNonNullableType();
+				const searchParameter = checker.getTypeOfPropertyOfType(receiverType, replacement)?.getCallSignatures()[0]?.parameters[0];
+				if (!searchParameter) {
+					return Boolean(receiverType.getProperty(method));
 				}
 
 				const location = parserServices.esTreeNodeToTSNodeMap.get(callExpression);
-				const searchParameter = checker.getTypeOfSymbolAtLocation(replacementMethod, location).getCallSignatures()[0]?.parameters[0];
-				if (!searchParameter) {
-					return;
-				}
-
 				return !checker.isTypeAssignableTo(type, checker.getTypeOfSymbolAtLocation(searchParameter, location));
 			})) {
 				return;
