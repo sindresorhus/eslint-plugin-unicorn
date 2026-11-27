@@ -434,6 +434,11 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'Object.values({first: 1}).some(value => value === 1);',
+			output: 'Object.values({first: 1}).includes(1);',
+			errors: 1,
+		},
+		{
 			...typeAware('declare const collection: {values(): string[]}; collection.values().some(value => value === "a");'),
 			output: 'declare const collection: {values(): string[]}; collection.values().includes("a");',
 			errors: 1,

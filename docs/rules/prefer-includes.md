@@ -15,7 +15,7 @@ Simple equality checks with [`Array#some()`](https://developer.mozilla.org/en-US
 
 For `Array#some()`, search expressions with side effects receive suggestions instead of autofixes.
 
-The rule skips `.some()` on recognized iterators. It may also skip arrays returned by custom methods such as `.values()` when their return type is unclear.
+The rule skips `.some()` on recognized iterators. Without type information, it can still report `collection[Symbol.iterator]().some(...)`. It may also skip arrays returned by custom methods such as `.values()` when the return type is unclear.
 
 With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule also skips `.some()` when TypeScript shows the receiver cannot call `.includes()` with the search value. The TypeScript parser alone cannot provide this check.
 
