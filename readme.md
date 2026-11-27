@@ -795,6 +795,8 @@ See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration
 
 This plugin exports a `recommended` config that enforces good practices.
 
+Rules generally assume dense arrays. Holes are hard to detect reliably, so supporting them would complicate rules and limit autofixes. For example, `unicorn/prefer-spread` can replace `array.slice()`, which preserves holes, with `[...array]`, which fills them with `undefined`.
+
 ```js
 import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
